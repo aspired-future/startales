@@ -8,6 +8,37 @@
 - Providers: pluggable LLM/STT/TTS/Image adapters (OpenAI, Anthropic, Google, xAI, Stable Diffusion/SDXL)
  - Optional Simulation: pluggable SimulationProvider (procedural sandbox local; optional cloud learned world model)
 
+## Microservices and Containerization
+- Philosophy: independently deployable services with clear APIs, stateless compute, and stateful stores as managed services. All services run in Docker with health probes and resource limits. Local dev uses docker-compose; prod uses Kubernetes.
+- Core Services:
+  - api-gateway: Express/Node HTTP API for sessions, campaigns, audio routes; aggregates downstream services; rate limits and auth.
+  - narrative-svc: LLM orchestration, Director Model, Story Decks, GM personality application, Outcome Meter logic.
+  - memory-svc: vector memory (Qdrant/FAISS) with hybrid retrieval, summarization workers.
+  - media-svc: image generation queue and cache; optional video workers.
+  - sim-svc (optional): world simulation stepper with deterministic seeds and snapshotting.
+  - event-bus: NATS for eventing between services (session events, scoring, logs).
+  - auth-svc (optional external): JWT/OAuth provider or integrate with external portal.
+- Data Stores:
+  - Postgres: canonical relational store (campaigns, users, entitlements, sessions, leaderboards)
+  - Qdrant: vector embeddings for memory and search
+  - Redis: ephemeral caches, rate limits, WS presence
+- Container Set:
+  - `api` (Node) depends_on: `narrative`, `memory`, `media`, `nats`, `postgres`, `qdrant`
+  - `narrative` (Node) depends_on: `ollama`, `nats`
+  - `memory` (Node) depends_on: `qdrant`
+  - `media` (Node/Python) depends_on: `nats`
+  - `sim` (Node/Python) optional
+  - `ollama` (ollama/ollama) with pulled models (llama3, codellama as needed)
+  - `qdrant/qdrant`, `nats`, `postgres` images
+- Scaling:
+  - Stateless services scale horizontally behind a gateway; sticky sessions only for WS if needed (Redis-based session store).
+  - Narrative-svc batches actions per beat; per-session sharding by campaignId; warm model contexts per shard.
+  - Cost telemetry per service; autoscaling on latency/queue depth.
+
+## GM Personality Application
+- The `narrative-svc` injects personality tokens into LLM system prompts and adjusts Director weights and Story Deck sampling. TTS voice selection maps from `ttsProfile`.
+- Personality registry provided via `content/personality_presets.json` and exposed via API for the game designer UI.
+
 ## Modules
 - LLM Orchestrator
   - Routes prompts to chosen model; validates tool/function call schemas

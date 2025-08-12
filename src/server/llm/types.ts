@@ -89,4 +89,34 @@ export interface LLMProvider {
   supportsEmbedding?: boolean;
 }
 
+export interface STTResultSegment {
+  startMs: number;
+  endMs: number;
+  text: string;
+  confidence?: number;
+  speakerId?: string;
+}
+
+export interface STTStreamEvent {
+  type: 'partial' | 'final' | 'error';
+  segment?: STTResultSegment;
+  error?: string;
+}
+
+export interface STTProvider {
+  readonly name: string;
+  transcribeStream(audioStream: AsyncIterable<Uint8Array>, options?: { language?: string; diarize?: boolean; sampleRate?: number }): AsyncIterable<STTStreamEvent>;
+}
+
+export interface TTSSpeakOptions {
+  voice?: string;
+  rate?: number; // 0.5..2.0
+  volume?: number; // 0..1
+}
+
+export interface TTSProvider {
+  readonly name: string;
+  synthesize(text: string, options?: TTSSpeakOptions): Promise<{ audio: Uint8Array; sampleRate: number; mimeType: string; }>
+}
+
 

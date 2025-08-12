@@ -157,6 +157,33 @@ An immersive, voice-first, multiplayer space RPG where an AI Game Master (GM) or
 - “What can I do?” helper lists context-aware intents; toggle initiative/turn mode when combat starts
 - Recaps: quick “Previously on…” at session start; periodic radio-style updates; end-of-session codas
 
+## GM Personality System (Per-Game Tone & Voice)
+- Purpose: Each campaign/game configures a distinct GM personality that sets tone, narrative style, humor, and pacing. The Director Model and Story Decks adapt weights to match personality. The TTS voice/filters and visual frames use matching styles.
+- Personality Schema:
+  - id, name, synopsis (1–2 sentences)
+  - tone (e.g., humorous, inspirational, adventurous, competitive, grim, cozy, mysterious)
+  - diction/style tokens (e.g., pulp, noir, epic, documentary, Saturday-matinee)
+  - pacing target (beats per 5 min), recap cadence, quip frequency
+  - safety/consent emphasis (light ↔ intense)
+  - twist profile (surprise vs foreshadow, irony vs fate)
+  - encounter tilt (social, exploration, combat, puzzle)
+  - image style defaults (scene/portrait tags)
+  - ttsProfile (voice hints: timbre, speaking rate)
+- Recommended Presets (examples):
+  - Humorous Pulp: light, quippy, Saturday-matinee; frequent comedic asides; slapstick complications; bright pulp visuals; faster TTS.
+  - Inspirational Epic: heroic, aspirational; long-arc payoffs; soaring diction; orchestral/epic imagery; measured TTS.
+  - Adventurous Explorer: wonder-forward; descriptive vistas; discovery clocks; cartography imagery; balanced pacing.
+  - Competitive Sportscaster: energetic commentary; score focus; fair-play tone; highlight reels; crisp staccato TTS; HUD emphasis.
+  - Cozy Wholesome: gentle stakes; community/repair beats; soft palettes; slower cadence; low combat tilt.
+  - Hardboiled Noir: terse, metaphor-rich; moral dilemmas; low-key lighting; mystery decks weight; gravelly TTS.
+  - Grim Survival: scarcity & tension; hazard clocks; muted visuals; slower recovery; safety prompts emphasized.
+  - High Diplomacy: politics and intrigue; formal diction; reputation swings; portrait-first visuals.
+  - Mythic Saga: ritual and prophecy; archetypal beats; mythic scenery; choral cadence.
+  - Cosmic Horror (consent-gated): dread pacing; redaction-friendly narration; oblique visuals; strict safety tools.
+- Designer Flow:
+  - Choose a preset or "Custom" → review generated synopsis and sliders (tone, pacing, twist, encounter tilt) → preview sample narration and TTS voice → save to campaign style profile.
+  - The LLM prompt preamble includes personality tokens; Director beat weights and Story Deck sampling adapt accordingly. Session recaps and social cards inherit style.
+
 ## Memory Model (Vector-first)
 - Separate namespaces: game/campaign memory vs per-player memory (no mixing)
 - Memory types: episodic (events), semantic (facts/entities), declarative (lore/rules), procedural (systems)
