@@ -29,28 +29,50 @@
   - Realtime: WebSocket + CRDT (notes/map/inventory); multi-client sync
   - Conversations: private 1:1 and group channels; device “relays” with range rules
   - Alliances: team setup, shared stash, reputation; basic leaderboards
+  - Tech Trees: alliance research branches (Logistics/Intel/Engineering/Diplomacy/Tactics) with time-gated QoL/cosmetic unlocks; player QoL/cosmetic perks
   - Images: prompt builder, style profiles per campaign; asset lifecycle events
   - Scheduling: CRUD + RRULE recurrence; reminders; pre-session warmups (keys, memory prefetch, pre-gen images)
   - Multi-LLM: OpenAI + ≥1 (Anthropic/Gemini/Grok); A/B harness (latency/cost/structure)
+  - Large Session Foundations: Stage Mode v1 (raise-hand, moderator approve/deny/mute), per-team voice rooms, fireteams (4–6 squads), action batching windows
+  - Live Ops MVP: Daily Contracts (rotating), Weekly Anomaly (one mutator active), Session Recap Cards (3–5 beats with hero image)
+  - Monetization MVP: Cosmetic entitlements and store UI (local SKUs), Alliance Season Pass (cosmetic/QoL track only), entitlement checks
+  - Cost Telemetry v1: per-turn tokens, STT/TTS seconds, image requests; session-level cost projection
+  - Single Player Mode: offline/local solo sessions with companion NPCs, pause/resume, solo DDA tuning
 - Deliverables
   - DB schema and migrations; snapshot job; ICS export/local notifications
   - Provider adapters (LLM≥2, STT≥1, TTS≥1, Image≥1, Embeddings≥1)
   - Content packs functional (worlds, missions, items)
+  - Director Model v1 (beat state) and Story Decks v1 (twists/complications)
+  - Tech Tree service (alliance/player) with persistence and timers
+  - Stage Mode service (speaker queue APIs), Fireteams service (squad CRUD, channel assign)
+  - Live Ops scheduler (daily/weekly rotations), Recap generator, Cosmetics/Season Pass entitlements
+  - Cost telemetry exporters and dashboard stub
+  - Solo session scaffolding (pause/resume hooks), companion agent runner, solo DDA presets
 - Verification gates
   - Tests mapped to R-001…R-012 (TC001–TC018) including parallel campaign isolation and scheduling
   - UI: CRDT convergence; channel privacy; mission HUD and situation ticker
   - Backend: rules/missions/memory/persistence; API contracts; A/B tool-call validity
+  - Narrative: beat-state invariants; deck draws respect prerequisites; DDA bounds within spec
   - Performance: STT < 800ms; GM < 3s median; TTS < 1.2s/150 chars; cached images < 6s
   - Security: memory isolation; key encryption; no unintended external writes
+  - Large Sessions: Stage batching → GM summary median < 4.5s at 50 participants; per-team voice stability; spectator caption throughput
+  - Live Ops: contract rotation, anomaly activation/teardown; recap card presence with seed
+  - Monetization: entitlement checks on render; Season Pass progression + prestige; no PvP stat effects
+  - Cost: per-turn counters match provider logs; session projection within ±10% of calculator assumptions
+  - Solo: pause/resume resumes identical state; companion actions visible; DDA within solo bounds
 - Exit demo
   - Two campaigns in parallel (co-op and competitive with alliances); save/resume/branch; scheduling reminders; A/B compare two LLMs
+  - Demonstrate a twist injected via Story Deck during Rising → Twist; show alliance research unlock
+  - 30–50 participant simulated session with Stage Mode and fireteams; recap card share; cosmetic entitlement render
+  - Solo demo: pause/resume, companion interaction, beat completion
 
 ## Upgrades (Iterative Enhancements)
 - U1 Voice/audio polish: VAD/AGC/denoise, speaker diarization, NPC voice sets, PTT overlays (tests: latency, diarization accuracy)
 - U2 Performance/load: streaming LLM, prompt compaction, caches/prefetch; 50 concurrent actions/min (load tests)
 - U3 Model eval/safety: shadow runs, hallucination checks on tool calls, retries/backoff, safety gates (tests: categories, overrides)
 - U4 World systems: factions agendas, economy/crafting/research, ship/base upgrades, dynamic events (tests: economy/progression invariants)
-- U5 Competitive seasons/social: seasons, MMR/Elo, tournaments (Void Arena), anti‑griefing, PvP consent (tests: scoring/consent)
+ - U5 Competitive seasons/social: seasons, MMR/Elo, tournaments (Void Arena), anti‑griefing, PvP consent (tests: scoring/consent)
+ - U5.1 Live Ops: Weekly Anomalies (mutators), Daily Contracts (bite-size missions), referral quests; recap card/clip sharing
 - U6 Modding pipeline: signed packs, creator tools, validation/sandbox (tests: signature/schema)
 - U7 Privacy/ops: DB field encryption, key vault, backups/import/export, opt‑in analytics (tests: encryption, restore)
 - U8 Visuals: map/tactical, optional 3D (Three.js), style/LoRA packs (tests: render perf, cache hits)
@@ -59,6 +81,11 @@
 - U11 AI‑generated video: cutscenes/ambient loops/highlights; provider‑agnostic (Pika/Runway/AnimateDiff); caching and identity consistency
   - Docs: `framework_docs/video_generation.md`
   - Requirements: R-013; Verification: TC019 (lifecycle, identity, cache reuse)
+ - U12 Monetization & Marketplace: Creator Pro Tools (batch pre-gen, style consistency, analytics), optional cloud sync; Season Pass expansions; storefront A/B
+ - U13 Spectator/Casts: streamer-safe modes, spoiler guard, shared caption feeds, audience tools
+ - U14 Simulated Worlds (Alpha): procedural sandbox provider, `/simulation` start/step/stop, snapshot export/import, reconciliation with mission/rules (R-022)
+ - U15 Simulation Consistency: deterministic seeds, beat-boundary snapshots with state hash, drift detection, replay/fallback (R-023)
+ - U16 External Simulation Provider: pluggable adapter (placeholder), provider registry, perf/consistency gates; optional cloud costs surfaced in telemetry
 
 ## Phase Acceptance Summary
 - Each phase must reach green on its verification gates before proceeding

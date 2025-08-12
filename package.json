@@ -11,7 +11,9 @@
     "test:all": "npm run test:unit && npm run test:ui",
     "build": "tsc -p .",
     "start": "node dist/server/index.js",
-    "test": "echo 'Add tests in tests/ soon' && exit 0"
+    "test": "echo 'Add tests in tests/ soon' && exit 0",
+    "cost": "ts-node ./scripts/cost_calculator.ts",
+    "tasks:update-demos": "node --experimental-specifier-resolution=node ./scripts/update_task_demos.js"
   },
   "dependencies": {
     "react": "^18.3.1",

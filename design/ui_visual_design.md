@@ -86,6 +86,45 @@ Notes
 └──────────────────────────────────────────────────────────────────┘
 ```
 
+### E. Campaign Setup (Resolution & Revial Options)
+```
+┌ New Campaign Setup ──────────────────────────────────────────────────┐
+│ Name: [____________________]                                         │
+│ World/Mission Pack: [Orion Arm Frontier ▼]                           │
+│ Resolution Mode:  (•) Outcome Meter   ( ) Classic d20                │
+│ Revial Options:   (•) Standard  ( ) Story/Casual  ( ) Hardcore       │
+│  ⓘ Standard: clone/backup with minor costs; Story: limited rewinds;  │
+│     Hardcore: permadeath                                             │
+│ [Create] [Cancel]                                                    │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+Test IDs:
+- `data-testid="setup-name"`
+- `data-testid="setup-pack"`
+- `data-testid="setup-resolution-outcome"`
+- `data-testid="setup-resolution-classic"`
+- `data-testid="setup-revial-standard|story|hardcore"`
+- `data-testid="setup-submit"`
+
+### F. Death Clock HUD
+```
+┌ Death Clock ───────────────────────┐   Momentum: 3  [Spend]          
+│ ████████░░  12s                    │   Actions: [Stabilize] [Extract]
+│ Status: Downed (Bleeding)          │   Costs:   +1 supply, -1 edge   
+└────────────────────────────────────┘                                  
+```
+
+- Shows remaining time, status effects, and available actions (stabilize/extract/boost) with costs.
+- Compatible with Outcome Meter: spending momentum previews band shift and pauses clock.
+- Hardcore confirmation prompts before lethal outcomes.
+
+Test IDs:
+- `data-testid="death-clock"`
+- `data-testid="death-clock-time"`
+- `data-testid="death-clock-actions"`
+- `data-testid="hardcore-confirm"`
+
 ## Component Inventory
 - TopBar: campaign selector, mission title, provider indicators, PTT status, settings
 - ChannelsList: channels, statuses, invite badges, new channel button
@@ -98,6 +137,30 @@ Notes
 - TranscriptChat: mixed transcript, channel selector, mic/send controls, attachments
 - MapTimelinePanel: CRDT notes pins and timeline events
 - Modal: ChannelManager, InviteDialog, ShareDialog
+ - VictoryDashboard: weighted objectives progress, timer countdown, criteria details
+ - LeaderboardPanel: campaign alliances and individuals boards; filters (scope, timeframe, region), pagination, search
+ - GlobalLeaderboardView: opt-in global users board with privacy notice and filters
+ - AlienCompendium: species catalog (non-humanoid emphasis) with portraits and morphology/physiology tags
+
+### Outcome Meter HUD (Default Resolution)
+- Bands: Fail | Complication | Success | Critical Success; color-coded with accessible contrasts.
+- Chance Bar: horizontal bar with live percent and modifier pills; shows expected cost if Complication triggered.
+- Modifiers List: collapsible list detailing sources (skill, attribute, gear, status, clocks, momentum).
+- Momentum/Edge: visible current value with [+]/Spend controls; spending previews band shift.
+- Risk Preview: before commit, shows consequence tiers; updates as Momentum is toggled.
+- Classic Toggle: switches to visible d20 and modifiers; persists per campaign/session.
+
+Interaction & Accessibility
+- Keyboard: open Outcome Meter (Alt+O), toggle Classic (Alt+C), spend Momentum (Alt+M).
+- Screen readers: announce current band, chance, and expected costs; modifier pills have tooltips and aria labels.
+
+Test IDs (Playwright)
+- `data-testid="outcome-meter"`
+- `data-testid="outcome-band-fail|complication|success|critical"`
+- `data-testid="outcome-chance-bar"`
+- `data-testid="outcome-modifiers"`
+- `data-testid="momentum-controls"`
+- `data-testid="classic-toggle"`
 
 ## States & Edge Cases
 - Loading: skeletons for media/panels; spinner for provider calls; channel states optimistic

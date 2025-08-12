@@ -1,0 +1,49 @@
+Title: Live Ops, Monetization, and 50-Player Scaling — PRD Addendum
+
+Overview:
+Add Stage Mode + Fireteams for up to 50 participants, Live Ops MVP (Daily Contracts, Weekly Anomaly), Session Recap Cards, Monetization MVP (Cosmetics, Season Pass), Cost Telemetry v1, and associated tests.
+
+Goals:
+- Large-session coherence with Stage Mode (raise-hand, moderator controls) and fireteams with action batching.
+- Live Ops systems to drive retention and virality.
+- Ethical monetization with cosmetics and Season Pass (no pay-to-win).
+- Cost telemetry for accurate per-session estimates and optimization.
+
+Requirements:
+1) Stage Mode & Fireteams
+   - REST: /stage (speaker roster, approve/deny/mute), /fireteams (CRUD squads, assign channels)
+   - WebSocket events for stage updates and squad summaries
+   - UI: Stage controls (moderator), raise-hand, per-team voice indicators
+   - Verification: GM summary median < 4.5s at 50 participants; per-team voice stability
+
+2) Live Ops MVP
+   - Daily Contracts rotation and UI surfacing; rewards cosmetics/QoL and alliance resources
+   - Weekly Anomaly activation/teardown; playlists reflect active mutator
+   - Verification: rotation correctness; anomaly applies rules; teardown restores defaults
+
+3) Recap Cards
+   - Auto 3–5 beats with hero image; one-click share; seed code for replay
+   - Verification: recap correctness; seed determinism
+
+4) Monetization MVP
+   - Cosmetics entitlements and store UI (local SKUs)
+   - Alliance Season Pass (cosmetic/QoL track), progression and prestige reset preserves cosmetics
+   - Verification: entitlement rendering; no PvP stat effects; pass progression
+
+5) Cost Telemetry v1
+   - Per-turn token counts; STT/TTS seconds; image requests; session-level projection
+   - Verification: counters match provider logs within ±10%
+
+Deliverables:
+- Services: stage, fireteams, live ops scheduler, recap generator, entitlements, cost telemetry collectors
+- APIs: /stage, /fireteams, /live-ops, /recap, /store, /entitlements, cost metrics export
+- Tests: unit (collectors, entitlement gating), integration (rotation, stage), perf (50 participants)
+
+KPIs:
+- D1/D7 retention; recap share rate; referral conversion; cosmetics attach; Season Pass conversion; cost per player-hour
+
+Addenda (Single Player & Simulation):
+- Single Player: solo session scaffolding, pause/resume hooks, companion agent runner, solo DDA presets; tests TC034–TC035
+- Simulation: `/simulation` start/step/stop, snapshot export/import, reconciliation; consistency: deterministic seeds, beat-boundary snapshots with state hash, drift detection; tests TC036–TC041
+
+
