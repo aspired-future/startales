@@ -1,0 +1,22 @@
+{
+  "name": "Black Market Run",
+  "mode": "competitive",
+  "world": "Orion Arm Frontier",
+  "teams": 2,
+  "alliances_allowed": true,
+  "recommended_players": [4, 8],
+  "objectives": [
+    {"id": "locate", "type": "investigate", "desc": "Locate the clandestine bazaar"},
+    {"id": "trade", "type": "trade", "desc": "Secure contraband artifacts"},
+    {"id": "extract", "type": "extraction", "desc": "Extract to a safe jump point"}
+  ],
+  "edges": [
+    {"from": "locate", "to": "trade", "condition": "info_broker_paid || bazaar_traced"},
+    {"from": "trade", "to": "extract", "condition": "artifact_acquired"}
+  ],
+  "scoring": {"artifact_value": 50, "extraction_bonus": 100, "pvp_down": 10},
+  "fail_states": ["contraband_seized", "ship_disabled"],
+  "rewards": {"xp": 1200, "items": ["Stealth Rig", "Forged Transponder"]}
+}
+
+

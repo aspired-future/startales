@@ -1,0 +1,21 @@
+{
+  "name": "War of the AI Relays",
+  "mode": "co-op",
+  "world": "Verdant Nebula",
+  "recommended_players": [3, 6],
+  "objectives": [
+    {"id": "diagnose", "type": "investigate", "desc": "Diagnose relay corruption"},
+    {"id": "purge", "type": "tech", "desc": "Purge hostile subminds"},
+    {"id": "fortify", "type": "defense", "desc": "Fortify and recalibrate the network"}
+  ],
+  "edges": [
+    {"from": "diagnose", "to": "purge", "condition": "infection_mapped"},
+    {"from": "purge", "to": "fortify", "condition": "subminds_quiet"}
+  ],
+  "twists": [
+    {"when": "purge", "twist": "Caretakers propose a symbiosis with a benign submind"}
+  ],
+  "rewards": {"xp": 1400, "items": ["Relay Harmonizer", "Caretaker Emblem"]}
+}
+
+

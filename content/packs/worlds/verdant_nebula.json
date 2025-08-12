@@ -1,0 +1,13 @@
+{
+  "name": "Verdant Nebula",
+  "description": "Bio-luminescent nebula with living stations and xenobotanical wonders guarded by secretive caretakers.",
+  "biomes": ["living coral stations", "spore clouds", "organic shipyards"],
+  "factions": [
+    {"id": "caretakers", "name": "Verdant Caretakers", "traits": ["mystic", "protective"]},
+    {"id": "biomancers", "name": "Biomancers Collective", "traits": ["curious", "risky"]}
+  ],
+  "hazards": ["spore plagues", "bioluminal flares"],
+  "style_profile": "retro-futurist neon with organic motifs, soft glow, painterly textures"
+}
+
+

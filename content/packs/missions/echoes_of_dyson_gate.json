@@ -1,0 +1,25 @@
+{
+  "name": "Echoes of the Dyson Gate",
+  "mode": "co-op",
+  "world": "Orion Arm Frontier",
+  "recommended_players": [2, 5],
+  "objectives": [
+    {"id": "land", "type": "travel", "desc": "Reach the Gate periphery"},
+    {"id": "scan", "type": "investigate", "desc": "Scan anomalous emissions"},
+    {"id": "parley", "type": "social", "desc": "Parley with the Choir Envoy"},
+    {"id": "core", "type": "heist", "desc": "Infiltrate the Gate core"}
+  ],
+  "edges": [
+    {"from": "land", "to": "scan", "condition": "arrived"},
+    {"from": "scan", "to": "parley", "condition": "signal_decoded"},
+    {"from": "parley", "to": "core", "condition": "won_trust || forged_codes"}
+  ],
+  "twists": [
+    {"when": "scan", "twist": "The Choir requests assistance repairing the Gate"},
+    {"when": "core", "twist": "The Gate intelligence awakens and bargains"}
+  ],
+  "fail_states": ["hostile_lockdown", "gate_collapse"],
+  "rewards": {"xp": 1500, "items": ["Quantum Relay", "Cult Signet"]}
+}
+
+

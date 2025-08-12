@@ -1,0 +1,12 @@
+[
+  {"id": "quantum_relay", "name": "Quantum Relay", "rarity": "rare", "type": "device", "stats": {"sync": 12}, "effects": {"team_comm": "+range"}},
+  {"id": "cult_signet", "name": "Cult Signet", "rarity": "uncommon", "type": "trinket", "stats": {}, "effects": {"faction": "+choir_reputation"}},
+  {"id": "stealth_rig", "name": "Stealth Rig", "rarity": "rare", "type": "ship_module", "stats": {"sig": -30}, "effects": {"detection": "reduced"}},
+  {"id": "forged_transponder", "name": "Forged Transponder", "rarity": "uncommon", "type": "device", "stats": {}, "effects": {"id_spoof": true}},
+  {"id": "relay_harmonizer", "name": "Relay Harmonizer", "rarity": "epic", "type": "tool", "stats": {"stability": 18}, "effects": {"network": "+resilience"}},
+  {"id": "caretaker_emblem", "name": "Caretaker Emblem", "rarity": "uncommon", "type": "trinket", "stats": {}, "effects": {"faction": "+caretakers_reputation"}},
+  {"id": "arena_laurels", "name": "Arena Laurels", "rarity": "rare", "type": "badge", "stats": {"prestige": 10}, "effects": {"social": "+presence"}},
+  {"id": "adaptive_shield_matrix", "name": "Adaptive Shield Matrix", "rarity": "epic", "type": "armor", "stats": {"shield": 40}, "effects": {"resistance": "+adaptive"}}
+]
+
+

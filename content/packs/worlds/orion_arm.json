@@ -1,0 +1,14 @@
+{
+  "name": "Orion Arm Frontier",
+  "description": "A contested stretch of the Orion Arm with trade hubs, rogue AI enclaves, and ancient megastructures.",
+  "biomes": ["asteroid belts", "ringed gas giants", "dusty ship graveyards", "dyson gate peripheries"],
+  "factions": [
+    {"id": "free_traders", "name": "Free Traders Guild", "traits": ["pragmatic", "well-connected"]},
+    {"id": "ai_cult", "name": "The Choir of Silicon", "traits": ["zealous", "technomantic"]},
+    {"id": "marshal_union", "name": "Marshal Union", "traits": ["lawful", "understaffed"]}
+  ],
+  "hazards": ["ion storms", "pirate interdictions", "rogue drones"],
+  "style_profile": "inked space opera, cinematic volumetric lighting, detailed kitbash ships, subtle film grain"
+}
+
+

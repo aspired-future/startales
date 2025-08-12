@@ -1,0 +1,21 @@
+{
+  "name": "Void Arena Tournament",
+  "mode": "competitive",
+  "world": "Orion Arm Frontier",
+  "teams": 4,
+  "alliances_allowed": true,
+  "recommended_players": [4, 12],
+  "objectives": [
+    {"id": "qualify", "type": "arena", "desc": "Win qualifier rounds"},
+    {"id": "semis", "type": "arena", "desc": "Win semi-finals"},
+    {"id": "final", "type": "arena", "desc": "Win grand final"}
+  ],
+  "edges": [
+    {"from": "qualify", "to": "semis", "condition": "wins>=2"},
+    {"from": "semis", "to": "final", "condition": "wins>=1"}
+  ],
+  "scoring": {"kill": 5, "assist": 2, "objective": 15},
+  "rewards": {"xp": 1600, "items": ["Arena Laurels", "Adaptive Shield Matrix"]}
+}
+
+
