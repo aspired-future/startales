@@ -38,7 +38,12 @@ schedulesRouter.post('/', (req, res) => {
   const parsed = createScheduleSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.flatten());
   const now = new Date().toISOString();
-  const schedule: Schedule = { id: nanoid(), createdAt: now, ...parsed.data };
+  const schedule: Schedule = { 
+    id: nanoid(), 
+    createdAt: now, 
+    ...parsed.data,
+    campaignId: parsed.data.campaignId // Explicitly ensure required field is present
+  };
   db.schedules.push(schedule);
   res.status(201).json(schedule);
 });

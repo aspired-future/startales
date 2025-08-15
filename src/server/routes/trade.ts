@@ -6,14 +6,16 @@ import seedrandom from 'seedrandom';
 
 const router = express.Router();
 
-// Initialize trade tables on first load
-TradeStorage.initializeTradeTables().catch(console.error);
+// Note: Trade tables will be initialized on first API call that needs them
 
 /**
  * GET /api/trade/prices - Get current trade prices
  */
 router.get('/prices', async (req, res) => {
   try {
+    // Lazy initialization - only initialize when first API call is made
+    await TradeStorage.initializeTradeTables();
+    
     const { campaignId, resourceId } = req.query;
     
     if (resourceId) {

@@ -1,7 +1,7 @@
 import express from 'express';
-import policiesRouter from '../server/routes/policies';
-import advisorsRouter from '../server/routes/advisors';
-import campaignsRouter from '../server/routes/campaigns';
+import policiesRouter from '../server/routes/policies.js';
+import advisorsRouter from '../server/routes/advisors.js';
+import campaignsRouter from '../server/routes/campaigns.js';
 
 const app = express();
 app.use(express.json());

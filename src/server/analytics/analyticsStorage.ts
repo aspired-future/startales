@@ -1,5 +1,5 @@
-import { initDatabase } from '../persistence/database';
-import { KPISnapshot, TrendAnalysis, EmpireAnalytics } from './analyticsEngine';
+import { initDatabase } from '../persistence/database.js';
+import { KPISnapshot, TrendAnalysis, EmpireAnalytics } from './analyticsEngine.js';
 
 /**
  * Analytics storage and management using SQLite database

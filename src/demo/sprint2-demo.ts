@@ -1,5 +1,5 @@
 import express from 'express';
-import campaignsRouter from '../server/routes/campaigns';
+import campaignsRouter from '../server/routes/campaigns.js';
 
 const app = express();
 app.use(express.json());

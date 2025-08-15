@@ -1,5 +1,5 @@
 import express from 'express';
-import { step } from '../server/sim/engine';
+import { step } from '../server/sim/engine.js';
 
 const app = express();
 app.use(express.json());

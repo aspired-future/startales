@@ -1,7 +1,7 @@
 import seedrandom from 'seedrandom';
-import { initDb } from '../storage/db';
-import { PolicyStorage } from '../policies/policyStorage';
-import { PolicyEngine } from '../policies/policyEngine';
+import { initDb } from '../storage/db.js';
+import { PolicyStorage } from '../policies/policyStorage.js';
+import { PolicyEngine } from '../policies/policyEngine.js';
 
 // Mock database transaction interface for now
 const db = {

@@ -11,14 +11,16 @@ import {
 
 const router = express.Router();
 
-// Initialize event sourcing on first load
-initEventSourcing().catch(console.error);
+// Note: Event sourcing will be initialized on first API call that needs it
 
 /**
  * POST /api/campaigns - Create a new campaign
  */
 router.post('/', async (req, res) => {
   try {
+    // Lazy initialization - only initialize when first API call is made
+    await initEventSourcing();
+    
     const { name, seed, initialState } = req.body;
     
     if (!name || !seed) {

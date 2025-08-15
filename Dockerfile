@@ -28,6 +28,6 @@ RUN npm list pg || npm install pg
 
 EXPOSE 4000
 
-CMD ["node", "--experimental-specifier-resolution=node", "dist/server/index.js"]
+CMD ["node", "--experimental-specifier-resolution=node", "dist/src/server/index.js"]
 
 

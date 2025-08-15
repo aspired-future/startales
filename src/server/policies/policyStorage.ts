@@ -1,5 +1,5 @@
-import { initDatabase } from '../persistence/database';
-import { Policy, PolicyModifier } from './policyEngine';
+import { initDatabase } from '../persistence/database.js';
+import { Policy, PolicyModifier } from './policyEngine.js';
 import { nanoid } from 'nanoid';
 
 /**

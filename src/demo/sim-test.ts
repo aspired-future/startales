@@ -1,4 +1,4 @@
-import { step } from '../server/sim/engine';
+import { step } from '../server/sim/engine.js';
 
 async function testSimulationEngine() {
   console.log('Testing Simulation Engine...\n');
