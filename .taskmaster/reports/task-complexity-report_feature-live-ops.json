@@ -1,0 +1,109 @@
+{
+	"meta": {
+		"generatedAt": "2025-08-14T06:40:01.507Z",
+		"tasksAnalyzed": 12,
+		"totalTasks": 12,
+		"analysisCount": 12,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Implement Stage Mode Backend Services",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the Stage Mode Backend Services implementation into subtasks covering API endpoint development, WebSocket event handling, authentication/authorization, rate limiting, and database/caching implementation. For each subtask, include specific technical requirements, potential challenges, and testing criteria.",
+			"reasoning": "This task involves creating multiple REST endpoints and WebSocket events with real-time updates. It requires authentication, authorization, rate limiting, and database integration with caching. The performance requirements for 50 concurrent users add complexity. The task touches multiple system layers (API, WebSockets, database, caching) and requires careful consideration of concurrency issues."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Implement Fireteams Backend Services",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the Fireteams Backend Services implementation into subtasks covering CRUD API development, WebSocket event handling, database schema design, action batching optimization, and voice channel integration. For each subtask, include specific technical requirements, potential challenges, and testing criteria.",
+			"reasoning": "This task requires implementing multiple REST endpoints and WebSocket events for real-time updates. It involves complex database schema design for scalability and action batching for efficiency. The voice channel integration adds another layer of complexity. Performance requirements for 50 participants divided into multiple fireteams require careful optimization and testing."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Develop Stage Mode and Fireteams UI Components",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the Stage Mode and Fireteams UI Components development into subtasks covering moderator controls, participant management interfaces, voice indicators, team management UI, WebSocket integration for real-time updates, and accessibility implementation. For each subtask, include specific component requirements, state management approach, and testing criteria.",
+			"reasoning": "This task involves creating multiple complex UI components for two different features (Stage Mode and Fireteams) with real-time updates via WebSockets. It requires sophisticated state management, responsive design, and accessibility compliance. The components need to handle different user roles (moderator, participant) and provide visual feedback for various states and actions. Performance testing with 50 concurrent users adds complexity."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Implement Daily Contracts System",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the Daily Contracts System implementation into subtasks covering contract definition schema, rotation service, progress tracking, reward distribution, UI components, and admin tools. For each subtask, include specific technical requirements, data modeling approach, and testing criteria.",
+			"reasoning": "This task involves creating a complex system with multiple interconnected components. It requires sophisticated data modeling for contracts, rotation logic, progress tracking, and reward distribution. The UI components need to display contracts, progress, and rewards effectively. Admin tools add another layer of complexity. The system needs to handle peak user activity and ensure accurate reward distribution, requiring comprehensive testing."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Implement Weekly Anomaly System",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the Weekly Anomaly System implementation into subtasks covering anomaly definition schema, scheduler service, playlist integration, UI components, and admin tools. For each subtask, include specific technical requirements, integration points with existing systems, and testing criteria for activation/teardown correctness.",
+			"reasoning": "This task requires creating a system that modifies gameplay rules through mutators, which adds complexity. It involves developing a scheduler for weekly rotations, integrating with the playlist system, and ensuring proper state restoration on teardown. The UI components need to effectively communicate anomaly information. Admin tools for management and emergency override add another layer of complexity."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Develop Recap Cards Generator",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the Recap Cards Generator implementation into subtasks covering session analysis engine, hero image generation, seed code system, sharing integration, and API development. For each subtask, include specific technical requirements, algorithms needed, and testing criteria for correctness and performance.",
+			"reasoning": "This task involves complex algorithms for session analysis to identify key moments and generate descriptive text. The hero image generation requires sophisticated rendering or capture capabilities. The seed code system needs to compress session state deterministically. Social platform integration adds complexity. The system must be performant under various session complexities and requires efficient caching and storage strategies."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Implement Cosmetics and Store System",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the Cosmetics and Store System implementation into subtasks covering cosmetics catalog design, entitlements service, store backend, store UI, preview rendering system, and security validation. For each subtask, include specific technical requirements, data modeling approach, and testing criteria including security verification.",
+			"reasoning": "This task involves creating a comprehensive system for cosmetic items, player entitlements, and a store with purchasing flows. It requires sophisticated database design, secure entitlement management, and purchase validation. The preview rendering system adds technical complexity. The UI needs to provide browsing, filtering, and detailed views. Security considerations are critical to prevent unauthorized access to entitlements."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Implement Alliance Season Pass",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the Alliance Season Pass implementation into subtasks covering season pass definition, progression system, reward distribution, prestige system, UI components, and admin tools. For each subtask, include specific technical requirements, data modeling approach, and testing criteria with special attention to prestige reset functionality.",
+			"reasoning": "This task requires creating a complex progression system with tiered rewards across free and premium tracks. The prestige system adds significant complexity with its requirement to preserve cosmetics while resetting other elements. Reward distribution needs to integrate with the entitlement system. The UI must effectively visualize progress and rewards. Admin tools for season management add another layer of complexity."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Implement Cost Telemetry System",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the Cost Telemetry System implementation into subtasks covering telemetry collectors, aggregation service, reporting API, admin dashboard, and alerting system. For each subtask, include specific technical requirements, data storage approach, and testing criteria including verification against provider logs.",
+			"reasoning": "This task involves creating multiple collectors for different metrics (tokens, STT/TTS, images, API calls) and aggregating them in real-time. It requires efficient storage for high-volume telemetry data, preferably using a time-series database. The reporting API and admin dashboard add complexity. The system must be accurate within ±10% of provider logs and perform well under high load conditions."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Implement Single Player Mode",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down the Single Player Mode implementation into subtasks covering solo session manager, companion agent system, dynamic difficulty adjustment, and UI components. For each subtask, include specific technical requirements, integration points with existing systems, and testing criteria including performance metrics for agent response times.",
+			"reasoning": "This task involves creating a session manager with pause/resume functionality and state persistence. The companion agent system requires AI configuration and optimization for solo play. The dynamic difficulty adjustment system adds complexity with its need to scale based on player performance. The UI components need to provide session controls and companion settings."
+		},
+		{
+			"taskId": 11,
+			"taskTitle": "Implement Simulation System",
+			"complexityScore": 9,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the Simulation System implementation into subtasks covering simulation controller, snapshot system, deterministic engine, reconciliation service, UI components, and testing framework. For each subtask, include specific technical requirements, algorithms needed, and verification criteria for deterministic execution and drift detection.",
+			"reasoning": "This task involves creating a sophisticated simulation system with deterministic execution, which is inherently complex. The snapshot system needs to capture state at beat boundaries with hash verification. The deterministic engine requires seed-based randomization and consistent execution ordering. The reconciliation service must detect and resolve state conflicts. Ensuring deterministic execution across different environments is particularly challenging."
+		},
+		{
+			"taskId": 12,
+			"taskTitle": "Implement Performance Optimization for 50-Player Sessions",
+			"complexityScore": 9,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the Performance Optimization implementation into subtasks covering action batching, database optimization, caching strategy, load testing framework, monitoring system, and horizontal scaling. For each subtask, include specific technical approaches, measurement methodologies, and success criteria including response time targets.",
+			"reasoning": "This task involves optimizing multiple system components to support 50 concurrent players with acceptable performance. It requires sophisticated action batching, database optimization, and multi-level caching. The load testing framework needs to simulate realistic 50-player sessions. The monitoring system must provide real-time metrics and alerting. Horizontal scaling adds significant complexity. Meeting the specific response time requirement (GM summary median < 4.5s) requires comprehensive optimization."
+		}
+	]
+}

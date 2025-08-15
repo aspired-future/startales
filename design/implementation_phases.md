@@ -31,6 +31,8 @@
   - Alliances: team setup, shared stash, reputation; basic leaderboards
   - Tech Trees: alliance research branches (Logistics/Intel/Engineering/Diplomacy/Tactics) with time-gated QoL/cosmetic unlocks; player QoL/cosmetic perks
   - Images: prompt builder, style profiles per campaign; asset lifecycle events
+  - Backstory & Civilizations: backstory captured at setup; world cultures with diverse personalities surfaced in UI
+  - Vezy Score: Story/Empire/Discovery/Social categories with per-campaign goals and HUD progress
   - Scheduling: CRUD + RRULE recurrence; reminders; pre-session warmups (keys, memory prefetch, pre-gen images)
   - Multi-LLM: OpenAI + ≥1 (Anthropic/Gemini/Grok); A/B harness (latency/cost/structure)
   - Large Session Foundations: Stage Mode v1 (raise-hand, moderator approve/deny/mute), per-team voice rooms, fireteams (4–6 squads), action batching windows
@@ -42,6 +44,8 @@
   - DB schema and migrations; snapshot job; ICS export/local notifications
   - Provider adapters (LLM≥2, STT≥1, TTS≥1, Image≥1, Embeddings≥1)
   - Content packs functional (worlds, missions, items)
+  - Backstory composer and civilizations panel integrated into setup/HUD
+  - Vezy goals/score endpoints and HUD bars
   - Director Model v1 (beat state) and Story Decks v1 (twists/complications)
   - Tech Tree service (alliance/player) with persistence and timers
   - Stage Mode service (speaker queue APIs), Fireteams service (squad CRUD, channel assign)

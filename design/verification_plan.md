@@ -1,5 +1,14 @@
 # Verification & Testing Plan
 
+## Task 1 — Monorepo Scaffolding (TC001–TC006)
+
+- TC001 Build: pnpm -r build succeeds for server, shared, ui_frontend
+- TC002 Workspaces: packages/* and framework_docs included; package.json fields correct
+- TC003 TS Strict: strict true across root and packages; tsc --noEmit runs clean
+- TC004 Lint/Hooks: ESLint + Prettier + husky (pre-commit lint-staged, commitlint)
+- TC005 Tests: Jest (server/shared) and Playwright scaffold (UI shell smoke)
+- TC006 No outbound: no external calls during dev bootstrap (mock dns/http/https)
+
 ## Goals
 - Validate voice-first multiplayer RPG with generated images, cooperative/competitive modes, alliances, and vector memory isolation.
 - Ensure provider-agnostic behavior across OpenAI/Anthropic/Gemini/Grok and image backends.

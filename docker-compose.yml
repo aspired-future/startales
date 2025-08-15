@@ -9,6 +9,10 @@ services:
     environment:
       - NODE_ENV=production
       - OLLAMA_BASE_URL=http://ollama:11434
+      - DATABASE_URL=postgres://gtw:gtw@postgres:5432/gtw
+      - DEMO_START=1
+      - PORT=4000
+    command: ["node", "--experimental-specifier-resolution=node", "dist/src/demo/sprint4-demo.js"]
     depends_on:
       - qdrant
       - nats
@@ -19,10 +23,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: ["node", "dist/server/index.js"]
+    working_dir: /app/dist/src
+    command: ["node", "--experimental-specifier-resolution=node", "demo/index.js"]
     environment:
       - NODE_ENV=production
       - OLLAMA_BASE_URL=http://ollama:11434
+      - DATABASE_URL=postgres://gtw:gtw@postgres:5432/gtw
+      - DEMO_START=1
     depends_on:
       - ollama
       - nats

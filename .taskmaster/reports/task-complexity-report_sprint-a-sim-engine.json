@@ -1,0 +1,93 @@
+{
+	"meta": {
+		"generatedAt": "2025-08-14T06:48:51.748Z",
+		"tasksAnalyzed": 10,
+		"totalTasks": 10,
+		"analysisCount": 10,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 4,
+			"taskTitle": "Implement AI Policy Parser",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the AI Policy Parser implementation into subtasks including: 1) Setting up the API endpoint structure, 2) Implementing the OpenAI integration, 3) Creating the modifier validation and capping logic, 4) Building the fallback mechanism, and 5) Adding comprehensive error handling and logging.",
+			"reasoning": "This task involves integrating with external AI services, implementing complex validation logic for policy modifiers, and ensuring proper error handling. The complexity comes from designing a robust prompt for the AI service, handling the unpredictable nature of AI responses, implementing proper validation for the suggested modifiers, and creating a fallback mechanism when AI is unavailable."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Implement AI Advisors System",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the AI Advisors System implementation into subtasks including: 1) Creating the database schema for pending actions, 2) Implementing domain-specific advisor logic for each of the six domains, 3) Building the query endpoint for asking advisors questions, 4) Creating the propose endpoint for action suggestions, 5) Implementing the context preparation for AI prompts, and 6) Adding comprehensive testing and error handling.",
+			"reasoning": "This task is highly complex as it requires implementing six different domain-specific advisors, each with unique logic and context requirements. It involves database schema creation, AI integration, complex state management, and ensuring the recommendations are contextually relevant to the current game state. The task also requires implementing two separate endpoints with different functionalities and handling the unpredictable nature of AI responses."
+		},
+		{
+			"taskId": 1,
+			"taskTitle": "Implement Core Simulation Engine",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on implement core simulation engine.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Create Simulation API Endpoint",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on create simulation api endpoint.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Implement Policy Storage and Management",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on implement policy storage and management.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Implement Policy Activation Endpoint",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on implement policy activation endpoint.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Integrate Policy Modifiers with Simulation Engine",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on integrate policy modifiers with simulation engine.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Integrate Advisor Actions with Simulation Engine",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on integrate advisor actions with simulation engine.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Implement KPI and Vezies Integration",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on implement kpi and vezies integration.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Implement HUD Updates and UI Integration",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on implement hud updates and ui integration.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		}
+	]
+}

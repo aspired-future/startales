@@ -1,4 +1,4 @@
-# Galactic Tale Weaver RPG — Product Design
+# Vezy.ai — Vezy Up Your Galaxy (Galactic Tale Weaver) — Product Design
 
 ## Vision
 An immersive, voice-first, multiplayer space RPG where an AI Game Master (GM) orchestrates fast, cinematic adventures. Players collaborate or compete in dynamic missions, form alliances, level up, collect gear/artifacts, and shape a persistent universe. The game supports generated scene art and portraits, multi‑LLM backends, local-first storage, and resumable sessions.
@@ -12,6 +12,8 @@ An immersive, voice-first, multiplayer space RPG where an AI Game Master (GM) or
 - Save/resume and branch timelines; local-first privacy and control
 
 ## Game Modes
+- Hero Mode: character-forward play focused on narrative choices, backstory arcs, and party-scale progression (can be combined with Empire Mode)
+- Empire Mode: empire/colony management with expansion, logistics, fleets, and diplomacy (can be combined with Hero Mode)
 - Co-op Campaign: party completes mission arcs together; shared rewards and faction reputation
 - Competitive Missions: team-vs-team objectives (control points, extraction, heist vs defense); optional permadeath arenas
 - Alliances: cross-session groups with shared stash, research trees, and alliance missions; diplomacy/war states
@@ -273,6 +275,212 @@ An immersive, voice-first, multiplayer space RPG where an AI Game Master (GM) or
 - AI Postcards: posterized scene/portrait posters with campaign emblem; cosmetic watermark for paid users can be toggled.
 
 ## Monetization & Economy (Fun-first, Ethical)
+### Game Resources & Currencies (Examples)
+- Universal/Monetary
+  - Credits (primary soft currency), Bonds/IOUs, Trade Vouchers, Alliance Scrip
+  - Black‑market Chits, Bounties, Insurance Tokens
+- Ship/Personal (adventuring)
+  - Fuel Cells, Energy Cells, Power Cores, Coolant, Spare Parts, Repair Kits
+  - Medkits, Nanites (medical/repair), Stims, Rations, Water, Oxygen Canisters
+  - Ammunition (Ballistic/Energy/Missile), Grenades, Drone Batteries
+  - Encryption Keys, Access Cards, Hacking Modules, Decoders
+- Exploration/Discovery
+  - Survey Data, Map Fragments, Geological Samples, Biological Samples, Anomaly Readings
+  - Star Charts, Jump Coordinates, Relic Shards, Ancient Scripts
+- Research & Intel
+  - Research Points, Prototype Blueprints, Tech Samples, Datacores, Algorithm Licenses
+  - Intel Reports, Signals Intercepts, Agent Leads, Decryption Progress
+- Empire/Colony Management
+  - Alloys/Metals (Iron, Titanium, Durasteel), Rare Elements (Iridium, Palladium, Neutronium)
+  - Polymers, Ceramics, Superconductors, Quantum Crystals
+  - Food, Water, Medical Supplies, Consumer Goods, Luxury Goods
+  - Construction Materials, Habitat Modules, Reactors, Terraforming Units
+  - Population, Workforce, Specialists (Scientists/Engineers/Doctors), Morale, Stability
+  - Influence, Authority, Legitimacy, Governance Capacity, Corruption Index
+  - Logistics Capacity (Freight Tonnage, Throughput), Fuel Reserves, Spare Parts Stock
+- Production & Logistics
+  - Ore, Refined Metals, Components, Circuits, Microfusion Cores
+  - Shipyard Time, Fabricator Cycles, 3D‑Printer Spools, Assembly Hours
+  - Trade Routes, Convoy Slots, Docking Priority Tokens
+- Social & Reputation
+  - Reputation (per Faction), Favor, Diplomatic Capital, Alliance Standing
+  - Social Credits, Festival Tokens, Cultural Prestige, Media Reach
+- Exotic/Artifacts (rare)
+  - Dark Matter Shards, Zero‑Point Crystals, Psionic Resonators, Ancient Keys
+  - Attunement Slots, Relic Integrity, Stabilizer Gel, Vault Clearance
+- Environmental/Survival
+  - Radiation Shielding, Thermal Gel, Filters, Air Quality Index, Habitat Integrity
+
+Notes:
+- Campaigns select a resource profile (light, standard, empire‑heavy) and can rename/scope resources.
+- HUD surfaces a compact subset (Credits, Fuel, Supplies, Spare Parts, Alloys by default), with drill‑down to inventory/empire ledgers.
+- Economy validation (designer): conservation, non‑negative stores, bottlenecks and soft bounds; conversion chains defined in content packs.
+
+### Interstellar Trade, Corporations & Markets (Macro‑Economy; No Player Equity Investing)
+- Trade Model
+  - Supply/Demand: each planet/system tracks demand curves and export capacity per resource; prices adjust by stockpiles, throughput, distance, risk, and policy.
+  - Routes & Logistics: create trade routes between planets/systems with convoy capacities, tariffs, and security risk; yields fees/taxes, affects relations.
+  - Contracts: spot deliveries, long-term offtake, futures (delivery at time T), and options (right to buy/sell). DDA adjusts margins by difficulty/anomalies.
+  - Diplomacy: treaties unlock preferential tariffs, exclusive lanes; embargoes/sanctions raise risk and costs.
+- Corporations (Player- and AI-owned)
+  - Formation: register corp with homeworld jurisdiction; select sector (Mining, Logistics, Manufacturing, Energy, Agriculture, Biotech, Finance, Trade, Research, Infrastructure).
+  - No Player Equity Investing: players cannot buy/sell shares; markets act as macro indicators only. Corporations are NPC/player‑owned for operational purposes (facilities, routes, contracts) but equity is not a gameplay instrument.
+  - Governance: simplified—policy hooks (compliance, reporting) and reputation affect contract terms, tariffs, and route priority.
+  - Operations: own facilities, convoys, IP (blueprints), and contracts; KPIs (output, margin, on‑time delivery) feed economy health and indices.
+- Stock Markets
+  - Indices Only: per‑region/system economy indices (Resource Index, Logistics Index, Manufacturing PMI, Energy Index) derived from corp KPIs and trade volumes. No order entry, portfolios, or player trading.
+  - Events: earnings snapshots, facility online/offline, piracy incidents, policy changes; news/sentiment affect indices (bounded).
+- Investing Between Parties (Players, NPCs, Aliens)
+  - Disabled for MVP: No equity investing or funds. Credit/loans remain narrative hooks only for contracts/logistics (no margin accounts).
+- Government & Policy (Economy Management)
+  - Laws & Policies: define tariffs, subsidies, standards (safety, environmental), price caps/floors (for crises), and labor policies. Policies influence supply/demand, uptime, and route risk.
+  - Taxation: progressive corp tax, trade tariffs, VAT‑like sales tax; adjustable rates per region/system. Taxes fund Government Budget categories (Defense, Infrastructure, Research Subsidies) which apply bonuses/penalties to convoys, facility output, and research speeds.
+  - Incentives: subsidies reduce effective costs, tax credits boost sector output, grants trigger corp KPIs (and index gains) with diminishing returns.
+- UI & HUD
+  - Trade Panel: live prices, demand/supply heatmap, contract builder, convoy planner; alerts on policy/tariff changes and anomalies.
+  - Economy Panel: indices dashboard (Resource, Logistics, Manufacturing, Energy), corp KPIs by sector, news/sentiment, budget/tax sliders (authorized roles only).
+  - Corporation Sheet: sector, facilities, routes, contracts, KPIs; compliance flags; no cap table or equity UI.
+- Data & APIs (initial targets)
+  - Tables: `corps(id, name, sector, hq_system_id)`, `corp_kpis(corp_id, ts, output, margin, on_time_rate)`, `indices(region, ts, resource_idx, logistics_idx, mfg_idx, energy_idx)`, `contracts(id, buyer_system_id, seller_system_id, resource, qty, price, deliver_at)`, `tariffs(system_id, resource, rate)`, `routes(id, from_system_id, to_system_id, capacity, risk)`, `policies(id, region, type, value, effective_at)`, `tax_rates(region, corp_tax, tariff_default, vat)`.
+  - REST (examples): `/api/trade/prices?system=:id`, `/api/trade/contract`, `/api/corps`, `/api/economy/indices?region=:id`, `/api/economy/policies`, `/api/economy/taxes`.
+- Scoring & Balance
+  - Story/Discovery Vezies for treaty/proposal outcomes and market-impacting events; Empire Vezies for trade throughput, profitability, and route stability; Social Vezies for joint ventures and funds performance.
+  - Anti-exploit: rate limits, transaction taxes, bounded index moves, idempotent contracts; insider info flagged by audit with narrative consequences.
+  - Simulation Tick: recompute prices from supply/demand + tariffs/subsidies, decay sentiment, apply logistics delays/attrition; event-driven jumps.
+
+### Empire Analytics & KPIs (Economy, Military, Population, Science)
+- Objectives
+  - Provide a unified health dashboard for the empire with actionable KPIs that respond to player and NPC decisions.
+  - KPIs influence difficulty pacing, resource availability, event generation, and policy effectiveness.
+- KPI Categories (non-exhaustive)
+  - Economy: GDP proxy (production value), trade volume, budget balance (tax revenue vs spend), inflation proxy (price drift), unemployment proxy (idle workforce), logistics throughput, facility uptime.
+  - Military: fleet strength (power index), readiness % (supply/ammo/fuel), losses (7/30‑day), mobilization level, logistics readiness.
+  - Population & Society: total population, growth rate, morale, stability/unrest, health index, education index, migration.
+  - Science & Research: tech velocity (research points/tick), labs uptime, breakthroughs count, policy impact on R&D.
+  - Infrastructure & Environment: power capacity utilization, habitat integrity, hazard incidents, pollution index.
+- Data Model (snapshots)
+  - `kpi_snapshots(scope, region_or_campaign_id, ts, metrics JSONB)` capturing category metrics per tick; schema versioned.
+  - Aggregations: rolling windows (7/30 ticks) for trends; alert thresholds with hysteresis.
+- APIs
+  - `GET /api/analytics/empire?scope=campaign` → latest snapshot with categorized KPIs and trend deltas.
+  - `GET /api/analytics/trends?window=30` → time series for charts (economy, military, population, science).
+  - `POST /api/economy/policies` and `POST /api/economy/taxes` (authorized) adjust levers; effects propagate to KPIs on next tick.
+- HUD Analytics Screen
+  - Panels: Economy (indices, budget sliders, revenue/spend charts), Military (strength/readiness, supply), Population (growth/morale/stability), Science (velocity/breakthroughs), Infrastructure (uptime/capacity), Alerts (threshold breaches, decisions needed).
+  - Controls: authorized players can adjust taxes/policies via sliders/toggles; show projected impacts with confidence bands.
+  - Accessibility: color‑blind safe palettes, clear icons, and tooltips for each KPI; keyboard navigable.
+- Simulation & Decisions
+  - On each tick, recompute KPIs from in‑world state (stockpiles, routes, contracts, units, population models). Policies/taxes apply multiplicative/additive modifiers with caps.
+  - Player/NPC actions (build, allocate fleet, enact policy) update inputs feeding KPIs; alerts drive narrative events.
+- Verification
+  - KPI math unit‑tested; API returns stable shapes; HUD charts/elements verified via Playwright; thresholds/alerts tested with fixtures.
+
+### Planetary Resources, Mining, and Construction (Empire Mode)
+- Planet Resource Profiles
+  - Each planet is procedurally assigned a resource profile at generation: biome, hazard level, and per‑resource richness (0–5) for key categories (e.g., Alloys/Metals, Rare Elements, Polymers, Fuel, Food/Water, Biotech, Exotic Gas, Relic Sites).
+  - Special nodes: high‑yield deposits, relic veins, geothermal vents, and strategic choke points; may require specific tech to exploit.
+- Survey & Claim
+  - Scanning missions reveal the resource map (fog‑of‑war). Claiming requires presence, influence, or treaties. Hostile worlds may require pacification before exploitation.
+- Extraction & Processing
+  - Facilities: Mines, Wells, Collectors, Farms, Reactors, Refineries, Fabricators, Shipyards, Research Labs, Habitats, Logistics Hubs, Defense Turrets.
+  - Yield model: \(base\_yield = richness\ * facility\_tier\ * tech\_multiplier\ * workforce\_efficiency\ * uptime\). Uptime depends on power, maintenance, morale, and hazard downtime.
+  - Conversion chains (examples):
+    - Ore → Refined Metals → Alloys → Components → Ships/Vehicles/Buildings
+    - Raw Organics → Food/Medical Supplies → Population Growth/Upkeep
+    - Fuel/Gas → Power → Production Uptime/Throughput
+  - Depletion/Regeneration: soft depletion with diminishing returns; renewable sources (solar, farms) stabilize; sustainability tech reduces depletion slope.
+- Logistics & Upkeep
+  - Stockpiles per planet/system; convoy routes with throughput caps; convoy slots and docking priority tokens gate movement.
+  - Upkeep costs per tick: power, spare parts, workforce rations/wages; shortages reduce uptime and morale.
+  - Risk: piracy/raids cause loss; escorts and defenses mitigate.
+- Construction & Requirements
+  - Buildings (examples):
+    - Mine (T1→T3): Alloys + Components + Power; workforce required; output Metals.
+    - Refinery/Fabricator: Refined Metals + Polymers + Power; outputs Alloys/Components.
+    - Shipyard: High Alloys + Components + Reactors + Shipyard Time; enables ship construction queues.
+    - Habitat/Research: Construction Materials + Power + Upkeep; boosts workforce/science output.
+  - Ships (examples):
+    - Corvette: Alloys (x), Components (y), Power Cores (z), Ammunition (start), Crew; requires Shipyard Time.
+    - Frigate/Cruiser scale costs non‑linearly and consume more Shipyard Time and Upkeep.
+  - Vehicles & Armies:
+    - Vehicles: Alloys + Components + Fuel capacity; Factory Time.
+    - Armies: Equipment (Alloys/Polymers), Training Time, Supplies (Food/Medical), Upkeep.
+  - Expansion Gating: founding colonies/outposts requires Construction Materials, Habitat Modules, Food/Water reserves, and Logistics Capacity.
+- Technology & Policy Modifiers
+  - Tech tree unlocks facility tiers, extraction enhancers (e.g., deep‑core drills), cleaner processing (reduced pollution), and logistics efficiency.
+  - Policies impact morale/efficiency (e.g., safety standards reduce accidents, minor throughput penalty; subsidies raise upkeep but increase workforce retention).
+- Events & Hazards
+  - Accidents, strikes, storms, quakes, and anomalies can temporarily reduce yield/uptime or damage facilities; missions can mitigate/repair.
+- UI & Feedback
+  - HUD shows compact resource panel; planet sheet displays production/consumption, stockpiles, and bottlenecks with alerts.
+  - Empire Ledger: per‑tick balance of inputs/outputs, logistics flows, and construction queues; filter by planet/system.
+- Data & APIs (initial schema targets)
+  - Tables: `planets(id, biome, hazard)`, `deposits(planet_id, resource, richness)`, `facilities(id, planet_id, type, tier, uptime, workforce)`, `stockpiles(planet_id, resource, amount)`, `queues(planet_id, item_type, spec, progress)`.
+  - Endpoints: `/api/empire/planets`, `/api/empire/planets/:id/production`, `/api/empire/build`, `/api/empire/queue`, `/api/empire/stockpiles`.
+- Scoring & Balance
+  - Empire Vezies increase on expansion milestones (new colony, first shipyard online, logistics throughput goals). Anti‑snowball via upkeep, logistics caps, and anomaly events.
+
+#### Production Ticks, Stockpiles, and Build Queues (MVP implemented)
+- Tick Model (MVP)
+  - Each planet advances production in discrete ticks (manual button in demo; scheduled in full game).
+  - Per tick, each discovered deposit adds to stockpiles: gain = richness × yieldFactor (MVP: 10).
+  - Hazards/events can apply uptime penalties (future: storms, strikes, raids) that reduce tick yield.
+- Stockpiles
+  - Per‑planet resource buckets accumulate from production; consumed by construction queues and upkeep.
+  - UI: show current stockpiles, recent delta, and bottleneck highlights (insufficient inputs).
+- Build/Training Queues (MVP)
+  - Queues live per planet (buildings, vehicles, ships, units). Each entry has:
+    - Item Type (e.g., build:demo), Cost (resource + amount), Work Required, Progress, Status.
+  - Creation checks stockpiles; costs are reserved/consumed at submission time (MVP: immediate deduct).
+  - Work is applied per tick (MVP: manual “Work Tick” applies a flat progress increment). On completion, status → done and entitlements (building/unit) become available.
+  - Parallelism via multiple facilities increases per‑tick work capacity (future: facility throughput and workforce).
+- Logistics & Consumption (Next)
+  - Upkeep will consume supplies each tick (power, spare parts, food). Shortages impose penalties (reduced uptime/morale) and can stall queues.
+  - Convoys move resources between planets with throughput limits and risk (piracy). Routing UI to balance flows.
+- Data & APIs (MVP state)
+  - Tables: `planets`, `deposits`, `stockpiles`, `queues` with minimal fields.
+  - Endpoints (implemented):
+    - `GET /api/empire/planets` • `POST /api/empire/planets` (generate/persist)
+    - `GET /api/empire/planets/:id/production` (preview)
+    - `GET /api/empire/planets/:id/stockpiles` • `POST /api/empire/planets/:id/tick`
+    - `GET /api/empire/planets/:id/queues` • `POST /api/empire/planets/:id/queues` • `POST /api/empire/queues/:queueId/tick`
+  - HUD Demo: “Empire — Planets & Production” with create planet, production tick, stockpiles, and queue controls.
+### Equipment, Vehicles, and Units (Empire & Hero Modes)
+- Equipment Categories (examples)
+  - Mining/Extraction: Surface Drill (T1–T3), Deep‑core Drill (T2+), Helium‑3 Extractor, Geothermal Tap, Harvester Drones (ore, organics), Survey Scanner, Seismic Charge Kit, Atmospheric Skimmer, Portable Ore Processor.
+  - Hazard/Survival: EVA Suit (tiers), Radiation Shielding Packs, Thermal Gel Injectors, Life‑Support Modules, Environmental Filters, Hazard Drones.
+  - Construction: Mobile Fabricator Rig, Industrial 3D Printer, Crane Mech, Habitat Modules, Terraforming Units (atmo scrubbers, soil enrichers).
+  - Logistics: Cargo Haulers (ground), Tanker Rigs, Shuttlecraft, Landing Craft, Convoy Escorts, Tug Drones, Container Pods.
+  - Military Gear: Small Arms (ballistic/energy), Heavy Weapons (AT/AA), Powered Armor, Shield Emitters, Field Med Stations, Mobile Artillery, Point‑Defense Turrets.
+  - Diplomatic Kits: Protocol Suites, Universal Translation Cores, Gift Packs (cultural), Cultural Archives, Envoy Shuttle (prestige paint/TTs).
+  - Scientific Kits: Modular Lab, Sample Kits (bio/geo), Datacore Arrays, High‑Gain Sensor Masts, Research Drones.
+  - Covert Kits: Cloak Nets, Signal Spoofers, ECM Pucks, Hacking Modules, Clean Room Identity Kits, Silent Transports.
+
+- Unit Types (examples)
+  - Civilian/Support: Workers, Engineers, Scientists, Medics, Logistics Crews, Construction Teams, Mining Crews (with rigs).
+  - Military (Ground): Infantry (Light/Line/Elite), Marines, Recon, Mechanized (IFV), Armor (Tank), Mobile Artillery, Air Wing (VTOL), Defense Batteries (point‑defense/AA).
+  - Naval/Space: Corvette, Frigate, Cruiser (see Shipyard line), Patrol Craft, Carrier (late tech), Orbital Defense Platforms.
+  - Diplomatic: Envoy, Negotiation Team, Cultural Exchange Team, Mediation Taskforce (with protection detail).
+  - Logistics: Freighter Convoy, Tanker, Tug, Shuttle Squadron, Supply Column.
+  - Covert/Special: Operatives, Recon Teams (stealth), Saboteurs, Electronic Warfare Teams, Counter‑intel Cells.
+  - Drone Variants: Worker Drones, Combat Drones, Sensor Drones; reduced manpower, higher component upkeep.
+
+- Unit Attributes & Costs
+  - Attributes: manpower, training time, morale/cohesion, speed/mobility, combat power, armor/shields, stealth/sensor, diplomacy rating (diplomatic units), science output (scientific teams).
+  - Build Costs: Alloys, Components, Power Cores, Fuel reserves, Ammunition/Spare Parts; some require Shipyard/Factory/Academy time slots.
+  - Upkeep: Food/Water, Wages, Supplies (ammo/parts), Fuel/Energy; shortages reduce readiness and morale.
+  - Equipment Loadouts: slots for weapon, armor, utility (scanner/hacking), support (med, ECM). Tech unlocks tiers and modifiers.
+  - Capacity & Command: transport capacity (shuttles/ships), command points (officer corps) gate max deployed units per theater.
+  - Tech/Policy Prereqs: advanced units require research branches (e.g., shields, fusion armor) and policies (e.g., conscription, professional army).
+
+- Construction & Training Pipelines
+  - Buildings enable queues: Academy (troops), Factory (vehicles), Shipyard (space). Each queue consumes time and resources; parallelism via additional facilities and logistics caps.
+  - Veteran Upgrades: units gain traits on milestones; reinforcement merges consume extra supplies.
+
+- UI & API
+  - HUD: roster summary (deployed/reserve), readiness %, supply status; hero loadout editor for Equipment slots.
+  - APIs (initial targets): `/api/empire/units`, `/api/empire/units/train`, `/api/empire/equipment`, `/api/empire/loadouts`, `/api/empire/queues`.
+
 ## Leaderboards & Scoring
 - Scopes:
   - Global (User): optional, opt-in aggregation across campaigns; shows user-level metrics (score, reputation, achievements). Privacy-preserving (pseudonymous handle), regional filters, and opt-out.
@@ -296,6 +504,17 @@ An immersive, voice-first, multiplayer space RPG where an AI Game Master (GM) or
 - Creator Pro Tools: batch asset pre-generation, style consistency assistant, marketplace analytics (optional purchase).
 - Optional Cloud Sync: cross-device and marketplace connectivity is opt-in; default remains local-first.
 
+### Vezy Score System (Vezy.ai)
+- Score Categories:
+  - Story Vezies: narrative choices, character development, completing character/party arcs, backstory integration
+  - Empire Vezies: expansion, governance stability, logistics efficiency, fleet readiness, economic milestones
+  - Discovery Vezies: exploration, surveying, uncovering lore/artifacts, first-contact outcomes
+  - Social Vezies: multiplayer interactions, alliance missions, diplomacy success, referrals/events
+- Setup: per-campaign target goals entered during game setup; can be adjusted by owners/mods between sessions (with audit)
+- HUD: category progress bars (session and campaign totals) and a combined Vezy Score
+- Events: unified `score_events` schema with category, value, owner (player/alliance), provenance, idempotency key
+- Leaderboards: filterable by category and total; campaign/local and optional global
+
 ## Cost & Revenue Overview (Operational Assumptions)
 - Operating Cost Profiles (session-wide, amortized):
   - Local-first (Ollama/Whisper/SDXL): ≈ $0 marginal cloud cost; infra VM only.
@@ -318,7 +537,33 @@ An immersive, voice-first, multiplayer space RPG where an AI Game Master (GM) or
 - System-created games: choose a preset world/mission pack; AI seeds mission arcs and NPCs automatically.
 - Manual creation: a guided wizard with AI assistance to co-author the premise, factions, key NPCs, and the first mission objective graph.
   - Steps: pick genre/style, write a short prompt, select tone; AI proposes a synopsis, starter NPCs, and a Mission DSL scaffold; user can accept/edit.
-  - Outputs: a new campaign with `content/packs` skeleton, style profile, initial mission graph, optional story beats in Director Model, and setup steps to choose: (a) default resolution mode (Outcome Meter or Classic), (b) Revial Options (death/respawn model), (c) Win Criteria & Time Limit (optional), (d) Visual Generation level (off/characters/worlds/everything), (e) Lifetime Scope (one life ↔ civilization lifetime). The Classic toggle is also available in settings per session.
+  - Outputs: a new campaign with `content/packs` skeleton, style profile, initial mission graph, optional story beats in Director Model, and setup steps to choose:
+    - Resolution Mode (Outcome or Classic)
+    - Game Modes: Hero Mode, Empire Mode (both can be enabled together)
+    - Vezy Score Goals: targets for Story Vezies, Empire Vezies, Discovery Vezies, Social Vezies
+    - Backstory: text field used by AI Assistant to seed hooks and civilization personalities
+    - Revial Options (death/respawn model)
+    - Win Criteria & Time Limit (optional)
+    - Visual Generation level (off/characters/worlds/everything)
+    - Lifetime Scope (one life ↔ civilization lifetime)
+
+### Galaxy Map & Planet Setup (Initial, Evolves Over Time)
+- During game setup, the galaxy map is generated and stored as the canonical starting state. It can evolve as the story progresses (expansion, terraforming, conquest, anomalies).
+- Inputs (setup wizard):
+  - Seed (deterministic), map size (sectors/regions), number of star systems, initial habitable planets per region
+  - Generation profile: resource richness curve (scarce/standard/abundant), hazard profile, faction/empire homeworlds (optional)
+  - Naming/style profile for systems/planets (ties into art/style presets)
+- Outputs (persisted on campaign create):
+  - `systems`: id, name, sector, coordinates
+  - `planets`: id, system_id, name, biome, gravity, hazard, tags (homeworld/capital)
+  - `deposits`: planet_id, resource, richness (0–5)
+  - Optional `factions`: id, name, home_system_id, relations
+- Evolution rules (runtime):
+  - Narrative and empire actions can add/remove/alter: deposits, stockpiles, ownership, hazards; unlock terraforming/colonization; create outposts/shipyards
+  - Deterministic re-generation allowed from seed for testing; deltas recorded as events/snapshots for save/resume
+- API (planned):
+  - `POST /api/campaigns/:id/map/init` to create initial systems/planets from seed & profile at campaign creation
+  - Read endpoints for map browse; existing empire endpoints manage ongoing changes (mining, stockpiles, facilities, queues)
 
 ## Win Criteria & Time Limits (Optional)
 - Victory Modes: Points (score thresholds), Wealth (net worth, GDP), Domination (territory/control), Reputation (faction standing), Technological (research milestones), Cultural (influence indices), Narrative (story beats), Custom composites.
@@ -374,5 +619,58 @@ An immersive, voice-first, multiplayer space RPG where an AI Game Master (GM) or
   - Media & Caching: aggressive asset prefetch and cache; placeholders-first render pipeline.
 - Spectators & Casts: optional read-only spectators with caption stream and scene media; streamer-safe settings.
 - Expectation: with Stage Mode and batching, 50-person sessions remain coherent; free-talk for all participants is disabled by default.
+
+
+## Governance: Free-form Laws & Policies (Affecting Economy)
+- Model
+  - Laws/Policies are free-form text entries defined per campaign or per region/system (e.g., “Worker Safety Mandate”, “Open Trade Charter”, “Emergency Budget Freeze”).
+  - Each entry contains: title, body (markdown allowed), scope (campaign|region|system), effective_at, optional expires_at, author, tags (economy, labor, environment, defense, research), and advisory impact notes.
+  - AI-assisted interpretation: the engine parses policy text via prompt templates to extract suggested modifiers with confidence bands.
+- Engine Integration (Deterministic Application)
+  - Parsed modifiers are advisory; owners/mods approve them to become active rule modifiers.
+  - Active modifiers map to capped scalars used by the simulation:
+    - Production: uptime_mult (0.8–1.1), throughput_mult (0.8–1.1)
+    - Logistics: capacity_mult (0.8–1.2), risk_delta (−0.1–0.1)
+    - Prices: tariff_delta (−0.1–0.2), subsidy_delta (−0.15–0.15)
+    - Science: velocity_mult (0.8–1.2)
+    - Military: readiness_mult (0.9–1.1)
+  - Conflicts resolved by precedence and clamping; all changes logged with rationale.
+- UX & Workflow
+  - Policy Console: compose free-form policy/law text, add tags/scope; see AI-suggested impacts and confidence; approve/adjust sliders; publish.
+  - Audit & History: timeline of adopted/retired policies with impact diffs on KPIs.
+- APIs (initial)
+  - POST `/api/policies` { title, body, scope, tags } → returns suggested modifiers
+  - POST `/api/policies/activate` { policyId, modifiers } → engine applies on next tick
+  - GET `/api/policies/active` → current active modifiers with caps & provenance
+
+## Advisors (AI Counselors)
+- Concept
+  - Players can consult specialized AI advisors for actionable guidance. Advisors synthesize current state (KPIs, stockpiles, queues, policies, events) into recommendations.
+- Advisor Types
+  - Economy Advisor: pricing, tariffs, subsidies, facility throughput, bottlenecks.
+  - Military Advisor: readiness, supply, force composition, training/build plans.
+  - Science Advisor: research velocity, lab uptime, queue prioritization.
+  - Logistics Advisor: route capacity, stockpile balancing, convoy risk.
+  - Governance Advisor: policy/law suggestions with projected KPI impact and risks.
+  - Diplomacy/Trade Advisor: treaties, contracts, trade flows, tariff negotiations.
+- UX
+  - Advisor Panel per domain with “Ask” input; quick questions; recommended actions summarized with confidence and expected KPI deltas; one-click “Propose Action”.
+  - Advisors include rationale and risk notes; all suggestions are reversible proposals until approved.
+- APIs (initial)
+  - POST `/api/advisors/:domain/query` { question } → { recommendations[], projectedImpact }
+  - POST `/api/advisors/:domain/propose` { action } → creates pending engine action for approval
+- Engine Tie-in
+  - Approved advisor proposals convert to engine actions (policy changes, queue priorities, tariff adjustments, transfers) executed next tick.
+
+## Simulation Engine Notes (Integration)
+- Policies/Laws Flow
+  - Free-form text → AI parser → suggested modifiers (capped) → owner approval → engine applies as active modifiers until changed/expired.
+- Advisors Flow
+  - Advisor reads latest KPIs/snapshots and pending queues → proposes actions with expected deltas → on approval, enqueued into `step()`.
+- Determinism & Audit
+  - AI parsing generates proposals only; deterministic modifiers are applied only after human approval.
+  - Every modifier includes provenance: policyId, author, approvedAt, scope, clamps used.
+- Verification
+  - Unit tests for modifier application; end-to-end tests for advisor propose→approve→tick → KPI delta within expected bands.
 
 

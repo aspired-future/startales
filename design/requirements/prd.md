@@ -104,6 +104,165 @@
   - The system shall provide a campaign-wide global group chat (voice and text) and support ad-hoc group chats where players can invite others, accept/decline invites, and manage membership with roles (owner/mod/member).
   - Verification: TC020 (global channel join/leave/mute; create ad-hoc channel; invite/accept/decline; role enforcement; voice and text routing; audit log entries).
 
+## 4.1 Additional Requirements — AI-Driven Deterministic Systems
+- R-089 Game Modes Selection (Hero & Nation)
+  - The system shall allow selecting Hero Mode (encounter/narrative) and Nation Mode (governance); both may be enabled concurrently and toggled in HUD. Settings persist per campaign.
+  - Verification: TC190 (setup enables one/both), TC191 (HUD toggle visible when both), TC192 (persistence across sessions).
+
+- R-090 Education System
+  - The system shall model education investment and institutions (schools/universities) affecting expertise and research velocity via bounded, deterministic modifiers; expose KPIs and budget lines.
+  - Verification: TC193 (budget→modifier caps), TC194 (education KPIs correctness), TC195 (deterministic effects replay).
+
+- R-091 Infrastructure Network (Roads/Rails/Ports)
+  - The system shall represent infrastructure capacity/condition with maintenance costs, impacting logistics efficiency and trade route capacity within bounds; include KPIs.
+  - Verification: TC196 (capacity→price/logistics effects under caps), TC197 (maintenance cost accounting), TC198 (deterministic recompute from snapshot).
+
+- R-092 Entrepreneurs & Private Innovation
+  - The system shall model startups/firms and private R&D producing bounded, deterministic effects on expertise/research and technology adoption, with KPIs and APIs for innovation events.
+  - Verification: TC199 (deterministic modifier computation), TC200 (adoption diffusion caps), TC201 (innovation KPIs correctness).
+
+- R-093 Lobbying & Influence
+  - The system shall support lobbying registries, budgets, disclosures, and bounded influence on policy/legislature with transparency and backfire risks.
+  - Verification: TC202 (caps/backfire enforcement), TC203 (disclosure/auditability), TC204 (deterministic outcomes for identical filings).
+
+- R-094 GDP Calculation
+  - The system shall compute GDP deterministically using the expenditure approach (C+I+G+NX) from audited subsystem snapshots with growth rates and components exposed via API.
+  - Verification: TC205 (component reconciliation to total), TC206 (deterministic recompute), TC207 (growth calculation correctness).
+
+- R-095 National Budget & Spending
+  - The system shall support budget allocations across categories (military, social, education, health, infrastructure, R&D, admin) producing bounded, deterministic modifiers into subsystems, with deficits/surpluses tracked.
+  - Verification: TC208 (allocation caps and diminishing returns), TC209 (deficit/surplus accounting), TC210 (modifier application determinism).
+
+- R-096 Logistics & Transport (Land/Sea/Space)
+  - The system shall model transport modes with capacity and transit times (land, sea, space), deterministic routing/queuing, and in‑flight inventory affecting settlement.
+  - Verification: TC211 (capacity/ETA determinism), TC212 (queue and bottleneck behavior), TC213 (in‑flight settlement correctness).
+
+- R-097 Succession & Continuity Options
+  - The system shall offer Game Setup options for leader removal cases (deposed, conquered, term expiry): Game Over, Continue in Hero Mode, New Nation/Successor State, Successor Leader, Observer; with deterministic state transitions per archetype.
+  - Verification: TC214 (setup option persistence), TC215 (state machine legality), TC216 (deterministic successor outcomes).
+
+- R-098 Restoration via Hero Influence
+  - The system shall allow deposed leaders to regain power via bounded, deterministic hero actions (fundraising, alliances, exposes, relief) that accumulate support and meet archetype-specific preconditions.
+  - Verification: TC217 (hero action → capped support deltas), TC218 (preconditions per archetype), TC219 (deterministic restoration outcome given identical sequences).
+
+- R-099 Hero Actions: Exploration & National Quests
+  - The system shall support hero exploration (survey, scan, map, first contact brief) and national quests (military/economic) with bounded, deterministic effects that integrate with logistics, diplomacy, economy, and restoration.
+  - Verification: TC220 (exploration determinism/map reveals), TC221 (quest objective DSL validation), TC222 (bounded reward vectors), TC223 (integration with restoration/logistics KPIs).
+
+- R-100 Faster‑Than‑Light Travel & Jump Network
+  - The system shall provide a deterministic FTL topology (jump graph/lane capacities/risks) used by logistics space mode with bounded impacts on ETA and capacity.
+  - Verification: TC224 (graph determinism from seed), TC225 (ETA/capacity bounds), TC226 (instability risk caps).
+
+- R-101 Ancient Artifacts
+  - The system shall seed ancient artifacts discoverable via exploration; activation is gated by research and validators, producing bounded, deterministic effects and safety logs.
+  - Verification: TC227 (seeded placement determinism), TC228 (activation gating), TC229 (bounded effect vectors and audit logs).
+
+- R-102 Technology Tree (History→Fiction)
+  - The system shall implement a deterministic technology DAG where one or more prerequisite technologies unlock new technologies across history and fictional branches, with bounded effects and research costs/times.
+  - Verification: TC230 (DAG validity and determinism), TC231 (unlock rules and gating), TC232 (bounded modifiers and cost/time caps).
+- R-060 Voice/NL Interaction UX
+  - The system shall support multi-speaker diarization, speaker embeddings, real-time STT with VAD/barge-in/turn-taking, optional hotword (e.g., "Prime Minister"), live natural-language commands (e.g., "call emergency cabinet", "draft a two-minute address", "summarize last quarter P&L"), and TTS personas (advisors, anchors, opposition) with tone/language settings.
+  - Verification: TC100 (diarization/embeddings visible in transcripts), TC101 (VAD/barge-in & hotword), TC102 (live NL command routing), TC103 (TTS persona switch and captions).
+- R-061 Player-to-People Communications (Speeches)
+  - The system shall allow leaders to address populations/stakeholders via NL speech; speeches are parsed into bounded, deterministic modifiers with decay/backfire when repetitive or deceptive, and cohort-specific opinion shifts.
+  - Verification: TC104 (speech → modifiers within caps), TC105 (decay/backfire behavior), TC106 (cohort opinions update and audit log).
+- R-062 Cabinet Voice Meetings
+  - The system shall support cabinet meetings via voice with diarization/transcripts, AI NL summaries, and validated bounded modifiers (coordination, readiness, alignment, messaging coherence). Deterministic hashing of transcript canonical form ensures reproducibility.
+  - Verification: TC107 (meeting pipeline and caps), TC108 (deterministic hash → same outputs), TC109 (WS indicators for live speaking roster).
+- R-063 Government Archetypes & Cabinet HR
+  - The system shall model multiple government archetypes (democracy, technocracy, corporate state, federation, autocracy, etc.) with constitutional state machines (veto, no-confidence, referenda), cabinet roles/personalities, and HR actions (appoint/fire/reshuffle) with bounded systemic effects.
+  - Verification: TC110 (legal transitions per archetype), TC111 (HR actions within caps), TC112 (personality-driven leak/coordination/scandal risk modifiers).
+- R-064 Media & Press Systems
+  - The system shall model press_freedom and state_media_influence, parse press briefings to bounded effects mediated by freedom/reputation, and apply leak/backfire risks when claims contradict KPIs.
+  - Verification: TC113 (press briefings → capped effects), TC114 (leak/backfire scenarios), TC115 (international reputation interactions).
+- R-065 AI Multi‑Agent World
+  - The system shall include NPC agents (media outlets, opposition, lobbies, think tanks, foreign leaders) driven by goals/tool-use; provide a negotiation/treaty DSL (NL → structured commitments with enforcement/penalties) and a rumor/propaganda network (credibility, echo chambers, fact-check cycles).
+  - Verification: TC116 (agent actions and logs), TC117 (treaty DSL validity/enforcement), TC118 (rumor propagation and fact-check effects within bounds).
+- R-066 Explainability (Causal Chains)
+  - The system shall expose “why did X change?” endpoints with a causal chain NL narrative plus numeric contributions, and support counterfactual re-sims (e.g., without a tariff change) for analysis.
+  - Verification: TC119 (causal breakdown correctness), TC120 (counterfactual recompute integrity).
+- R-067 Determinism & Safety Pipeline
+  - The system shall canonicalize all NL inputs (normalize/strip/segment) → hash → seeded substreams; enforce strict zod caps; and run content/safety checks prior to applying modifiers.
+  - Verification: TC121 (canonicalization → stable hash), TC122 (caps enforced, no overflow), TC123 (safety filters block unsafe payloads).
+- R-068 Economy/Trade Realism Upgrades
+  - The system shall support input–output (Leontief) tables for industries, resource elasticities, calibrated shock models (logistics/climate/cyber) with recovery tails, policy counterfactual analysis, and exchange microstructure (fees, latency, partial fills, market impact).
+  - Verification: TC124 (I/O table integration tests), TC125 (shock/recovery curves), TC126 (exchange matching + impact bounds).
+- R-069 Technology/Innovation/Expertise
+  - The system shall accept NL “research proposals” validated into programs; model knowledge diffusion, patent races, espionage risk, and expertise ladders with spillovers/brain drain.
+  - Verification: TC127 (proposal → program caps), TC128 (diffusion/espionage events within bounds), TC129 (expertise effects on caps/timelines).
+- R-070 Accessibility & Internationalization
+  - The system shall provide multilingual STT/TTS/translation, captions, and accent-robust ASR across supported locales.
+  - Verification: TC130 (locale switch E2E), TC131 (caption quality & diarization labels), TC132 (accent robustness fixtures).
+- R-071 Ops & Cost Controls
+  - The system shall support on-device/edge ASR for dev, cascading model strategies (small→large), and summarization layers to cap token costs while preserving determinism.
+  - Verification: TC133 (on-device ASR fallback), TC134 (cascade flow & budget adherence), TC135 (summary layer determinism & auditability).
+- R-072 APIs & Events (MVP Surfaces)
+  - The system shall expose endpoints `/comms/speech`, `/gov/cabinet/meeting`, and WS topics (`opinions.cohorts`, `gov.cabinet.meeting`) as part of the live demo stack.
+  - Verification: TC136 (API contract/unit tests), TC137 (E2E speech/cabinet flows), TC138 (rate limits/auth).
+
+- R-073 Synthetic Population Micro‑Cohorts
+  - The system shall model population as micro‑cohorts with embeddings (beliefs, trust, needs), collapsed deterministically into cohort aggregates each tick, influenced by speeches/media under capped validators.
+  - Verification: TC139 (deterministic aggregation stability), TC140 (cap enforcement under stress), TC141 (zoomable summaries correctness).
+
+- R-074 Diegetic Personas (Advisors/Opposition/Journalists)
+  - The system shall provide persistent persona advisors and spokespersons with style/memory bounded by constitutional powers; their NL outputs route through validators before any systemic effect.
+  - Verification: TC142 (persona replay consistency), TC143 (constraint enforcement per archetype), TC144 (validator coverage of persona outputs).
+
+- R-075 Policy Copilot & Constitutional Court
+  - The system shall generate bill drafts and fiscal notes from NL and run an AI constitutional review against the active archetype, emitting deterministic accept/reject/rationale.
+  - Verification: TC145 (draft → fiscal caps), TC146 (rule coverage per archetype), TC147 (deterministic outcomes for identical inputs).
+
+- R-076 Narrative Director & Seasons
+  - The system shall support season arc proposals with prereqs, KPI targets, rails, and rollback; accepted arcs schedule NL events that validate into bounded modifiers.
+  - Verification: TC148 (arc schedule determinism), TC149 (rollback safety), TC150 (cap adherence of arc events).
+
+- R-077 Explainable Diplomacy
+  - The system shall provide counterfactual previews and trust‑contract outputs for diplomatic actions, with causal chain diffs and deterministic reputation deltas.
+  - Verification: TC151 (preview accuracy vs post‑hoc), TC152 (reputation delta determinism), TC153 (DSL compatibility).
+
+- R-078 Diegetic Media Fabric
+  - The system shall generate media surfaces (radio/podcast/newspaper) whose credibility and reach interact with press_freedom and accuracy history; only validator‑capped effects influence systems.
+  - Verification: TC154 (credibility curve behavior), TC155 (press_freedom mediation), TC156 (no uncapped effects).
+
+- R-079 Adaptive Soundtrack Hooks
+  - The system shall derive soundtrack states from KPI snapshots (tension/prosperity/unrest) using deterministic mapping; no RNG affects simulation outputs.
+  - Verification: TC157 (soundtrack state determinism), TC158 (latency bounds), TC159 (no feedback into sim).
+
+- R-080 Branching Time Machine
+  - The system shall support branching snapshots and parallel what‑ifs with diffed narratives/costs and guarded promotion back to mainline.
+  - Verification: TC160 (branch determinism), TC161 (promotion reconciliation guards), TC162 (diff correctness).
+
+- R-081 Privacy‑First Memory Diary (Opt‑In)
+  - The system shall provide an encrypted per‑player diary referenced (with consent) for NL continuity; any systemic effects must pass validators and caps.
+  - Verification: TC163 (consent gates & audit), TC164 (encryption/restoration), TC165 (no direct numeric bypass).
+
+- R-082 Legislative Bodies (Unicameral/Bicameral)
+  - The system shall model unicameral and bicameral legislatures with deterministic bill pipelines (draft→committee→floor→conference→final→sign/veto→override), vote thresholds, quorum, and coalition discipline; votes only influence outcomes via policy validators under strict caps.
+  - Verification: TC166 (pipeline stage transitions), TC167 (threshold/quorum logic), TC168 (deterministic outcome envelope for identical bill text + state).
+
+- R-083 Central Bank & Monetary Policy
+  - The system shall implement a central bank with bounded policy instruments (policy rate, reserve requirement, QE/QT) and deterministic transmission channels (credit cost, investment rate, currency strength) affecting prices and trade under caps.
+  - Verification: TC169 (instrument bounds & application), TC170 (transmission channel effects within caps), TC171 (deterministic application tied to snapshot hash).
+
+- R-084 Multi‑Currency & FX
+  - The system shall support multiple currencies with regimes (free‑float, managed float, peg), deterministic FX rates within caps, peg enforcement with intervention budgets, and integration into trade/pricing and analytics.
+  - Verification: TC172 (FX quote determinism & bounds), TC173 (peg enforcement and reserve cost), TC174 (pricing conversion correctness & analytics indices).
+
+- R-085 Press Conferences with Reporter Q&A
+  - The system shall support live press conferences where reporter personas ask questions and leaders answer; transcripts are canonicalized; effects are bounded and mediated by press_freedom and outlet credibility.
+  - Verification: TC175 (queue and WS indicators), TC176 (deterministic transcript hash), TC177 (bounded effects under caps with freedom mediation), TC178 (leak/evasion backfire scenarios).
+
+- R-086 Reign Summary & Leaderboards
+  - The system shall compute a deterministic reign summary (tenure, crises resolved, GDPΔ, inflation_avg, approval_avg, wars_won, treaties_signed, reforms_passed) and surface it on the player profile and leaderboards (opt‑in) with a deterministic composite score.
+  - Verification: TC179 (pure computation from snapshots/logs), TC180 (profile/leaderboard rendering), TC181 (opt‑in privacy respected and ranking determinism).
+
+- R-087 Diplomats & Embassy System
+  - The system shall model envoys/embassies with actions (parley, protest, concession, CBMs) that map to validator‑capped diplomatic modifiers, integrate with treaty DSL, and support deterministic previews and outcomes.
+  - Verification: TC182 (action→caps mapping), TC183 (treaty progress determinism), TC184 (counterfactual preview parity with outcome), TC185 (policy/constitutional gating).
+
+- R-088 Intelligence Agencies & Briefings
+  - The system shall provide intel collection/analysis with daily briefs, risk indices, and confidence scores; effects are bounded, deterministic, and policy‑gated for covert ops.
+  - Verification: TC186 (risk index determinism across identical corpus), TC187 (caps/backfire enforcement), TC188 (brief API schema, access control), TC189 (constitutional gating for ops).
 ## 5. Non-Functional Requirements
 - Performance targets
   - STT < 800 ms median; GM response < 3 s median; TTS < 1.2 s for ~150 chars.
@@ -220,6 +379,7 @@
 
 ## 18. References
 - Design: `design/design.md`
+- AI-Driven Deterministic Design: `design/game_systems_design.md`
 - Architecture: `design/architecture.md`
 - Providers: `design/providers.md`
 - Memory: `design/memory.md`

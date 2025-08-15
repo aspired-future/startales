@@ -1,4 +1,4 @@
-# UI Visual Design — Galactic Tale Weaver RPG
+# UI Visual Design — Nation‑Building (reconciled from RPG)
 
 ## Design Goals
 - Voice-first, readable at a glance, minimal friction
@@ -6,6 +6,32 @@
 - Scalable layout for 1280×800 up to ultrawide; responsive to 1024×640
 - Consistent art style (scene/portrait/item) with unobtrusive chrome
 - Accessible: keyboardable, captions, ARIA roles, color-contrast compliant
+
+## Nation‑Building Reconciliation & Migration Map
+
+RPG primitives are reinterpreted as governance surfaces, preserving fast, voice‑first interaction and encounter‑style beats.
+
+- Scene → Briefing/Press/Map focus panel
+- NPC Roster → Cabinet/Advisors/Reporters list
+- Objectives → Policy Agenda, Bills Pipeline, KPIs Alerts
+- Encounters/Missions → Events/Initiatives with steps and outcomes
+- Inventory/Artifacts → Resources/Budget/Entitlements
+- Transcript/Chat → Captions/Logs for Cabinet/Press/Stage sessions
+
+New Core Screens (Nation mode)
+- Dashboard HUD (Economy/Population/Trade/Military/Science panels, alerts)
+- Policy Console & Advisors (free‑form → capped modifiers)
+- Legislature (bills list, stages, votes, veto/override)
+- Press Conferences (reporter queue, Q&A transcript, live indicators)
+- Cabinet Meetings (voice, actions, outcomes history)
+- Trade & FX (prices, routes, contracts, FX baskets)
+- Analytics (inflation, FX, trends, explainability)
+- Leader Profile & Reign Summary (KPIs, narrative, leaderboard link)
+
+Test IDs (global)
+- `data-testid="mode-toggle-nation|hero"`
+- `data-testid="panel-economy|population|trade|military|science|infrastructure"`
+- `data-testid="alerts-panel"`
 
 ## Information Architecture (Session View)
 - Primary focus: Scene (image/video + short narration)
@@ -92,6 +118,8 @@ Notes
 │ Name: [____________________]                                         │
 │ World/Mission Pack: [Orion Arm Frontier ▼]                           │
 │ Resolution Mode:  (•) Outcome Meter   ( ) Classic d20                │
+│ Game Modes:   [ ] Hero (Encounters)   [ ] Nation (Governance)        │
+│  ⓘ You can enable both; HUD toggles are available during play         │
 │ Revial Options:   (•) Standard  ( ) Story/Casual  ( ) Hardcore       │
 │  ⓘ Standard: clone/backup with minor costs; Story: limited rewinds;  │
 │     Hardcore: permadeath                                             │
@@ -104,6 +132,9 @@ Test IDs:
 - `data-testid="setup-pack"`
 - `data-testid="setup-resolution-outcome"`
 - `data-testid="setup-resolution-classic"`
+- `data-testid="setup-mode-hero"`
+- `data-testid="setup-mode-nation"`
+- `data-testid="setup-mode-both"`
 - `data-testid="setup-revial-standard|story|hardcore"`
 - `data-testid="setup-submit"`
 
@@ -142,7 +173,7 @@ Test IDs:
  - GlobalLeaderboardView: opt-in global users board with privacy notice and filters
  - AlienCompendium: species catalog (non-humanoid emphasis) with portraits and morphology/physiology tags
 
-### Outcome Meter HUD (Default Resolution)
+### Outcome Meter HUD (Optional Classic Mode)
 - Bands: Fail | Complication | Success | Critical Success; color-coded with accessible contrasts.
 - Chance Bar: horizontal bar with live percent and modifier pills; shows expected cost if Complication triggered.
 - Modifiers List: collapsible list detailing sources (skill, attribute, gear, status, clocks, momentum).
@@ -230,3 +261,142 @@ graph TD
 - Collapse rails into drawers (left=Channels/Party, right=Objectives)
 - Scene as primary; transcript as swipe-up bottom sheet
 - Floating mic button; quick intents as pill row over media
+
+## Full HUD Design (MVP + Empire Mode)
+
+### Controls Row (Top of HUD)
+- Game Mode selector: Hero | Empire
+- Resolution Mode selector: Outcome | Classic
+- Save Settings button
+
+Test IDs
+- `data-testid="hud-game-mode"`
+- `data-testid="hud-resolution-mode"`
+- `data-testid="hud-save-settings"`
+
+### Encounter Clock & Outcome Preview
+- Encounter Tick button advances an encounter clock bar (simulated in MVP)
+- Outcome Preview button queries `/api/outcome/preview` and fills a success bar with %
+
+Test IDs
+- `data-testid="hud-encounter-tick"`
+- `data-testid="hud-encounter-clock"`
+- `data-testid="hud-outcome-preview"`
+- `data-testid="hud-outcome-success"`
+
+### Panels Grid
+- Backpack
+  - Simple list for quick items; expand to Inventory in future
+- Credits & Resources
+  - Shows Credits, Alloys, Fuel (MVP); drill-down planned
+- Map / Planet
+  - Current planet/system, sector context
+- Empire Summary
+  - Name, holdings, fleets count (MVP)
+- Backstory & History
+  - Textarea; save persists to `/api/settings`
+- Alien Civilizations — Diverse Personalities
+  - List of species/personality examples; links to compendium later
+- Vezy Score
+  - Goals + current score; 4 bars: Story, Empire, Discovery, Social
+  - Demo buttons increment score via `/api/vezy/event`
+- Planet/Civilization Generator (Hero/Setup Utility)
+  - Generates random planet JSON via `/api/generator/planet`
+- Empire — Planets & Production
+  - Create Planet (POST `/api/empire/planets`)
+  - Production Tick (POST `/api/empire/planets/:id/tick`)
+  - Lists Planets, Production preview, Stockpiles
+  - Build Queue: Add Demo Build (POST `/api/empire/planets/:id/queues`), Work Tick (POST `/api/empire/queues/:queueId/tick`), progress bar
+  - Units: Train Infantry (POST `/api/empire/planets/:id/units/infantry`), list units
+
+### Nation Mode Panels (New)
+
+Press Conferences
+- Layout: Left (Reporter Queue), Center (Q&A Transcript), Right (Indicators & Effects)
+- Controls: Start/End, Select Question, Answer field (voice/NL), Publish
+- Live: WS badges for speaking, queue changes
+- Test IDs: `data-testid="press-queue"`, `data-testid="press-transcript"`, `data-testid="press-start|end"`, `data-testid="press-answer"`, `data-testid="press-live-indicator"`
+
+Cabinet Meetings
+- Layout: Roster with speaking dots, transcript with chapter markers, action items list
+- Controls: Start/End, Summarize, Approve Actions
+- Test IDs: `data-testid="cabinet-roster"`, `data-testid="cabinet-transcript"`, `data-testid="cabinet-actions"`
+
+Policy Console & Advisors
+- Left: Policy Draft editor; Right: Parsed effects (capped), Advisor proposals
+- Actions: Submit for Review, Activate (if valid), Revert
+- Test IDs: `data-testid="policy-editor"`, `data-testid="policy-effects"`, `data-testid="advisor-proposals"`
+
+Legislature
+- Bills table (stage chips), detail drawer (votes, thresholds, veto/override), advance controls
+- Test IDs: `data-testid="bills-table"`, `data-testid="bill-detail"`, `data-testid="bill-advance"`
+
+Trade & FX
+- Tabs: Prices, Contracts, Routes, FX Baskets; right rail: indices and filters
+- Test IDs: `data-testid="fx-baskets"`, `data-testid="prices-table"`, `data-testid="contracts-grid"`
+
+Analytics (Inflation/FX)
+- Charts with time window selector; trend deltas; explainability link
+- Test IDs: `data-testid="analytics-inflation"`, `data-testid="analytics-fx"`, `data-testid="trend-window"`
+
+Leader Profile & Reign Summary
+- Cards: Tenure, GDPΔ, InflationAvg, ApprovalAvg, CrisesResolved, WarsWon, TreatiesSigned, ReformsPassed
+- CTA: View Leaderboard
+- Test IDs: `data-testid="reign-summary"`, `data-testid="leaderboard-link"`
+
+Test IDs (mapping to demo ids)
+- Backpack: `data-testid="hud-backpack"` (demo id `#backpack`)
+- Credits: `data-testid="hud-credits"` (demo id `#credits`)
+- Resources: `data-testid="hud-resources"` (demo ids `#alloys`, `#fuel`)
+- Map/Planet: `data-testid="hud-planet"`
+- Empire Summary: `data-testid="hud-empire"`
+- Backstory: `data-testid="hud-backstory"`; Save: `data-testid="hud-backstory-save"`
+- Alien Personalities: `data-testid="hud-aliens"`
+- Vezy Goals: `data-testid="hud-vezy-goals"`; Score: `data-testid="hud-vezy-score"`
+- Vezy Bars: `data-testid="hud-vezy-bar-story|empire|discovery|social"`
+- Vezy Increment Buttons: `data-testid="hud-vezy-add-story|empire|discovery|social"`
+- Planet Generator Button: `data-testid="hud-gen-planet"`; Output: `data-testid="hud-gen-planet-out"`
+- Empire Create: `data-testid="hud-empire-create"` (demo id `#empireCreate`)
+- Empire Tick: `data-testid="hud-empire-tick"` (demo id `#empireTick`)
+- Empire Planets List: `data-testid="hud-empire-planets"` (demo id `#empirePlanets`)
+- Production Preview: `data-testid="hud-empire-prod"` (demo id `#empireProd`)
+- Stockpiles: `data-testid="hud-empire-stocks"` (demo id `#empireStocks`)
+- Queue Add: `data-testid="hud-empire-queue-add"` (demo id `#queueAdd`)
+- Queue Tick: `data-testid="hud-empire-queue-tick"` (demo id `#queueTick`)
+- Queue Progress: `data-testid="hud-empire-queue-progress"` (demo id `#queueProg`)
+- Queue JSON: `data-testid="hud-empire-queue"` (demo id `#empireQueue`)
+- Units Train: `data-testid="hud-empire-units-train"` (demo id `#unitTrain`)
+- Units List: `data-testid="hud-empire-units"` (demo id `#empireUnits`)
+
+### HUD Analytics Screen (Empire)
+- Panels: Economy (indices, budget sliders), Military (strength/readiness), Population (growth/morale), Science (velocity/breakthroughs), Infrastructure (uptime)
+- Alerts panel: KPI threshold breaches (hysteresis), actions needed
+- Controls: policies/taxes (authorized roles) via sliders/toggles; preview projected impact bands
+
+Data Binding & API (planned)
+- Latest Snapshot: `GET /api/analytics/empire?scope=campaign`
+- Trends (window=N): `GET /api/analytics/trends?window=30`
+- Policies: `POST /api/economy/policies`
+- Taxes: `POST /api/economy/taxes`
+
+Test IDs
+- `data-testid="hud-analytics"`
+- `data-testid="hud-analytics-economy|military|population|science|infrastructure"`
+- `data-testid="hud-analytics-alerts"`
+- `data-testid="hud-analytics-policy|taxes"`
+
+### Accessibility & Keyboard
+- Keyboard shortcuts (default)
+  - PTT: Space (hold)
+  - Switch Channel: Ctrl+Tab
+  - Outcome Meter: Alt+O
+  - Toggle Classic: Alt+C
+  - Spend Momentum: Alt+M
+  - Focus Transcript: Alt+T
+- ARIA & Labels
+  - All interactive controls labeled; progress bars have `aria-valuenow/min/max`
+  - Live regions for achievements toasts and situation ticker
+
+### Visual Consistency & Themes
+- Use style tokens from Theming & Tokens
+- Scene/portrait/item art uses consistent style profiles; HUD chrome remains minimal

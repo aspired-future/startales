@@ -1,6 +1,15 @@
+// This file contains the main server for the full app (not used for demo).
+// The demo server lives in src/demo/index.ts. Keep this stub minimal to satisfy imports.
 import express from 'express';
 import cors from 'cors';
-import { campaignsRouter } from './routes/campaigns.js';
+// Optional .env loader without hard dependency
+try {
+  const { createRequire } = await import('module');
+  const req = createRequire(import.meta.url);
+  const dotenv = req('dotenv');
+  if (dotenv?.config) dotenv.config();
+} catch {}
+import campaignsRouter from './routes/campaigns.js';
 import { schedulesRouter } from './routes/schedules.js';
 import { audioRouter } from './routes/audio.js';
 import { personalitiesRouter } from './routes/personalities.js';
@@ -15,6 +24,15 @@ import { XTTSProvider } from './llm/providers/xtts.js';
 import { demoRouter } from './routes/demo.js';
 import { settingsRouter } from './routes/settings.js';
 import { encounterRouter } from './routes/encounter.js';
+import { vezyRouter } from './routes/vezy.js';
+import { generatorRouter } from './routes/generator.js';
+import { empireRouter } from './routes/empire.js';
+import { mapRouter } from './routes/map.js';
+import tradeRouter from './routes/trade.js';
+import { initDb } from './storage/db.js';
+import { analyticsRouter } from './routes/analytics.js';
+import policiesRouter from './routes/policies.js';
+import advisorsRouter from './routes/advisors.js';
 
 const app = express();
 app.use(cors());
@@ -28,6 +46,14 @@ app.use('/api/outcome', outcomeRouter);
 app.use('/demo', demoRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/encounter', encounterRouter);
+app.use('/api/vezy', vezyRouter);
+app.use('/api/generator', generatorRouter);
+app.use('/api/empire', empireRouter);
+app.use('/api/map', mapRouter);
+app.use('/api/trade', tradeRouter);
+app.use('/api/analytics', analyticsRouter);
+app.use('/api/policies', policiesRouter);
+app.use('/api/advisors', advisorsRouter);
 // Serve built UI (run: npm run ui -- --build)
 app.use('/app', express.static('dist/ui'));
 app.get('/app/*', (_req, res) => res.sendFile('dist/ui/index.html', { root: process.cwd() }));
@@ -40,6 +66,7 @@ registerTTSProvider(new XTTSProvider());
 // Register Ollama as default local LLM
 registerProvider(new OllamaProvider());
 
+await initDb();
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
 const server = http.createServer(app);
 const wss = createGateway(server, { heartbeatMs: 15000, ratePerSec: 10 });

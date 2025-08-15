@@ -1,0 +1,109 @@
+{
+	"meta": {
+		"generatedAt": "2025-08-14T06:52:21.414Z",
+		"tasksAnalyzed": 12,
+		"totalTasks": 12,
+		"analysisCount": 12,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Setup Database Schema for Trade and Corporations",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the database schema setup task into subtasks covering: 1) Market and ticker tables, 2) Order book and trades tables, 3) Corporation and shares tables, 4) Contracts and tariffs tables, 5) Routes table and final integration. For each subtask, include SQL creation scripts, foreign key relationships, indexes, and test cases.",
+			"reasoning": "This task involves creating 10 interconnected tables with proper relationships, constraints, and indexes. While the schema is well-defined, implementing it correctly requires careful consideration of data types, foreign keys, and performance optimizations. The complexity comes from ensuring data integrity across multiple related tables and designing appropriate indexes for query performance."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Implement Supply/Demand Price Calculation Engine",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the supply/demand price calculation engine into subtasks covering: 1) Data model for supply/demand curves, 2) Base price calculation algorithm, 3) Price adjustment based on supply changes, 4) Price query API, 5) Price update mechanism, 6) Caching and performance optimization. For each subtask, include implementation details, test scenarios, and integration points.",
+			"reasoning": "This is a core economic simulation component with complex mathematical modeling. The task requires implementing supply/demand curves, a configurable pricing formula, and real-time price updates. The complexity stems from ensuring the economic model behaves realistically under various conditions, handling edge cases, and maintaining performance when calculating prices across many resources and systems simultaneously."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Implement Trade Routes and Tariffs System",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the trade routes and tariffs system into subtasks covering: 1) Route definition and storage, 2) Capacity tracking mechanism, 3) Risk factor implementation, 4) Tariff calculation engine, 5) Route query and management API. For each subtask, include data models, business logic, API endpoints, and test scenarios.",
+			"reasoning": "This task involves creating a complex network of trade routes with multiple attributes (capacity, risk) and implementing tariff calculations. The complexity comes from managing the relationships between routes, systems, and resources, as well as implementing the business logic for capacity tracking and tariff application. The system must also handle route utilization against capacity limits."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Develop Contract System for Spot and Offtake Deals",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the contract system into subtasks covering: 1) Contract data model and validation, 2) Spot contract execution logic, 3) Offtake contract scheduling, 4) Contract status tracking, 5) Tick-based processor for scheduled deliveries, 6) Contract API endpoints. For each subtask, include implementation details, validation rules, error handling, and test scenarios.",
+			"reasoning": "This task requires implementing both immediate and future-scheduled resource transfers with complex validation rules. The complexity stems from managing the contract lifecycle, validating resource availability, scheduling future deliveries, and ensuring atomicity of transactions. The tick-based processor adds another layer of complexity for handling scheduled deliveries at the right time."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Implement Corporation Registry and Share Ledger",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the corporation registry and share ledger into subtasks covering: 1) Corporation creation and management, 2) Share ledger data model, 3) Share issuance mechanism, 4) Share transfer system with validation, 5) Corporation and cap table API endpoints. For each subtask, include data models, business logic, validation rules, and test scenarios.",
+			"reasoning": "This task involves implementing a corporate registry with share tracking that resembles a simplified stock market. The complexity comes from ensuring accurate tracking of ownership percentages, validating share transfers, and maintaining data integrity across multiple operations. The system must prevent invalid operations like transferring more shares than owned."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Implement Corporation Facilities and P&L Tracking",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the corporation facilities and P&L tracking system into subtasks covering: 1) Facility ownership model, 2) Route ownership and attribution, 3) Revenue and expense tracking per facility, 4) Per-tick P&L calculation engine, 5) Financial summary API endpoints. For each subtask, include data models, calculation logic, aggregation methods, and test scenarios.",
+			"reasoning": "This task requires implementing a financial tracking system that calculates profits and losses across multiple owned assets. The complexity stems from correctly attributing revenues and expenses to the right entities, calculating P&L on a per-tick basis, and aggregating financial data across different types of assets (facilities and routes)."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Implement Dividend Distribution System",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down the dividend distribution system into subtasks covering: 1) Dividend declaration mechanism, 2) Per-share calculation logic, 3) Distribution to shareholders implementation, 4) Dividend history tracking and API. For each subtask, include data models, calculation formulas, validation rules, and test scenarios.",
+			"reasoning": "This task involves implementing a financial distribution system that calculates and processes payments to shareholders. The complexity comes from ensuring accurate proportional distribution based on ownership percentages, handling edge cases like fractional amounts, and maintaining a proper audit trail of dividend history."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Develop Trade Panel UI",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the trade panel UI development into subtasks covering: 1) Price list component with filtering, 2) Demand heatmap visualization, 3) Sorting and filtering controls, 4) Price trend indicators, 5) API integration and data refresh. For each subtask, include UI component design, state management, API integration points, and test scenarios.",
+			"reasoning": "This UI task requires creating interactive components for displaying and filtering trade data, plus a heatmap visualization. The complexity comes from implementing the interactive filtering, sorting mechanisms, and especially the heatmap visualization which requires mapping data values to colors. The UI must also handle data refreshing and responsive design."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Implement Contract Builder UI",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the contract builder UI into subtasks covering: 1) Party selection components, 2) Resource selection with price display, 3) Quantity and delivery date inputs with validation, 4) Contract value and tariff calculation display, 5) Form submission and error handling. For each subtask, include UI component design, form validation rules, calculation logic, and test scenarios.",
+			"reasoning": "This UI task involves creating a multi-step form with dynamic calculations and validations. The complexity stems from integrating with multiple APIs (prices, tariffs), implementing real-time calculations as inputs change, and handling various validation scenarios. The UI must also provide clear feedback for errors and successful submissions."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Develop Corporation Sheet UI",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the corporation sheet UI into subtasks covering: 1) Corporation overview component, 2) Capital table visualization, 3) Facilities and routes summary, 4) Dividend history display, 5) Financial summary with P&L. For each subtask, include UI component design, data visualization approach, API integration points, and test scenarios.",
+			"reasoning": "This UI task requires creating multiple interconnected views of corporation data with several interactive elements. The complexity comes from integrating with multiple API endpoints, displaying complex financial data in an understandable format, and implementing interactive features like dividend declaration and share transfers."
+		},
+		{
+			"taskId": 11,
+			"taskTitle": "Implement Regional Exchanges and Order Books",
+			"complexityScore": 9,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Break down the regional exchanges and order books implementation into subtasks covering: 1) Exchange and instrument data model, 2) Order book data structure, 3) Limit order implementation, 4) Market order implementation, 5) Order matching algorithm, 6) Trade execution and recording, 7) Fee structure implementation. For each subtask, include data models, algorithms, performance considerations, and test scenarios.",
+			"reasoning": "This is one of the most complex tasks, involving implementing a financial exchange with order matching. The complexity stems from creating an efficient order book data structure, implementing the price-time priority matching algorithm, handling partial fills, and ensuring the system maintains consistency during concurrent operations. The performance requirements are also significant as order matching needs to be fast."
+		},
+		{
+			"taskId": 12,
+			"taskTitle": "Implement Portfolio API and Market Data Endpoints",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the portfolio API and market data endpoints into subtasks covering: 1) Ticker information endpoints, 2) Order book query API, 3) Trade history endpoints, 4) Portfolio holdings aggregation, 5) Portfolio valuation and performance tracking. For each subtask, include data models, query optimization, aggregation logic, and test scenarios.",
+			"reasoning": "This task involves creating APIs that aggregate and process market data from multiple sources. The complexity comes from efficiently querying and aggregating data across different instruments, calculating current market values based on last trades, and tracking portfolio performance over time. The system must handle potentially large datasets while maintaining good response times."
+		}
+	]
+}

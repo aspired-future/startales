@@ -1,31 +1,24 @@
 import { Router } from 'express'
-
-type Settings = {
-  resolutionMode: 'outcome' | 'classic'
-  revialPolicy: 'story' | 'standard' | 'hardcore'
-  winCriteria?: string
-  visualLevel?: 'off' | 'characters' | 'worlds' | 'everything'
-}
-
-const memory: { settings: Settings } = {
-  settings: { resolutionMode: 'outcome', revialPolicy: 'standard' }
-}
+import { getSettings, setSettings } from '../storage/db.js'
 
 export const settingsRouter = Router()
 
-settingsRouter.get('/', (_req, res) => {
-  res.json(memory.settings)
+settingsRouter.get('/', async (_req, res) => {
+  const s = await getSettings()
+  res.json(s)
 })
 
-settingsRouter.post('/', (req, res) => {
+settingsRouter.post('/', async (req, res) => {
   const s = req.body ?? {}
-  memory.settings = {
-    resolutionMode: s.resolutionMode === 'classic' ? 'classic' : 'outcome',
-    revialPolicy: s.revivalPolicy === 'story' ? 'story' : s.revivalPolicy === 'hardcore' ? 'hardcore' : 'standard',
-    winCriteria: typeof s.winCriteria === 'string' ? s.winCriteria : memory.settings.winCriteria,
-    visualLevel: ['off','characters','worlds','everything'].includes(s.visualLevel) ? s.visualLevel : memory.settings.visualLevel
-  } as Settings
-  res.json(memory.settings)
+  const saved = await setSettings({
+    resolutionMode: s.resolutionMode,
+    revialPolicy: s.revialPolicy ?? s.revivalPolicy, // accept legacy key typo
+    gameMode: s.gameMode,
+    backstory: s.backstory,
+    winCriteria: s.winCriteria,
+    visualLevel: s.visualLevel
+  })
+  res.json(saved)
 })
 
 

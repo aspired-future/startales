@@ -1,24 +1,33 @@
-FROM node:20-alpine AS deps
-WORKDIR /app
-COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* ./
-RUN npm ci --ignore-scripts || npm install --ignore-scripts
+FROM node:20-alpine
 
-FROM node:20-alpine AS build
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-# Ensure bin scripts are executable inside container (some hosts lose +x)
-RUN chmod +x ./node_modules/.bin/* || true
-RUN node ./node_modules/typescript/lib/tsc.js -p .
 
-FROM node:20-alpine AS runtime
-WORKDIR /app
-ENV NODE_ENV=production
+# Copy package files
 COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev --no-audit --no-fund || npm install --production --no-audit --no-fund
-COPY --from=build /app/dist ./dist
-RUN npm pkg set type=module >/dev/null 2>&1 || true
+
+# Install all dependencies (including dev dependencies for build)
+RUN npm install --no-audit --no-fund
+
+# Install tsx globally for runtime
+RUN npm install -g tsx
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Remove dev dependencies to reduce image size
+RUN npm prune --production
+
+# Ensure critical runtime dependencies are present
+RUN npm list ws || npm install ws
+RUN npm list express || npm install express
+RUN npm list cors || npm install cors
+RUN npm list pg || npm install pg
+
 EXPOSE 4000
+
 CMD ["node", "--experimental-specifier-resolution=node", "dist/server/index.js"]
 
 

@@ -1,0 +1,60 @@
+Title: Interstellar Trade, Corporations, and Markets (Phase 1–2)
+
+Goal
+- Implement a minimal but extensible economy loop for interstellar trade between civilizations (players and aliens), plus corporations and stock markets to enable investment.
+
+Scope (Phase 1)
+- Trade model MVP
+  - Planet/system-level supply/demand curves per resource; live prices computed from stockpiles and demand.
+  - Trade routes and tariffs; route risk (piracy) placeholder.
+  - Contracts endpoint for spot and basic offtake (long-term) deals.
+- Corporations MVP
+  - Corp registry, share ledger (owner_id, shares), basic dividend distribution.
+  - Corps own facilities, routes; P&L tracked per tick (placeholder fields).
+- UI
+  - Trade panel (prices list per system, simple demand heatmap), basic contract builder.
+  - Corporation sheet (cap table, facilities summary, last dividend).
+
+Scope (Phase 2)
+- Markets
+  - Regional exchanges; order books (limit/market), trades table, portfolio API.
+  - Instruments: common shares and resource futures; maker/taker fees.
+  - News/events feed influencing prices; circuit breakers.
+- Funds/Credit
+  - Player funds (mandates, mgmt/perf fees) and simple loans secured by stockpiles.
+
+Data Model (initial tables)
+- markets(id, region)
+- tickers(id, ex_id, symbol, type)
+- order_books(id, ticker_id, side, price, qty)
+- trades(id, ticker_id, qty, price, buyer_id, seller_id, at)
+- corps(id, name, hq_system_id)
+- corp_shares(corp_id, owner_id, shares)
+- corp_dividends(id, corp_id, amount, declared_at)
+- contracts(id, buyer_id, seller_id, commodity, qty, price, deliver_at)
+- tariffs(system_id, resource, rate)
+- routes(id, from_id, to_id, capacity, risk)
+
+APIs (initial)
+- GET /api/trade/prices?system=:id
+- POST /api/trade/contract { buyerId, sellerId, resource, qty, price, deliverAt }
+- GET /api/corps, POST /api/corps { name, hqSystemId }
+- GET /api/corps/:id/cap-table, POST /api/corps/:id/dividend { amount }
+- GET /api/markets/tickers, POST /api/markets/order
+- GET /api/markets/portfolio?owner=:id
+
+Acceptance Criteria (Phase 1)
+- Price endpoint reflects changes from stockpiles and a tunable demand curve.
+- Contract POST reduces seller stockpiles and schedules delivery; buyer receives on tick.
+- Corps registry persists and cap table updates on issuance/transfer.
+- UI panels render prices, allow a simple contract, and show corp cap table.
+
+Tests
+- Unit: price calculation, contract creation, dividend distribution.
+- API: contracts flow, corp registry, cap table changes.
+- UI: price list render, contract submit happy path.
+
+Out of Scope (for now)
+- Full risk simulation, complex derivatives, real arbitration.
+
+

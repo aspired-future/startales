@@ -5,7 +5,7 @@ test('HUD demo saves and ticks', async ({ page, request }) => {
   expect(health.ok()).toBeTruthy()
 
   await page.goto('http://127.0.0.1:4000/demo/hud')
-  await page.getByText('Save').click()
+  await page.locator('#save').click()
   await page.getByText('Encounter Tick').click()
   await page.getByText('Preview Outcome').click()
   await page.screenshot({ path: 'hud-smoke.png', fullPage: true })

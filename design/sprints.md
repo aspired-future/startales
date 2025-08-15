@@ -1,4 +1,175 @@
-Title: Updated 8-Sprint Plan (with End-of-Sprint Demos)
+Title: Unified Sprint Plan (1–12) with Demos
+
+# Unified Plan Overview
+
+This unified plan merges the previous lettered (A–L) and numbered (1–8) tracks into a single 12‑sprint sequence. Each sprint lists the demo surface and primary APIs.
+
+Unified Sprint 1 — Core Loop + Simulation Engine HUD
+- Core Loop/Outcome Meter foundations (bands, chance bar, Classic toggle) and Simulation Engine HUD
+- Demo: /demo/hud
+- APIs: POST /api/sim/step, GET /api/analytics/empire, GET /api/analytics/snapshots
+Add-ons in S1:
+- Game Setup: enable Hero and Nation modes (both allowed); HUD toggle visible when both
+- Succession options in Setup: on deposition/conquest/term expiry (Game Over | Hero Mode | New Nation | Successor Leader | Observer)
+
+Unified Sprint 2 — Persistence, Memory, Images
+- SQLite + event sourcing + snapshots; vector memory (campaign/player); image pipeline (prompt builder, cache)
+- Demo: save → resume → branch; placeholder→final image swap
+- APIs: snapshot/resume endpoints (as planned), image request lifecycle
+
+Unified Sprint 3 — Policies & Advisors
+- Policy console (free‑form text → capped modifiers with approval), Advisors (query/propose) integrated with engine
+- Demo: approve policy → step → KPI delta; advisor propose→approve→step
+- APIs: POST /api/policies, POST /api/policies/activate, GET /api/policies/active, POST /api/advisors/:domain/{query|propose}
+
+Add-ons in S3:
+- Policy Drafting Copilot (NL → bill → fiscal note → capped modifiers) and AI Constitutional Court validator
+- Persona Advisors (diegetic) with persistent style/memory, bounded by constitutional constraints
+ - Lobbying & Disclosures: registry, budgets, filings → bounded agenda/scheduling biases; transparency/backfire
+- Succession state machine hooks for archetypes (monarchy, democracy, empire)
+ - Restoration via Hero Influence: support deltas from encounters with caps and precondition gating
+
+Unified Sprint 4 — Trade & Economy (Phase 1) + Analytics Base
+- Prices, routes/tariffs, contracts; early economy indices and analytics base
+- Demo: prices react to scarcity/tariffs; contract lifecycle; basic indices
+- APIs: GET /api/trade/prices, POST /api/trade/routes, POST /api/trade/contracts, GET /api/trade/{contracts|indices}
+
+Add-ons in S4:
+- Currencies & FX v1 (free‑float) integrated in price quotes and analytics indices
+- Central Bank scaffolding: config and read-only analytics hooks
+- Infrastructure Network v1: roads/rails/ports capacity + maintenance hooks influencing logistics/trade
+ - Entrepreneurs & Private Innovation v1: startup registry, private R&D hooks into research/adoption
+ - GDP components groundwork (C,I,NX) flowing from trade/corporate subsystems
+- Logistics & Transport v1: modes, shipments with ETAs/queues, in‑flight inventory affecting settlement
+
+Unified Sprint 5 — Analytics & KPIs Consolidation
+- Snapshot computation, trends, HUD analytics screen; empire KPI panels
+- Demo: analytics panels and trends over multiple steps
+- APIs: GET /api/analytics/{empire,trends}
+
+Add-ons in S5:
+- Causal Explainability dashboards (why KPIs changed) with counterfactual runner hooks
+ - Monetary/FX analytics panels (inflation, FX baskets)
+- Education KPIs and budget lines (effect hooks to research/expertise)
+ - Innovation KPIs (startup_count, private_RnD_spend, patents, adoption_index)
+ - GDP total/growth panel and API; National Budget UI (allocations, caps, deficit)
+
+Unified Sprint 6 — Live Ops Core (Stage, Fireteams, Speeches, Cabinet)
+- Stage backend (roster, approvals, WS updates), Fireteams scaffolding; leader speeches and cabinet voice meeting MVP
+- Demos: /demo/speech, /demo/cabinet; Stage/Fireteams flows
+- APIs: POST /api/comms/speech, POST /api/gov/cabinet/meeting, WS stage/fireteams topics
+
+Add-ons in S6:
+- Diegetic Media Fabric (headlines/podcast front page) driven by press_freedom + credibility
+- Persona press secretary and opposition spokesperson with bounded media effects
+ - Legislative session ticker: bills advancing with NL summaries (no direct numeric impact without validators)
+ - Press Conferences (Q&A): reporter queue + live indicators; bounded messaging/credibility effects; transcripts and recap
+ - Intel Brief (Daily): minimal agency brief panel and risk indices (analysis only)
+
+Unified Sprint 7 — Daily Contracts, Weekly Anomalies, Recap & Sharing
+- Contracts rotation; anomaly mutators activation/teardown; recap cards (hero image + seed code) and sharing
+- Demo: contract→anomaly run→recap share
+- APIs: /api/live/{contracts,anomalies}, /api/recap/{generate,:id}
+
+Add-ons in S7:
+- Recap “writer’s room” arc tying beats to season narrative (deterministic schedule + rollback plan)
+
+Unified Sprint 8 — Cosmetics & Store + Alliance Season Pass
+- Cosmetics catalog/entitlements, Store flow; Alliance Season Pass (free/premium tracks, prestige)
+- Demo: purchase (mock) → entitlement applied; season track progression
+- APIs: /api/store/{catalog,purchase}, /api/entitlements, /api/season/{pass,progress}
+
+Add-ons in S8:
+- Adaptive Soundtrack hooks (react to KPIs) and cosmetic radio skins for media personas
+ - Currency skins and commemorative coins cosmetics tied to FX events (visual only)
+
+Unified Sprint 9 — Cost Telemetry
+- Token/STT/TTS/image costs, dashboards, budgets; ±10% accuracy vs logs
+- Demo: admin cost dashboard
+- APIs: /api/telemetry/{costs,reports}
+
+Add-ons in S9:
+- Model cascading and budget enforcement for media/voice features; diary access audit panel (opt‑in)
+ - Reign Summary computation job and initial leaderboards integration (opt‑in)
+
+Unified Sprint 10 — Single Player Mode
+- Solo manager with companion agent; pause/resume; solo DDA bounds
+- Demo: solo run → pause → resume
+- APIs: /api/solo/{session,companion}
+
+Add-ons in S10:
+- Player fingerprinting (opt‑in) for pacing and companion style; bounded by determinism
+
+Unified Sprint 11 — Simulation Advanced & Consistency
+- Deterministic snapshots/replay, reconciliation, drift detection/replay/fallback; designer hooks
+- Demo: snapshot/restore + reconciliation view
+- APIs: /api/sim/{snapshot,replay,reconcile}
+
+Add-ons in S11:
+- Branching time machine UI (parallel what‑ifs) with diffed narratives and promotion safeguards
+ - Explainable diplomacy interacts with FX and central bank credibility in counterfactuals
+ - Diplomats & Embassy workflows integrated with treaty DSL and previews
+ - Hero Exploration & National Quests integration with sim/logistics (bounded effects)
+ - FTL Jump Network (seeded lanes/nodes) and Ancient Artifacts discovery/activation (bounded effects)
+ - Technology Tree (DAG) with research flows and bounded effects; UI and APIs
+
+Unified Sprint 12 — Performance @50 (Hardening)
+- Action batching, caching, DB tuning, horizontal scale hooks; spectators/casts (caption‑only)
+- Demo: load harness; WS fanout p95 < 300ms; GM summary p50 < 4.5s
+- Work: perf tuning, batching windows, spectator caption stream
+
+Add-ons in S12:
+- Media/agent scaling tests; soundtrack mixer perf; treaty DSL stress with many agents
+
+# Near-term Insert: Engine, Policies/Advisors, Trade, Analytics, CI (detail retained)
+
+Sprint A: Simulation Engine (MVP) [Task 36]
+- Engine host & seed PRNG (36.1)
+- Reducers: production → queues → logistics-cap (stub) → prices → readiness/science proxies → apply modifiers → KPIs + Vezies (36.2)
+- Persistence & dev API: POST /api/sim/step (36.3)
+- Analytics integration: GET /api/analytics/empire prefers engine snapshot (36.4)
+- HUD: Step Engine button + last KPIs/logs (36.5)
+- Demo: /demo/hud Step Engine shows KPI bar movement, queue progress; kpi_snapshots updated
+
+Sprint B: Policies/Laws (Free-form) & AI Advisors (MVP) [Task 37]
+- Policies storage & create endpoint (suggestions placeholder) (37.1)
+- Approval & capped modifiers; engine reads active modifiers (37.2)
+- Advisors endpoints (query/propose) + pending actions (37.3)
+- Engine executes approved proposals on next step (37.4)
+- HUD panels (Policies/Advisors) (37.5)
+- Demo: approve a policy → Step Engine → KPI delta within band; advisor propose→approve → Step Engine → effect visible
+
+Sprint C: Trade, Corporations, Markets (Phase 1–2) [Task 34]
+- Price model & endpoint (34.1)
+- Routes & tariffs + effects (34.2)
+- Contracts API (spot, offtake) (34.3)
+- Corps registry + sector KPIs (34.4)
+- Economy indices & policies/taxes endpoints (34.5)
+- UI panels (Trade, Economy, Corp) (34.6)
+- Engine reflects tariffs/policies in KPIs
+- Demo: prices vary with scarcity+tariffs; create contract → after step stockpiles change; indices respond to policy/tax slider
+
+Sprint D: Analytics & KPIs (Consolidation) [Task 39]
+- Schema & snapshot repository (39.1)
+- Snapshot computation service (39.2)
+- Analytics APIs (latest, trends) (39.3)
+- HUD Analytics screen (39.4)
+- Demo: analytics panels render; trends visible after multiple steps; bounded expectations
+
+Sprint E: Verification & CI [Task 38]
+- API tests: engine & scoring (38.1)
+- API tests: policies & advisors (38.2)
+- UI tests: HUD flows (Engine/Policies/Advisors/Prices) (38.3)
+- CI plumbing: compose Postgres; server on 4010; BASE_URL; artifacts (38.4)
+- Demo: green CI run with screenshots; brief seeded replay walkthrough
+
+<!-- Lettered block consolidated into Unified Sprints above -->
+
+Dependencies & Notes
+- A precedes B (engine modifiers applied in B)
+- C can proceed after A snapshotting; D consolidates analytics
+- E can start in parallel but completes after C/D
+
 
 Sprint 1: Core Loop, Setup, Outcome Meter (Foundational)
 - Realtime & Voice Foundation

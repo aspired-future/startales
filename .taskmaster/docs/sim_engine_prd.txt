@@ -1,0 +1,87 @@
+Title: Simulation Engine (MVP), Governance Policies (Free-Form), and AI Advisors
+
+Overview:
+Implement a deterministic, modular simulation engine that advances campaign state on a fixed tick. Integrate free-form laws/policies that impact the economy via approved modifiers and add AI advisors that provide player-consultable recommendations. Wire KPIs and Vezies scoring into the engine outputs and extend the HUD/analytics accordingly.
+
+Goals:
+- Deterministic step(tick) that composes production, queues, basic logistics, prices, policy/tax modifiers, KPIs, and Vezies events
+- Free-form policies (text) parsed to suggested modifiers; owners approve; engine applies deterministic, capped modifiers
+- Advisors (Economy, Military, Science, Logistics, Governance, Diplomacy/Trade) that propose actions and projected KPI deltas
+- Stable APIs, HUD updates, and comprehensive verification tests (API + Playwright)
+
+Non-Goals (MVP):
+- Full AI automation without player approval
+- Complex combat or population simulation
+- Distributed microservice; will run in-process for MVP
+
+Requirements:
+1) Engine Core (MVP)
+- Create src/server/sim/engine.ts with step({campaignId, seed, actions[]})
+- Deterministic seeded PRNG; no wall-clock; idempotent writes within a transaction
+- Reducers (order): production -> queues -> logistics cap (stub) -> prices -> readiness/science proxies -> apply policy/tax modifiers -> KPIs + Vezies -> persist deltas
+- Persist KPI snapshots to kpi_snapshots; emit Vezies events (queue completion, new planet) via existing DB helpers
+- API: POST /api/sim/step (dev-only) to trigger step
+
+2) Policies/Laws (Free-Form, Approved Modifiers)
+- Create storage and endpoints for free-form policies: title, body (md), scope (campaign|region|system), tags, effective/expire
+- AI parsing endpoint returns suggested capped modifiers (no-op if AI disabled)
+- Activation endpoint stores approved modifiers; engine reads active modifiers each step
+- Modifiers (capped ranges):
+  - Production: uptime_mult (0.8–1.1), throughput_mult (0.8–1.1)
+  - Logistics: capacity_mult (0.8–1.2), risk_delta (−0.1–0.1)
+  - Prices: tariff_delta (−0.1–0.2), subsidy_delta (−0.15–0.15)
+  - Science: velocity_mult (0.8–1.2)
+  - Military: readiness_mult (0.9–1.1)
+- UX: policy console (MVP in /demo/hud) to submit text → show suggestions → approve modifiers
+
+3) Advisors (AI Counselors)
+- Endpoints:
+  - POST /api/advisors/:domain/query {question} → {recommendations[], projectedImpact}
+  - POST /api/advisors/:domain/propose {action} → saves pending action for engine
+- Domains: economy, military, science, logistics, governance, diplomacy
+- MVP can return templated recommendations; wire to engine via pending actions queue
+- HUD: add Advisors panel in /demo/hud with simple ask + proposed actions list
+
+4) Analytics & HUD
+- Point GET /api/analytics/empire to engine-derived latest KPI snapshot, with fallback
+- GET /api/analytics/trends unchanged; produced from snapshots
+- /demo/hud: add Step Engine button; render KPIs, and show last step logs/errors
+
+5) Vezies Integration
+- Score events: queue completion (empire), planet creation (discovery), production milestone (empire)
+- Roll up to vezy_score; include provenance (source reducer + id)
+- API remains: /api/vezy/*; engine calls DB helpers directly
+
+6) Data & Migrations
+- policies table: id, title, body, scope, tags jsonb, effective_at, expires_at, author, created_at
+- policy_modifiers table: id, policy_id, key, value, cap_min, cap_max, approved_at, approved_by
+- pending_actions table: id, domain, payload jsonb, created_at, approved_at, executed_at
+- Add safe migrations (IF NOT EXISTS); ensure backward compatible with legacy schemas
+
+7) Tests (Verification)
+- API Tests (Vitest):
+  - POST /api/sim/step returns 200; KPI snapshot written; Vezies may change after queue completion
+  - Policies: create policy → get suggestions → activate → engine applies modifier (check KPI delta band)
+  - Advisors: query returns recommendations; propose action saved; after step, side-effect visible (e.g., tariff adjust reflected)
+- UI Tests (Playwright):
+  - /demo/hud: Step Engine updates analytics, queues progress bar, and shows last KPIs
+  - Policies panel flow (MVP): submit text → see suggestions (mock) → approve → step → KPI change
+  - Advisors panel flow (MVP): ask → get recommendation → propose → step → change visible
+
+8) Deliverables
+- src/server/sim/engine.ts with reducers and seed handling
+- New routes: /api/sim/step, /api/policies, /api/policies/activate, /api/policies/active, /api/advisors/*
+- DB migrations for policies, policy_modifiers, pending_actions
+- Updated analytics route to use engine snapshot when present
+- Updated /demo/hud with Step Engine, Policies, Advisors panels
+- Tests: vitest API and Playwright UI per above
+
+Acceptance Criteria:
+- Stepping the engine changes stockpiles, queue progress, and persists KPI snapshots deterministically
+- Approved policy modifiers measurably impact KPIs within caps
+- Advisors return plausible recommendations; proposals are applied on the next step
+- All analytics API tests pass; new engine tests pass; Playwright HUD tests pass on CI
+
+Notes:
+- Keep formulas simple and clamped in MVP; expand later
+- Log every applied modifier with provenance; ensure reproducibility via seed + approved modifiers snapshot

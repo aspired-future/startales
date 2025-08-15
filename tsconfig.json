@@ -1,15 +1,35 @@
 {
   "compilerOptions": {
-    "target": "ES2021",
+    "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "Node",
-    "outDir": "dist",
-    "rootDir": "src",
-    "esModuleInterop": true,
+    "moduleResolution": "Bundler",
     "strict": true,
-    "skipLibCheck": true
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "packages/**/dist",
+    "src/pages/**",
+    "tests/**",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ],
+  "references": [
+    { "path": "packages/shared" },
+    { "path": "packages/server" },
+    { "path": "packages/ui_frontend" },
+    { "path": "packages/content" },
+    { "path": "packages/scripts" }
+  ]
 }
 
 

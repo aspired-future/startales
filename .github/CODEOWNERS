@@ -1,0 +1,8 @@
+# Default owners
+* @vesh
+
+# Package ownership
+/packages/server/ @vesh
+/packages/ui_frontend/ @vesh
+/packages/shared/ @vesh
+/scripts/ @vesh
