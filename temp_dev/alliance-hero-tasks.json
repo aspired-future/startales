@@ -1,0 +1,125 @@
+{
+  "newTasks": [
+    {
+      "id": 59,
+      "title": "Empire Alliance System Foundation",
+      "description": "Implement the core alliance system for empires/nations with diplomatic negotiations, treaty management, and political dynamics.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [47, 3],
+      "details": "Build the AllianceEngine class that:\\n- Manages alliance formation, membership, and dissolution\\n- Implements diplomatic reputation and trust systems\\n- Handles treaty creation, negotiation, and enforcement\\n- Provides alliance types: trade, military, research, cultural\\n- Integrates with economic engine for trade benefits\\n- Supports AI-powered diplomatic negotiations\\n- Maintains alliance hierarchies and leadership structures",
+      "testStrategy": "Verify alliance formation workflows, treaty enforcement, reputation calculations, and economic integration. Test diplomatic AI responses and multi-empire alliance scenarios.",
+      "subtasks": []
+    },
+    {
+      "id": 60,
+      "title": "Hero Party Formation & Management",
+      "description": "Create the hero party system allowing individual heroes to form groups for shared adventures and quests.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [59],
+      "details": "Implement HeroPartyEngine that:\\n- Enables hero recruitment and party formation (2-6 members)\\n- Manages party roles: tank, DPS, support, specialist\\n- Handles party leadership and decision-making\\n- Implements shared resources and treasury management\\n- Tracks party reputation and achievements\\n- Provides skill synergies and combined abilities\\n- Manages experience sharing and progression",
+      "testStrategy": "Test party formation, role assignments, resource sharing, leadership changes, and skill synergy calculations. Verify experience distribution and party dynamics.",
+      "subtasks": []
+    },
+    {
+      "id": 61,
+      "title": "Intergalactic Quest System",
+      "description": "Build the comprehensive quest system for hero parties with dynamic generation, shared encounters, and branching narratives.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [60],
+      "details": "Create QuestEngine that:\\n- Generates dynamic intergalactic quests with AI narratives\\n- Supports quest categories: exploration, combat, diplomatic, research, economic\\n- Implements instanced content for private party experiences\\n- Manages persistent world events affecting all players\\n- Handles cross-party interactions and encounters\\n- Provides dynamic difficulty scaling based on party composition\\n- Creates branching narratives with meaningful consequences",
+      "testStrategy": "Verify quest generation, instance management, difficulty scaling, narrative branching, and cross-party interactions. Test quest completion and reward distribution.",
+      "subtasks": []
+    },
+    {
+      "id": 62,
+      "title": "Alliance Economic Integration",
+      "description": "Integrate alliance systems with the economic engine to provide trade benefits, shared resources, and economic warfare capabilities.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [59, 47],
+      "details": "Extend economic systems to support:\\n- Alliance trade networks with preferential routes and reduced tariffs\\n- Joint resource extraction and infrastructure projects\\n- Alliance currencies and exchange rate dynamics\\n- Economic warfare: embargos, sanctions, economic espionage\\n- Shared economic benefits and burden distribution\\n- Alliance investment opportunities and collective projects",
+      "testStrategy": "Test alliance trade benefits, resource sharing mechanics, economic warfare effects, and currency systems. Verify economic integration with existing systems.",
+      "subtasks": []
+    },
+    {
+      "id": 63,
+      "title": "Real-Time Alliance & Party Communication",
+      "description": "Implement real-time communication systems for alliance diplomacy and hero party coordination using WebSocket infrastructure.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [3, 59, 60],
+      "details": "Build communication systems that:\\n- Provide secure diplomatic channels for alliance leaders\\n- Enable real-time hero party coordination during quests\\n- Support alliance-wide announcements and discussions\\n- Implement intelligence sharing networks\\n- Handle emergency protocols and rapid response\\n- Manage tactical planning tools for hero parties\\n- Synchronize quest states and objective completion",
+      "testStrategy": "Test real-time messaging, channel security, message routing, and synchronization. Verify communication during diplomatic negotiations and quest coordination.",
+      "subtasks": []
+    },
+    {
+      "id": 64,
+      "title": "AI-Powered Diplomatic Negotiations",
+      "description": "Create sophisticated AI systems for alliance negotiations, treaty generation, and diplomatic relationship modeling.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [59, 53],
+      "details": "Implement DiplomaticAI that:\\n- Generates realistic treaty terms and negotiation strategies\\n- Models dynamic trust and reputation between empires\\n- Provides conflict resolution and compromise suggestions\\n- Analyzes alliance benefits and optimization opportunities\\n- Simulates diplomatic personalities and negotiation styles\\n- Handles complex multi-party negotiations\\n- Predicts diplomatic outcomes and consequences",
+      "testStrategy": "Test AI negotiation quality, treaty generation, relationship modeling accuracy, and conflict resolution effectiveness. Verify diplomatic personality consistency.",
+      "subtasks": []
+    },
+    {
+      "id": 65,
+      "title": "Quest AI & Dynamic Content Generation",
+      "description": "Build AI systems for dynamic quest creation, narrative generation, and adaptive encounter design based on galaxy state and party composition.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [61, 53],
+      "details": "Create QuestAI that:\\n- Generates unique quests based on current galaxy state and events\\n- Creates compelling narratives and dialogue for quest encounters\\n- Adapts encounter difficulty based on party composition and skills\\n- Models long-term consequences of quest outcomes\\n- Generates NPC personalities and interactions\\n- Creates branching storylines with meaningful player choices\\n- Balances quest rewards with economic and progression systems",
+      "testStrategy": "Test quest generation quality, narrative coherence, difficulty scaling accuracy, and consequence modeling. Verify NPC interaction quality and story branching.",
+      "subtasks": []
+    },
+    {
+      "id": 66,
+      "title": "Alliance Intelligence & Espionage Networks",
+      "description": "Integrate alliance systems with the intelligence framework to enable shared espionage, counter-intelligence, and information warfare.",
+      "status": "pending",
+      "priority": "low",
+      "dependencies": [46, 59, 64],
+      "details": "Extend intelligence systems to support:\\n- Alliance intelligence sharing networks and protocols\\n- Coordinated espionage operations against rival alliances\\n- Counter-intelligence to protect alliance secrets\\n- Information warfare and propaganda campaigns\\n- Intelligence-based diplomatic advantages\\n- Spy network coordination across alliance members\\n- Intelligence market integration for alliance benefits",
+      "testStrategy": "Test intelligence sharing, coordinated operations, counter-intelligence effectiveness, and information warfare impact. Verify integration with existing intelligence systems.",
+      "subtasks": []
+    },
+    {
+      "id": 67,
+      "title": "Galaxy-Wide Events & Persistent World",
+      "description": "Create persistent world events that affect all players, alliances, and hero parties, with long-term consequences for the galaxy.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [61, 59, 53],
+      "details": "Implement GalaxyEventEngine that:\\n- Generates galaxy-wide threats and opportunities\\n- Manages persistent world state changes\\n- Coordinates multi-alliance responses to major events\\n- Handles cross-party encounters during world events\\n- Tracks long-term consequences of player actions\\n- Balances event impact across different player groups\\n- Integrates with economic, political, and quest systems",
+      "testStrategy": "Test event generation, world state persistence, multi-group coordination, and long-term consequence tracking. Verify event impact balance and system integration.",
+      "subtasks": []
+    },
+    {
+      "id": 68,
+      "title": "Gifting & Tribute System",
+      "description": "Implement comprehensive gifting and tribute systems enabling resource transfers between empires, alliances, heroes, and parties with full diplomatic and economic integration.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [47, 59, 60],
+      "details": "Create GiftingEngine that:\\n- Enables gifts, tribute, trade, loans, and reparations between all entity types\\n- Maintains strict money conservation with full audit trails\\n- Implements cultural gift preferences and ceremonial contexts\\n- Provides tribute scheduling and automatic collection systems\\n- Calculates diplomatic relationship impacts and economic effects\\n- Supports cross-level transfers (empire↔hero, alliance↔party)\\n- Includes fraud detection and transfer validation\\n- Integrates with economic engine for market impact analysis",
+      "testStrategy": "Test all transfer types, money conservation, cultural preferences, tribute scheduling, relationship impacts, and fraud detection. Verify integration with economic and diplomatic systems.",
+      "subtasks": []
+    },
+    {
+      "id": 69,
+      "title": "Alliance & Hero Analytics Dashboard",
+      "description": "Create comprehensive analytics and visualization tools for alliance performance, hero party effectiveness, and quest success metrics.",
+      "status": "pending",
+      "priority": "low",
+      "dependencies": [59, 60, 61, 45],
+      "details": "Build analytics systems that:\\n- Track alliance economic performance and diplomatic success\\n- Monitor hero party effectiveness and quest completion rates\\n- Visualize alliance relationship networks and influence\\n- Analyze quest difficulty and reward balance\\n- Provide diplomatic intelligence and trend analysis\\n- Generate performance reports for alliance leaders\\n- Create hero progression and achievement tracking",
+      "testStrategy": "Test analytics accuracy, visualization quality, performance tracking, and report generation. Verify data integration across alliance and hero systems.",
+      "subtasks": []
+    }
+  ]
+}

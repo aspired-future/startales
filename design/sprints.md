@@ -131,11 +131,50 @@ Add-ons in S11:
  - FTL Jump Network (seeded lanes/nodes) and Ancient Artifacts discovery/activation (bounded effects)
  - Technology Tree (DAG) with research flows and bounded effects; UI and APIs
 
-Unified Sprint 12 — Real-Time Integration & Economic Analytics [Tasks 56-58]
+Unified Sprint 12 — Alliance & Hero Party Foundation [Tasks 59-61, 68]
+- Empire alliance system with diplomatic negotiations and treaty management
+- Hero party formation and management with shared resources and coordination
+- Intergalactic quest system with dynamic generation and shared encounters
+- Comprehensive gifting and tribute system with cross-entity resource transfers
+- Demo: alliance formation, hero party quests, diplomatic gifts, tribute payments, shared adventures
+- APIs: GET /api/alliances, POST /api/hero-parties, GET /api/quests/intergalactic, POST /api/gifts/send
+
+## Extended Development Phases
+
+### Phase 2: Advanced Multiplayer Systems (Sprints 13-16)
+
+Unified Sprint 13 — Alliance Economic Integration [Task 62]
+- Alliance trade networks, shared resources, and economic warfare capabilities
+- Joint infrastructure projects and alliance currencies
+- Demo: alliance trade benefits, economic warfare, shared projects
+- APIs: GET /api/alliances/:id/economy, POST /api/alliances/:id/trade-agreement
+
+Unified Sprint 14 — Real-Time Communication & Coordination [Task 63]
+- Alliance diplomatic channels and hero party real-time coordination
+- Secure messaging, tactical planning, and emergency protocols
+- Demo: diplomatic negotiations, party quest coordination, real-time strategy
+- APIs: WebSocket channels for alliance:{id} and party:{id}
+
+Unified Sprint 15 — AI Diplomacy & Quest Generation [Tasks 64-65]
+- AI-powered diplomatic negotiations and treaty generation
+- Dynamic quest creation with adaptive narratives and encounters
+- Demo: AI diplomatic negotiations, procedural quest generation, adaptive difficulty
+- APIs: POST /api/diplomacy/negotiate, GET /api/quests/generate
+
+Unified Sprint 16 — Galaxy Events & Intelligence Networks [Tasks 66-67]
+- Galaxy-wide persistent events and alliance intelligence sharing
+- Coordinated espionage and information warfare capabilities
+- Demo: galaxy-wide events, alliance intelligence operations, persistent world changes
+- APIs: GET /api/galaxy/events, POST /api/intelligence/alliance-operation
+
+### Phase 3: Analytics & Optimization (Sprint 17)
+
+Unified Sprint 17 — Comprehensive Analytics & Real-Time Integration [Tasks 56-58, 69]
 - Complete real-time simulation integration with AI analysis → deterministic simulation → AI interpretation
-- Comprehensive economic metrics dashboard and realistic policy impact simulation
-- Demo: full real-time economic simulation, policy impact analysis, comprehensive analytics dashboard
-- APIs: GET /api/simulation/realtime, GET /api/analytics/comprehensive, POST /api/policies/simulate
+- Alliance and hero analytics dashboard with performance metrics
+- Comprehensive economic metrics and realistic policy impact simulation
+- Demo: full real-time economic simulation, alliance performance analysis, hero progression tracking
+- APIs: GET /api/simulation/realtime, GET /api/analytics/comprehensive, GET /api/analytics/alliances
 
 Add-ons in S12:
 - Media/agent scaling tests; soundtrack mixer perf; treaty DSL stress with many agents

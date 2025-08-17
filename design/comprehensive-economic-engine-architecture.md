@@ -12,6 +12,7 @@ This document outlines the architecture for a sophisticated real-world economic 
 4. **AI + Deterministic Hybrid**: Combine deterministic calculations with AI natural language interpretation
 5. **Real-Time Simulation**: Each tick includes AI analysis → simulation → AI interpretation
 6. **Resource Conservation**: All resources and property have traceable origins and destinations
+7. **Gift & Tribute Systems**: Comprehensive resource transfer mechanisms with diplomatic integration
 
 ## Architecture Components
 
