@@ -1,0 +1,336 @@
+# Civilization Simulation Expansion - Product Requirements Document
+
+## Executive Summary
+
+Expand Startales beyond trade and economy into a comprehensive civilization simulation engine featuring cultural systems, world wonders, socioeconomic household simulation, tourism mechanics, and advanced civilization analytics. This expansion transforms the game from a trade-focused experience into a rich, multi-layered civilization builder with deep social and cultural mechanics.
+
+## Business Objectives
+
+### Primary Goals
+- **Rich Civilization Gameplay**: Transform from trade simulation to comprehensive civilization builder
+- **Social Stratification**: Realistic household economic simulation across social classes
+- **Cultural Depth**: Dynamic culture systems affecting gameplay, trade, and society
+- **Monument & Legacy**: World wonders providing strategic advantages and cultural identity
+- **Tourism Economy**: New economic layer through cultural attractions and entertainment
+- **Deep Analytics**: Advanced metrics for civilization health, happiness, and progress
+
+### Success Metrics
+- Player engagement increase with multi-system interactions
+- Cultural influence affecting trade and diplomatic relationships
+- Household economic diversity creating realistic social dynamics
+- Tourism revenue contributing 15-25% of total civilization income
+- Wonder construction providing measurable strategic advantages
+
+## Technical Architecture Overview
+
+### Core Integration Systems
+- **Cultural Database**: PostgreSQL tables for culture, traditions, and social metrics
+- **Economic Stratification**: Enhanced trade system with household income tiers
+- **Wonder Construction**: Long-term projects with resource costs and strategic benefits
+- **Tourism Engine**: Visitor simulation with economic and cultural impact
+- **Analytics Dashboard**: Real-time civilization health monitoring
+
+### Integration Points
+- **Existing Trade System**: Household purchasing power affects demand patterns
+- **Campaign System**: Cultural decisions influencing long-term civilization development
+- **Vector Memory**: AI advisors remember cultural preferences and social policies
+- **Event Sourcing**: All social changes tracked for historical analysis
+
+## Cultural & Social Systems (Task 41)
+
+### Culture Mechanics
+- **Cultural Values**: Liberty, Order, Tradition, Progress, Community, Individual
+- **Cultural Evolution**: Values shift based on policy decisions and random events
+- **Cultural Influence**: Affects trade relationships, productivity, and social stability
+- **Traditions & Festivals**: Periodic cultural events affecting happiness and economy
+
+### Social Systems
+- **Social Policies**: Government decisions affecting culture and economics
+- **Public Opinion**: Dynamic system tracking citizen satisfaction and cultural alignment
+- **Cultural Buildings**: Libraries, theaters, museums affecting cultural development
+- **Education System**: Schools and universities influencing cultural and technological progress
+
+### Technical Implementation
+```sql
+CREATE TABLE cultures (
+  id SERIAL PRIMARY KEY,
+  campaign_id INTEGER REFERENCES campaigns(id),
+  liberty INTEGER DEFAULT 50 CHECK (liberty BETWEEN 0 AND 100),
+  order_value INTEGER DEFAULT 50 CHECK (order_value BETWEEN 0 AND 100),
+  tradition INTEGER DEFAULT 50 CHECK (tradition BETWEEN 0 AND 100),
+  progress INTEGER DEFAULT 50 CHECK (progress BETWEEN 0 AND 100),
+  community INTEGER DEFAULT 50 CHECK (community BETWEEN 0 AND 100),
+  individualism INTEGER DEFAULT 50 CHECK (individualism BETWEEN 0 AND 100),
+  stability_index DECIMAL(5,2) DEFAULT 50.00,
+  happiness_level INTEGER DEFAULT 50,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE cultural_events (
+  id SERIAL PRIMARY KEY,
+  campaign_id INTEGER REFERENCES campaigns(id),
+  event_type VARCHAR(50), -- 'festival', 'policy_change', 'cultural_shift'
+  event_name VARCHAR(100),
+  description TEXT,
+  culture_impact JSONB, -- Which values are affected and by how much
+  economic_impact DECIMAL(10,2),
+  duration_days INTEGER,
+  start_date TIMESTAMPTZ,
+  status VARCHAR(20) DEFAULT 'active'
+);
+```
+
+## World Wonders & Monuments (Task 42)
+
+### Wonder Categories
+- **Ancient Wonders**: Pyramids, Temples, Colossus - cultural and religious bonuses
+- **Engineering Marvels**: Aqueducts, Great Walls - infrastructure and defense
+- **Cultural Icons**: Great Libraries, Theaters - education and cultural bonuses
+- **Modern Achievements**: Space Centers, Digital Networks - technology and communication
+
+### Wonder Mechanics
+- **Multi-Stage Construction**: Wonders require multiple campaign steps to complete
+- **Resource Requirements**: Massive resource investments over time
+- **Strategic Benefits**: Permanent bonuses to trade, culture, defense, or technology
+- **Cultural Legacy**: Wonders become tourist attractions and cultural symbols
+
+### Construction System
+```sql
+CREATE TABLE world_wonders (
+  id SERIAL PRIMARY KEY,
+  campaign_id INTEGER REFERENCES campaigns(id),
+  wonder_type VARCHAR(50), -- 'ancient', 'engineering', 'cultural', 'modern'
+  name VARCHAR(100) NOT NULL,
+  description TEXT,
+  construction_status VARCHAR(20) DEFAULT 'planned', -- 'planned', 'under_construction', 'completed'
+  completion_percentage DECIMAL(5,2) DEFAULT 0.00,
+  total_cost JSONB, -- Resource requirements by type
+  invested_resources JSONB, -- Resources already invested
+  construction_time INTEGER, -- Total campaign steps required
+  steps_invested INTEGER DEFAULT 0,
+  benefits JSONB, -- Strategic bonuses provided
+  tourism_attraction_level INTEGER DEFAULT 1,
+  cultural_significance INTEGER DEFAULT 1
+);
+```
+
+## Household Economic Simulation (Task 43)
+
+### Economic Stratification
+- **Poor Households (Bottom 40%)**: Basic subsistence, limited purchasing power
+- **Median Households (Middle 50%)**: Moderate consumption, drivers of standard goods demand
+- **Rich Households (Top 10%)**: High consumption, luxury goods demand, investment capital
+
+### Household Dynamics
+- **Income Distribution**: Realistic economic distribution based on employment and business ownership
+- **Consumption Patterns**: Different goods preferences by economic tier
+- **Social Mobility**: Households can move between tiers based on economic opportunities
+- **Life Events**: Marriage, education, business ventures affecting household status
+
+### Economic Integration
+```sql
+CREATE TABLE household_tiers (
+  id SERIAL PRIMARY KEY,
+  campaign_id INTEGER REFERENCES campaigns(id),
+  tier_name VARCHAR(20), -- 'poor', 'median', 'rich'
+  household_count INTEGER,
+  average_income DECIMAL(10,2),
+  consumption_power DECIMAL(10,2),
+  luxury_demand_multiplier DECIMAL(3,2),
+  basic_goods_demand_multiplier DECIMAL(3,2),
+  savings_rate DECIMAL(3,2),
+  investment_capacity DECIMAL(10,2)
+);
+
+CREATE TABLE household_consumption (
+  id SERIAL PRIMARY KEY,
+  campaign_id INTEGER REFERENCES campaigns(id),
+  tier_name VARCHAR(20),
+  resource_id VARCHAR(50),
+  base_demand INTEGER,
+  seasonal_multiplier DECIMAL(3,2),
+  cultural_influence_multiplier DECIMAL(3,2),
+  price_elasticity DECIMAL(3,2) -- How much demand changes with price
+);
+```
+
+## Tourism & Entertainment Systems (Task 44)
+
+### Tourism Infrastructure
+- **Attractions**: Natural wonders, cultural sites, entertainment venues
+- **Hospitality Services**: Hotels, restaurants, transportation systems
+- **Tourism Marketing**: Campaigns to attract visitors from other civilizations
+- **Visitor Experience**: Quality metrics affecting repeat visits and word-of-mouth
+
+### Entertainment Systems
+- **Cultural Venues**: Theaters, concert halls, sports arenas
+- **Recreational Facilities**: Parks, beaches, adventure activities
+- **Events & Festivals**: Scheduled attractions drawing tourists and boosting local economy
+- **Entertainment Quality**: Investment in facilities affects visitor satisfaction
+
+### Economic Impact
+```sql
+CREATE TABLE tourism_attractions (
+  id SERIAL PRIMARY KEY,
+  campaign_id INTEGER REFERENCES campaigns(id),
+  attraction_type VARCHAR(50), -- 'wonder', 'natural', 'cultural', 'entertainment'
+  name VARCHAR(100),
+  attraction_level INTEGER, -- 1-10 scale of attractiveness
+  capacity INTEGER, -- Maximum visitors per campaign step
+  maintenance_cost DECIMAL(10,2),
+  ticket_revenue DECIMAL(8,2),
+  economic_multiplier DECIMAL(3,2), -- Secondary economic impact
+  cultural_significance INTEGER,
+  infrastructure_requirements JSONB
+);
+
+CREATE TABLE visitor_flows (
+  id SERIAL PRIMARY KEY,
+  campaign_id INTEGER REFERENCES campaigns(id),
+  campaign_step INTEGER,
+  total_visitors INTEGER,
+  visitor_satisfaction DECIMAL(3,2),
+  revenue_generated DECIMAL(12,2),
+  visitor_origin JSONB, -- Where visitors come from
+  length_of_stay DECIMAL(3,1),
+  spending_per_visitor DECIMAL(8,2)
+);
+```
+
+## Civilization Analytics & Metrics (Task 45)
+
+### Advanced Metrics
+- **Civilization Health Index**: Composite score of economic, cultural, and social factors
+- **Social Mobility Index**: Measurement of economic opportunity and class movement
+- **Cultural Vitality Score**: Cultural development and diversity metrics
+- **Happiness & Satisfaction**: Population contentment across different social tiers
+- **Sustainability Index**: Long-term civilization viability and resource management
+
+### Analytics Dashboard
+- **Real-time Monitoring**: Live dashboards for civilization health
+- **Historical Trends**: Long-term analysis of cultural and economic evolution
+- **Comparative Analysis**: Benchmarking against other civilizations or historical periods
+- **Predictive Modeling**: AI-powered forecasting of social and economic trends
+
+### Data Integration
+```sql
+CREATE TABLE civilization_metrics (
+  id SERIAL PRIMARY KEY,
+  campaign_id INTEGER REFERENCES campaigns(id),
+  campaign_step INTEGER,
+  recorded_at TIMESTAMPTZ DEFAULT NOW(),
+  
+  -- Economic Metrics
+  gdp_total DECIMAL(15,2),
+  gdp_per_capita DECIMAL(10,2),
+  gini_coefficient DECIMAL(4,3), -- Income inequality measure
+  unemployment_rate DECIMAL(5,2),
+  inflation_rate DECIMAL(5,2),
+  
+  -- Social Metrics
+  happiness_index DECIMAL(5,2),
+  education_level DECIMAL(5,2),
+  health_index DECIMAL(5,2),
+  social_mobility_index DECIMAL(5,2),
+  
+  -- Cultural Metrics
+  cultural_diversity_index DECIMAL(5,2),
+  cultural_vitality_score DECIMAL(5,2),
+  tradition_preservation DECIMAL(5,2),
+  innovation_index DECIMAL(5,2),
+  
+  -- Infrastructure Metrics
+  infrastructure_quality DECIMAL(5,2),
+  tourism_satisfaction DECIMAL(5,2),
+  wonder_completion_rate DECIMAL(5,2),
+  
+  -- Composite Scores
+  civilization_health_index DECIMAL(5,2),
+  sustainability_index DECIMAL(5,2),
+  overall_prosperity_score DECIMAL(5,2)
+);
+```
+
+## Implementation Strategy
+
+### Phase 1: Foundation Systems (Tasks 41-42)
+- Cultural system implementation with basic mechanics
+- World wonders construction system
+- Integration with existing trade and campaign systems
+- Basic cultural influence on economic behavior
+
+### Phase 2: Economic Simulation (Task 43)
+- Household economic stratification system
+- Enhanced trade system with household demand patterns
+- Social mobility mechanics and life events
+- Economic tier-based consumption modeling
+
+### Phase 3: Tourism & Entertainment (Task 44)
+- Tourism infrastructure and visitor simulation
+- Entertainment venues and cultural events
+- Economic impact calculation and revenue streams
+- Visitor satisfaction and marketing systems
+
+### Phase 4: Analytics & Intelligence (Task 45)
+- Comprehensive metrics collection and analysis
+- Advanced analytics dashboard development
+- Predictive modeling and trend analysis
+- AI-powered civilization advisory system
+
+## Integration Requirements
+
+### Database Architecture
+- **PostgreSQL Extensions**: Complex cultural and social data
+- **SQLite Events**: All cultural, social, and tourism events in event sourcing
+- **Vector Memory**: AI advisors remember cultural preferences and policy outcomes
+- **Performance**: Real-time calculation of civilization metrics
+
+### API Integration
+- **Existing Trade APIs**: Enhanced with household demand patterns
+- **Campaign APIs**: Cultural decisions affecting long-term development
+- **New Culture APIs**: Cultural management and policy implementation
+- **Analytics APIs**: Real-time metrics and historical trend analysis
+
+### User Interface
+- **Civilization Dashboard**: Comprehensive overview of all systems
+- **Cultural Policy Interface**: Decision-making tools for cultural development
+- **Wonder Construction**: Long-term project management interface
+- **Household Analytics**: Economic stratification and social mobility visualization
+
+## Success Criteria
+
+### Technical Success
+- ✅ Cultural system affecting trade and economy metrics
+- ✅ Household stratification creating realistic demand patterns
+- ✅ World wonders providing measurable strategic benefits
+- ✅ Tourism generating significant economic impact (15-25% of total income)
+- ✅ Analytics dashboard providing actionable civilization insights
+
+### Business Success
+- ✅ Increased player engagement through multi-system interactions
+- ✅ Rich civilization gameplay comparable to major strategy games
+- ✅ Cultural depth enhancing replayability and strategic decision-making
+- ✅ Tourism and entertainment creating new economic gameplay layers
+- ✅ Advanced metrics enabling strategic planning and optimization
+
+## Future Considerations
+
+### Advanced Features
+- **Inter-Civilization Interactions**: Trade, diplomacy, and cultural exchange
+- **Historical Simulation**: Playing through different historical periods
+- **Climate and Geography**: Environmental factors affecting civilization development
+- **Religion and Ideology**: Belief systems influencing culture and politics
+
+### Technical Evolution
+- **AI-Driven Events**: Machine learning for dynamic cultural and social events
+- **Real-time Multiplayer**: Multiple civilizations interacting in shared world
+- **Advanced Visualization**: 3D civilization modeling and immersive interfaces
+- **Behavioral Economics**: Advanced household decision-making models
+
+---
+
+**Document Version**: 1.0  
+**Created**: 2025-08-17  
+**Author**: AI Development Team  
+**Reviewers**: Game Design Team, Technical Architecture, Cultural Consultants

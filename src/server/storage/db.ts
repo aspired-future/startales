@@ -1,40 +1,88 @@
 import { Pool } from 'pg'
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://gtw:gtw@localhost:5432/gtw'
-})
+let pool: Pool | null = null;
+let isPostgreSQLAvailable = true;
 
-// Export db object for testing
+// Check if PostgreSQL is available
+async function checkPostgreSQLAvailability(): Promise<boolean> {
+  if (!isPostgreSQLAvailable) return false;
+  
+  try {
+    const pgPool = getPool();
+    await pgPool.query('SELECT 1');
+    return true;
+  } catch (error) {
+    console.log('💡 PostgreSQL not available, using fallback mode');
+    isPostgreSQLAvailable = false;
+    return false;
+  }
+}
+
+// Lazy initialization of PostgreSQL pool
+function getPool(): Pool {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL || 'postgres://gtw:gtw@localhost:5432/gtw'
+    });
+    
+    // Handle connection errors gracefully
+    pool.on('error', (err) => {
+      console.error('PostgreSQL pool error:', err);
+      isPostgreSQLAvailable = false;
+    });
+  }
+  return pool;
+}
+
+// Export db object with lazy connection
 export const db = {
   transaction: (callback: (tx: any) => any) => callback({}),
-  query: pool.query.bind(pool)
+  query: async (text: string, params?: any[]) => {
+    if (!await checkPostgreSQLAvailability()) {
+      throw new Error('PostgreSQL not available');
+    }
+    try {
+      const pgPool = getPool();
+      return await pgPool.query(text, params);
+    } catch (error) {
+      console.error('PostgreSQL query error:', error);
+      throw error;
+    }
+  }
 }
 
 async function migrateTaxRates() {
-  // Check if tax_rates table exists
-  const t = await pool.query("select to_regclass('public.tax_rates') as exists")
-  const exists = !!t.rows[0]?.exists
-  if (!exists) return
-  // Check if region column exists
-  const cols = await pool.query("select column_name from information_schema.columns where table_name='tax_rates'")
-  const colNames = cols.rows.map((r: any) => r.column_name)
-  if (!colNames.includes('region')) return
-  // Ensure at least one system exists and get an id
-  let sysId: number | null = null
   try {
-    const sc = await pool.query('select id from systems order by id asc limit 1')
-    if (sc.rows[0]?.id) sysId = Number(sc.rows[0].id)
-  } catch {}
-  if (sysId == null) {
-    const ins = await pool.query("insert into systems(name, sector, x, y) values ('Default Region','Core',0,0) returning id")
-    sysId = Number(ins.rows[0].id)
+    const pgPool = getPool();
+    // Check if tax_rates table exists
+    const t = await pgPool.query("select to_regclass('public.tax_rates') as exists")
+    const exists = !!t.rows[0]?.exists
+    if (!exists) return
+    // Check if region column exists
+    const cols = await pgPool.query("select column_name from information_schema.columns where table_name='tax_rates'")
+    const colNames = cols.rows.map((r: any) => r.column_name)
+    if (!colNames.includes('region')) return
+    // Ensure at least one system exists and get an id
+    let sysId: number | null = null
+    try {
+      const sc = await pgPool.query('select id from systems order by id asc limit 1')
+      if (sc.rows[0]?.id) sysId = Number(sc.rows[0].id)
+    } catch {}
+    if (sysId == null) {
+      const ins = await pgPool.query("insert into systems(name, sector, x, y) values ('Default Region','Core',0,0) returning id")
+      sysId = Number(ins.rows[0].id)
+    }
+    // Backfill null region values
+    await pgPool.query('update tax_rates set region=$1 where region is null', [sysId])
+  } catch (error) {
+    console.error('Tax rates migration failed:', error);
   }
-  // Backfill null region values
-  await pool.query('update tax_rates set region=$1 where region is null', [sysId])
 }
 
 export async function initDb() {
-  await pool.query(`
+  try {
+    const pgPool = getPool();
+    await pgPool.query(`
     create table if not exists vezy_goals (
       id serial primary key,
       story int not null default 100,
@@ -248,69 +296,102 @@ export async function initDb() {
       ts timestamp not null default now(),
       metrics jsonb not null
     );
+    create table if not exists civilization_analytics_history (
+      id serial primary key,
+      campaign_id int not null,
+      step int not null,
+      timestamp timestamp not null,
+      economic_health numeric,
+      gini_coefficient numeric,
+      social_mobility_index numeric,
+      analytics_data text,
+      created_at timestamp default now(),
+      unique(campaign_id, step)
+    );
   `)
-  // Perform post-DDL migrations that require querying
-  await migrateTaxRates()
+    // Perform post-DDL migrations that require querying
+    await migrateTaxRates()
+    
+    console.log('✅ PostgreSQL database initialized');
+  } catch (error) {
+    console.error('❌ PostgreSQL initialization failed:', error);
+    console.log('💡 This is expected if PostgreSQL is not available - some features may be limited');
+    // Don't throw error - allow app to continue with limited functionality
+  }
 }
 
 export async function getGoals() {
-  const { rows } = await pool.query('select story,empire,discovery,social from vezy_goals limit 1')
-  return rows[0]
+  try {
+    const pgPool = getPool();
+    const { rows } = await pgPool.query('select story,empire,discovery,social from vezy_goals limit 1')
+    return rows[0]
+  } catch (error) {
+    console.error('Failed to get goals:', error);
+    return { story: 100, empire: 100, discovery: 100, social: 100 };
+  }
 }
 
 export async function setGoals(g: {story?:number;empire?:number;discovery?:number;social?:number}) {
-  const current = await getGoals()
-  const next = {
-    story: Number.isFinite(g.story) ? g.story! : current.story,
-    empire: Number.isFinite(g.empire) ? g.empire! : current.empire,
-    discovery: Number.isFinite(g.discovery) ? g.discovery! : current.discovery,
-    social: Number.isFinite(g.social) ? g.social! : current.social
+  try {
+    const current = await getGoals()
+    const next = {
+      story: Number.isFinite(g.story) ? g.story! : current.story,
+      empire: Number.isFinite(g.empire) ? g.empire! : current.empire,
+      discovery: Number.isFinite(g.discovery) ? g.discovery! : current.discovery,
+      social: Number.isFinite(g.social) ? g.social! : current.social
+    }
+    const pgPool = getPool();
+    await pgPool.query('update vezy_goals set story=$1,empire=$2,discovery=$3,social=$4', [next.story,next.empire,next.discovery,next.social])
+    return next
+  } catch (error) {
+    console.error('Failed to set goals:', error);
+    throw error;
   }
-  await pool.query('update vezy_goals set story=$1,empire=$2,discovery=$3,social=$4', [next.story,next.empire,next.discovery,next.social])
-  return next
 }
 
 export async function upsertSystem(s: { name: string; sector?: string; x?: number; y?: number }) {
-  const { rows } = await pool.query('insert into systems(name, sector, x, y) values ($1,$2,$3,$4) returning id', [s.name, s.sector ?? null, s.x ?? null, s.y ?? null])
+  const pgPool = getPool();
+  const { rows } = await pgPool.query('insert into systems(name, sector, x, y) values ($1,$2,$3,$4) returning id', [s.name, s.sector ?? null, s.x ?? null, s.y ?? null])
   return rows[0].id as number
 }
 
 export async function countSystems(): Promise<number> {
-  const { rows } = await pool.query('select count(*)::int as c from systems')
+  const pgPool = getPool();
+  const { rows } = await pgPool.query('select count(*)::int as c from systems')
   return rows[0]?.c ?? 0
 }
 
 export async function upsertPlanet(p: { name: string; biome: string; gravity: number; deposits: {resource:string;richness:number}[]; systemId?: number }) {
-  const { rows } = await pool.query('insert into planets(name, biome, gravity, system_id) values ($1,$2,$3,$4) returning id', [p.name, p.biome, p.gravity, p.systemId ?? null])
+  const { rows } = await getPool().query('insert into planets(name, biome, gravity, system_id) values ($1,$2,$3,$4) returning id', [p.name, p.biome, p.gravity, p.systemId ?? null])
   const planetId = rows[0].id as number
   for (const d of p.deposits) {
-    await pool.query('insert into deposits(planet_id, resource, richness) values ($1,$2,$3)', [planetId, d.resource, d.richness])
+    await getPool().query('insert into deposits(planet_id, resource, richness) values ($1,$2,$3)', [planetId, d.resource, d.richness])
   }
   return planetId
 }
 
 export async function listPlanets() {
-  const { rows } = await pool.query('select id, name, biome, gravity, hazard from planets order by id desc limit 50')
+  const { rows } = await getPool().query('select id, name, biome, gravity, hazard from planets order by id desc limit 50')
   return rows
 }
 
 export async function listSystems() {
-  const { rows } = await pool.query('select id, name, sector, x, y from systems order by id desc limit 100')
+  const { rows } = await getPool().query('select id, name, sector, x, y from systems order by id desc limit 100')
   return rows
 }
 
 export async function listPlanetsBySystem(systemId: number) {
-  const { rows } = await pool.query('select id, name, biome, gravity, hazard from planets where system_id=$1 order by id desc', [systemId])
+  const { rows } = await getPool().query('select id, name, biome, gravity, hazard from planets where system_id=$1 order by id desc', [systemId])
   return rows
 }
 
 export async function getPlanetDeposits(planetId: number) {
-  const { rows } = await pool.query('select resource, richness from deposits where planet_id=$1', [planetId])
+  const { rows } = await getPool().query('select resource, richness from deposits where planet_id=$1', [planetId])
   return rows
 }
 
 export async function getStockpiles(planetId: number) {
-  const { rows } = await pool.query('select resource, amount from stockpiles where planet_id=$1', [planetId])
+  const { rows } = await getPool().query('select resource, amount from stockpiles where planet_id=$1', [planetId])
   return rows
 }
 
@@ -318,16 +399,16 @@ export async function applyProductionTick(planetId: number) {
   // Apply active policy modifiers (uptime/throughput multipliers) if present
   const mods = await getActiveModifiersAggregate().catch(() => ({ uptime_mult: 1, throughput_mult: 1 })) as any
   const mult = Number(mods.uptime_mult || 1) * Number(mods.throughput_mult || 1)
-  const { rows: deps } = await pool.query('select resource, richness from deposits where planet_id=$1', [planetId])
+  const { rows: deps } = await getPool().query('select resource, richness from deposits where planet_id=$1', [planetId])
   for (const d of deps) {
-    await pool.query(
+    await getPool().query(
       `insert into stockpiles(planet_id, resource, amount) values ($1,$2,0)
        on conflict do nothing`,
       [planetId, d.resource]
     )
     const base = Number(d.richness) * 10
     const delta = Math.max(0, Math.round(base * (Number.isFinite(mult) ? mult : 1)))
-    await pool.query(
+    await getPool().query(
       'update stockpiles set amount = amount + $1 where planet_id=$2 and resource=$3',
       [delta, planetId, d.resource]
     )
@@ -336,28 +417,28 @@ export async function applyProductionTick(planetId: number) {
 }
 
 export async function listQueuesByPlanet(planetId: number) {
-  const { rows } = await pool.query('select * from queues where planet_id=$1 order by id desc', [planetId])
+  const { rows } = await getPool().query('select * from queues where planet_id=$1 order by id desc', [planetId])
   return rows
 }
 
 async function ensureStock(planetId: number, resource: string, amount: number) {
-  const { rows } = await pool.query('select amount from stockpiles where planet_id=$1 and resource=$2', [planetId, resource])
+  const { rows } = await getPool().query('select amount from stockpiles where planet_id=$1 and resource=$2', [planetId, resource])
   const have = rows[0]?.amount ? Number(rows[0].amount) : 0
   if (have < amount) return false
-  await pool.query('update stockpiles set amount = amount - $1 where planet_id=$2 and resource=$3', [amount, planetId, resource])
+  await getPool().query('update stockpiles set amount = amount - $1 where planet_id=$2 and resource=$3', [amount, planetId, resource])
   return true
 }
 
 export async function createQueueAuto(planetId: number) {
   // Use richest deposit resource for a small demo build
-  const { rows: deps } = await pool.query('select resource, richness from deposits where planet_id=$1 order by richness desc limit 1', [planetId])
+  const { rows: deps } = await getPool().query('select resource, richness from deposits where planet_id=$1 order by richness desc limit 1', [planetId])
   if (!deps.length) throw new Error('no_deposits')
   const resource = deps[0].resource as string
   const cost = 10
   const work = 30
   const ok = await ensureStock(planetId, resource, cost)
   if (!ok) throw new Error('insufficient_resources')
-  const { rows } = await pool.query(
+  const { rows } = await getPool().query(
     `insert into queues(planet_id, item_type, cost_resource, cost_amount, work_required)
      values ($1,$2,$3,$4,$5) returning *`, [planetId, 'build:demo', resource, cost, work]
   )
@@ -365,23 +446,23 @@ export async function createQueueAuto(planetId: number) {
 }
 
 export async function tickQueue(queueId: number, work: number = 10) {
-  const { rows } = await pool.query('select * from queues where id=$1', [queueId])
+  const { rows } = await getPool().query('select * from queues where id=$1', [queueId])
   if (!rows.length) throw new Error('queue_not_found')
   const q = rows[0]
   if (q.status === 'done') return q
   const progress = Number(q.progress) + work
   const status = progress >= Number(q.work_required) ? 'done' : 'pending'
-  const { rows: upd } = await pool.query('update queues set progress=$1, status=$2 where id=$3 returning *', [progress, status, queueId])
+  const { rows: upd } = await getPool().query('update queues set progress=$1, status=$2 where id=$3 returning *', [progress, status, queueId])
   const nq = upd[0]
   if (nq.status === 'done' && typeof nq.item_type === 'string' && nq.item_type.startsWith('unit:')) {
     const kind = (nq.item_type as string).split(':')[1] || 'infantry'
-    await pool.query('insert into units(planet_id, kind) values ($1,$2)', [nq.planet_id, kind])
+    await getPool().query('insert into units(planet_id, kind) values ($1,$2)', [nq.planet_id, kind])
   }
   return nq
 }
 
 export async function listUnitsByPlanet(planetId: number) {
-  const { rows } = await pool.query('select id, kind, created_at from units where planet_id=$1 order by id desc', [planetId])
+  const { rows } = await getPool().query('select id, kind, created_at from units where planet_id=$1 order by id desc', [planetId])
   return rows
 }
 
@@ -392,7 +473,7 @@ export async function enqueueInfantry(planetId: number) {
   const workRequired = 50
   const ok = await ensureStock(planetId, costResource, costAmount)
   if (!ok) throw new Error('insufficient_resources')
-  const { rows } = await pool.query(
+  const { rows } = await getPool().query(
     `insert into queues(planet_id, item_type, cost_resource, cost_amount, work_required)
      values ($1,$2,$3,$4,$5) returning *`, [planetId, 'unit:infantry', costResource, costAmount, workRequired]
   )
@@ -400,13 +481,13 @@ export async function enqueueInfantry(planetId: number) {
 }
 
 export async function getScore() {
-  const { rows } = await pool.query('select story,empire,discovery,social from vezy_score limit 1')
+  const { rows } = await getPool().query('select story,empire,discovery,social from vezy_score limit 1')
   return rows[0]
 }
 
 export async function addEvent(category: 'story'|'empire'|'discovery'|'social', value: number) {
   const column = category
-  await pool.query(`update vezy_score set ${column} = ${column} + $1`, [value])
+  await getPool().query(`update vezy_score set ${column} = ${column} + $1`, [value])
   return getScore()
 }
 
@@ -420,7 +501,7 @@ export type StoredSettings = {
 }
 
 export async function getSettings(): Promise<StoredSettings> {
-  const { rows } = await pool.query('select resolution_mode, revial_policy, game_mode, backstory, win_criteria, visual_level from settings limit 1')
+  const { rows } = await getPool().query('select resolution_mode, revial_policy, game_mode, backstory, win_criteria, visual_level from settings limit 1')
   const r = rows[0] || {}
   const resolutionMode = r.resolution_mode === 'classic' ? 'classic' : 'outcome'
   const rev = r.revial_policy === 'story' ? 'story' : (r.revial_policy === 'hardcore' ? 'hardcore' : 'standard')
@@ -446,7 +527,7 @@ export async function setSettings(partial: Partial<StoredSettings>): Promise<Sto
     winCriteria: typeof partial.winCriteria === 'string' ? partial.winCriteria : current.winCriteria ?? null,
     visualLevel: (partial.visualLevel && ['off','characters','worlds','everything'].includes(partial.visualLevel)) ? partial.visualLevel : (current.visualLevel ?? null) as any
   }
-  await pool.query(
+  await getPool().query(
     `update settings set resolution_mode=$1, revial_policy=$2, game_mode=$3, backstory=$4, win_criteria=$5, visual_level=$6`,
     [next.resolutionMode, next.revialPolicy, next.gameMode, next.backstory ?? null, next.winCriteria ?? null, next.visualLevel ?? null]
   )
@@ -455,7 +536,7 @@ export async function setSettings(partial: Partial<StoredSettings>): Promise<Sto
 
 // Trade helpers
 export async function sumSystemStockpiles(systemId: number) {
-  const { rows } = await pool.query(
+  const { rows } = await getPool().query(
     `select s.resource, coalesce(sum(s.amount),0) as amount
      from planets p left join stockpiles s on s.planet_id = p.id
      where p.system_id=$1
@@ -466,12 +547,12 @@ export async function sumSystemStockpiles(systemId: number) {
 }
 
 export async function getTariffs(systemId: number) {
-  const { rows } = await pool.query('select resource, rate from tariffs where system_id=$1', [systemId])
+  const { rows } = await getPool().query('select resource, rate from tariffs where system_id=$1', [systemId])
   return rows
 }
 
 export async function setTariff(systemId: number, resource: string, rate: number) {
-  await pool.query(
+  await getPool().query(
     `insert into tariffs(system_id, resource, rate) values ($1,$2,$3)
      on conflict (system_id, resource) do update set rate=excluded.rate`,
     [systemId, resource, rate]
@@ -479,7 +560,7 @@ export async function setTariff(systemId: number, resource: string, rate: number
 }
 
 async function ensureStockRow(planetId: number, resource: string) {
-  await pool.query(
+  await getPool().query(
     `insert into stockpiles(planet_id, resource, amount) values ($1,$2,0)
      on conflict do nothing`,
     [planetId, resource]
@@ -488,23 +569,23 @@ async function ensureStockRow(planetId: number, resource: string) {
 
 export async function incrementPlanetStock(planetId: number, resource: string, delta: number) {
   await ensureStockRow(planetId, resource)
-  await pool.query('update stockpiles set amount = amount + $1 where planet_id=$2 and resource=$3', [delta, planetId, resource])
+  await getPool().query('update stockpiles set amount = amount + $1 where planet_id=$2 and resource=$3', [delta, planetId, resource])
 }
 
 export async function transferBetweenSystems(resource: string, qty: number, sellerSystemId: number, buyerSystemId: number) {
-  const sellerPlanets = await pool.query('select id from planets where system_id=$1 order by id asc', [sellerSystemId])
+  const sellerPlanets = await getPool().query('select id from planets where system_id=$1 order by id asc', [sellerSystemId])
   let remaining = qty
   for (const row of sellerPlanets.rows) {
     if (remaining <= 0) break
     await ensureStockRow(row.id, resource)
-    const { rows } = await pool.query('select amount from stockpiles where planet_id=$1 and resource=$2', [row.id, resource])
+    const { rows } = await getPool().query('select amount from stockpiles where planet_id=$1 and resource=$2', [row.id, resource])
     const have = Number(rows[0]?.amount ?? 0)
     if (have <= 0) continue
     const use = Math.min(have, remaining)
-    await pool.query('update stockpiles set amount = amount - $1 where planet_id=$2 and resource=$3', [use, row.id, resource])
+    await getPool().query('update stockpiles set amount = amount - $1 where planet_id=$2 and resource=$3', [use, row.id, resource])
     remaining -= use
   }
-  const buyer = await pool.query('select id from planets where system_id=$1 order by id asc limit 1', [buyerSystemId])
+  const buyer = await getPool().query('select id from planets where system_id=$1 order by id asc limit 1', [buyerSystemId])
   const transferred = qty - remaining
   if (buyer.rows[0] && transferred > 0) {
     await incrementPlanetStock(buyer.rows[0].id, resource, transferred)
@@ -514,11 +595,11 @@ export async function transferBetweenSystems(resource: string, qty: number, sell
 
 // Analytics helpers
 export async function writeKpiSnapshot(scope: 'campaign'|'region', id: number, metrics: Record<string, any>) {
-  await pool.query('insert into kpi_snapshots(scope, region_or_campaign_id, metrics) values ($1,$2,$3)', [scope, id, metrics])
+  await getPool().query('insert into kpi_snapshots(scope, region_or_campaign_id, metrics) values ($1,$2,$3)', [scope, id, metrics])
 }
 
 export async function getLatestKpiSnapshot(scope: 'campaign'|'region', id: number) {
-  const { rows } = await pool.query(
+  const { rows } = await getPool().query(
     'select scope, region_or_campaign_id as id, ts, metrics from kpi_snapshots where scope=$1 and region_or_campaign_id=$2 order by ts desc limit 1',
     [scope, id]
   )
@@ -526,7 +607,7 @@ export async function getLatestKpiSnapshot(scope: 'campaign'|'region', id: numbe
 }
 
 export async function listKpiSnapshots(scope: 'campaign'|'region', id: number, windowCount: number) {
-  const { rows } = await pool.query(
+  const { rows } = await getPool().query(
     'select scope, region_or_campaign_id as id, ts, metrics from kpi_snapshots where scope=$1 and region_or_campaign_id=$2 order by ts desc limit $3',
     [scope, id, windowCount]
   )
@@ -534,9 +615,9 @@ export async function listKpiSnapshots(scope: 'campaign'|'region', id: number, w
 }
 
 export async function getKpiBasics() {
-  const totalStock = await pool.query('select coalesce(sum(amount),0)::numeric as total from stockpiles')
-  const queueCount = await pool.query('select count(*)::int as c from queues')
-  const unitCount = await pool.query('select count(*)::int as c from units')
+  const totalStock = await getPool().query('select coalesce(sum(amount),0)::numeric as total from stockpiles')
+  const queueCount = await getPool().query('select count(*)::int as c from queues')
+  const unitCount = await getPool().query('select count(*)::int as c from units')
   return {
     stockpileTotal: Number(totalStock.rows[0]?.total ?? 0),
     queueCount: Number(queueCount.rows[0]?.c ?? 0),
@@ -546,20 +627,20 @@ export async function getKpiBasics() {
 
 // Policies & Taxes helpers (stubs with persistence)
 export async function setPolicy(type: string, value: any) {
-  await pool.query('insert into policies(type, value) values ($1,$2)', [type, value])
+  await getPool().query('insert into policies(type, value) values ($1,$2)', [type, value])
 }
 
 export async function listPolicies(limit = 20) {
-  const { rows } = await pool.query('select type, value, ts from policies order by ts desc limit $1', [limit])
+  const { rows } = await getPool().query('select type, value, ts from policies order by ts desc limit $1', [limit])
   return rows
 }
 
 export async function setTaxRate(taxType: string, rate: number) {
   // Try modern shape first: tax_type unique
   try {
-    const upd = await pool.query('update tax_rates set rate=$2 where tax_type=$1', [taxType, rate])
+    const upd = await getPool().query('update tax_rates set rate=$2 where tax_type=$1', [taxType, rate])
     if ((upd.rowCount || 0) === 0) {
-      await pool.query('insert into tax_rates(tax_type, rate) values ($1,$2)', [taxType, rate])
+      await getPool().query('insert into tax_rates(tax_type, rate) values ($1,$2)', [taxType, rate])
     }
     return
   } catch {
@@ -568,7 +649,7 @@ export async function setTaxRate(taxType: string, rate: number) {
   // Determine a valid region id to satisfy FK
   let regionId: number | null = null
   try {
-    const existing = await pool.query('select region from tax_rates where region is not null limit 1')
+    const existing = await getPool().query('select region from tax_rates where region is not null limit 1')
     if (existing.rows[0]?.region != null) {
       regionId = Number(existing.rows[0].region)
     }
@@ -586,10 +667,10 @@ export async function setTaxRate(taxType: string, rate: number) {
   }
   if (regionId == null) throw new Error('no_region_available')
   // Update legacy row for region; otherwise insert a new one with reasonable defaults
-  const updLegacy = await pool.query('update tax_rates set tax_type=$1, rate=$2 where region=$3', [taxType, rate, regionId])
+  const updLegacy = await getPool().query('update tax_rates set tax_type=$1, rate=$2 where region=$3', [taxType, rate, regionId])
   if ((updLegacy.rowCount || 0) === 0) {
     try {
-      await pool.query('insert into tax_rates(region, corp_tax, tariff_default, vat, tax_type, rate) values ($1, 0.2, 0.05, 0.05, $2, $3)', [regionId, taxType, rate])
+      await getPool().query('insert into tax_rates(region, corp_tax, tariff_default, vat, tax_type, rate) values ($1, 0.2, 0.05, 0.05, $2, $3)', [regionId, taxType, rate])
     } catch (e) {
       // Final fallback: if insert fails, rethrow for route to handle
       throw e
@@ -598,14 +679,14 @@ export async function setTaxRate(taxType: string, rate: number) {
 }
 
 export async function listTaxRates() {
-  const { rows } = await pool.query('select tax_type, rate from tax_rates order by tax_type asc')
+  const { rows } = await getPool().query('select tax_type, rate from tax_rates order by tax_type asc')
   return rows
 }
 
 // Policies & Advisors helpers
 export type PolicyInput = { title: string; body: string; scope?: string; tags?: any; author?: string }
 export async function createPolicy(p: PolicyInput) {
-  const { rows } = await pool.query(
+  const { rows } = await getPool().query(
     'insert into policies(title, body, scope, tags, author, type, value, ts) values ($1,$2,$3,$4,$5,$6,$7,coalesce($8, now())) returning id',
     [p.title, p.body, p.scope || 'campaign', p.tags || null, p.author || null, 'freeform', JSON.stringify({}), null]
   )
@@ -615,7 +696,7 @@ export async function createPolicy(p: PolicyInput) {
 export type ModifierInput = { policyId: number; key: string; value: number; capMin?: number|null; capMax?: number|null; approvedBy?: string|null }
 export async function activatePolicyModifiers(mods: ModifierInput[]) {
   for (const m of mods) {
-    await pool.query(
+    await getPool().query(
       'insert into policy_modifiers(policy_id, key, value, cap_min, cap_max, approved_by) values ($1,$2,$3,$4,$5,$6)',
       [m.policyId, m.key, m.value, m.capMin ?? null, m.capMax ?? null, m.approvedBy ?? null]
     )
@@ -630,7 +711,7 @@ function clampValue(val: number, min?: number|null, max?: number|null) {
 }
 
 export async function listActiveModifiers() {
-  const { rows } = await pool.query('select policy_id, key, value, cap_min, cap_max from policy_modifiers')
+  const { rows } = await getPool().query('select policy_id, key, value, cap_min, cap_max from policy_modifiers')
   return rows
 }
 
@@ -661,12 +742,18 @@ export async function getActiveModifiersAggregate() {
 }
 
 export async function createPendingAction(domain: string, payload: any) {
-  const { rows } = await pool.query('insert into pending_actions(domain, payload) values ($1,$2) returning id', [domain, payload])
-  return rows[0].id as number
+  try {
+    const pgPool = getPool();
+    const { rows } = await pgPool.query('insert into pending_actions(domain, payload) values ($1,$2) returning id', [domain, payload])
+    return rows[0].id as number
+  } catch (error) {
+    console.error('Failed to create pending action:', error);
+    throw error;
+  }
 }
 
 export async function approvePendingAction(id: number) {
-  await pool.query('update pending_actions set approved_at = now() where id=$1', [id])
+  await getPool().query('update pending_actions set approved_at = now() where id=$1', [id])
 }
 
 export async function listPendingActions(status: 'pending'|'approved'|'executed'|'all' = 'pending') {
@@ -676,7 +763,7 @@ export async function listPendingActions(status: 'pending'|'approved'|'executed'
     if (status === 'approved') q += ' where approved_at is not null and executed_at is null'
     if (status === 'executed') q += ' where executed_at is not null'
   }
-  const { rows } = await pool.query(q)
+  const { rows } = await getPool().query(q)
   return rows
 }
 

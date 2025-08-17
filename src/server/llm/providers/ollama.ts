@@ -1,8 +1,11 @@
-import { CompletionOptions, CompletionResponse, LLMProvider, ModelMessage, StreamChunk } from '../types'
+import { CompletionOptions, CompletionResponse, LLMProvider, ModelMessage, StreamChunk, EmbeddingResult } from '../types'
 
 /** Minimal Ollama LLM provider using /api/chat */
 export class OllamaProvider implements LLMProvider {
   readonly name = 'ollama'
+  readonly supportsTools = false
+  readonly supportsStreaming = true
+  readonly supportsEmbedding = true
 
   private baseUrl: string
   constructor(baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434') {
@@ -64,6 +67,47 @@ export class OllamaProvider implements LLMProvider {
         }
       }
     }
+  }
+
+  async embed(texts: string[], options?: { model?: string }): Promise<EmbeddingResult> {
+    const model = options?.model || 'nomic-embed-text'
+    const vectors: number[][] = []
+
+    // Process texts individually since Ollama's /api/embeddings endpoint doesn't support batching
+    for (const text of texts) {
+      const resp = await fetch(`${this.baseUrl}/api/embeddings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model,
+          prompt: text,
+        }),
+      })
+      
+      if (!resp.ok) {
+        throw new Error(`ollama_embed_failed: ${resp.status} - ${await resp.text()}`)
+      }
+      
+      const json = await resp.json() as any
+      if (!json.embedding || !Array.isArray(json.embedding)) {
+        throw new Error(`ollama_embed_invalid_response: missing embedding array`)
+      }
+      
+      vectors.push(json.embedding)
+    }
+
+    if (vectors.length === 0) {
+      throw new Error('No embeddings generated')
+    }
+
+    const dim = vectors[0].length
+    
+    // Verify all vectors have the same dimension
+    if (!vectors.every(v => v.length === dim)) {
+      throw new Error(`Inconsistent embedding dimensions`)
+    }
+
+    return { vectors, dim }
   }
 }
 

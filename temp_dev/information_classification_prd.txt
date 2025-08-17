@@ -1,0 +1,332 @@
+# Information Classification & Espionage System - PRD
+
+## Executive Summary
+
+Implement a sophisticated information classification and espionage system that adds intelligence gathering, corporate espionage, and information security mechanics to the space civilization game. This system creates strategic layers where players must protect sensitive information while attempting to gather intelligence on competitors.
+
+## Business Objectives
+
+- **Strategic Depth**: Add intelligence-based gameplay mechanics beyond traditional resource management
+- **Corporate Dynamics**: Enable corporations to have proprietary technologies and trade secrets
+- **Espionage Gameplay**: Create spy networks, intelligence operations, and counter-intelligence systems
+- **Information Economy**: Establish information as a tradable and valuable strategic resource
+- **Competitive Balance**: Reward both information security and intelligence gathering equally
+
+## Core Components
+
+### 1. Information Classification Framework
+
+**Classification Levels:**
+- **PUBLIC**: Openly accessible information (population stats, basic trade data, public policies)
+- **PROPRIETARY**: Corporate/organization-owned information (technologies, research, trade secrets)
+- **CLASSIFIED**: Government/military secrets (defense capabilities, strategic plans, diplomatic communications)
+- **TOP SECRET**: Highest security information (special projects, alliance negotiations, critical infrastructure)
+
+**Information Categories:**
+- **Technological**: Research projects, manufacturing processes, engineering blueprints
+- **Economic**: Trade routes, resource reserves, market strategies, financial data
+- **Military**: Defense capabilities, unit compositions, strategic positions
+- **Diplomatic**: Alliance negotiations, treaty terms, foreign relations status
+- **Cultural**: Social programs, cultural initiatives, propaganda campaigns
+
+### 2. Entity Information Management
+
+**Corporations:**
+- **Proprietary Technologies**: Unique manufacturing processes, efficiency improvements, trade algorithms
+- **Research & Development**: Active research projects with completion timelines and resource requirements
+- **Market Intelligence**: Competitor analysis, demand forecasting, pricing strategies
+- **Corporate Espionage**: Ability to conduct and defend against industrial espionage
+- **Patent Systems**: Licensing technologies to competitors or protecting innovations
+
+**Governments:**
+- **State Secrets**: Military capabilities, intelligence operations, strategic reserves
+- **Diplomatic Information**: Treaty negotiations, alliance status, foreign intelligence
+- **Public Information**: Demographics, economic indicators, public policy announcements
+- **Intelligence Agencies**: Dedicated espionage and counter-intelligence capabilities
+- **Classification Authority**: Ability to classify/declassify information levels
+
+**Individuals/Players:**
+- **Personal Information**: Private communications, personal wealth, family connections
+- **Professional Knowledge**: Specialized skills, industry contacts, technical expertise
+- **Intelligence Networks**: Spy contacts, information brokers, insider sources
+- **Reputation Systems**: Trust levels with different organizations and entities
+
+### 3. Espionage & Intelligence Operations
+
+**Intelligence Gathering Methods:**
+- **Human Intelligence (HUMINT)**: Spy networks, insider recruitment, social engineering
+- **Signals Intelligence (SIGINT)**: Communication interception, data mining, cyber espionage
+- **Open Source Intelligence (OSINT)**: Public information analysis, social media monitoring
+- **Corporate Espionage**: Industrial spying, reverse engineering, employee recruitment
+- **Diplomatic Intelligence**: Embassy surveillance, diplomatic pouch interception
+
+**Spy Network Mechanics:**
+- **Agent Recruitment**: Hire spies with different specializations and success rates
+- **Cover Operations**: Establish legitimate businesses/roles as spy fronts
+- **Intelligence Assets**: Develop contacts within target organizations
+- **Counter-Intelligence**: Detect and neutralize opposing spy networks
+- **Information Validation**: Determine accuracy and reliability of gathered intelligence
+
+**Risk/Reward Systems:**
+- **Operation Success Rates**: Based on agent skills, target security, and resource investment
+- **Detection Risks**: Failed operations expose agents and damage diplomatic relations
+- **Intelligence Value**: More valuable information requires higher-risk operations
+- **Operational Costs**: Spy networks require ongoing funding and resource allocation
+- **Diplomatic Consequences**: Exposed espionage can damage international relations
+
+### 4. Information Security Framework
+
+**Security Measures:**
+- **Access Control**: Role-based permissions for viewing classified information
+- **Compartmentalization**: Need-to-know basis for sensitive information access
+- **Security Clearances**: Personnel screening and reliability assessment systems
+- **Technical Security**: Encryption, secure communications, cyber defense systems
+- **Physical Security**: Secure facilities, document protection, personnel screening
+
+**Information Leakage Systems:**
+- **Insider Threats**: Disgruntled employees, recruited double agents, security breaches
+- **Communication Intercepts**: Messages between entities can be intercepted by third parties
+- **Document Theft**: Physical or digital theft of classified documents
+- **Social Engineering**: Manipulation of personnel to reveal sensitive information
+- **Technical Exploitation**: Hacking, surveillance, and cyber attacks
+
+**Counter-Intelligence Operations:**
+- **Mole Hunting**: Identify and neutralize enemy agents within organization
+- **Disinformation**: Plant false information to confuse enemy intelligence
+- **Double Agents**: Turn enemy spies into assets for counter-intelligence
+- **Security Audits**: Regular assessment of information security measures
+- **Damage Assessment**: Evaluate impact of successful enemy intelligence operations
+
+### 5. Information as Strategic Resource
+
+**Intelligence Market:**
+- **Information Brokers**: NPCs and players who trade in intelligence
+- **Intelligence Exchanges**: Marketplaces where information can be bought/sold
+- **Information Valuation**: Dynamic pricing based on relevance, accuracy, and exclusivity
+- **Information Decay**: Time-sensitive intelligence loses value over time
+- **Exclusive Agreements**: Contracts for ongoing intelligence sharing between entities
+
+**Strategic Applications:**
+- **Trade Advantages**: Market intelligence providing competitive advantages
+- **Military Planning**: Enemy capabilities intelligence for strategic planning
+- **Diplomatic Leverage**: Compromising information for negotiation advantages
+- **Research Acceleration**: Stolen technologies reducing development time and costs
+- **Economic Warfare**: Using intelligence to disrupt competitor operations
+
+### 6. Technology & Expertise Systems
+
+**Corporate Technologies:**
+- **Research Pipelines**: Multi-stage technology development with resource requirements
+- **Patent Protection**: Legal frameworks protecting proprietary innovations
+- **Technology Transfer**: Licensing, joint ventures, and strategic partnerships
+- **Industrial Espionage**: Attempts to steal competitor technologies
+- **Research Security**: Protecting ongoing R&D projects from espionage
+
+**Expertise Development:**
+- **Talent Acquisition**: Recruiting skilled professionals from competitors
+- **Knowledge Management**: Institutional memory and expertise retention systems
+- **Training Programs**: Developing internal expertise and specializations
+- **Consultant Networks**: External experts providing specialized knowledge
+- **Brain Drain**: Loss of key personnel to competitors or other organizations
+
+## Technical Architecture
+
+### Database Schema
+
+```sql
+-- Information Classification System
+CREATE TABLE information_assets (
+  id UUID PRIMARY KEY,
+  classification_level VARCHAR(20) CHECK (classification_level IN ('PUBLIC', 'PROPRIETARY', 'CLASSIFIED', 'TOP_SECRET')),
+  owner_type VARCHAR(20) CHECK (owner_type IN ('CORPORATION', 'GOVERNMENT', 'INDIVIDUAL')),
+  owner_id INTEGER,
+  category VARCHAR(50),
+  title VARCHAR(200),
+  content_hash VARCHAR(64), -- For integrity verification
+  created_at TIMESTAMP,
+  last_accessed TIMESTAMP,
+  access_count INTEGER DEFAULT 0,
+  intelligence_value INTEGER DEFAULT 0,
+  expiration_date TIMESTAMP
+);
+
+-- Access Control and Permissions
+CREATE TABLE information_access (
+  id UUID PRIMARY KEY,
+  information_id UUID REFERENCES information_assets(id),
+  accessor_type VARCHAR(20),
+  accessor_id INTEGER,
+  access_level VARCHAR(20),
+  granted_by INTEGER,
+  granted_at TIMESTAMP,
+  expires_at TIMESTAMP
+);
+
+-- Espionage Operations
+CREATE TABLE intelligence_operations (
+  id UUID PRIMARY KEY,
+  operation_type VARCHAR(50),
+  operator_id INTEGER,
+  target_type VARCHAR(20),
+  target_id INTEGER,
+  target_information_id UUID,
+  operation_status VARCHAR(20),
+  success_probability DECIMAL(3,2),
+  resource_cost INTEGER,
+  started_at TIMESTAMP,
+  completed_at TIMESTAMP,
+  result_data JSONB
+);
+
+-- Spy Networks and Agents
+CREATE TABLE intelligence_agents (
+  id UUID PRIMARY KEY,
+  owner_id INTEGER,
+  agent_name VARCHAR(100),
+  cover_identity VARCHAR(200),
+  specialization VARCHAR(50),
+  skill_level INTEGER CHECK (skill_level BETWEEN 1 AND 10),
+  current_assignment UUID,
+  status VARCHAR(20),
+  recruitment_cost INTEGER,
+  maintenance_cost INTEGER,
+  reliability_score DECIMAL(3,2)
+);
+
+-- Corporate Technologies and Research
+CREATE TABLE corporate_technologies (
+  id UUID PRIMARY KEY,
+  corporation_id INTEGER,
+  technology_name VARCHAR(200),
+  research_stage VARCHAR(50),
+  completion_percentage DECIMAL(5,2),
+  research_cost INTEGER,
+  patent_status VARCHAR(20),
+  classification_level VARCHAR(20),
+  strategic_value INTEGER,
+  created_at TIMESTAMP
+);
+
+-- Intelligence Market and Trading
+CREATE TABLE intelligence_transactions (
+  id UUID PRIMARY KEY,
+  seller_id INTEGER,
+  buyer_id INTEGER,
+  information_id UUID REFERENCES information_assets(id),
+  transaction_price INTEGER,
+  transaction_type VARCHAR(50),
+  broker_id INTEGER,
+  executed_at TIMESTAMP,
+  intelligence_quality_rating INTEGER
+);
+```
+
+### API Endpoints
+
+**Information Management:**
+- `GET /api/intel/information` - List accessible information assets
+- `POST /api/intel/classify` - Classify information with security level
+- `PUT /api/intel/access` - Grant/revoke information access permissions
+- `GET /api/intel/information/:id` - Retrieve specific information (with access control)
+
+**Espionage Operations:**
+- `POST /api/intel/operations` - Launch intelligence gathering operation
+- `GET /api/intel/operations` - List active and completed operations
+- `PUT /api/intel/operations/:id` - Update operation status or parameters
+- `POST /api/intel/agents/recruit` - Recruit new intelligence agents
+
+**Corporate Intelligence:**
+- `GET /api/intel/technologies/:corpId` - List corporation's technologies
+- `POST /api/intel/research` - Start new R&D project
+- `GET /api/intel/patents` - List patented technologies and licensing opportunities
+- `POST /api/intel/espionage/corporate` - Conduct industrial espionage
+
+**Intelligence Market:**
+- `GET /api/intel/market` - Browse available intelligence for sale
+- `POST /api/intel/market/sell` - Offer intelligence for sale
+- `POST /api/intel/market/buy` - Purchase intelligence from market
+- `GET /api/intel/brokers` - List available information brokers
+
+### Integration Points
+
+**Vector Memory Integration:**
+- AI advisors remember successful intelligence operations and recommend strategies
+- Conversation capture for diplomatic communications and classified discussions
+- Semantic search for intelligence analysis and pattern recognition
+- Memory-enhanced AI responses consider classification levels and access permissions
+
+**Trade System Integration:**
+- Corporate technologies affect production efficiency and trade capabilities
+- Intelligence about competitor operations influences market strategies
+- Resource allocation for espionage operations and security measures
+- Information as tradable commodity with dynamic pricing
+
+**Campaign System Integration:**
+- Long-term intelligence operations spanning multiple campaign steps
+- Technological development affecting civilization capabilities over time
+- Diplomatic relationships influenced by espionage activities and information sharing
+- Cultural values affecting acceptance of surveillance and espionage activities
+
+## Success Metrics
+
+**Gameplay Engagement:**
+- 80% of players engage with intelligence gathering within first 10 campaign steps
+- Average of 3-5 active intelligence operations per player per campaign
+- 60% player retention increase due to added strategic depth
+
+**System Performance:**
+- Information classification and access control: < 50ms response time
+- Intelligence operation processing: < 200ms for calculation completion
+- Espionage success/failure determination: < 100ms with realistic probability modeling
+
+**Balance Validation:**
+- No single information type provides overwhelming strategic advantage
+- Intelligence gathering costs balanced with potential benefits
+- Security measures provide meaningful protection against espionage
+- Counter-intelligence operations have realistic success rates
+
+## Implementation Phases
+
+### Phase 1: Core Information Framework (4 weeks)
+- Information classification system with access control
+- Basic corporate technology and expertise modeling
+- Public information sharing mechanisms
+- Database schema and core API endpoints
+
+### Phase 2: Espionage Operations (3 weeks)
+- Spy recruitment and management systems
+- Intelligence operation mechanics with success/failure probabilities
+- Counter-intelligence and security measures
+- Operation result processing and intelligence validation
+
+### Phase 3: Intelligence Market (2 weeks)
+- Information trading marketplace with brokers
+- Dynamic pricing for intelligence based on value and demand
+- Information decay and time-sensitivity mechanics
+- Transaction security and validation systems
+
+### Phase 4: Advanced Integration (3 weeks)
+- Vector Memory integration for AI-enhanced intelligence analysis
+- Trade system integration with corporate espionage
+- Campaign system integration with long-term intelligence operations
+- Comprehensive testing and balance validation
+
+## Risk Mitigation
+
+**Gameplay Balance Risks:**
+- **Risk**: Intelligence system becomes too complex for casual players
+- **Mitigation**: Provide optional automation and AI assistance for intelligence operations
+
+**Technical Complexity:**
+- **Risk**: Access control and classification system performance bottlenecks
+- **Mitigation**: Implement efficient caching and database indexing strategies
+
+**Player Privacy Concerns:**
+- **Risk**: Players uncomfortable with espionage mechanics on personal information
+- **Mitigation**: Clear separation between game intelligence and real player privacy
+
+## Conclusion
+
+The Information Classification & Espionage System will transform the space civilization game into a comprehensive strategic experience where intelligence is as valuable as traditional resources. This system creates rich interaction dynamics between corporations, governments, and individual players while maintaining competitive balance and strategic depth.
+
+The phased implementation approach ensures manageable development complexity while allowing for iterative refinement based on player feedback and performance metrics. Integration with existing systems (Vector Memory, Trade, Campaigns) creates a cohesive and immersive gameplay experience that rewards both information security and intelligence gathering strategies.

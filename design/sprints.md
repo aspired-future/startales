@@ -2,7 +2,17 @@ Title: Unified Sprint Plan (1–12) with Demos
 
 # Unified Plan Overview
 
-This unified plan merges the previous lettered (A–L) and numbered (1–8) tracks into a single 12‑sprint sequence. Each sprint lists the demo surface and primary APIs.
+This unified plan merges the previous lettered (A–L) and numbered (1–8) tracks into a single 12‑sprint sequence focused on building a comprehensive real-world economic simulation engine. Each sprint lists the demo surface and primary APIs.
+
+## Core Vision: Realistic Economic Simulation
+- **Real-World Accuracy**: All systems model actual economic, social, and political dynamics
+- **Deterministic Money Flow**: No mysterious appearance/disappearance of resources or money  
+- **Human Psychology**: Citizens respond to incentives, fears, and desires like real people
+- **AI + Deterministic Hybrid**: Combine deterministic calculations with AI natural language interpretation
+- **Real-Time Simulation**: Each tick includes AI analysis → simulation → AI interpretation
+- **Resource Conservation**: All resources and property have traceable origins and destinations
+
+See `design/comprehensive-economic-engine-architecture.md` for detailed technical architecture.
 
 Unified Sprint 1 — Core Loop + Simulation Engine HUD
 - Core Loop/Outcome Meter foundations (bands, chance bar, Classic toggle) and Simulation Engine HUD
@@ -29,10 +39,11 @@ Add-ons in S3:
 - Succession state machine hooks for archetypes (monarchy, democracy, empire)
  - Restoration via Hero Influence: support deltas from encounters with caps and precondition gating
 
-Unified Sprint 4 — Trade & Economy (Phase 1) + Analytics Base
-- Prices, routes/tariffs, contracts; early economy indices and analytics base
-- Demo: prices react to scarcity/tariffs; contract lifecycle; basic indices
-- APIs: GET /api/trade/prices, POST /api/trade/routes, POST /api/trade/contracts, GET /api/trade/{contracts|indices}
+Unified Sprint 4 — Core Economic Engine with Money Conservation [Task 47]
+- Foundational economic engine with strict money flow tracking and conservation laws
+- Transaction auditing, balance sheet maintenance, supply/demand modeling
+- Demo: money conservation validation, transaction tracking, economic metrics
+- APIs: GET /api/economy/transactions, GET /api/economy/balances, POST /api/economy/validate
 
 Add-ons in S4:
 - Currencies & FX v1 (free‑float) integrated in price quotes and analytics indices
@@ -42,10 +53,11 @@ Add-ons in S4:
  - GDP components groundwork (C,I,NX) flowing from trade/corporate subsystems
 - Logistics & Transport v1: modes, shipments with ETAs/queues, in‑flight inventory affecting settlement
 
-Unified Sprint 5 — Analytics & KPIs Consolidation
-- Snapshot computation, trends, HUD analytics screen; empire KPI panels
-- Demo: analytics panels and trends over multiple steps
-- APIs: GET /api/analytics/{empire,trends}
+Unified Sprint 5 — Population & Demographics Engine [Task 48]
+- Individual citizen modeling with psychological profiles and incentive responses
+- Career progression, skill development, and realistic life transitions
+- Demo: citizen behavior simulation, incentive response testing, demographic evolution
+- APIs: GET /api/population/citizens, GET /api/population/demographics, POST /api/population/incentives
 
 Add-ons in S5:
 - Causal Explainability dashboards (why KPIs changed) with counterfactual runner hooks
@@ -54,10 +66,11 @@ Add-ons in S5:
  - Innovation KPIs (startup_count, private_RnD_spend, patents, adoption_index)
  - GDP total/growth panel and API; National Budget UI (allocations, caps, deficit)
 
-Unified Sprint 6 — Live Ops Core (Stage, Fireteams, Speeches, Cabinet)
-- Stage backend (roster, approvals, WS updates), Fireteams scaffolding; leader speeches and cabinet voice meeting MVP
-- Demos: /demo/speech, /demo/cabinet; Stage/Fireteams flows
-- APIs: POST /api/comms/speech, POST /api/gov/cabinet/meeting, WS stage/fireteams topics
+Unified Sprint 6 — Profession & Industry System [Task 49]
+- Comprehensive profession modeling with realistic salaries and career paths
+- Unemployment tracking by demographics, labor market dynamics, small business opportunities
+- Demo: profession salary analysis, unemployment dashboard, career progression simulation
+- APIs: GET /api/professions, GET /api/labor/unemployment, GET /api/careers/progression
 
 Add-ons in S6:
 - Diegetic Media Fabric (headlines/podcast front page) driven by press_freedom + credibility
@@ -66,44 +79,49 @@ Add-ons in S6:
  - Press Conferences (Q&A): reporter queue + live indicators; bounded messaging/credibility effects; transcripts and recap
  - Intel Brief (Daily): minimal agency brief panel and risk indices (analysis only)
 
-Unified Sprint 7 — Daily Contracts, Weekly Anomalies, Recap & Sharing
-- Contracts rotation; anomaly mutators activation/teardown; recap cards (hero image + seed code) and sharing
-- Demo: contract→anomaly run→recap share
-- APIs: /api/live/{contracts,anomalies}, /api/recap/{generate,:id}
+Unified Sprint 7 — Small Business & Entrepreneurship Engine [Task 50]
+- Comprehensive small business ecosystem with financial tracking and market dynamics
+- Business creation/failure modeling, employee management, competition effects
+- Demo: business creation simulation, financial tracking dashboard, market competition analysis
+- APIs: GET /api/businesses, POST /api/businesses/create, GET /api/businesses/finances
 
 Add-ons in S7:
 - Recap “writer’s room” arc tying beats to season narrative (deterministic schedule + rollback plan)
 
-Unified Sprint 8 — Cosmetics & Store + Alliance Season Pass
-- Cosmetics catalog/entitlements, Store flow; Alliance Season Pass (free/premium tracks, prestige)
-- Demo: purchase (mock) → entitlement applied; season track progression
-- APIs: /api/store/{catalog,purchase}, /api/entitlements, /api/season/{pass,progress}
+Unified Sprint 8 — City Specialization & Geography Engine [Task 51]
+- Realistic city development with economic specializations and geographic advantages
+- Infrastructure development, quality of life factors, inter-city economic relationships
+- Demo: city specialization evolution, infrastructure impact analysis, economic performance comparison
+- APIs: GET /api/cities, GET /api/cities/specializations, GET /api/infrastructure
 
 Add-ons in S8:
 - Adaptive Soundtrack hooks (react to KPIs) and cosmetic radio skins for media personas
  - Currency skins and commemorative coins cosmetics tied to FX events (visual only)
 
-Unified Sprint 9 — Cost Telemetry
-- Token/STT/TTS/image costs, dashboards, budgets; ±10% accuracy vs logs
-- Demo: admin cost dashboard
-- APIs: /api/telemetry/{costs,reports}
+Unified Sprint 9 — Immigration & Migration System [Task 52]
+- Comprehensive population movement modeling with legal/illegal immigration and internal migration
+- Cultural and social factors, integration challenges, policy effects on migration flows
+- Demo: migration flow visualization, policy impact on immigration, integration outcome tracking
+- APIs: GET /api/migration/flows, POST /api/migration/policies, GET /api/migration/integration
 
 Add-ons in S9:
 - Model cascading and budget enforcement for media/voice features; diary access audit panel (opt‑in)
  - Reign Summary computation job and initial leaderboards integration (opt‑in)
 
-Unified Sprint 10 — Single Player Mode
-- Solo manager with companion agent; pause/resume; solo DDA bounds
-- Demo: solo run → pause → resume
-- APIs: /api/solo/{session,companion}
+Unified Sprint 10 — AI Analysis & Interpretation Engine [Task 53]
+- AI-powered analysis providing natural language interpretation of economic and social dynamics
+- Pre-simulation analysis, trend prediction, post-simulation interpretation, narrative generation
+- Demo: AI economic analysis, trend prediction accuracy, narrative event generation
+- APIs: GET /api/ai/analysis, POST /api/ai/predict, GET /api/ai/interpret
 
 Add-ons in S10:
 - Player fingerprinting (opt‑in) for pacing and companion style; bounded by determinism
 
-Unified Sprint 11 — Simulation Advanced & Consistency
-- Deterministic snapshots/replay, reconciliation, drift detection/replay/fallback; designer hooks
-- Demo: snapshot/restore + reconciliation view
-- APIs: /api/sim/{snapshot,replay,reconcile}
+Unified Sprint 11 — Incentive Response & Psychology Systems [Tasks 54-55]
+- Realistic citizen responses to incentives and comprehensive human psychology modeling
+- Fear/motivation systems, behavioral economics, risk assessment, social influence
+- Demo: incentive response testing, psychological factor analysis, behavioral prediction accuracy
+- APIs: GET /api/incentives/responses, GET /api/psychology/factors, POST /api/behavior/predict
 
 Add-ons in S11:
 - Branching time machine UI (parallel what‑ifs) with diffed narratives and promotion safeguards
@@ -113,10 +131,11 @@ Add-ons in S11:
  - FTL Jump Network (seeded lanes/nodes) and Ancient Artifacts discovery/activation (bounded effects)
  - Technology Tree (DAG) with research flows and bounded effects; UI and APIs
 
-Unified Sprint 12 — Performance @50 (Hardening)
-- Action batching, caching, DB tuning, horizontal scale hooks; spectators/casts (caption‑only)
-- Demo: load harness; WS fanout p95 < 300ms; GM summary p50 < 4.5s
-- Work: perf tuning, batching windows, spectator caption stream
+Unified Sprint 12 — Real-Time Integration & Economic Analytics [Tasks 56-58]
+- Complete real-time simulation integration with AI analysis → deterministic simulation → AI interpretation
+- Comprehensive economic metrics dashboard and realistic policy impact simulation
+- Demo: full real-time economic simulation, policy impact analysis, comprehensive analytics dashboard
+- APIs: GET /api/simulation/realtime, GET /api/analytics/comprehensive, POST /api/policies/simulate
 
 Add-ons in S12:
 - Media/agent scaling tests; soundtrack mixer perf; treaty DSL stress with many agents

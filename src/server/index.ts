@@ -33,6 +33,8 @@ import { initDb } from './storage/db.js';
 import { analyticsRouter } from './routes/analytics.js';
 import policiesRouter from './routes/policies.js';
 import advisorsRouter from './routes/advisors.js';
+import civilizationAnalyticsRouter from './routes/civilizationAnalytics.js';
+import intelligenceRouter from './routes/intelligence.js';
 
 const app = express();
 app.use(cors());
@@ -54,6 +56,8 @@ app.use('/api/trade', tradeRouter);
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/policies', policiesRouter);
 app.use('/api/advisors', advisorsRouter);
+app.use('/api/civilization-analytics', civilizationAnalyticsRouter);
+app.use('/api/intelligence', intelligenceRouter);
 // Serve built UI (run: npm run ui -- --build)
 app.use('/app', express.static('dist/ui'));
 app.get('/app/*', (_req, res) => res.sendFile('dist/ui/index.html', { root: process.cwd() }));

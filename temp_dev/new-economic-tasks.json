@@ -1,0 +1,136 @@
+{
+  "newTasks": [
+    {
+      "id": 47,
+      "title": "Core Economic Engine with Money Conservation",
+      "description": "Implement the foundational economic engine that tracks all money flows with strict conservation laws. No money can appear or disappear mysteriously.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "details": "Build the EconomicEngine class that:\n- Tracks all transactions with source/destination\n- Implements money conservation validation\n- Calculates supply/demand dynamics\n- Models inflation and interest rates\n- Maintains balance sheets for all entities\n- Provides audit trails for all money movements",
+      "testStrategy": "Verify money conservation laws hold across all operations. Test that total money in system remains constant unless explicitly created/destroyed through defined mechanisms.",
+      "subtasks": []
+    },
+    {
+      "id": 48,
+      "title": "Population & Demographics Engine",
+      "description": "Create a comprehensive population simulation with individual citizens who have realistic psychological profiles and respond to incentives.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [47],
+      "details": "Implement PopulationEngine with:\n- Individual citizen modeling with age, education, profession, income\n- Psychological factors: risk tolerance, entrepreneurial spirit, mobility willingness\n- Motivation and fear systems that drive decision-making\n- Response to job opportunities, tax incentives, grants\n- Career progression and skill development\n- Realistic life events and transitions",
+      "testStrategy": "Verify citizens respond logically to incentives. Test that population demographics evolve realistically over time. Validate psychological factors influence decisions appropriately.",
+      "subtasks": []
+    },
+    {
+      "id": 49,
+      "title": "Profession & Industry System",
+      "description": "Model realistic professions with different earning potentials, skill requirements, and career paths.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [48],
+      "details": "Create comprehensive profession system:\n- Define all major professions with realistic salary ranges\n- Model skill requirements and education prerequisites\n- Implement career progression paths\n- Track unemployment rates by industry, education, age, region\n- Model job market dynamics and labor mobility\n- Include small business and entrepreneurship opportunities",
+      "testStrategy": "Verify profession salaries match real-world data. Test that unemployment rates respond to economic conditions. Validate career progression follows realistic patterns.",
+      "subtasks": []
+    },
+    {
+      "id": 50,
+      "title": "Small Business & Entrepreneurship Engine",
+      "description": "Implement a comprehensive small business ecosystem where citizens can start and run businesses.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [49],
+      "details": "Build small business system:\n- Business creation process with realistic requirements\n- Financial tracking with cash flow, assets, liabilities\n- Business success/failure modeling based on market conditions\n- Employee hiring and management\n- Competition and market dynamics\n- Government regulations and compliance\n- Access to loans, grants, and investment",
+      "testStrategy": "Test business creation and failure rates match real-world statistics. Verify financial tracking maintains money conservation. Validate market competition affects business success.",
+      "subtasks": []
+    },
+    {
+      "id": 51,
+      "title": "City Specialization & Geography Engine",
+      "description": "Create realistic cities that develop economic specializations based on geography, resources, and advantages.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [50],
+      "details": "Implement CityEngine with:\n- City specialization in mining, entertainment, tech, finance, etc.\n- Geographic advantages and resource deposits\n- Infrastructure development and transport links\n- Quality of life factors affecting attractiveness\n- Economic indicators per city (GDP, unemployment, income)\n- Urban growth and development patterns\n- Inter-city trade and economic relationships",
+      "testStrategy": "Verify cities develop logical specializations based on advantages. Test that infrastructure investments improve economic outcomes. Validate quality of life affects migration patterns.",
+      "subtasks": []
+    },
+    {
+      "id": 52,
+      "title": "Immigration & Migration System",
+      "description": "Model realistic population movement including legal immigration, illegal immigration, and internal migration.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [51],
+      "details": "Create comprehensive migration system:\n- Legal immigration with visa processes and quotas\n- Illegal immigration with enforcement consequences\n- Internal migration based on economic opportunities\n- Cultural and social factors affecting movement\n- Integration challenges and outcomes\n- Economic impacts of migration on origin/destination areas\n- Policy effects on migration flows",
+      "testStrategy": "Test migration responds to economic incentives and policy changes. Verify legal/illegal immigration flows are realistic. Validate cultural factors influence migration decisions.",
+      "subtasks": []
+    },
+    {
+      "id": 53,
+      "title": "AI Analysis & Interpretation Engine",
+      "description": "Implement AI-powered analysis that provides natural language interpretation of economic and social dynamics.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [52],
+      "details": "Build AIAnalysisEngine with:\n- Pre-simulation analysis of current situation\n- Trend prediction and impact assessment\n- Post-simulation interpretation of results\n- Narrative event generation\n- Policy impact analysis and suggestions\n- Natural language explanations of complex economic phenomena\n- Integration with deterministic calculations",
+      "testStrategy": "Verify AI analysis provides accurate and insightful interpretations. Test that predictions align with simulation outcomes. Validate narrative generation is coherent and relevant.",
+      "subtasks": []
+    },
+    {
+      "id": 54,
+      "title": "Incentive Response System",
+      "description": "Model how citizens realistically respond to various economic and policy incentives.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [53],
+      "details": "Implement IncentiveEngine with:\n- Job opportunity responses with realistic delays and probabilities\n- Tax incentive responses based on citizen characteristics\n- Business incentive responses for entrepreneurs\n- Education incentive responses\n- Grant and subsidy responses\n- Risk assessment and decision-making models\n- Time delays and behavioral inertia",
+      "testStrategy": "Test incentive responses match real-world behavioral economics. Verify response rates and delays are realistic. Validate different citizen types respond differently to same incentives.",
+      "subtasks": []
+    },
+    {
+      "id": 55,
+      "title": "Fear & Motivation Psychology Engine",
+      "description": "Implement realistic human psychology modeling including fears, motivations, and pleasure-seeking behavior.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [54],
+      "details": "Create PsychologyEngine with:\n- Fear modeling (unemployment, poverty, crime, war, imprisonment)\n- Motivation systems (wealth, career, family, status, fulfillment)\n- Pleasure-seeking and lifestyle choices\n- Risk tolerance and decision-making under uncertainty\n- Social influence and peer effects\n- Happiness and life satisfaction calculations\n- Mental health impacts on economic behavior",
+      "testStrategy": "Verify psychological factors realistically influence economic decisions. Test that fear responses match behavioral research. Validate motivation systems drive appropriate behaviors.",
+      "subtasks": []
+    },
+    {
+      "id": 56,
+      "title": "Real-Time Simulation Integration",
+      "description": "Integrate all systems into a cohesive real-time simulation loop with AI analysis → deterministic simulation → AI interpretation.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [55],
+      "details": "Build comprehensive SimulationLoop:\n- AI pre-analysis of current situation\n- Deterministic economic and social calculations\n- AI post-interpretation of results\n- Event generation and narrative creation\n- State persistence and validation\n- Performance optimization for real-time operation\n- Error handling and recovery mechanisms",
+      "testStrategy": "Test full simulation loop runs efficiently in real-time. Verify all systems integrate correctly. Validate state persistence and recovery work properly. Test performance under load.",
+      "subtasks": []
+    },
+    {
+      "id": 57,
+      "title": "Economic Metrics & Analytics Dashboard",
+      "description": "Create comprehensive economic analytics and visualization for the realistic economic simulation.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [56],
+      "details": "Build analytics system for:\n- Unemployment rates by demographics and regions\n- Income distribution and inequality metrics\n- Business creation and failure rates\n- Migration flows and patterns\n- City economic performance comparisons\n- Policy impact measurements\n- Real-time economic health indicators\n- Historical trend analysis and forecasting",
+      "testStrategy": "Verify metrics accurately reflect simulation state. Test dashboard updates in real-time. Validate historical data tracking and trend analysis. Test policy impact measurements.",
+      "subtasks": []
+    },
+    {
+      "id": 58,
+      "title": "Policy Impact Simulation",
+      "description": "Implement realistic policy effects that influence citizen behavior and economic outcomes through the comprehensive simulation.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [57],
+      "details": "Enhance PolicyEngine with:\n- Tax policy effects on citizen behavior and business decisions\n- Education policy impacts on skill development and mobility\n- Immigration policy effects on population flows\n- Business regulation impacts on entrepreneurship\n- Social welfare policy effects on work incentives\n- Infrastructure investment impacts on city development\n- Realistic time delays and implementation challenges",
+      "testStrategy": "Test policies produce realistic behavioral changes. Verify policy effects match real-world research. Validate time delays and implementation challenges are modeled correctly.",
+      "subtasks": []
+    }
+  ]
+}

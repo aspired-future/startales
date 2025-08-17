@@ -5,9 +5,37 @@ import campaignsRouter from '../server/routes/campaigns.js';
 const app = express();
 app.use(express.json());
 
-// Mount the API routers
-app.use('/api/trade', tradeRouter);
-app.use('/api/campaigns', campaignsRouter);
+// Add error handling middleware
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('❌ Express Error:', err);
+  res.status(500).json({ error: 'Internal Server Error', details: err.message });
+});
+
+// Add request logging for debugging
+app.use((req: any, res: any, next: any) => {
+  console.log(`📝 ${req.method} ${req.path} - ${new Date().toISOString()}`);
+  next();
+});
+
+// Mount the real API routers with error handling
+try {
+  console.log('🔄 Mounting trade router...');
+  app.use('/api/trade', tradeRouter);
+  console.log('✅ Trade router mounted successfully');
+} catch (error) {
+  console.error('❌ Error mounting trade router:', error);
+}
+
+try {
+  console.log('🔄 Mounting campaigns router...');
+  app.use('/api/campaigns', campaignsRouter);
+  console.log('✅ Campaigns router mounted successfully');
+} catch (error) {
+  console.error('❌ Error mounting campaigns router:', error);
+}
+
+// Add health check endpoint for Docker
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'sprint4-demo' }));
 
 /**
  * Sprint 4 Demo: Trade & Economy (Phase 1) + Analytics Base
