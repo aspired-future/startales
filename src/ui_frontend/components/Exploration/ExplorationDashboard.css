@@ -1,0 +1,808 @@
+/* Exploration Dashboard Styles */
+
+.exploration-dashboard-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.exploration-dashboard {
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  border-radius: 20px;
+  width: 95vw;
+  max-width: 1400px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  animation: slideIn 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header */
+.exploration-dashboard-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, rgba(78, 205, 196, 0.1), rgba(68, 160, 141, 0.1));
+}
+
+.exploration-dashboard-header h2 {
+  color: #4ecdc4;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* Content */
+.exploration-dashboard-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Tabs */
+.exploration-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+  background: rgba(78, 205, 196, 0.05);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.exploration-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 16px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(78, 205, 196, 0.1);
+}
+
+.tab-btn.active {
+  color: #4ecdc4;
+  border-bottom-color: #4ecdc4;
+  background: rgba(78, 205, 196, 0.15);
+}
+
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(78, 205, 196, 0.3) transparent;
+}
+
+.tab-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+  background: rgba(78, 205, 196, 0.3);
+  border-radius: 3px;
+}
+
+/* Overview Tab */
+.explorer-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.stat-value {
+  color: #4ecdc4;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.current-location,
+.recent-discoveries,
+.active-expeditions-summary {
+  margin-bottom: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.current-location h3,
+.recent-discoveries h3,
+.active-expeditions-summary h3 {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.location-info {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.location-system,
+.location-planet {
+  color: #4ecdc4;
+  font-weight: 500;
+}
+
+/* Discovery Items */
+.discovery-list,
+.expedition-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.discovery-item,
+.expedition-summary-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+  border-left: 4px solid transparent;
+}
+
+.discovery-header,
+.expedition-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.discovery-significance {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.discovery-date,
+.expedition-status {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+}
+
+.discovery-name,
+.expedition-name {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.discovery-description,
+.expedition-progress {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Expeditions Tab */
+.new-expedition-form {
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.new-expedition-form h3 {
+  color: #4ecdc4;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #ffffff;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #4ecdc4;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.form-group select option {
+  background: #1a1a2e;
+  color: #ffffff;
+}
+
+.launch-expedition-btn {
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.launch-expedition-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.3);
+}
+
+.launch-expedition-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Expedition Items */
+.expedition-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.expedition-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.expedition-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.expedition-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.expedition-info,
+.expedition-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.expedition-info span,
+.expedition-progress span {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+}
+
+.expedition-discoveries {
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.expedition-discoveries h4 {
+  color: #4ecdc4;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+}
+
+.mini-discovery {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 11px;
+}
+
+.mini-discovery-type {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Discoveries Tab */
+.discoveries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.discovery-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.discovery-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.discovery-card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.discovery-significance-badge {
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.discovery-entity-name {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.discovery-timestamp {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+}
+
+.discovery-card-content {
+  margin-bottom: 16px;
+}
+
+.discovery-type {
+  color: #4ecdc4;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.discovery-description {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.discovery-location {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+
+.discovery-rewards {
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.discovery-rewards h4 {
+  color: #4ecdc4;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+}
+
+.reward-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reward-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+}
+
+.reward-amount {
+  color: #4ecdc4;
+  font-weight: 600;
+}
+
+.reward-type {
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+}
+
+.reward-description {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.discovery-shared {
+  color: #4ecdc4;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  padding: 8px;
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 6px;
+}
+
+/* Contacts Tab */
+.contacts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.contact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.contact-race-name {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.diplomatic-status {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.contact-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contact-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.contact-value {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.shared-technologies,
+.ongoing-negotiations {
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.shared-technologies h4,
+.ongoing-negotiations h4 {
+  color: #4ecdc4;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+}
+
+.tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tech-item {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.negotiation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.negotiation-item {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  padding: 4px 0;
+}
+
+/* Zones Tab */
+.zones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.zone-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.zone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.zone-name {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.zone-level {
+  color: #4ecdc4;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(78, 205, 196, 0.2);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.zone-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.zone-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.zone-stat-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.zone-stat-value {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.zone-characteristics,
+.zone-phenomena {
+  margin-bottom: 16px;
+}
+
+.zone-characteristics h4,
+.zone-phenomena h4 {
+  color: #4ecdc4;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+}
+
+.characteristic-list,
+.phenomena-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.characteristic-item,
+.phenomenon-item {
+  background: rgba(78, 205, 196, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+/* Empty States */
+.no-expeditions,
+.no-discoveries,
+.no-contacts {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .exploration-dashboard {
+    width: 98vw;
+    max-height: 95vh;
+    border-radius: 16px;
+  }
+  
+  .tab-content {
+    padding: 16px;
+  }
+  
+  .explorer-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .stat-card {
+    padding: 16px;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .expedition-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .zones-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .exploration-dashboard-header {
+    padding: 16px;
+  }
+  
+  .exploration-dashboard-header h2 {
+    font-size: 18px;
+  }
+  
+  .explorer-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .discovery-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .contact-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

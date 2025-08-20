@@ -1,5 +1,92 @@
 import express from 'express';
 import cors from 'cors';
+import populationRoutes from '../server/population/populationRoutes.js';
+import populationDemo from './population.js';
+import professionRoutes from '../server/professions/professionRoutes.js';
+import professionDemo from './professions.js';
+import businessRoutes from '../server/businesses/businessRoutes.js';
+import businessDemo from './businesses.js';
+import cityRoutes from '../server/cities/cityRoutes.js';
+import cityDemo from './cities.js';
+import cityEmergenceDemo from './city-emergence.js';
+import corporateLifecycleDemo from './corporate-lifecycle.js';
+import characterSystemDemo from './character-system.js';
+import smallBusinessDemo from './small-business.js';
+import economicTierDemo from './economic-tiers.js';
+import educationDemo from './education.js';
+import migrationRoutes from '../server/migration/migrationRoutes.js';
+import migrationDemo from './migration.js';
+import psychologyRoutes from '../server/psychology/psychologyRoutes.js';
+import psychologyDemo from './psychology.js';
+import legalRoutes from '../server/legal/legalRoutes.js';
+import legalDemo from './legal.js';
+import securityRoutes from '../server/security/securityRoutes.js';
+import securityDemo from './security.js';
+import demographicsRoutes from '../server/demographics/demographicsRoutes.js';
+import demographicsDemo from './demographics.js';
+import technologyRoutes from '../server/technology/technologyRoutes.js';
+import technologyDemo from './technology.js';
+import aiAnalysisRoutes from '../server/ai-analysis/aiAnalysisRoutes.js';
+import aiAnalysisDemo from './ai-analysis.js';
+import gameModesRoutes from '../server/game-modes/gameModesRoutes.js';
+import gameModesDemo from './game-modes.js';
+import visualSystemsRoutes from '../server/visual-systems/visualSystemsRoutes.js';
+import visualSystemsDemo from './visual-systems.js';
+import hybridSimulationRoutes from '../server/hybrid-simulation/hybridSimulationRoutes.js';
+import hybridSimulationDemo from './hybrid-simulation.js';
+import newsRoutes from '../server/news/newsRoutes.js';
+import newsDemo from './news.js';
+import leaderRoutes from '../server/leader-communications/leaderRoutes.js';
+import leaderDemo from './leader-communications.js';
+import delegationRoutes from '../server/delegation/delegationRoutes.js';
+import delegationDemo from './delegation.js';
+import cabinetRoutes from '../server/cabinet/cabinetRoutes.js';
+import cabinetDemo from './cabinet.js';
+import militaryRoutes from '../server/military/militaryRoutes.js';
+import militaryDemo from './military.js';
+import treasuryRoutes from '../server/treasury/treasuryRoutes.js';
+import treasuryDemo from './treasury.js';
+import defenseRoutes from '../server/defense/defenseRoutes.js';
+import defenseDemo from './defense.js';
+import inflationRoutes from '../server/economics/inflationRoutes.js';
+import inflationDemo from './inflation.js';
+import stateRoutes from '../server/state/stateRoutes.js';
+import stateDemo from './state.js';
+import interiorRoutes from '../server/interior/interiorRoutes.js';
+import interiorDemo from './interior.js';
+import justiceRoutes from '../server/justice/justiceRoutes.js';
+import justiceDemo from './justice.js';
+import commerceRoutes from '../server/commerce/commerceRoutes.js';
+import commerceDemo from './commerce.js';
+import workflowRoutes from '../server/cabinet/workflowRoutes.js';
+import cabinetWorkflowDemo from './cabinet-workflow.js';
+import scienceRoutes from '../server/science/scienceRoutes.js';
+import scienceDemo from './science.js';
+import communicationsRoutes from '../server/communications/communicationsRoutes.js';
+import communicationsDemo from './communications.js';
+import centralBankRoutes from '../server/central-bank/centralBankRoutes.js';
+import centralBankDemo from './central-bank.js';
+import legislatureRoutes from '../server/legislature/legislatureRoutes.js';
+import legislatureDemo from './legislature.js';
+import supremeCourtRoutes from '../server/supreme-court/supremeCourtRoutes.js';
+import supremeCourtDemo from './supreme-court.js';
+import politicalPartyRoutes from '../server/political-parties/politicalPartyRoutes.js';
+import politicalPartyDemo from './political-parties.js';
+import jointChiefsRoutes from '../server/joint-chiefs/jointChiefsRoutes.js';
+import jointChiefsDemo from './joint-chiefs.js';
+import intelligenceDirectorsRoutes from '../server/intelligence/intelligenceRoutes.js';
+import intelligenceDirectorsDemo from './intelligence.js';
+import currencyExchangeRoutes from '../server/currency-exchange/currencyExchangeRoutes.js';
+import currencyExchangeDemo from './currency-exchange.js';
+import fiscalSimulationRoutes from '../server/fiscal-simulation/fiscalSimulationRoutes.js';
+import financialMarketsRoutes from '../server/financial-markets/financialMarketsRoutes.js';
+import economicEcosystemRoutes from '../server/economic-ecosystem/economicEcosystemRoutes.js';
+import healthRoutes from '../server/health/healthRoutes.js';
+import fiscalSimulationDemo from './fiscal-simulation.js';
+import financialMarketsDemo from './financial-markets.js';
+import economicEcosystemDemo from './economic-ecosystem.js';
+import healthDemo from './health.js';
+import witterEnhancedDemo from './witter-enhanced.js';
 
 type PRNG = () => number;
 
@@ -50,6 +137,134 @@ function clamp01(v: number): number {
 
 const app = express();
 app.use(cors());
+
+// Population system routes
+app.use('/api/population', populationRoutes);
+app.use(populationDemo);
+
+// Profession & Industry System routes
+app.use('/api/professions', professionRoutes);
+app.use(professionDemo);
+
+// Small Business & Entrepreneurship System routes
+app.use('/api/businesses', businessRoutes);
+app.use(businessDemo);
+
+// City Specialization & Geography System routes
+app.use('/api/cities', cityRoutes);
+app.use(cityDemo);
+app.use(cityEmergenceDemo);
+app.use(corporateLifecycleDemo);
+app.use(characterSystemDemo);
+app.use(smallBusinessDemo);
+app.use(economicTierDemo);
+app.use(educationDemo);
+
+// Immigration & Migration System routes
+app.use('/api/migration', migrationRoutes);
+app.use(migrationDemo);
+
+// Psychology & Behavioral Economics System routes
+app.use('/api/psychology', psychologyRoutes);
+app.use(psychologyDemo);
+
+// Legal & Justice System routes
+app.use('/api/legal', legalRoutes);
+app.use(legalDemo);
+
+// Security & Defense System routes
+app.use('/api/security', securityRoutes);
+app.use(securityDemo);
+
+// Demographics & Lifecycle System routes
+app.use('/api/demographics', demographicsRoutes);
+
+// Technology & Cyber Warfare Systems API
+app.use('/api/technology', technologyRoutes);
+
+// AI Analysis Engine API
+app.use('/api/ai-analysis', aiAnalysisRoutes);
+
+// Game Modes API
+app.use('/api/game-modes', gameModesRoutes);
+
+// Visual Systems API
+app.use('/api/visual-systems', visualSystemsRoutes);
+
+// Hybrid Simulation Engine
+app.use('/api/hybrid-simulation', hybridSimulationRoutes);
+
+// Intelligence Reporting System API
+app.use('/api/intelligence', intelligenceDirectorsRoutes);
+
+// Dynamic News Generation System API
+app.use('/api/news', newsRoutes);
+
+// Leader Communications System API
+app.use('/api/leader', leaderRoutes);
+
+// Delegation & Authority Management System API
+app.use('/api/delegation', delegationRoutes);
+app.use('/api/cabinet', cabinetRoutes);
+app.use('/api/military', militaryRoutes);
+app.use('/api/treasury', treasuryRoutes);
+app.use('/api/defense', defenseRoutes);
+app.use('/api/inflation', inflationRoutes);
+app.use('/api/state', stateRoutes);
+app.use('/api/interior', interiorRoutes);
+app.use('/api/justice', justiceRoutes);
+app.use('/api/commerce', commerceRoutes);
+app.use('/api/cabinet', workflowRoutes);
+app.use('/api/science', scienceRoutes);
+app.use('/api/communications', communicationsRoutes);
+app.use('/api/central-bank', centralBankRoutes);
+app.use('/api/legislature', legislatureRoutes);
+app.use('/api/supreme-court', supremeCourtRoutes);
+app.use('/api/political-parties', politicalPartyRoutes);
+app.use('/api/joint-chiefs', jointChiefsRoutes);
+app.use('/api/intelligence', intelligenceDirectorsRoutes);
+app.use('/api/currency-exchange', currencyExchangeRoutes);
+app.use('/api/fiscal-simulation', fiscalSimulationRoutes);
+app.use('/api/financial-markets', financialMarketsRoutes);
+app.use('/api/economic-ecosystem', economicEcosystemRoutes);
+app.use('/api/health', healthRoutes);
+
+// Demo routes
+app.use(demographicsDemo);
+app.use(technologyDemo);
+app.use(aiAnalysisDemo);
+app.use(gameModesDemo);
+app.use(visualSystemsDemo);
+app.use('/demo/hybrid-simulation', hybridSimulationDemo);
+app.use(intelligenceDirectorsDemo);
+app.use(newsDemo);
+app.use(leaderDemo);
+app.use(delegationDemo);
+app.use(cabinetDemo);
+app.use(militaryDemo);
+app.use(treasuryDemo);
+app.use(defenseDemo);
+app.use(inflationDemo);
+app.use(stateDemo);
+app.use(interiorDemo);
+app.use(justiceDemo);
+app.use(commerceDemo);
+app.use(cabinetWorkflowDemo);
+app.use(scienceDemo);
+app.use(communicationsDemo);
+app.use(centralBankDemo);
+app.use(legislatureDemo);
+app.use(supremeCourtDemo);
+app.use(politicalPartyDemo);
+app.use(jointChiefsDemo);
+app.use(intelligenceDirectorsDemo);
+app.use(currencyExchangeDemo);
+app.use(fiscalSimulationDemo);
+app.use(financialMarketsDemo);
+app.use(economicEcosystemDemo);
+app.use(healthDemo);
+app.use(witterEnhancedDemo);
+
 app.use(express.json());
 
 const engine = new EngineState(1337);
@@ -272,41 +487,9 @@ app.get('/demo/policies', (_req, res) => {
   </html>`);
 });
 
-// Speech Demo Page
+// Speech Demo - Redirect to comprehensive leader communications system
 app.get('/demo/speech', (_req, res) => {
-  res.type('html').send(`<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Speech Demo</title>
-  </head>
-  <body>
-    <h1>Leader Speech</h1>
-    <label>Audience
-      <select id="aud">
-        <option value="all">all</option>
-        <option>workers</option>
-        <option>investors</option>
-        <option>scientists</option>
-        <option>military</option>
-        <option>civil</option>
-      </select>
-    </label>
-    <div><textarea id="text" rows="5" cols="60" placeholder="Write a short address..."></textarea></div>
-    <button id="send">Speak</button>
-    <pre id="out"></pre>
-    <script>
-      document.getElementById('send').onclick = async () => {
-        const aud = document.getElementById('aud').value;
-        const text = document.getElementById('text').value;
-        const r = await fetch('/api/comms/speech', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ audience: aud, text }) });
-        const j = await r.json();
-        document.getElementById('out').textContent = JSON.stringify(j, null, 2);
-      };
-    </script>
-  </body>
-  </html>`);
+  res.redirect('/demo/leader-communications');
 });
 
 // Cabinet Meeting Demo Page (text-only transcript)
@@ -464,39 +647,584 @@ app.get('/demo/hud', (_req, res) => {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Startales Demo HUD</title>
     <style>
-      body { font-family: system-ui, sans-serif; padding: 16px; }
+      body { font-family: system-ui, sans-serif; padding: 16px; background: #0a0a0a; color: #e0e0e0; }
+      .container { max-width: 1200px; margin: 0 auto; }
+      .game-mode-selector { background: #1a1a1a; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #333; }
+      .mode-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px; }
+      .mode-card { background: #2a2a2a; padding: 15px; border-radius: 6px; border: 2px solid #444; cursor: pointer; transition: all 0.3s; }
+      .mode-card:hover { border-color: #4ade80; background: #333; }
+      .mode-card.selected { border-color: #4ade80; background: #1a3a1a; }
+      .mode-title { font-weight: bold; color: #4ade80; margin-bottom: 8px; }
+      .mode-desc { font-size: 0.9em; color: #ccc; }
+      .hud-section { background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333; }
       .bar { height: 12px; background: #444; border-radius: 6px; margin: 8px 0; }
-      .fill { height: 100%; background: #4ade80; border-radius: 6px; }
-      button { padding: 8px 12px; }
-      .row { display: flex; gap: 12px; align-items: center; }
+      .fill { height: 100%; background: #4ade80; border-radius: 6px; transition: width 0.3s; }
+      button { padding: 8px 12px; background: #4ade80; color: #000; border: none; border-radius: 4px; cursor: pointer; }
+      button:hover { background: #22c55e; }
+      .row { display: flex; gap: 12px; align-items: center; margin-bottom: 15px; }
+      .victory-conditions { background: #2a2a2a; padding: 15px; border-radius: 6px; margin-top: 15px; }
+      .victory-title { color: #fbbf24; font-weight: bold; margin-bottom: 10px; }
+      .victory-item { margin: 5px 0; padding: 5px; background: #333; border-radius: 4px; }
+      h1 { color: #4ade80; text-align: center; margin-bottom: 30px; }
+      h2 { color: #fbbf24; }
+      .visual-preview { background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333; margin-top: 20px; }
+      .visual-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+      .visual-card { background: #2a2a2a; border-radius: 6px; overflow: hidden; border: 1px solid #444; }
+      .visual-placeholder { width: 100%; height: 120px; background: linear-gradient(45deg, #333, #444); display: flex; align-items: center; justify-content: center; color: #888; font-size: 0.9em; }
+      .visual-info { padding: 10px; }
+      .visual-title { color: #4ade80; font-weight: bold; margin-bottom: 5px; }
+      .visual-desc { color: #ccc; font-size: 0.8em; }
+      .visual-controls { margin-top: 15px; }
+      .visual-toggle { margin-right: 15px; }
+      .visual-toggle input { margin-right: 5px; }
+      
+      /* Production Features Styles */
+      .production-preview { background: #1a1a1a; border-radius: 10px; padding: 20px; margin: 20px 0; border: 1px solid #333; }
+      .feature-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+      .tab-button { background: #333; color: #ccc; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; transition: all 0.3s; }
+      .tab-button.active { background: #4ade80; color: #000; }
+      .tab-button:hover { background: #555; }
+      .tab-button.active:hover { background: #4ade80; }
+      .tab-content { display: none; }
+      .tab-content.active { display: block; }
+      
+      /* User Accounts Styles */
+      .account-mockup { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+      .login-section, .profile-section { background: #222; padding: 15px; border-radius: 8px; }
+      .auth-options { display: flex; flex-direction: column; gap: 10px; }
+      .auth-btn { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+      .auth-btn.primary { background: #4ade80; color: #000; }
+      .auth-btn.social { background: #333; color: #ccc; }
+      .auth-btn:hover { transform: translateY(-2px); }
+      .profile-card { display: flex; gap: 15px; align-items: center; }
+      .avatar-section { text-align: center; }
+      .character-avatar { font-size: 3em; margin-bottom: 10px; }
+      .generate-btn { background: #4ade80; color: #000; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+      .profile-info { flex: 1; }
+      .profile-info input, .species-select { width: 100%; padding: 8px; margin-bottom: 10px; background: #333; color: #ccc; border: 1px solid #555; border-radius: 4px; }
+      .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .stat { background: #333; padding: 8px; border-radius: 4px; text-align: center; font-size: 0.9em; }
+      
+      /* Campaign Setup Styles */
+      .campaign-wizard { max-width: 600px; }
+      .wizard-steps { display: flex; gap: 10px; margin-bottom: 20px; }
+      .step { background: #333; color: #ccc; padding: 8px 16px; border-radius: 4px; font-size: 0.9em; }
+      .step.active { background: #4ade80; color: #000; }
+      .form-group { margin-bottom: 15px; }
+      .form-group label { display: block; margin-bottom: 5px; color: #4ade80; font-weight: bold; }
+      .form-group input, .form-group select { width: 100%; padding: 10px; background: #333; color: #ccc; border: 1px solid #555; border-radius: 4px; }
+      .player-slider { width: 100%; }
+      .player-count { color: #4ade80; font-weight: bold; }
+      .ai-generation { background: #222; padding: 15px; border-radius: 6px; margin-top: 10px; }
+      .generation-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .generation-options label { display: flex; align-items: center; gap: 8px; }
+      .total-cost { background: #4ade80; color: #000; padding: 15px; border-radius: 6px; text-align: center; margin-top: 15px; }
+      
+      /* Pricing Styles */
+      .pricing-tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px; }
+      .tier { background: #222; padding: 20px; border-radius: 8px; border: 2px solid #333; }
+      .tier.featured { border-color: #4ade80; }
+      .tier h4 { color: #4ade80; margin-bottom: 10px; }
+      .price { font-size: 1.5em; font-weight: bold; color: #fff; margin-bottom: 15px; }
+      .tier ul { list-style: none; padding: 0; }
+      .tier li { padding: 5px 0; color: #ccc; }
+      .tier li:before { content: "✓ "; color: #4ade80; }
+      .subscription-card { background: #222; padding: 15px; border-radius: 8px; }
+      .current-plan { color: #4ade80; font-weight: bold; margin-bottom: 5px; }
+      .manage-btn { background: #4ade80; color: #000; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+      
+      /* Admin Tools Styles */
+      .admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+      .stat-card { background: #222; padding: 15px; border-radius: 8px; text-align: center; }
+      .stat-number { font-size: 1.8em; font-weight: bold; color: #4ade80; }
+      .stat-label { color: #ccc; font-size: 0.9em; }
+      .admin-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+      .moderation-queue, .campaign-monitoring { background: #222; padding: 15px; border-radius: 8px; }
+      .report-item, .campaign-item { background: #333; padding: 10px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+      .report-actions, .campaign-item { display: flex; gap: 5px; }
+      .action-btn, .monitor-btn { padding: 4px 8px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.8em; }
+      .action-btn.warn { background: #fbbf24; color: #000; }
+      .action-btn.suspend { background: #ef4444; color: #fff; }
+      .action-btn.dismiss { background: #6b7280; color: #fff; }
+      .action-btn.approve { background: #4ade80; color: #000; }
+      .action-btn.regenerate { background: #3b82f6; color: #fff; }
+      .action-btn.block { background: #ef4444; color: #fff; }
+      .monitor-btn { background: #4ade80; color: #000; }
+      .health-indicator { padding: 2px 8px; border-radius: 3px; font-size: 0.8em; }
+      .health-indicator.good { background: #4ade80; color: #000; }
+      .health-indicator.warning { background: #fbbf24; color: #000; }
+      .timestamp { color: #888; font-size: 0.8em; }
     </style>
   </head>
   <body>
-    <h1>Simulation HUD</h1>
-    <div class="row"><button id="step">Step Engine</button> <span id="stepCount">0</span></div>
+    <div class="container">
+      <h1>🚀 Startales: Galactic Strategy Demo</h1>
+      
+      <!-- Production Features Preview -->
+      <div class="production-preview">
+        <h2>🚀 Production Features Preview</h2>
+        <div class="feature-tabs">
+          <button class="tab-button active" data-tab="accounts">User Accounts</button>
+          <button class="tab-button" data-tab="campaigns">Campaign Setup</button>
+          <button class="tab-button" data-tab="pricing">Pricing & Billing</button>
+          <button class="tab-button" data-tab="admin">Admin Tools</button>
+        </div>
+        
+        <!-- User Accounts Tab -->
+        <div id="accounts-tab" class="tab-content active">
+          <div class="account-mockup">
+            <div class="login-section">
+              <h3>Player Authentication</h3>
+              <div class="auth-options">
+                <button class="auth-btn primary">🎮 Sign Up with Email</button>
+                <button class="auth-btn social">🔗 Continue with Google</button>
+                <button class="auth-btn social">💬 Continue with Discord</button>
+                <button class="auth-btn social">🎯 Continue with Steam</button>
+              </div>
+            </div>
+            <div class="profile-section">
+              <h3>Player Profile</h3>
+              <div class="profile-card">
+                <div class="avatar-section">
+                  <div class="character-avatar">🧑‍🚀</div>
+                  <button class="generate-btn">Generate New Avatar</button>
+                </div>
+                <div class="profile-info">
+                  <input type="text" placeholder="Player Handle" value="GalacticCommander42">
+                  <select class="species-select">
+                    <option>Human Empire</option>
+                    <option>Zephyrian Collective</option>
+                    <option>Mechanoid Syndicate</option>
+                    <option>Crystalline Hive</option>
+                  </select>
+                  <div class="stats-grid">
+                    <div class="stat">Campaigns: 12</div>
+                    <div class="stat">Victories: 8</div>
+                    <div class="stat">Rank: Admiral</div>
+                    <div class="stat">Friends: 23</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Campaign Setup Tab -->
+        <div id="campaigns-tab" class="tab-content">
+          <div class="campaign-wizard">
+            <h3>Create New Campaign</h3>
+            <div class="wizard-steps">
+              <div class="step active">1. Basic Setup</div>
+              <div class="step">2. Game Mode</div>
+              <div class="step">3. AI & Content</div>
+              <div class="step">4. Scheduling</div>
+              <div class="step">5. Payment</div>
+            </div>
+            <div class="setup-form">
+              <div class="form-group">
+                <label>Campaign Name</label>
+                <input type="text" placeholder="The Orion Conflict" value="The Orion Conflict">
+              </div>
+              <div class="form-group">
+                <label>Duration</label>
+                <select class="duration-select">
+                  <option value="4">4 Weeks ($120)</option>
+                  <option value="12" selected>12 Weeks ($300)</option>
+                  <option value="24">24 Weeks ($500)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Player Count</label>
+                <input type="range" min="2" max="50" value="8" class="player-slider">
+                <span class="player-count">8 Players (+$40)</span>
+              </div>
+              <div class="form-group">
+                <label>AI Model Tier</label>
+                <select class="ai-tier">
+                  <option value="ollama">Ollama (Free)</option>
+                  <option value="gemini">Gemini Pro ($50)</option>
+                  <option value="claude" selected>Claude Sonnet ($100)</option>
+                  <option value="gpt4">GPT-4 Turbo ($150)</option>
+                </select>
+              </div>
+              <div class="ai-generation">
+                <h4>AI-Generated Content</h4>
+                <div class="generation-options">
+                  <label><input type="checkbox" checked> Backstory Generation</label>
+                  <label><input type="checkbox" checked> NPC Characters</label>
+                  <label><input type="checkbox" checked> Galaxy Map</label>
+                  <label><input type="checkbox"> Visual Assets (+$25)</label>
+                  <label><input type="checkbox"> Cinematic Videos (+$50)</label>
+                </div>
+              </div>
+              <div class="total-cost">
+                <strong>Total Cost: $440 ($55/player)</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pricing & Billing Tab -->
+        <div id="pricing-tab" class="tab-content">
+          <div class="pricing-mockup">
+            <h3>Pricing Calculator</h3>
+            <div class="pricing-tiers">
+              <div class="tier">
+                <h4>Casual Explorer</h4>
+                <div class="price">$15-30/campaign</div>
+                <ul>
+                  <li>4-week campaigns</li>
+                  <li>2-6 players</li>
+                  <li>Ollama/Gemini AI</li>
+                  <li>Basic features</li>
+                </ul>
+              </div>
+              <div class="tier featured">
+                <h4>Galactic Commander</h4>
+                <div class="price">$40-80/campaign</div>
+                <ul>
+                  <li>12-week campaigns</li>
+                  <li>4-12 players</li>
+                  <li>Claude/GPT-4 AI</li>
+                  <li>Visual generation</li>
+                  <li>Advanced features</li>
+                </ul>
+              </div>
+              <div class="tier">
+                <h4>Empire Builder</h4>
+                <div class="price">$80-150/campaign</div>
+                <ul>
+                  <li>24-week campaigns</li>
+                  <li>8-50 players</li>
+                  <li>Premium AI models</li>
+                  <li>Cinematic videos</li>
+                  <li>Priority support</li>
+                </ul>
+              </div>
+            </div>
+            <div class="billing-info">
+              <h4>Subscription Management</h4>
+              <div class="subscription-card">
+                <div class="current-plan">Current: Galactic Commander</div>
+                <div class="next-billing">Next billing: March 15, 2024</div>
+                <div class="payment-method">💳 •••• 4242</div>
+                <button class="manage-btn">Manage Subscription</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Admin Tools Tab -->
+        <div id="admin-tab" class="tab-content">
+          <div class="admin-mockup">
+            <h3>Admin Dashboard</h3>
+            <div class="admin-stats">
+              <div class="stat-card">
+                <div class="stat-number">1,247</div>
+                <div class="stat-label">Active Players</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">89</div>
+                <div class="stat-label">Running Campaigns</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Pending Reports</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">$45,230</div>
+                <div class="stat-label">Monthly Revenue</div>
+              </div>
+            </div>
+            <div class="admin-sections">
+              <div class="moderation-queue">
+                <h4>Content Moderation Queue</h4>
+                <div class="report-item">
+                  <div class="report-info">
+                    <strong>Player: SpaceVandal99</strong>
+                    <div>Inappropriate language in campaign chat</div>
+                    <div class="timestamp">2 hours ago</div>
+                  </div>
+                  <div class="report-actions">
+                    <button class="action-btn warn">Warn</button>
+                    <button class="action-btn suspend">Suspend</button>
+                    <button class="action-btn dismiss">Dismiss</button>
+                  </div>
+                </div>
+                <div class="report-item">
+                  <div class="report-info">
+                    <strong>Campaign: The Dark Nebula</strong>
+                    <div>AI-generated content flagged for review</div>
+                    <div class="timestamp">4 hours ago</div>
+                  </div>
+                  <div class="report-actions">
+                    <button class="action-btn approve">Approve</button>
+                    <button class="action-btn regenerate">Regenerate</button>
+                    <button class="action-btn block">Block</button>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-monitoring">
+                <h4>Campaign Monitoring</h4>
+                <div class="campaign-list">
+                  <div class="campaign-item">
+                    <strong>The Orion Wars</strong> - 12 players - Week 8/12
+                    <div class="health-indicator good">Healthy</div>
+                    <button class="monitor-btn">Monitor</button>
+                  </div>
+                  <div class="campaign-item">
+                    <strong>Galactic Uprising</strong> - 6 players - Week 3/4
+                    <div class="health-indicator warning">Attention Needed</div>
+                    <button class="monitor-btn">Intervene</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="game-mode-selector">
+        <h2>Select Game Mode</h2>
+        <div class="mode-grid">
+          <div class="mode-card" data-mode="coop">
+            <div class="mode-title">🛡️ COOP: Galactic Defense</div>
+            <div class="mode-desc">Work together to defend against galactic threats. 4-12 players unite against AI villains and cosmic disasters.</div>
+          </div>
+          <div class="mode-card" data-mode="achievement">
+            <div class="mode-title">🏆 Achievement: Supremacy Points</div>
+            <div class="mode-desc">Compete for achievement points across military, economic, and diplomatic categories. 2-16 players.</div>
+          </div>
+          <div class="mode-card" data-mode="conquest">
+            <div class="mode-title">⚔️ Conquest: Galactic Domination</div>
+            <div class="mode-desc">Total galactic conquest through military might and diplomatic manipulation. 2-20 players compete for control.</div>
+          </div>
+          <div class="mode-card" data-mode="hero">
+            <div class="mode-title">🦸 Hero: Legendary Adventures</div>
+            <div class="mode-desc">Small party of heroes works together to defeat powerful villains. 2-6 heroes with special abilities.</div>
+          </div>
+        </div>
+        
+        <div class="victory-conditions" id="victoryConditions" style="display: none;">
+          <div class="victory-title">Victory Conditions</div>
+          <div id="victoryList"></div>
+        </div>
+      </div>
+
+      <div class="hud-section">
+        <h2>Simulation Engine</h2>
+        <div class="row">
+          <button id="step">Step Engine</button> 
+          <span>Step: <span id="stepCount">0</span></span>
+          <span id="modeDisplay" style="color: #4ade80; font-weight: bold;"></span>
+        </div>
     <div>Production <span id="pLabel">50</span></div>
     <div class="bar"><div id="p" class="fill" style="width:50%"></div></div>
     <div>Queues <span id="qLabel">50</span></div>
     <div class="bar"><div id="q" class="fill" style="width:50%"></div></div>
     <div>Readiness <span id="rLabel">50</span></div>
     <div class="bar"><div id="r" class="fill" style="width:50%"></div></div>
+        
+        <div class="victory-conditions" id="gameProgress" style="display: none;">
+          <div class="victory-title">Game Progress</div>
+          <div id="progressList"></div>
+        </div>
+      </div>
+
+      <div class="visual-preview">
+        <h2>Visual Systems Preview</h2>
+        <p style="color: #ccc; margin-bottom: 15px;">
+          Startales will feature AI-generated visuals that enhance the text-based gameplay. 
+          These mockups show how characters, species, environments, and equipment will be visualized with consistent identity preservation.
+        </p>
+        
+        <div class="visual-controls">
+          <label class="visual-toggle">
+            <input type="checkbox" id="enableVisuals" checked> Enable Visual Generation
+          </label>
+          <label class="visual-toggle">
+            <input type="checkbox" id="enableVideos"> Enable Cinematic Videos
+          </label>
+          <label class="visual-toggle">
+            <input type="checkbox" id="enableAnimations"> Enable UI Animations
+          </label>
+        </div>
+
+        <div class="visual-grid" id="visualGrid">
+          <div class="visual-card">
+            <div class="visual-placeholder" id="characterPortrait">
+              👤 Character Portrait
+            </div>
+            <div class="visual-info">
+              <div class="visual-title">Species Leader</div>
+              <div class="visual-desc">AI-generated portrait with consistent identity across sessions</div>
+            </div>
+          </div>
+
+          <div class="visual-card">
+            <div class="visual-placeholder" id="planetView">
+              🌍 Planet Environment
+            </div>
+            <div class="visual-info">
+              <div class="visual-title">Home World</div>
+              <div class="visual-desc">Species-specific architecture and environmental design</div>
+            </div>
+          </div>
+
+          <div class="visual-card">
+            <div class="visual-placeholder" id="fleetView">
+              🚀 Fleet Formation
+            </div>
+            <div class="visual-info">
+              <div class="visual-title">Battle Fleet</div>
+              <div class="visual-desc">Military assets with damage states and modifications</div>
+            </div>
+          </div>
+
+          <div class="visual-card">
+            <div class="visual-placeholder" id="diplomaticScene">
+              🤝 Diplomatic Meeting
+            </div>
+            <div class="visual-info">
+              <div class="visual-title">Alliance Ceremony</div>
+              <div class="visual-desc">Event-driven video for major plot developments</div>
+            </div>
+          </div>
+
+          <div class="visual-card">
+            <div class="visual-placeholder" id="battleScene">
+              ⚔️ Battle Highlight
+            </div>
+            <div class="visual-info">
+              <div class="visual-title">Epic Combat</div>
+              <div class="visual-desc">Cinematic sequences for major conflicts</div>
+            </div>
+          </div>
+
+          <div class="visual-card">
+            <div class="visual-placeholder" id="technologyView">
+              🔧 Equipment Design
+            </div>
+            <div class="visual-info">
+              <div class="visual-title">Advanced Weaponry</div>
+              <div class="visual-desc">Technology visualization with species-specific aesthetics</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; padding: 15px; background: #2a2a2a; border-radius: 6px;">
+          <div style="color: #fbbf24; font-weight: bold; margin-bottom: 10px;">🎨 Visual Consistency Features</div>
+          <div style="color: #ccc; font-size: 0.9em; line-height: 1.4;">
+            • <strong>Identity Preservation:</strong> Characters look identical across all appearances using seed-based generation<br/>
+            • <strong>Species Design Languages:</strong> Each species has distinctive visual aesthetics and cultural elements<br/>
+            • <strong>Style Profiles:</strong> Campaign-wide art direction ensures visual coherence (e.g., "Gritty Space Opera")<br/>
+            • <strong>Progressive Enhancement:</strong> Full gameplay available with text-only, visuals enhance experience<br/>
+            • <strong>Cross-Media Consistency:</strong> Videos use existing character images as references for identical appearance<br/>
+            • <strong>Environmental Continuity:</strong> Locations maintain consistent appearance across images and videos
+          </div>
+        </div>
+      </div>
+    </div>
     <script>
+      // Game mode data
+      const gameModes = {
+        coop: {
+          name: '🛡️ COOP: Galactic Defense',
+          victories: [
+            'Repel all major threat waves (3-5 invasions)',
+            'Achieve collective prosperity threshold',
+            'Establish galactic peace treaty',
+            'Maintain alliance cohesion (no eliminations)'
+          ]
+        },
+        achievement: {
+          name: '🏆 Achievement: Supremacy Points',
+          victories: [
+            'Highest total points at campaign end',
+            'First to reach 10,000 points threshold',
+            'Maintain point lead for 5 consecutive periods',
+            'Complete 3 major achievement chains'
+          ]
+        },
+        conquest: {
+          name: '⚔️ Conquest: Galactic Domination',
+          victories: [
+            'Control 75% of galaxy territory',
+            'Eliminate all rival empires',
+            'Achieve diplomatic hegemony',
+            'Control 80% of galactic trade routes'
+          ]
+        },
+        hero: {
+          name: '🦸 Hero: Legendary Adventures',
+          victories: [
+            'Defeat the primary villain',
+            'Prevent galactic catastrophe',
+            'Recover all legendary artifacts',
+            'Achieve legendary hero status'
+          ]
+        }
+      };
+
+      let currentMode = null;
+      let gameProgress = {};
+
+      // DOM elements
       const stepBtn = document.getElementById('step');
       const stepCount = document.getElementById('stepCount');
+      const modeDisplay = document.getElementById('modeDisplay');
       const p = document.getElementById('p');
       const q = document.getElementById('q');
       const r = document.getElementById('r');
       const pLabel = document.getElementById('pLabel');
       const qLabel = document.getElementById('qLabel');
       const rLabel = document.getElementById('rLabel');
+      const victoryConditions = document.getElementById('victoryConditions');
+      const victoryList = document.getElementById('victoryList');
+      const gameProgressDiv = document.getElementById('gameProgress');
+      const progressList = document.getElementById('progressList');
+
+      // Mode selection
+      document.querySelectorAll('.mode-card').forEach(card => {
+        card.addEventListener('click', () => {
+          // Remove previous selection
+          document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+          
+          // Select new mode
+          card.classList.add('selected');
+          const mode = card.dataset.mode;
+          currentMode = mode;
+          
+          // Update display
+          modeDisplay.textContent = \`Mode: \${gameModes[mode].name}\`;
+          
+          // Show victory conditions
+          victoryConditions.style.display = 'block';
+          victoryList.innerHTML = gameModes[mode].victories
+            .map(v => \`<div class="victory-item">• \${v}</div>\`)
+            .join('');
+          
+          // Initialize game progress
+          gameProgress = {};
+          updateGameProgress();
+        });
+      });
+
+      // Simulation step
       stepBtn.addEventListener('click', async () => {
+        if (!currentMode) {
+          alert('Please select a game mode first!');
+          return;
+        }
+
         try {
           const res = await fetch('/api/sim/step', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
               campaignId: 1, 
-              seed: 'hud-demo-' + Date.now() 
+              seed: 'hud-demo-' + Date.now(),
+              gameMode: currentMode
             })
           });
           const data = await res.json();
@@ -516,12 +1244,227 @@ app.get('/demo/hud', (_req, res) => {
             pLabel.textContent = String(Math.round(production));
             qLabel.textContent = String(Math.round(queues));
             rLabel.textContent = String(Math.round(readiness));
+
+            // Update mode-specific progress
+            updateModeProgress(data.data);
           } else {
             console.error('Simulation step failed:', data.error);
           }
         } catch (error) {
           console.error('Request failed:', error);
         }
+      });
+
+      function updateModeProgress(data) {
+        const step = data.step;
+        
+        switch (currentMode) {
+          case 'coop':
+            gameProgress.threatsRepelled = Math.floor(step / 10);
+            gameProgress.allianceStrength = Math.min(100, step * 2);
+            gameProgress.galacticPeace = Math.min(100, step * 1.5);
+            break;
+            
+          case 'achievement':
+            gameProgress.totalPoints = step * 150 + Math.floor(Math.random() * 100);
+            gameProgress.militaryPoints = Math.floor(gameProgress.totalPoints * 0.25);
+            gameProgress.economicPoints = Math.floor(gameProgress.totalPoints * 0.20);
+            gameProgress.techPoints = Math.floor(gameProgress.totalPoints * 0.20);
+            break;
+            
+          case 'conquest':
+            gameProgress.territoryControl = Math.min(75, step * 1.8);
+            gameProgress.militaryStrength = Math.min(100, step * 2.2);
+            gameProgress.diplomaticInfluence = Math.min(100, step * 1.3);
+            break;
+            
+          case 'hero':
+            gameProgress.villainProgress = Math.min(100, step * 1.5);
+            gameProgress.heroLevel = Math.floor(step / 5) + 1;
+            gameProgress.artifactsFound = Math.floor(step / 8);
+            gameProgress.storyProgress = Math.min(100, step * 1.2);
+            break;
+        }
+        
+        updateGameProgress();
+      }
+
+      function updateGameProgress() {
+        if (!currentMode || Object.keys(gameProgress).length === 0) {
+          gameProgressDiv.style.display = 'none';
+          return;
+        }
+
+        gameProgressDiv.style.display = 'block';
+        
+        let progressHTML = '';
+        
+        switch (currentMode) {
+          case 'coop':
+            progressHTML = \`
+              <div class="victory-item">Threats Repelled: \${gameProgress.threatsRepelled}/5</div>
+              <div class="victory-item">Alliance Strength: \${gameProgress.allianceStrength}%</div>
+              <div class="victory-item">Galactic Peace: \${gameProgress.galacticPeace}%</div>
+            \`;
+            break;
+            
+          case 'achievement':
+            progressHTML = \`
+              <div class="victory-item">Total Points: \${gameProgress.totalPoints}/10,000</div>
+              <div class="victory-item">Military: \${gameProgress.militaryPoints} pts</div>
+              <div class="victory-item">Economic: \${gameProgress.economicPoints} pts</div>
+              <div class="victory-item">Technology: \${gameProgress.techPoints} pts</div>
+            \`;
+            break;
+            
+          case 'conquest':
+            progressHTML = \`
+              <div class="victory-item">Territory Control: \${gameProgress.territoryControl}%/75%</div>
+              <div class="victory-item">Military Strength: \${gameProgress.militaryStrength}%</div>
+              <div class="victory-item">Diplomatic Influence: \${gameProgress.diplomaticInfluence}%</div>
+            \`;
+            break;
+            
+          case 'hero':
+            progressHTML = \`
+              <div class="victory-item">Villain Threat: \${gameProgress.villainProgress}%</div>
+              <div class="victory-item">Hero Level: \${gameProgress.heroLevel}</div>
+              <div class="victory-item">Artifacts Found: \${gameProgress.artifactsFound}/5</div>
+              <div class="victory-item">Story Progress: \${gameProgress.storyProgress}%</div>
+            \`;
+            break;
+        }
+        
+        progressList.innerHTML = progressHTML;
+      }
+
+      // Visual system controls
+      const enableVisualsCheckbox = document.getElementById('enableVisuals');
+      const enableVideosCheckbox = document.getElementById('enableVideos');
+      const enableAnimationsCheckbox = document.getElementById('enableAnimations');
+      const visualGrid = document.getElementById('visualGrid');
+
+      function updateVisualPlaceholders() {
+        const visualsEnabled = enableVisualsCheckbox.checked;
+        const videosEnabled = enableVideosCheckbox.checked;
+        const animationsEnabled = enableAnimationsCheckbox.checked;
+
+        // Update visual placeholders based on current mode and settings
+        if (visualsEnabled && currentMode) {
+          // Simulate visual generation based on game mode
+          updateModeSpecificVisuals(currentMode, videosEnabled);
+        } else {
+          // Show default placeholders
+          resetVisualPlaceholders();
+        }
+
+        // Apply animation effects
+        if (animationsEnabled) {
+          visualGrid.style.transition = 'all 0.3s ease';
+        } else {
+          visualGrid.style.transition = 'none';
+        }
+      }
+
+      function updateModeSpecificVisuals(mode, videosEnabled) {
+        const characterPortrait = document.getElementById('characterPortrait');
+        const planetView = document.getElementById('planetView');
+        const fleetView = document.getElementById('fleetView');
+        const diplomaticScene = document.getElementById('diplomaticScene');
+        const battleScene = document.getElementById('battleScene');
+        const technologyView = document.getElementById('technologyView');
+
+        switch (mode) {
+          case 'coop':
+            characterPortrait.innerHTML = '🛡️ Alliance Leader';
+            planetView.innerHTML = '🌍 Defended World';
+            fleetView.innerHTML = '🚀 Joint Fleet';
+            diplomaticScene.innerHTML = videosEnabled ? '📹 Alliance Treaty' : '🤝 Treaty Signing';
+            battleScene.innerHTML = videosEnabled ? '📹 Defense Battle' : '⚔️ Threat Response';
+            technologyView.innerHTML = '🔧 Shared Tech';
+            break;
+
+          case 'achievement':
+            characterPortrait.innerHTML = '🏆 Competitor';
+            planetView.innerHTML = '🌍 Developed World';
+            fleetView.innerHTML = '🚀 Elite Fleet';
+            diplomaticScene.innerHTML = videosEnabled ? '📹 Victory Ceremony' : '🤝 Achievement';
+            battleScene.innerHTML = videosEnabled ? '📹 Conquest Highlight' : '⚔️ Military Victory';
+            technologyView.innerHTML = '🔧 Advanced Tech';
+            break;
+
+          case 'conquest':
+            characterPortrait.innerHTML = '⚔️ Conqueror';
+            planetView.innerHTML = '🌍 Conquered Territory';
+            fleetView.innerHTML = '🚀 War Fleet';
+            diplomaticScene.innerHTML = videosEnabled ? '📹 Surrender Ceremony' : '🤝 Capitulation';
+            battleScene.innerHTML = videosEnabled ? '📹 Epic Battle' : '⚔️ Total War';
+            technologyView.innerHTML = '🔧 War Machine';
+            break;
+
+          case 'hero':
+            characterPortrait.innerHTML = '🦸 Hero Portrait';
+            planetView.innerHTML = '🌍 Quest Location';
+            fleetView.innerHTML = '🚀 Hero Ship';
+            diplomaticScene.innerHTML = videosEnabled ? '📹 Villain Reveal' : '🤝 NPC Encounter';
+            battleScene.innerHTML = videosEnabled ? '📹 Boss Battle' : '⚔️ Epic Confrontation';
+            technologyView.innerHTML = '🔧 Legendary Gear';
+            break;
+        }
+
+        // Add visual generation simulation
+        if (Math.random() > 0.7) {
+          simulateVisualGeneration();
+        }
+      }
+
+      function resetVisualPlaceholders() {
+        document.getElementById('characterPortrait').innerHTML = '👤 Character Portrait';
+        document.getElementById('planetView').innerHTML = '🌍 Planet Environment';
+        document.getElementById('fleetView').innerHTML = '🚀 Fleet Formation';
+        document.getElementById('diplomaticScene').innerHTML = '🤝 Diplomatic Meeting';
+        document.getElementById('battleScene').innerHTML = '⚔️ Battle Highlight';
+        document.getElementById('technologyView').innerHTML = '🔧 Equipment Design';
+      }
+
+      function simulateVisualGeneration() {
+        const cards = document.querySelectorAll('.visual-card');
+        const randomCard = cards[Math.floor(Math.random() * cards.length)];
+        const placeholder = randomCard.querySelector('.visual-placeholder');
+        
+        // Simulate generation process
+        const originalContent = placeholder.innerHTML;
+        placeholder.innerHTML = '⏳ Generating...';
+        placeholder.style.background = 'linear-gradient(45deg, #4ade80, #22c55e)';
+        
+        setTimeout(() => {
+          placeholder.innerHTML = originalContent;
+          placeholder.style.background = 'linear-gradient(45deg, #333, #444)';
+          
+          // Add generated indicator
+          setTimeout(() => {
+            placeholder.style.border = '2px solid #4ade80';
+            setTimeout(() => {
+              placeholder.style.border = 'none';
+            }, 1000);
+          }, 500);
+        }, 2000);
+      }
+
+      // Visual control event listeners
+      enableVisualsCheckbox.addEventListener('change', updateVisualPlaceholders);
+      enableVideosCheckbox.addEventListener('change', updateVisualPlaceholders);
+      enableAnimationsCheckbox.addEventListener('change', updateVisualPlaceholders);
+
+      // Initialize with COOP mode selected
+      document.querySelector('[data-mode="coop"]').click();
+      
+      // Update visuals when mode changes
+      const originalModeSelection = document.querySelectorAll('.mode-card');
+      originalModeSelection.forEach(card => {
+        card.addEventListener('click', () => {
+          setTimeout(updateVisualPlaceholders, 100);
+        });
       });
     </script>
   </body>
@@ -747,8 +1690,111 @@ app.get('/demo/simulation', (req, res) => {
           log('Results cleared');
         }
         
+        // Production Features Tab Functionality
+        function initProductionFeatures() {
+          // Tab switching
+          document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+              const tabName = button.dataset.tab;
+              
+              // Update active tab button
+              document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+              button.classList.add('active');
+              
+              // Update active tab content
+              document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+              document.getElementById(\`\${tabName}-tab\`).classList.add('active');
+            });
+          });
+          
+          // Campaign setup interactivity
+          const playerSlider = document.querySelector('.player-slider');
+          const playerCount = document.querySelector('.player-count');
+          const durationSelect = document.querySelector('.duration-select');
+          const aiTierSelect = document.querySelector('.ai-tier');
+          const totalCostDiv = document.querySelector('.total-cost');
+          
+          function updateCampaignCost() {
+            if (!playerSlider || !durationSelect || !aiTierSelect || !totalCostDiv) return;
+            
+            const players = parseInt(playerSlider.value);
+            const duration = parseInt(durationSelect.value);
+            const aiTier = aiTierSelect.value;
+            
+            // Base pricing
+            let baseCost = duration === 4 ? 120 : duration === 12 ? 300 : 500;
+            
+            // AI tier pricing
+            const aiCosts = { ollama: 0, gemini: 50, claude: 100, gpt4: 150 };
+            baseCost += aiCosts[aiTier] || 0;
+            
+            // Player scaling
+            const playerCost = Math.max(0, players - 2) * 5;
+            baseCost += playerCost;
+            
+            // Visual assets
+            const visualAssets = document.querySelector('input[type="checkbox"]:nth-of-type(4)');
+            const cinematicVideos = document.querySelector('input[type="checkbox"]:nth-of-type(5)');
+            if (visualAssets && visualAssets.checked) baseCost += 25;
+            if (cinematicVideos && cinematicVideos.checked) baseCost += 50;
+            
+            const costPerPlayer = Math.round(baseCost / players);
+            totalCostDiv.innerHTML = \`<strong>Total Cost: $\${baseCost} ($\${costPerPlayer}/player)</strong>\`;
+          }
+          
+          if (playerSlider) {
+            playerSlider.addEventListener('input', () => {
+              if (playerCount) {
+                const players = playerSlider.value;
+                const playerCost = Math.max(0, players - 2) * 5;
+                playerCount.textContent = \`\${players} Players (+$\${playerCost})\`;
+              }
+              updateCampaignCost();
+            });
+          }
+          
+          if (durationSelect) durationSelect.addEventListener('change', updateCampaignCost);
+          if (aiTierSelect) aiTierSelect.addEventListener('change', updateCampaignCost);
+          
+          // Visual assets checkboxes
+          document.querySelectorAll('.generation-options input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', updateCampaignCost);
+          });
+          
+          // Character avatar generation
+          const generateBtn = document.querySelector('.generate-btn');
+          const characterAvatar = document.querySelector('.character-avatar');
+          if (generateBtn && characterAvatar) {
+            const avatars = ['🧑‍🚀', '👩‍🚀', '🤖', '👽', '🧙‍♂️', '🧙‍♀️', '🦸‍♂️', '🦸‍♀️', '👨‍💼', '👩‍💼'];
+            generateBtn.addEventListener('click', () => {
+              const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+              characterAvatar.textContent = randomAvatar;
+            });
+          }
+          
+          // Admin action buttons
+          document.querySelectorAll('.action-btn, .monitor-btn').forEach(button => {
+            button.addEventListener('click', () => {
+              const action = button.textContent.toLowerCase();
+              alert(\`Admin action: \${action} - This would trigger the corresponding admin workflow in production.\`);
+            });
+          });
+          
+          // Auth buttons
+          document.querySelectorAll('.auth-btn').forEach(button => {
+            button.addEventListener('click', () => {
+              const authType = button.textContent;
+              alert(\`Authentication: \${authType} - This would redirect to the authentication provider in production.\`);
+            });
+          });
+          
+          // Initial cost calculation
+          updateCampaignCost();
+        }
+        
         // Initialize
         log('Simulation engine demo ready');
+        initProductionFeatures();
       </script>
     </body>
     </html>

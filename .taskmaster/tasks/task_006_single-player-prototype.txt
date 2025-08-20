@@ -1,0 +1,20 @@
+# Task ID: 6
+# Title: Pre-UI API & Database Testing
+# Status: pending
+# Dependencies: 1, 2, 3, 4, 5
+# Priority: high
+# Description: Create comprehensive API and database test suite for all implemented backend systems using Pytest to ensure stability before UI development.
+# Details:
+- API Regression Tests: 300+ tests covering all system APIs (Population, Professions, Businesses, Cities, Migration, Psychology, Legal, Security, Demographics, Technology, AI Analysis, Game Modes, Visual Systems, Memory Systems, Intelligence, News Generation)
+- Memory System Tests: Character vector collections, civilization memory, conversation privacy, Witter integration
+- Hybrid Simulation Tests: Deterministic calculations, natural language analysis, cross-influence calculations
+- Intelligence System Tests: Domestic/foreign intelligence generation, report classification, periodic delivery
+- News Generation Tests: Civilization news, galactic news, multi-perspective outlets, public opinion impact
+- Database Integration Tests: PostgreSQL schema validation, data consistency, transaction integrity, connection pooling
+- SQLite Event Sourcing Tests: Event storage, replay functionality, campaign state persistence
+- Cross-System Integration Tests: Data flow validation, system interdependencies, performance benchmarking
+- Performance & Load Tests: API response times, concurrent request handling, memory optimization, AI processing times
+- CI/CD Pipeline: Automated test execution, coverage reporting, regression detection
+
+# Test Strategy:
+

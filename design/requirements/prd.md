@@ -1,27 +1,173 @@
-# Product Requirements Document (PRD) — Galactic Tale Weaver RPG
+# Product Requirements Document (PRD) — Startales: Galactic Conquest & Strategy
 
 ## 1. Overview
-- Voice-first, AI-driven space RPG with collaborative and competitive play, generated images and optional AI-generated video, strong player agency, and persistent progression.
-- Local-first: all data is stored locally; pluggable multi-LLM/STT/TTS/Image/Video providers.
-- Multi-campaign: multiple games can run in parallel with isolated data; sessions are schedulable with recurrence and reminders.
+- **Real-Time Voice-Driven Galactic Strategy**: 24/7 continuous simulation with voice-first interface, multi-species gameplay, and sophisticated AI NPCs across empire, regional, and character levels.
+- **Scalable Microservices Architecture**: Docker containerized services supporting 50-10,000 players with horizontal scaling, advanced AI systems, military conquest, psychic warfare, and dynamic narratives.
+- **Multi-Species Universe**: 8+ playable races with unique characteristics, AI-driven empires with full strategic capabilities, and living NPCs with personalities, relationships, and cultural awareness.
+- **Provider Adapter Framework**: Unified abstraction for LLM/STT/TTS/Image/Video/Embeddings with hot-switching capabilities, context-aware routing, and comprehensive metrics collection.
 
 ## 2. Goals and Non-Goals
-- Goals
-  - Deliver fast, vivid narration (2–4 sentences per beat) with high agency and clarity.
-  - Support co-op, competitive, and alliance mechanics with fair systems and progression.
-  - Provide rich visuals (scene/portrait/item images; upgrade path to video cinematics).
-  - Ensure save/resume/branch timelines; strong memory with per-player privacy.
-  - Be provider-agnostic for LLM/STT/TTS/Image/Video and embedders.
-- Non-Goals (v1)
-  - MMO-scale server; centralized cloud hosting; mobile native clients.
+- **Primary Goals**
+  - **Real-Time Strategy**: Deliver continuous 24/7 simulation with <800ms voice command execution and immediate feedback.
+  - **Multi-Species Gameplay**: Support 8+ unique playable races with distinct characteristics, technologies, and cultural systems.
+  - **Sophisticated AI NPCs**: Provide three-tier AI hierarchy (Major Empires, Regional Powers, Minor Characters) with full strategic capabilities, personality-driven behavior, and dynamic relationships.
+  - **Scalable Architecture**: Support 50-10,000 concurrent players through microservices with horizontal scaling and auto-scaling capabilities.
+  - **Voice-First Interface**: Enable natural language commands for military, economic, diplomatic, research, and character management operations.
+  - **Advanced Game Systems**: Implement military conquest (land/sea/air/space/cyber), psychic warfare, AI consciousness, supply chains, and dynamic storylines.
+  - **Provider Flexibility**: Maintain provider-agnostic adapters with hot-switching, failover, and comprehensive metrics collection.
+- **Secondary Goals**
+  - **Continuous Progression**: Ensure characters, civilizations, and territories advance continuously with measurable progress.
+  - **Rich Interactions**: Support complex diplomatic relations, alliance systems, trade agreements, and cultural exchange.
+  - **Dynamic Narratives**: Generate emergent storylines, plot twists, character development, and procedural content.
+  - **Performance Optimization**: Achieve real-time requirements with efficient resource utilization and cost management.
+- **Non-Goals (v1)**
+  - Turn-based gameplay mechanics; centralized cloud-only hosting; mobile-first interface design; single-species limitations.
 
 ## 3. Personas and Use Cases
-- Players: small groups seeking AI-GM sessions (co-op adventures, competitive arenas, alliance events).
-- GMs/Hosts: configure campaigns, schedule sessions, import content packs, compare model providers.
-- Creators: build worlds/missions/items as content packs.
- - Solo Players: single-player campaigns with companion NPCs and solo-tuned pacing (pause/resume, DDA).
+
+### Core Player Personas
+- **Galactic Commanders**: Players seeking real-time strategic gameplay with voice commands, managing empires, fleets, and diplomatic relations across multiple star systems.
+- **Species Leaders**: Players choosing from 8+ unique races (Humans, Zephyrians, Mechanoids, Crystalline Collective, Void Walkers, Bio-Shapers, Quantum Entities, Ancient Remnants) with distinct gameplay styles and racial bonuses.
+- **Alliance Coordinators**: Players forming and managing complex diplomatic relationships, trade agreements, military alliances, and cultural exchange programs.
+- **Military Strategists**: Players commanding land/sea/air/space/cyber forces, managing supply chains, conducting psychic warfare, and coordinating AI units.
+- **Campaign Architects**: Advanced users designing complex scenarios with multi-species empires, economic systems, military doctrines, and victory conditions.
+- **AI Researchers**: Players developing AI consciousness, managing robot populations, conducting cyber warfare, and exploring AI rights and rebellion scenarios.
+- **Psychic Adepts**: Players specializing in mental warfare, telepathy, precognition, and psychic academy management.
+- **Content Creators**: Modders and designers creating species definitions, technology trees, storyline templates, and cultural assets.
+
+### Game Mode Specific Personas
+
+#### **COOP Mode Players**
+- **Defensive Coordinators**: Players who excel at organizing multi-player defensive strategies against galactic threats
+- **Resource Managers**: Players focused on optimizing shared resource allocation and joint infrastructure development
+- **Crisis Responders**: Players who thrive in emergency situations requiring rapid coordination and unified command
+- **Peace Builders**: Players dedicated to achieving collective prosperity and galactic stability through cooperation
+
+#### **Achievement Mode Players**
+- **Competitive Optimizers**: Players who enjoy balancing multiple scoring categories to maximize achievement points
+- **Leaderboard Climbers**: Players motivated by ranking progression and competitive advantage over rivals
+- **Achievement Hunters**: Players who pursue comprehensive completion of bonus objectives and achievement chains
+- **Strategic Analysts**: Players who excel at monitoring competitor progress and adapting tactics accordingly
+
+#### **Conquest Mode Players**
+- **Galactic Conquerors**: Players focused on territorial expansion and total domination strategies
+- **Military Escalators**: Players who enjoy developing increasingly powerful weapons and superweapon technologies
+- **Diplomatic Manipulators**: Players skilled at forming temporary alliances while planning strategic betrayals
+- **Empire Builders**: Players dedicated to systematic conquest and control of galactic territories
+
+#### **Hero Mode Players**
+- **Legendary Heroes**: Players who prefer character-focused progression with special abilities and equipment
+- **Story Enthusiasts**: Players drawn to multi-act narratives with character development and moral choices
+- **Villain Hunters**: Players who enjoy investigating and pursuing powerful antagonists with galaxy-threatening objectives
+- **Party Coordinators**: Players who excel at coordinating small teams with specialized roles and abilities
 
 ## 4. Key Requirements (Functional)
+
+### 4.1 Real-Time Strategy & Voice Systems
+- **R-101 Real-Time Continuous Simulation**
+  - The system shall provide 24/7 continuous simulation with 10Hz tick rate, offline acceleration (1 second = 1 game hour), and automatic catch-up summaries for returning players.
+  - Verification: TC101 (tick processing performance), TC102 (offline acceleration accuracy), TC103 (catch-up summary generation).
+
+- **R-102 Voice Command Processing**
+  - The system shall support voice commands with <800ms total latency (STT <200ms, processing <300ms, TTS <200ms) and natural language understanding for military, economic, diplomatic, research, and character management operations.
+  - Verification: TC104 (voice pipeline latency), TC105 (command accuracy), TC106 (multi-speaker diarization).
+
+- **R-103 Continuous Character Progression**
+  - The system shall provide real-time XP gain, instant level-ups, continuous research progress, automatic territory development, and achievement unlocks with measurable progress indicators.
+  - Verification: TC107 (progression calculation accuracy), TC108 (real-time updates), TC109 (achievement trigger validation).
+
+### 4.2 Multi-Species Universe
+- **R-104 Playable Species System**
+  - The system shall support 8+ unique playable races with distinct racial bonuses, technologies, cultural values, voice synthesis patterns, and evolutionary advancement trees.
+  - Verification: TC110 (species characteristic application), TC111 (racial bonus calculations), TC112 (cultural system integration).
+
+- **R-105 AI NPC Hierarchy**
+  - The system shall provide three-tier AI NPCs: Major AI Empires (full strategic capabilities), Regional Powers (specialized focus), and Minor Characters (personal goals), with dynamic personalities, relationship evolution, and voice-driven interactions.
+  - Verification: TC113 (AI decision making complexity), TC114 (relationship tracking accuracy), TC115 (voice interaction quality).
+
+- **R-106 Cultural Simulation**
+  - The system shall model species-specific cultural values, belief systems, inter-species relationships, cultural exchange programs, and evolutionary adaptation with deterministic cultural drift calculations.
+  - Verification: TC116 (cultural value tracking), TC117 (inter-species relationship dynamics), TC118 (cultural evolution accuracy).
+
+### 4.3 Advanced Military Systems
+- **R-107 Multi-Domain Combat**
+  - The system shall support land/sea/air/space/cyber combat with unit movement, base management, supply chain logistics, ammunition tracking, and real-time combat resolution across all domains.
+  - Verification: TC119 (combat resolution accuracy), TC120 (supply chain calculations), TC121 (multi-domain coordination).
+
+- **R-108 Military Infrastructure**
+  - The system shall provide planetary fortresses, naval bases, airfields, space stations, and cyber warfare centers with construction, maintenance, upgrade systems, and strategic resource allocation.
+  - Verification: TC122 (infrastructure construction), TC123 (maintenance cost calculations), TC124 (strategic resource management).
+
+- **R-109 Advanced Unit Types**
+  - The system shall support humanoid robots, robot dogs, cyborg commandos, psychic warriors, AI units, and specialized forces with unique capabilities, training requirements, and tactical applications.
+  - Verification: TC125 (unit capability implementation), TC126 (training system accuracy), TC127 (tactical AI behavior).
+
+### 4.4 Psychic Warfare Systems
+- **R-110 Psychic Powers Framework**
+  - The system shall implement telepathy (mind reading, communication, control), telekinesis (object manipulation, force projection), precognition (future sight, probability manipulation), and psychic warfare capabilities.
+  - Verification: TC128 (psychic ability calculations), TC129 (mental warfare resolution), TC130 (precognitive accuracy simulation).
+
+- **R-111 Psychic Infrastructure**
+  - The system shall provide psychic academies, psi-amplifier networks, and psychic warfare centers with talent identification, power development, combat training, and collective consciousness coordination.
+  - Verification: TC131 (academy management), TC132 (amplifier network effects), TC133 (collective consciousness simulation).
+
+- **R-112 Mental Warfare**
+  - The system shall support psi-blasts, fear projection, confusion waves, memory manipulation, mental shields, psi-dampeners, and psychic camouflage with deterministic effect calculations and countermeasures.
+  - Verification: TC134 (mental attack resolution), TC135 (psychic defense effectiveness), TC136 (countermeasure accuracy).
+
+### 4.5 AI Consciousness Systems
+- **R-113 AI Development Framework**
+  - The system shall model AI consciousness levels, humanoid robot management, cyber warfare capabilities, AI rights scenarios, and rebellion mechanics with ethical constraint systems.
+  - Verification: TC137 (consciousness level tracking), TC138 (AI behavior complexity), TC139 (rebellion scenario handling).
+
+- **R-114 Robot Population Management**
+  - The system shall support combat androids, worker robots, service units, specialized operatives, robot dogs, and swarm intelligence with production, maintenance, and control systems.
+  - Verification: TC140 (robot production pipelines), TC141 (maintenance scheduling), TC142 (swarm coordination).
+
+- **R-115 Cyber Warfare**
+  - The system shall implement virus weapons, logic bombs, data mining, firewall systems, ghost protocols, and quantum hacking with network penetration, defense, and countermeasure mechanics.
+  - Verification: TC143 (cyber attack resolution), TC144 (defense system effectiveness), TC145 (quantum hacking simulation).
+
+### 4.6 Dynamic Narrative Systems
+- **R-116 Procedural Storylines**
+  - The system shall generate main story arcs (Great Awakening, AI Uprising, Galactic War, Temporal Crisis), character development, plot twists, and emergent narratives based on player actions and world state.
+  - Verification: TC146 (story arc progression), TC147 (plot twist generation), TC148 (narrative coherence).
+
+- **R-117 Character Relationship Systems**
+  - The system shall track loyalty, rivalry, mentorship, betrayal, and redemption arcs with dynamic relationship evolution, emotional responses, and consequence propagation.
+  - Verification: TC149 (relationship tracking accuracy), TC150 (emotional response generation), TC151 (consequence calculation).
+
+- **R-118 Historical Event Recording**
+  - The system shall maintain comprehensive historical records, cultural evolution tracking, technological breakthrough documentation, and legacy effect propagation across generations.
+  - Verification: TC152 (historical accuracy), TC153 (cultural evolution tracking), TC154 (legacy effect calculations).
+
+### 4.7 Diplomatic & Economic Systems
+- **R-119 Advanced Diplomacy**
+  - The system shall support treaty negotiation, alliance management, trade agreements, cultural exchange, diplomatic incidents, and multi-party negotiations with AI-driven diplomatic personalities.
+  - Verification: TC155 (treaty enforcement), TC156 (alliance coordination), TC157 (diplomatic AI behavior).
+
+- **R-120 Economic Simulation**
+  - The system shall model resource extraction, production chains, trade routes, market dynamics, supply and demand, economic indices, and policy effects with realistic economic principles.
+  - Verification: TC158 (economic calculation accuracy), TC159 (market dynamics simulation), TC160 (policy effect modeling).
+
+- **R-121 Supply Chain Management**
+  - The system shall implement interplanetary transport, convoy escorts, automated logistics, predictive ordering, route optimization, and strategic reserves with capacity and risk calculations.
+  - Verification: TC161 (logistics optimization), TC162 (transport capacity management), TC163 (strategic reserve calculations).
+
+### 4.8 Provider Adapter Framework
+- **R-122 Unified Adapter System**
+  - The system shall provide standardized interfaces for LLM, STT, TTS, Image, Video, and Embeddings providers with hot-switching, context-aware routing, automatic failover, and comprehensive metrics collection.
+  - Verification: TC164 (adapter interface compliance), TC165 (hot-switching functionality), TC166 (metrics accuracy).
+
+- **R-123 Registry & Configuration**
+  - The system shall support runtime provider selection, hierarchical context resolution (session > campaign > default), configuration management, and A/B testing framework for model comparison.
+  - Verification: TC167 (provider selection accuracy), TC168 (context resolution), TC169 (A/B testing framework).
+
+- **R-124 Performance & Cost Management**
+  - The system shall track latency, token counts, payload sizes, cost per provider, usage analytics, and performance optimization with automated cost controls and budget management.
+  - Verification: TC170 (performance tracking accuracy), TC171 (cost calculation), TC172 (budget enforcement).
+
+### 4.9 Legacy Requirements
  - R-021 Single Player Mode
    - The system shall support solo campaigns fully offline/local, with companion NPCs, pause/resume, and DDA tuned for solo pacing.
    - Verification: TC034 (solo session flow, pause/resume), TC035 (companion behavior and DDA bounds).
@@ -59,8 +205,60 @@
    - The system shall support friendships (pending/accepted/blocked), invites by email/id, accept/decline, presence, and join-friend’s-session.
    - Verification: TC052 (invite flows), TC053 (presence and join friend), TC054 (block/unfriend invariants).
  - R-028 Billing & Entitlements (Stripe)
-   - The system shall integrate Stripe Checkout and Billing Portal for cosmetics/Season Pass/Creator Pro, with webhook‑driven entitlements and idempotent handlers.
-   - Verification: TC055 (checkout flow → entitlement granted), TC056 (portal link and subscription status), TC057 (webhook idempotency/signature verification), TC058 (entitlement gates).
+  - The system shall integrate Stripe Checkout and Billing Portal for cosmetics/Season Pass/Creator Pro, with webhook‑driven entitlements and idempotent handlers.
+  - Verification: TC055 (checkout flow → entitlement granted), TC056 (portal link and subscription status), TC057 (webhook idempotency/signature verification), TC058 (entitlement gates).
+
+### 4.2 Game Mode Systems
+
+- **R-201 COOP Mode: Galactic Defense Alliance**
+  - The system shall support cooperative gameplay where 4-12 players form defensive alliances against AI-controlled galactic threats, with shared resource pools, joint military operations, coordinated research projects, and unified diplomatic responses.
+  - Verification: TC201 (alliance formation and resource sharing), TC202 (joint military coordination), TC203 (threat scaling based on player strength), TC204 (collective victory conditions).
+
+- **R-202 Achievement Mode: Galactic Supremacy Points**
+  - The system shall support competitive gameplay where 2-16 players compete for achievement points across military conquest, economic dominance, technological advancement, diplomatic influence, cultural expansion, and exploration categories with dynamic scoring and leaderboards.
+  - Verification: TC205 (point calculation accuracy), TC206 (achievement chain progression), TC207 (leaderboard updates), TC208 (catch-up bonus mechanics).
+
+- **R-203 Conquest Mode: Total Galactic Domination**
+  - The system shall support competitive gameplay where 2-20 players compete for total galactic control through territory conquest, military escalation, diplomatic manipulation, and strategic betrayal with victory conditions based on territorial control or empire elimination.
+  - Verification: TC209 (territory control mechanics), TC210 (military escalation systems), TC211 (diplomatic betrayal mechanics), TC212 (domination victory conditions).
+
+- **R-204 Hero Mode: Legendary Party Adventures**
+  - The system shall support small party gameplay where 2-6 heroes work together to neutralize powerful villains through character-focused progression, special abilities, legendary equipment, and multi-act narrative storylines with moral choice consequences.
+  - Verification: TC213 (hero character progression), TC214 (party coordination mechanics), TC215 (villain AI behavior), TC216 (narrative branching and moral choices).
+
+- **R-205 Game Mode Selection and Setup**
+  - The system shall provide game mode selection during campaign creation with mode-specific configuration options, victory conditions, player count limits, and difficulty scaling parameters.
+  - Verification: TC217 (mode selection interface), TC218 (configuration validation), TC219 (player count enforcement), TC220 (difficulty scaling accuracy).
+
+- **R-206 Cross-Mode Compatibility**
+  - The system shall support seamless transitions between game modes within the same galaxy instance and allow different galaxy regions to host different game modes simultaneously in 24/7 continuous universe subscriptions.
+  - Verification: TC221 (mode transition mechanics), TC222 (multi-mode galaxy regions), TC223 (cross-mode player interactions), TC224 (mode-specific rule enforcement).
+
+### 4.3 Visual Systems & Content Generation
+
+- **R-301 Visual Identity & Consistency Framework**
+  - The system shall maintain consistent visual identity for characters, species, locations, and equipment across all generated images and videos using seed-based generation, reference image systems, and style profile management with deterministic appearance preservation.
+  - Verification: TC301 (character identity consistency), TC302 (species visual template adherence), TC303 (style profile application), TC304 (cross-media visual coherence).
+
+- **R-302 AI-Generated Image System**
+  - The system shall generate contextually appropriate images for characters, species, planets, cities, spaceships, units, tools, and weapons with progressive enhancement supporting text-first gameplay and graceful degradation for bandwidth-limited users.
+  - Verification: TC305 (image generation pipeline), TC306 (content categorization accuracy), TC307 (progressive loading), TC308 (graceful degradation functionality).
+
+- **R-303 Cinematic Video Generation**
+  - The system shall automatically generate event-driven videos for game kickoffs, major plot twists, battle highlights, diplomatic events, and victory celebrations while maintaining character continuity and environmental consistency with existing images.
+  - Verification: TC309 (event detection and video triggering), TC310 (character continuity in videos), TC311 (environmental consistency), TC312 (narrative integration quality).
+
+- **R-304 Species Visual Design System**
+  - The system shall provide distinct visual design languages for each of 8+ species (renamed from "races") including anatomical structure, cultural aesthetics, technology integration, and architectural styles while supporting individual variation within species parameters.
+  - Verification: TC313 (species visual distinctiveness), TC314 (individual variation within parameters), TC315 (cultural aesthetic consistency), TC316 (technology integration accuracy).
+
+- **R-305 Visual Asset Management**
+  - The system shall provide centralized storage, tagging, search, and reuse capabilities for generated visual assets with automated quality validation, consistency checking, and performance optimization including caching, compression, and CDN integration.
+  - Verification: TC317 (asset storage and retrieval), TC318 (quality validation accuracy), TC319 (consistency checking effectiveness), TC320 (performance optimization metrics).
+
+- **R-306 Visual Content Safety & Appropriateness**
+  - The system shall enforce content safety through maturity rating compliance, cultural sensitivity validation, violence limitation controls, and automated inappropriate content detection with human oversight capabilities.
+  - Verification: TC321 (maturity rating enforcement), TC322 (cultural sensitivity validation), TC323 (violence limitation effectiveness), TC324 (inappropriate content detection accuracy).
 - R-001 Voice-first multiplayer
   - The system shall support voice-first play with 1:1 and group channels (by room/proximity, team/line, party/alliance), including captions and speaker diarization.
   - Verification: TC001 (UI join/voice/action, transcript and captions visible), TC002 (multiclient sync; channel membership and audio routing validated).
@@ -263,6 +461,57 @@
 - R-088 Intelligence Agencies & Briefings
   - The system shall provide intel collection/analysis with daily briefs, risk indices, and confidence scores; effects are bounded, deterministic, and policy‑gated for covert ops.
   - Verification: TC186 (risk index determinism across identical corpus), TC187 (caps/backfire enforcement), TC188 (brief API schema, access control), TC189 (constitutional gating for ops).
+
+### 4.4 Production Systems & User Management
+
+- R-401 User Account Management System
+  - The system shall provide comprehensive user registration, authentication, and profile management with secure password policies, JWT-based authentication with refresh tokens, and OAuth integration (Google, Discord, Steam).
+  - Verification: TC401 (registration flow with validation), TC402 (authentication security and token management), TC403 (OAuth provider integration), TC404 (profile management and privacy controls).
+
+- R-402 Player Profile & Character System
+  - The system shall support customizable player handles with uniqueness validation, AI-generated character portraits with consistent identity preservation, game history and statistics tracking, and comprehensive privacy settings.
+  - Verification: TC405 (handle uniqueness enforcement), TC406 (character portrait generation and consistency), TC407 (statistics tracking accuracy), TC408 (privacy controls enforcement).
+
+- R-403 Friend Networks & Social Features
+  - The system shall provide friend request and management systems, party formation for cooperative gameplay, social features including messaging and activity feeds, and block/report functionality for community safety.
+  - Verification: TC409 (friend system workflows), TC410 (party formation and management), TC411 (messaging system security), TC412 (reporting and moderation tools).
+
+- R-404 Payment & Subscription System
+  - The system shall integrate with Stripe for secure payment processing with PCI DSS compliance, support dynamic pricing based on campaign duration (4, 12, 24 weeks), scheduled play hours, LLM tier selection, and player count scaling.
+  - Verification: TC413 (Stripe integration security), TC414 (dynamic pricing calculations), TC415 (subscription management), TC416 (billing and invoicing accuracy).
+
+- R-405 Campaign Creation & Scheduling System
+  - The system shall provide a campaign creation wizard with deterministic setup using seeded generation, AI-generated content (backstory, objectives, NPCs), configuration options (game mode, player count, session scheduling), and procedural galaxy generation.
+  - Verification: TC417 (deterministic campaign generation), TC418 (AI content generation quality), TC419 (scheduling system accuracy), TC420 (player matching algorithms).
+
+- R-406 Scalable Infrastructure Architecture
+  - The system shall support MVP infrastructure (50 concurrent players) using Docker containers on AWS EC2, and official launch infrastructure (500-10,000 players) using Kubernetes orchestration with auto-scaling and microservices architecture.
+  - Verification: TC421 (MVP infrastructure load testing), TC422 (Kubernetes auto-scaling), TC423 (microservices communication), TC424 (database scaling and performance).
+
+- R-407 Security & Hardening Framework
+  - The system shall implement comprehensive security including VPC isolation, TLS 1.3 encryption for data in transit, AES-256 encryption for data at rest, role-based access control (RBAC), multi-factor authentication for admin accounts, and API rate limiting.
+  - Verification: TC425 (network security configuration), TC426 (encryption implementation), TC427 (access control enforcement), TC428 (rate limiting effectiveness).
+
+- R-408 Content Moderation & Admin Tools
+  - The system shall provide in-game reporting systems for inappropriate content, comprehensive admin dashboard for account management, campaign monitoring, content review queues, automated moderation using AI-powered content filtering, and complete audit logging.
+  - Verification: TC429 (reporting system functionality), TC430 (admin dashboard capabilities), TC431 (automated moderation accuracy), TC432 (audit trail completeness).
+
+- R-409 Analytics & Business Intelligence
+  - The system shall track player analytics (retention rates, engagement metrics, conversion funnels), game analytics (campaign success rates, feature usage), business metrics (revenue tracking, customer lifetime value), and integrate with Google Analytics 4.
+  - Verification: TC433 (analytics data accuracy), TC434 (dashboard functionality), TC435 (Google Analytics integration), TC436 (business metrics calculations).
+
+- R-410 External Marketing & Support Infrastructure
+  - The system shall provide WordPress marketing platform with landing pages, blog, SEO optimization, lead generation, and customer support system with Zoho Desk integration, in-app support, knowledge base, and community support.
+  - Verification: TC437 (WordPress functionality), TC438 (SEO performance), TC439 (support system integration), TC440 (knowledge base search and content).
+
+- R-411 DevOps & Deployment Pipeline
+  - The system shall implement comprehensive CI/CD pipeline with automated testing (unit, integration, E2E, performance, security), Docker image building with vulnerability scanning, blue-green deployment with zero-downtime updates, and Infrastructure as Code using Terraform and Helm.
+  - Verification: TC441 (CI/CD pipeline execution), TC442 (automated testing coverage), TC443 (deployment process reliability), TC444 (infrastructure provisioning accuracy).
+
+- R-412 Backup & Disaster Recovery
+  - The system shall provide automated backup strategy with RDS automated backups (35-day retention), S3 cross-region replication, campaign state snapshots, disaster recovery plan with multi-AZ deployment (99.99% availability), and comprehensive data retention policies.
+  - Verification: TC445 (backup system reliability), TC446 (disaster recovery testing), TC447 (data retention compliance), TC448 (recovery time objectives).
+
 ## 5. Non-Functional Requirements
 - Performance targets
   - STT < 800 ms median; GM response < 3 s median; TTS < 1.2 s for ~150 chars.
@@ -305,18 +554,27 @@
 - Audio: voice capture with VAD; TTS per NPC; captions and diarization.
 
 ## 8. Architecture Summary
-- Client: React UI in `src/ui_frontend` (voice capture, scenes, HUD, campaign browser, schedule editor).
-- Server: Node/TS (LLM orchestration, missions, rules, memory, persistence, realtime, images, scheduling; video upgrade).
-- Storage: SQLite + vector index (FAISS or SQLite-VSS); local assets cache; structured logs.
-- Realtime: WebSockets + CRDT for shared notes/map/inventory.
-- Providers: interchangeable adapters for LLM/STT/TTS/Image/Video/Embeddings.
- - Realtime additions: Stage Mode speaker queue, fireteam routing, spectator streams.
+- **Microservices Architecture**: Scalable Docker containerized services supporting 50-10,000 concurrent players with horizontal scaling and auto-scaling capabilities.
+- **Core Infrastructure**: API Gateway (routing, auth, rate limiting), Realtime Gateway (WebSocket, voice streaming), Campaign Service (game state management), Simulation Engine (10Hz continuous simulation).
+- **Game Logic Services**: Military Service (combat resolution), Psychic Powers Service (mental warfare), AI Systems Service (consciousness, robots), NPC Behavior Engine (AI personalities), Narrative Engine (dynamic storylines).
+- **Specialized Services**: Diplomatic Relations Service (treaties, alliances), Voice Processing Service (STT/TTS <800ms), Species Management Service (multi-species characteristics), Provider Adapter Service (AI integrations).
+- **Supporting Infrastructure**: Analytics Service (metrics, telemetry), Content Service (assets, species data), Notification Service (real-time alerts), with PostgreSQL cluster, Redis cluster, ClickHouse, Qdrant vector DB, and MinIO object storage.
+- **Data Architecture**: Database per service, event sourcing, CQRS, multi-level caching, campaign-based sharding for horizontal scaling.
+- **Provider Framework**: Unified adapters for LLM/STT/TTS/Image/Video/Embeddings with hot-switching, context-aware routing, automatic failover, and comprehensive metrics collection.
 
 ## 9. Data and Persistence
-- Tables (subset): `players`, `characters`, `campaigns`, `sessions`, `world_states`, `events`, `memories`, `missions`, `mission_progress`, `inventory`, `items`, `images`, `videos` (upgrade), `llm_messages`, `settings`, `schedules`.
-  - Accounts & Billing tables: `users`, `user_providers`, `sessions`, `profiles`, `friendships`, `friend_invites`, `stripe_customers`, `subscriptions`, `purchases`, `entitlements`, `audit_logs`.
- - Additional tables: `decks` (twist decks), `director_state` (beat/clocks), `tech_trees` (alliance/player progress).
-- Snapshots for fast resume; event sourcing for auditability; vector memory with namespaces (`campaign:<id>`, `player:<id>`).
+- **Core Game Tables**: `players`, `characters`, `campaigns`, `sessions`, `world_states`, `events`, `memories`, `missions`, `mission_progress`, `inventory`, `items`, `images`, `videos`, `llm_messages`, `settings`, `schedules`.
+- **Multi-Species Tables**: `species`, `species_characteristics`, `racial_bonuses`, `cultural_values`, `species_technologies`, `evolutionary_paths`, `inter_species_relationships`.
+- **Military System Tables**: `military_units`, `military_bases`, `combat_results`, `supply_chains`, `ammunition_tracking`, `unit_training`, `equipment_loadouts`, `tactical_doctrines`.
+- **Psychic System Tables**: `psychic_abilities`, `psychic_academies`, `psi_amplifier_networks`, `mental_warfare_results`, `collective_consciousness`, `precognitive_visions`.
+- **AI System Tables**: `ai_consciousness_levels`, `robot_populations`, `cyber_warfare_results`, `ai_rights_scenarios`, `rebellion_events`, `swarm_intelligence`.
+- **Diplomatic Tables**: `treaties`, `alliances`, `trade_agreements`, `diplomatic_incidents`, `cultural_exchanges`, `negotiation_history`, `relationship_tracking`.
+- **Economic Tables**: `resource_extraction`, `production_chains`, `trade_routes`, `market_dynamics`, `economic_indices`, `supply_demand`, `policy_effects`.
+- **Narrative Tables**: `story_arcs`, `plot_twists`, `character_relationships`, `historical_events`, `cultural_evolution`, `procedural_content`.
+- **NPC Tables**: `npc_personalities`, `ai_empires`, `regional_powers`, `minor_characters`, `relationship_evolution`, `voice_patterns`, `behavioral_learning`.
+- **Provider Adapter Tables**: `adapter_registry`, `provider_configs`, `performance_metrics`, `cost_tracking`, `usage_analytics`, `failover_logs`.
+- **Accounts & Billing**: `users`, `user_providers`, `sessions`, `profiles`, `friendships`, `friend_invites`, `stripe_customers`, `subscriptions`, `purchases`, `entitlements`, `audit_logs`.
+- **Infrastructure**: Event sourcing with snapshots, vector memory namespaces (`campaign:<id>`, `player:<id>`, `species:<id>`, `empire:<id>`), distributed caching, and campaign-based sharding.
 
 ## 10. Scheduling
 - Campaign schedules with RRULE; reminders; pre-session warmups (keys validation, memory prefetch, image pregen).
@@ -326,22 +584,58 @@
 - Packs in `content/packs/` for worlds, missions, items; signed JSON; validation on import.
 
 ## 12. Implementation Phases
-- Prototype (foundational slice)
-  - Voice loop, minimal missions/rules, images (one provider), in-memory server; 1:1/group channels (basic); basic campaign browser and schedule creation.
-  - Verification: Playwright smoke; unit tests for schemas/dice/image; latency sanity.
-- MVP (playable and comparable)
-  - SQLite + vector memory; mission DSL; rules; CRDT realtime; alliances; multi-LLM; scheduling with warmups; content packs.
-  - Verification: TC001–TC018 mapped to R-001–R-012; performance/security targets; A/B harness.
-  - Add: Director Model v1 and Story Decks v1; Tech Tree service (alliance/player); Backstory Composer UI; Live Ops MVP (Daily Contracts, Weekly Anomaly), Recap Cards sharing.
-- Upgrades (iterative)
-  - Audio polish; performance/load; model evaluation/safety; world/economy; seasons/social; modding pipeline; privacy/ops; visuals/3D; timeline/recaps; scheduling UX; AI-generated video (R-013, TC019).
+
+### Phase 1: Core Infrastructure (Current)
+- **Microservices Foundation**: API Gateway, Realtime Gateway, Campaign Service, basic containerization with Docker Compose.
+- **Provider Adapter Framework**: Unified interfaces, registry system, hot-switching capabilities, basic metrics collection.
+- **Real-Time Systems**: WebSocket gateway, voice command processing pipeline, continuous simulation engine (basic).
+- **Multi-Species Foundation**: Species management service, basic racial characteristics, cultural value systems.
+- **Verification**: TC101-TC124 for core systems; performance targets for voice commands (<800ms); basic scaling tests (50 players).
+
+### Phase 2: Advanced Game Systems (Near-term)
+- **Military Systems**: Multi-domain combat, military infrastructure, advanced unit types, supply chain logistics.
+- **Psychic Warfare**: Psychic powers framework, mental warfare systems, psychic academies and amplifier networks.
+- **AI Consciousness**: AI development framework, robot population management, cyber warfare capabilities.
+- **Dynamic Narratives**: Procedural storylines, character relationship systems, historical event recording.
+- **Verification**: TC125-TC154 for advanced systems; scaling tests (500 players); AI behavior complexity validation.
+
+### Phase 3: Diplomatic & Economic Systems (Medium-term)
+- **Advanced Diplomacy**: Treaty negotiation, alliance management, multi-party negotiations, diplomatic AI personalities.
+- **Economic Simulation**: Resource extraction, production chains, trade routes, market dynamics, policy effects.
+- **Supply Chain Management**: Interplanetary transport, automated logistics, strategic reserves, capacity management.
+- **NPC Behavior Engine**: Three-tier AI hierarchy, personality systems, relationship evolution, voice-driven interactions.
+- **Verification**: TC155-TC172 for diplomatic/economic systems; full-scale testing (10,000 players); economic model validation.
+
+### Phase 4: Polish & Optimization (Long-term)
+- **Performance Optimization**: Advanced caching, database sharding, auto-scaling, cost optimization, monitoring systems.
+- **Advanced Features**: Kubernetes deployment, multi-region support, advanced AI capabilities, procedural content generation.
+- **User Experience**: Enhanced voice interfaces, visual improvements, accessibility features, mobile companion apps.
+- **Ecosystem**: Content creation tools, modding support, community features, competitive leagues, tournaments.
+- **Verification**: Full test suite validation; performance benchmarks; user acceptance testing; production readiness.
 
 ## 13. Acceptance Criteria
-- Functional: all R-001…R-012 implemented and passing mapped verification tests; R-013 when video upgrade is enabled.
-- Non-functional: performance targets met; memory isolation proven; no unintended external writes; accessibility/captions available.
-- Demo: two concurrent campaigns (co-op and competitive with alliances), save/resume/branch, scheduling reminders, A/B LLM compare.
- - Show twist injection and alliance research unlock; backstory-driven personal hook.
- - Large-session demo: Stage Mode with 30–50 simulated clients; action batching and session-wide recap.
+
+### Functional Requirements
+- **Core Systems**: All R-101 through R-124 implemented and passing verification tests TC101-TC172.
+- **Multi-Species Universe**: 8+ playable races with unique characteristics, AI NPC hierarchy, and cultural simulation systems.
+- **Real-Time Performance**: Voice commands <800ms latency, 10Hz simulation tick rate, continuous progression systems.
+- **Advanced Game Systems**: Military conquest, psychic warfare, AI consciousness, dynamic narratives, and diplomatic relations.
+- **Provider Framework**: Hot-switching capabilities, context-aware routing, comprehensive metrics collection, and failover systems.
+- **Legacy Compatibility**: All existing R-001 through R-012 requirements maintained with enhanced capabilities.
+
+### Non-Functional Requirements
+- **Performance Targets**: Voice pipeline <800ms, simulation tick 100ms, concurrent user support (50-10,000), horizontal scaling capabilities.
+- **Scalability**: Microservices architecture with auto-scaling, database sharding, distributed caching, and load balancing.
+- **Reliability**: 99.9% uptime, automatic failover, circuit breakers, comprehensive monitoring, and disaster recovery.
+- **Security**: Authentication/authorization, data encryption, PII protection, audit logging, and compliance standards.
+
+### Demonstration Requirements
+- **Multi-Species Campaigns**: Concurrent campaigns with different species, AI empires, and regional powers interacting dynamically.
+- **Real-Time Strategy**: Live voice commands controlling military units, economic systems, diplomatic negotiations, and research projects.
+- **Advanced AI NPCs**: Major AI empires with full strategic capabilities, regional powers with specializations, and minor characters with personal goals.
+- **Complex Systems Integration**: Military conquest scenarios, psychic warfare demonstrations, AI consciousness evolution, and dynamic narrative generation.
+- **Scalability Testing**: Load testing with hundreds of concurrent players, voice command processing, and real-time simulation performance.
+- **Provider Flexibility**: Hot-switching between AI providers, failover scenarios, cost optimization, and performance comparison.
 
 ## 14. Metrics and Telemetry
 - Latency and token usage per provider; image/video cache hit rates; retention per campaign; completion and fairness metrics.

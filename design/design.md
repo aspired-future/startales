@@ -1,32 +1,204 @@
-# Vezy.ai — Vezy Up Your Galaxy (Galactic Tale Weaver) — Product Design
+# Startales: Galactic Conquest & Strategy — Product Design
 
 ## Vision
-An immersive, voice-first, multiplayer space RPG where an AI Game Master (GM) orchestrates fast, cinematic adventures. Players collaborate or compete in dynamic missions, form alliances, level up, collect gear/artifacts, and shape a persistent universe. The game supports generated scene art and portraits, multi‑LLM backends, local-first storage, and resumable sessions.
+A massive, real-time, voice-driven galactic strategy game where players command multi-species empires across a living universe. Experience 24/7 continuous simulation with sophisticated AI NPCs, advanced military systems, psychic warfare, AI consciousness, and dynamic narratives. The game features scalable microservices architecture supporting thousands of concurrent players, with PC-first design and mobile companion capabilities.
 
 ## Player Experience Goals
-- Fast, vivid narration (2–4 sentences per beat) with frequent situation updates
-- Fully open-ended actions: players can attempt anything at any time
-- Voice-driven by default; graphical UI provides scene art, objective HUD, party panel, minimap/timeline, and speech captions
-- Collaborative and competitive modes, including team/alliance mechanics
-- Meaningful progression: levels, skills, reputations, items/artifacts, and ship upgrades
-- Save/resume and branch timelines; local-first privacy and control
+- **Real-Time Strategy**: Voice commands execute in <800ms with immediate feedback and continuous 10Hz simulation
+- **Multi-Species Immersion**: Choose from 8+ unique species with distinct characteristics, technologies, and cultural systems
+- **Voice-First Interface**: Natural language commands for military, economic, diplomatic, research, and character operations
+- **Living Universe**: 24/7 continuous simulation with AI empires, regional powers, and minor characters that evolve independently
+- **Advanced Warfare**: Command land/sea/air/space/cyber forces, psychic powers, AI units, and complex supply chains
+- **Dynamic Narratives**: Experience emergent storylines, plot twists, character development, and procedural content
+- **Visual Consistency**: Rich, AI-generated visuals with consistent character, species, and environmental design
+- **Cinematic Events**: AI-generated videos for major plot events, battles, and campaign milestones
+- **Massive Scale**: Participate in galaxy-spanning conflicts with thousands of concurrent players
+- **Cross-Platform**: PC-first experience with mobile companion apps for monitoring and basic commands
+- **Persistent Progression**: Characters, civilizations, and territories advance continuously with measurable progress
 
-## Game Modes
-- Hero Mode: character-forward play focused on narrative choices, backstory arcs, and party-scale progression (can be combined with Empire Mode)
-- Empire Mode: empire/colony management with expansion, logistics, fleets, and diplomacy (can be combined with Hero Mode)
-- Co-op Campaign: party completes mission arcs together; shared rewards and faction reputation
-- Competitive Missions: team-vs-team objectives (control points, extraction, heist vs defense); optional permadeath arenas
-- Alliances: cross-session groups with shared stash, research trees, and alliance missions; diplomacy/war states
-- Freeplay Sandbox: emergent events in open sectors; players set their own goals
-- Single Player: fully offline/local play with companion NPCs; pause/resume; DDA tuned for solo pacing
+## Game Modes & Subscription Tiers
 
-## Core Loop
-1) Join session (select character, alliance/team)
-2) Speak an intent; Action Interpreter yields structured action
-3) GM narrates outcome; Rules Engine resolves checks; world state changes
-4) Mission Engine advances objectives; Memory Engine stores episodic/semantic traces
-5) Periodic situation updates; generated images illustrate scenes and NPCs
-6) Persist state; players earn XP/loot; optional branching save
+### Core Game Modes
+
+#### **COOP Mode: Galactic Defense Alliance**
+- **Objective**: Multiple civilizations work together to defend against external threats from other galaxies
+- **Player Count**: 4-12 players forming defensive alliances
+- **Threats**: AI-controlled villain empires, cosmic disasters, interdimensional invasions
+- **Victory Conditions**: Successfully repel all major threats, establish galactic peace, achieve collective prosperity
+- **Unique Features**: Shared resource pools, joint military operations, coordinated research projects, unified diplomatic responses
+- **Difficulty Scaling**: Threat intensity scales with combined player strength and coordination effectiveness
+
+#### **Achievement Mode: Galactic Supremacy Points**
+- **Objective**: Players compete to accumulate the most achievement points across multiple categories
+- **Player Count**: 2-16 players in competitive environment
+- **Scoring Categories**: Military conquest, economic dominance, technological advancement, diplomatic influence, cultural expansion, exploration achievements
+- **Victory Conditions**: Highest total points at end of campaign period or first to reach point threshold
+- **Unique Features**: Dynamic point multipliers, achievement chains, bonus objectives, leaderboard tracking
+- **Balance Mechanisms**: Catch-up bonuses, diminishing returns on repeated strategies, rotating bonus categories
+
+#### **Conquest Mode: Total Galactic Domination**
+- **Objective**: Eliminate or subjugate all other player civilizations to achieve total galactic control
+- **Player Count**: 2-20 players in direct competition
+- **Victory Conditions**: Control 75% of galaxy territory, eliminate all rival empires, or achieve diplomatic hegemony
+- **Unique Features**: Territory control mechanics, siege warfare, espionage systems, betrayal mechanics
+- **Escalation Systems**: Increasing military technology, superweapons, alliance warfare, final confrontation events
+
+#### **Hero Mode: Legendary Party Adventures**
+- **Objective**: Small party of heroes works together to neutralize powerful villains with galaxy-threatening objectives
+- **Player Count**: 2-6 heroes forming an elite party
+- **Villain Types**: Rogue AI consciousness, psychic overlords, ancient awakened entities, interdimensional conquerors
+- **Victory Conditions**: Defeat the primary villain, prevent galactic catastrophe, rescue key NPCs or artifacts
+- **Unique Features**: Character-focused progression, special abilities, legendary equipment, dynamic villain responses
+- **Narrative Structure**: Multi-act storylines, plot twists, character development arcs, moral choice consequences
+
+### Subscription Tiers & Access
+
+#### Scheduled Operations (Slot-Based Subscription)
+- **Weekly Time Slots**: Players purchase specific recurring time slots (e.g., "Tuesdays 8PM EST, 3 hours")
+- **Session Groups**: 4-8 players per session with consistent group membership
+- **Game Mode Selection**: Each slot can be configured for specific game modes (COOP, Achievement, Conquest, Hero)
+- **Slot Pricing**: Pay per weekly slot (e.g., $15/month per 3-hour weekly slot)
+- **Multiple Slots**: Players can subscribe to multiple slots for different campaigns or game modes
+- **Session Preparation**: Pre-session briefings and strategic planning through mobile companion apps
+
+#### 24/7 Continuous Universe (Usage-Based Subscription)
+- **Always-On Galaxy**: Persistent universe that evolves continuously with real-time simulation
+- **Multi-Mode Support**: Different galaxy regions can host different game modes simultaneously
+- **Usage Metering**: Charged based on active playtime and AI interactions (voice commands, LLM calls)
+- **Tiered Limits**: Monthly hour caps with overage charges to control costs
+- **AI Delegation**: Automated empire management when players are offline
+- **Real-Time Interaction**: Join and leave at any time, interact with ongoing galactic events
+
+#### Hybrid Subscription Options
+- **Scheduled + Continuous**: Combine weekly slots with limited 24/7 access
+- **Tournament Access**: Premium competitive events and leagues across all game modes
+- **Creator Mode**: Advanced modding tools and content creation capabilities for custom game modes
+- **Enterprise Groups**: Custom pricing for larger organizations or gaming groups
+
+#### Free Trial (Limited)
+- **Trial Duration**: 7 days with strict usage limits
+- **Game Mode Access**: Limited to COOP mode with AI-controlled allies
+- **AI Call Limits**: Maximum 50 voice commands or 2 hours of gameplay
+- **Feature Restrictions**: Limited to 1 species, basic AI opponents, no premium content
+- **Conversion Focus**: Showcase core gameplay while minimizing LLM costs
+
+## Core Loop (Varies by Game Mode)
+
+### Universal Core Loop
+1) **Game Setup**: Choose game mode, species, establish empire/heroes, select starting territories and initial focus
+2) **Voice Commands**: Issue natural language orders for military deployment, economic development, diplomatic negotiations, research priorities
+3) **Real-Time Execution**: Commands execute immediately with <800ms latency; continuous 10Hz simulation processes all player and AI actions
+4) **AI Responses**: Sophisticated AI empires/villains react dynamically with counter-strategies, diplomatic proposals, and military maneuvers
+5) **Continuous Progression**: Characters level up, territories develop, research advances, and relationships evolve in real-time
+6) **Strategic Updates**: Receive voice alerts and visual updates on critical events, battle outcomes, diplomatic developments, and opportunities
+7) **Persistent Universe**: All actions have lasting consequences; the galaxy continues evolving with AI delegation when players are offline
+
+### Mode-Specific Variations
+
+#### **COOP Mode Loop**
+- **Threat Assessment**: Monitor incoming galactic threats and coordinate defensive strategies
+- **Alliance Coordination**: Synchronize resource sharing, joint military operations, and research collaboration
+- **Crisis Response**: React to emergent threats with unified command structure and shared objectives
+- **Victory Progress**: Track collective achievements toward galactic peace and prosperity
+
+#### **Achievement Mode Loop**
+- **Point Optimization**: Balance multiple scoring categories to maximize achievement points
+- **Competitive Analysis**: Monitor rival players' progress and adapt strategies accordingly
+- **Bonus Pursuit**: Identify and pursue high-value bonus objectives and achievement chains
+- **Leaderboard Climbing**: Track ranking progression and adjust tactics for competitive advantage
+
+#### **Conquest Mode Loop**
+- **Territory Expansion**: Systematically conquer and control galactic territories
+- **Military Escalation**: Develop increasingly powerful military technologies and superweapons
+- **Diplomatic Manipulation**: Form temporary alliances while planning eventual betrayals
+- **Domination Progress**: Monitor path to total galactic control and eliminate remaining threats
+
+#### **Hero Mode Loop**
+- **Villain Tracking**: Investigate and pursue the primary villain's activities and objectives
+- **Party Coordination**: Coordinate specialized hero abilities and legendary equipment
+- **Story Progression**: Advance through multi-act narrative with character development
+- **Heroic Actions**: Make moral choices that affect story outcomes and character growth
+
+## Visual Systems & Consistency Framework
+
+### Text-First Design with Visual Enhancement
+- **Progressive Enhancement**: Core gameplay is fully functional with text-only interface
+- **Visual Augmentation**: AI-generated images and videos enhance but never replace text content
+- **Graceful Degradation**: All features work without visuals for bandwidth-limited players
+- **Optional Visuals**: Players can enable/disable visual generation based on preferences and performance
+
+### Visual Content Categories
+
+#### **Character & Species Visuals**
+- **Species Templates**: Each of 8+ species has consistent visual identity and cultural aesthetics
+- **Individual Variation**: Characters show genetic diversity within species parameters
+- **Identity Preservation**: Seed-based generation ensures characters look consistent across appearances
+- **Progression Visualization**: Character appearance evolves with experience, equipment, and story events
+- **Expression System**: Emotional states and reactions reflected in facial expressions and body language
+
+#### **Environmental & Location Visuals**
+- **Planetary Environments**: Diverse biomes from desert worlds to gas giant stations
+- **Architectural Styles**: Species-specific building designs and urban planning aesthetics
+- **Space Environments**: Nebulae, star systems, space stations, and fleet formations
+- **Scale Representation**: From intimate character scenes to galaxy-wide strategic overviews
+
+#### **Technology & Equipment Visuals**
+- **Spaceships & Vehicles**: Species-distinctive designs with visible damage states and modifications
+- **Weapons & Tools**: Technology level and species origin reflected in visual design
+- **Military Assets**: Ground, naval, air, and space forces with appropriate scale and detail
+- **Condition States**: Visual representation of equipment condition from pristine to battle-damaged
+
+### Visual Consistency Systems
+
+#### **Style Profile Management**
+- **Campaign Themes**: Each campaign has a consistent art style (e.g., "Gritty Space Opera", "Bio-Organic Horror")
+- **Species Aesthetics**: Visual design languages unique to each species while fitting campaign style
+- **Temporal Consistency**: Technology and fashion appropriate to campaign era and advancement level
+- **Cross-Media Coherence**: Images and videos maintain identical visual identity for characters and locations
+
+#### **Identity Preservation Technology**
+- **Seed-Based Generation**: Deterministic character appearance using unique identity seeds
+- **Reference Image System**: Master portraits ensure consistency across multiple appearances
+- **Variation Control**: Clothing, expressions, and poses change while maintaining core identity
+- **Cross-Session Continuity**: Characters look identical across different game sessions and campaigns
+
+### Cinematic Video Generation
+
+#### **Event-Driven Videos**
+- **Game Kickoff**: Campaign introduction videos showcasing setting and key characters
+- **Major Plot Twists**: Dramatic reveals and story developments enhanced with cinematic sequences
+- **Battle Highlights**: Epic combat sequences showing key moments from major conflicts
+- **Diplomatic Events**: Formal ceremonies, treaty signings, and first contact scenarios
+- **Victory Celebrations**: Campaign conclusions and major achievement milestones
+
+#### **Video Consistency Framework**
+- **Character Continuity**: Videos use existing character portraits as reference for identical appearance
+- **Environmental Matching**: Locations in videos match previously generated environmental images
+- **Style Preservation**: All videos maintain campaign art style and visual consistency
+- **Narrative Integration**: Video content directly supports and enhances text-based storytelling
+
+## Player Presence & Delegation System
+
+### Active Presence Requirements
+- **Critical Decisions**: Major military operations, diplomatic negotiations, research priorities require player presence
+- **Real-Time Events**: Battles, first contact scenarios, alliance meetings need synchronized participation
+- **Strategic Planning**: Resource allocation, territory expansion, technology research benefit from direct player input
+- **Visual Moments**: Important cinematic events and character interactions benefit from player witness
+
+### AI Delegation (Between Sessions)
+- **Routine Operations**: Basic resource gathering, standard production, defensive postures continue automatically
+- **Defensive Actions**: AI can respond to immediate threats with pre-approved defensive strategies
+- **Economic Management**: Trade routes, resource processing, infrastructure maintenance operate autonomously
+- **Diplomatic Protocols**: AI maintains existing relationships but cannot make new major agreements
+- **Visual Generation**: AI continues generating routine visuals (environmental updates, equipment states)
+
+### Session Scheduling System
+- **Recurring Time Slots**: Players commit to weekly 2-4 hour sessions at consistent times
+- **Group Formation**: 4-8 players form persistent campaign groups with shared storylines
+- **Session Preparation**: Mobile apps provide briefings, strategic updates, and planning tools between sessions
+- **Visual Previews**: Pre-session image generation for key locations and characters
+- **Makeup Sessions**: Flexible scheduling for missed sessions with catch-up mechanics
+- **Cross-Group Interactions**: Scheduled inter-group events for larger conflicts and diplomacy
 
 ## Progression
 - Attributes: Might, Agility, Intellect, Will, Presence, Tech
@@ -661,6 +833,175 @@ Notes:
   - POST `/api/advisors/:domain/propose` { action } → creates pending engine action for approval
 - Engine Tie-in
   - Approved advisor proposals convert to engine actions (policy changes, queue priorities, tariff adjustments, transfers) executed next tick.
+
+## Production Systems & Scalability
+
+### User Management & Authentication System
+- **User Accounts**: Comprehensive registration, login, and profile management with secure password policies
+- **Authentication**: JWT-based authentication with refresh tokens, OAuth integration (Google, Discord, Steam)
+- **Player Profiles**: 
+  - Customizable player handles with uniqueness validation
+  - AI-generated character portraits with consistent identity preservation
+  - Game history, statistics, and achievement tracking
+  - Privacy settings and profile visibility controls
+- **Friend Networks**: 
+  - Friend requests and management system
+  - Party formation for cooperative gameplay
+  - Social features including messaging and activity feeds
+  - Block and report functionality for community safety
+
+### Payment & Subscription Architecture
+- **Stripe Integration**: Secure payment processing with PCI DSS compliance
+- **Dynamic Pricing Model**:
+  - **Campaign-Based Pricing**: Charged per campaign based on duration (4, 12, 24 weeks) and scheduled play hours
+  - **LLM Tier Pricing**: Different rates for premium AI models (GPT-4, Claude, Gemini) vs. free/low-cost options (Ollama)
+  - **Player Count Scaling**: Pricing adjustments based on campaign size (2-50+ players)
+  - **Subscription Options**: Monthly/annual subscriptions with discounts for regular players
+- **Billing Management**: Automated invoicing, payment history, subscription changes, proration handling
+- **Revenue Analytics**: Real-time revenue tracking, conversion metrics, churn analysis, customer lifetime value
+
+### Campaign Management & Scheduling System
+- **Campaign Creation Wizard**:
+  - **Deterministic Setup**: Seeded generation ensuring reproducible campaign experiences
+  - **AI-Generated Content**: Automated backstory creation, objective generation, NPC character development
+  - **Configuration Options**: Game mode selection, player count limits, session scheduling, difficulty settings
+  - **Map Generation**: Procedural galaxy generation with customizable size and complexity
+- **Scheduling System**:
+  - **Weekly Recurring Campaigns**: Regular scheduled sessions with consistent player groups
+  - **24-Hour One-Shot Campaigns**: Quick, intensive gaming experiences
+  - **Flexible Scheduling**: Time zone support, session length customization (2-8 hours)
+- **Player Matching**: Automated matchmaking based on preferences, skill level, and availability
+- **Campaign Lifecycle**: Registration, payment processing, player notifications, execution, completion tracking
+
+### Scalable Infrastructure Architecture
+
+#### MVP Infrastructure (50 Concurrent Players)
+- **Deployment Model**: Docker containers on AWS EC2 instances
+- **Central Services**: Single EC2 instance hosting user accounts, payments, campaign management
+- **Game Servers**: Dedicated containers per campaign with auto-scaling based on demand
+- **Database Strategy**: 
+  - RDS PostgreSQL for user data, payments, and campaign metadata
+  - SQLite per campaign for isolated game state management
+- **Load Distribution**: Application Load Balancer with health checks and failover
+- **Asset Storage**: S3 for generated images/videos, backups; CloudFront CDN for global distribution
+
+#### Official Launch Infrastructure (500-10,000 Players)
+- **Kubernetes Orchestration**: EKS cluster with auto-scaling and resource management
+- **Microservices Architecture**:
+  - **User Service**: Account management, authentication, profiles, social features
+  - **Payment Service**: Stripe integration, billing, subscription management
+  - **Campaign Service**: Creation, scheduling, matchmaking, lifecycle management
+  - **Game Server Manager**: Container orchestration, scaling, health monitoring
+  - **Analytics Service**: Player metrics, engagement tracking, business intelligence
+  - **Admin Service**: Moderation tools, support systems, content review
+- **Database Scaling**:
+  - RDS Multi-AZ with read replicas for high availability
+  - DynamoDB for session data and real-time features
+  - ElastiCache Redis for caching and session management
+- **Auto-Scaling**: Horizontal pod autoscaling based on CPU, memory, and player count metrics
+- **Multi-Region Deployment**: Primary region with disaster recovery capabilities
+
+### Security & Hardening Framework
+- **Network Security**: VPC isolation, private subnets, security groups, network ACLs
+- **Data Protection**: 
+  - TLS 1.3 encryption for all data in transit
+  - AES-256 encryption for data at rest
+  - Secure key management via AWS Secrets Manager
+- **Access Control**: 
+  - Role-based access control (RBAC) with least privilege principles
+  - Multi-factor authentication for administrative accounts
+  - API rate limiting and DDoS protection via CloudFlare
+- **Compliance**: GDPR compliance, data retention policies, right to deletion
+- **Monitoring**: Real-time security monitoring, audit logging, incident response procedures
+
+### Content Moderation & Admin Tools
+- **Player Reporting System**: In-game reporting for inappropriate content and behavior
+- **Admin Dashboard**:
+  - **Account Management**: Suspend, ban, warning system with escalation procedures
+  - **Campaign Monitoring**: Real-time campaign oversight and intervention capabilities
+  - **Content Review**: Queue system for flagged messages, actions, and generated content
+  - **Analytics Integration**: Player engagement metrics, retention analysis, behavior patterns
+- **Automated Moderation**: AI-powered content filtering for text and generated images
+- **Audit Trail**: Complete logging of admin actions, player reports, and moderation decisions
+
+### Analytics & Business Intelligence
+- **Player Analytics**:
+  - Retention metrics (1-day, 7-day, 30-day retention rates)
+  - Engagement tracking (session length, actions per session, feature usage)
+  - Conversion funnel analysis (signup → payment → campaign completion)
+  - Churn prediction and prevention strategies
+- **Game Analytics**:
+  - Campaign success rates and completion statistics
+  - Feature adoption and usage patterns
+  - Performance metrics (latency, errors, resource utilization)
+  - Player feedback and satisfaction scores
+- **Business Metrics**:
+  - Revenue tracking and forecasting
+  - Customer acquisition cost (CAC) and lifetime value (CLV)
+  - Pricing optimization and A/B testing results
+- **Integration**: Google Analytics 4, custom event tracking, real-time dashboards
+
+### External Marketing & Support Infrastructure
+- **WordPress Marketing Platform**:
+  - **Landing Pages**: Feature showcases, pricing information, player testimonials
+  - **Content Marketing**: Regular blog posts, patch notes, community highlights
+  - **SEO Optimization**: Structured data, meta optimization, performance tuning
+  - **Lead Generation**: Newsletter signup, beta access, referral programs
+- **Customer Support System**:
+  - **Zoho Desk Integration**: Comprehensive ticketing system with WordPress integration
+  - **In-App Support**: Help documentation, FAQ, contact forms within player accounts
+  - **Knowledge Base**: Searchable documentation, video tutorials, troubleshooting guides
+  - **Community Support**: Player forums, Discord server, community moderation
+
+### DevOps & Deployment Pipeline
+- **Development Workflow**:
+  - **Local Development**: Cursor IDE with Docker Compose for comprehensive local testing
+  - **Version Control**: GitHub with feature branch workflow and mandatory pull request reviews
+  - **Code Quality**: ESLint, Prettier, TypeScript strict mode, comprehensive test coverage
+- **CI/CD Pipeline**:
+  - **Automated Testing**: Unit tests, integration tests, E2E tests, performance tests, security scans
+  - **Build Process**: Docker image creation, vulnerability scanning, artifact management
+  - **Deployment Strategy**: Blue-green deployment with zero-downtime updates and automatic rollback
+- **Infrastructure as Code**: Terraform for AWS provisioning, Helm charts for Kubernetes deployment
+- **Environment Management**: Separate dev/staging/production environments with proper secret management
+
+### Backup & Disaster Recovery
+- **Automated Backup Strategy**:
+  - RDS automated backups with point-in-time recovery (35-day retention)
+  - S3 cross-region replication for critical assets and campaign data
+  - Campaign state snapshots with lifecycle management and cost optimization
+- **Disaster Recovery Plan**:
+  - Multi-AZ deployment for 99.99% availability
+  - Cross-region backup with 4-hour RPO and 1-hour RTO targets
+  - Automated failover procedures and comprehensive runbooks
+- **Data Retention Policies**:
+  - User data: 7 years (regulatory compliance)
+  - Campaign data: 2 years (analytics and support)
+  - System logs: 90 days (security and debugging)
+
+### Performance Optimization Strategy
+- **Caching Architecture**:
+  - Redis for session data and frequently accessed content
+  - CloudFront CDN for static assets and cacheable API responses
+  - Application-level caching for expensive AI computations
+- **Database Optimization**:
+  - Query optimization with comprehensive indexing strategy
+  - Connection pooling and read replica utilization
+  - Table partitioning for large datasets (events, analytics)
+- **Resource Management**:
+  - Container resource limits and requests optimization
+  - Auto-scaling policies based on real-time metrics
+  - Cost optimization through reserved instances and spot instances
+
+### Cost Management & Revenue Model
+- **Infrastructure Cost Optimization**:
+  - MVP Phase: $1,000-2,000/month (supporting 50 players)
+  - Official Launch: $10,000-25,000/month (supporting 500-10,000 players)
+  - Ongoing optimization through monitoring and right-sizing
+- **Revenue Projections**:
+  - Campaign pricing: $10-50 per player per campaign
+  - Target gross margin: 60-70% after infrastructure and AI costs
+  - Subscription model with premium features and priority access
 
 ## Simulation Engine Notes (Integration)
 - Policies/Laws Flow

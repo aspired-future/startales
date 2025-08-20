@@ -1,0 +1,353 @@
+/* Witt Item Styles */
+.witt-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  position: relative;
+}
+
+.witt-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(-2px);
+}
+
+.witt-item.contextually-relevant {
+  border-left: 3px solid #4ecdc4;
+  background: rgba(78, 205, 196, 0.1);
+}
+
+.witt-item.contextually-relevant::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #4ecdc4, transparent);
+}
+
+/* Header */
+.witt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.witt-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.author-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.author-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: white;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+.author-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.author-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.author-name .name {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.name-button {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease;
+}
+
+.name-button:hover {
+  color: #4ecdc4;
+  text-decoration: underline;
+}
+
+.author-type {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+}
+
+.witt-timestamp {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+/* Actions */
+.witt-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.follow-btn {
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.follow-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+}
+
+.follow-btn.following {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.follow-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.visibility-indicator,
+.relevance-indicator {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.relevance-indicator {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Content */
+.witt-content {
+  margin-bottom: 12px;
+}
+
+.witt-content p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.witt-context {
+  margin-top: 8px;
+}
+
+.context-tag {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Interactions */
+.witt-interactions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.interaction-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.interaction-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.interaction-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.interaction-btn .icon {
+  font-size: 14px;
+}
+
+.interaction-btn .count {
+  font-weight: 500;
+  min-width: 16px;
+  text-align: left;
+}
+
+.like-btn.active {
+  color: #ff6b6b;
+}
+
+.like-btn.active:hover {
+  color: #ff5252;
+}
+
+.share-btn.active {
+  color: #4ecdc4;
+}
+
+.share-btn.active:hover {
+  color: #26d0ce;
+}
+
+.comment-btn:hover {
+  color: #ffd93d;
+}
+
+/* Comments */
+.witt-comments {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.comment-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.comment-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 8px 12px;
+  color: white;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.comment-input:focus {
+  border-color: #4ecdc4;
+}
+
+.comment-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.comment-submit {
+  background: #4ecdc4;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.comment-submit:hover:not(:disabled) {
+  background: #26d0ce;
+}
+
+.comment-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.comments-list {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-style: italic;
+  text-align: center;
+  padding: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .witt-item {
+    padding: 12px;
+  }
+  
+  .author-avatar {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .avatar-placeholder {
+    font-size: 16px;
+  }
+  
+  .witt-content p {
+    font-size: 13px;
+  }
+  
+  .witt-interactions {
+    gap: 12px;
+  }
+  
+  .interaction-btn {
+    padding: 4px 6px;
+  }
+}

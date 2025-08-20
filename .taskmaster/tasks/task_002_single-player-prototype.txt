@@ -1,0 +1,18 @@
+# Task ID: 2
+# Title: Hybrid Simulation Engine Integration
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Implement hybrid simulation engine with dual-flow processing combining deterministic calculations and natural language analysis, including cross-influence calculations and campaign management.
+# Details:
+- Hybrid Simulation Engine: Integrate deterministic systems with AI narrative analysis in 10Hz tick processing
+- Cross-Influence Calculations: Natural language sentiment affects economic modifiers, public opinion impacts military effectiveness
+- Bidirectional Flow: Hard data informs soft intelligence, soft intelligence influences hard calculations
+- Natural Language Integration: AI analysis affects population psychology, policy effectiveness, military morale
+- Simulation Output Enhancement: Both numerical KPIs AND narrative analysis results for each tick
+- Memory Integration: Use civilization memory context for enhanced AI analysis and narrative generation
+- Campaign Creation System: Single-player campaign setup wizard with civilization initialization
+- Game State Management: Save/load functionality, campaign branching, timeline management
+
+# Test Strategy:
+

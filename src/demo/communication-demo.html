@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💬 StarTales Communication System Demo</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #1a1a2e;
+            padding: 20px;
+            border-bottom: 2px solid #4ecdc4;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            height: calc(100vh - 120px);
+        }
+
+        .sidebar {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #333;
+            overflow-y: auto;
+        }
+
+        .main-chat {
+            background: #16213e;
+            border-radius: 12px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            color: #4ecdc4;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: #4ecdc4;
+            color: #0f0f23;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #45b7aa;
+            transform: translateY(-1px);
+        }
+
+        .action-btn.voice {
+            background: #ff9800;
+        }
+
+        .action-btn.voice:hover {
+            background: #f57c00;
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #0f0f23;
+            border: 1px solid #333;
+        }
+
+        .message.own {
+            background: rgba(78, 205, 196, 0.1);
+            border-color: #4ecdc4;
+            margin-left: 50px;
+        }
+
+        .message.voice {
+            border-left: 4px solid #ff9800;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #4ecdc4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #0f0f23;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .message-author {
+            font-weight: 600;
+            color: #4ecdc4;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .message-text {
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .message-reactions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .reaction {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2px 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reaction:hover {
+            border-color: #4ecdc4;
+        }
+
+        .voice-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .play-btn {
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voice-duration {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .transcription {
+            font-style: italic;
+            color: #ccc;
+            font-size: 14px;
+            margin-top: 5px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .message-input {
+            padding: 20px;
+            border-top: 1px solid #333;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-field {
+            flex: 1;
+            background: #0f0f23;
+            color: #fff;
+            border: 1px solid #4ecdc4;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: inherit;
+            resize: none;
+        }
+
+        .send-btn {
+            background: #4ecdc4;
+            color: #0f0f23;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: #45b7aa;
+        }
+
+        .voice-btn {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .voice-btn:hover {
+            background: #f57c00;
+        }
+
+        .voice-btn.recording {
+            background: #f44336;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .section-title {
+            color: #4ecdc4;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #4ecdc4;
+            padding-bottom: 8px;
+        }
+
+        .player-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .player-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #0f0f23;
+            border-radius: 6px;
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .player-item:hover {
+            border-color: #4ecdc4;
+        }
+
+        .player-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status-online { background: #4caf50; }
+        .status-away { background: #ff9800; }
+        .status-offline { background: #666; }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .player-civ {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-item {
+            padding: 12px;
+            background: #0f0f23;
+            border-radius: 6px;
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .conversation-item:hover {
+            border-color: #4ecdc4;
+        }
+
+        .conversation-item.active {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.1);
+        }
+
+        .conversation-name {
+            font-weight: 600;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .conversation-preview {
+            font-size: 12px;
+            color: #888;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .conversation-time {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .status-section {
+            background: #0f0f23;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .status-item {
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .connection-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f44336;
+        }
+
+        .connection-indicator.connected {
+            background: #4caf50;
+        }
+
+        .loading {
+            text-align: center;
+            color: #4ecdc4;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .error {
+            color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid #f44336;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 250px 1fr;
+            }
+            
+            .sidebar:last-child {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 10px;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💬 StarTales Communication System</h1>
+        <p>Real-time voice and text communication across the galaxy</p>
+    </div>
+
+    <div class="container">
+        <!-- Left Sidebar - Players -->
+        <div class="sidebar">
+            <div class="status-section">
+                <div class="section-title">🔧 Connection Status</div>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-value" id="online-count">-</div>
+                        <div class="status-label">Online</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="total-players">-</div>
+                        <div class="status-label">Players</div>
+                    </div>
+                </div>
+                <div class="connection-status">
+                    <div class="connection-indicator" id="connection-indicator"></div>
+                    <span id="connection-status">Connecting...</span>
+                </div>
+            </div>
+
+            <div class="section-title">👥 Online Players</div>
+            <div class="player-list" id="player-list">
+                <div class="loading">Loading players...</div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="main-chat">
+            <div class="chat-header">
+                <div class="chat-title" id="chat-title">Select a conversation</div>
+                <div class="chat-actions">
+                    <button class="action-btn voice" onclick="startVoiceCall()" id="voice-call-btn">
+                        🎙️ Voice Call
+                    </button>
+                    <button class="action-btn" onclick="showConversationInfo()">
+                        ℹ️ Info
+                    </button>
+                </div>
+            </div>
+
+            <div class="messages-container" id="messages-container">
+                <div class="loading">Select a conversation to start chatting</div>
+            </div>
+
+            <div class="message-input">
+                <button class="voice-btn" id="voice-btn" onclick="toggleVoiceRecording()">
+                    🎤
+                </button>
+                <textarea 
+                    class="input-field" 
+                    id="message-input" 
+                    placeholder="Type your message..."
+                    rows="1"
+                    onkeypress="handleKeyPress(event)"
+                ></textarea>
+                <button class="send-btn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+
+        <!-- Right Sidebar - Conversations -->
+        <div class="sidebar">
+            <div class="section-title">💬 Conversations</div>
+            <div class="conversation-list" id="conversation-list">
+                <div class="loading">Loading conversations...</div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="action-btn" style="width: 100%;" onclick="createNewConversation()">
+                    ➕ New Conversation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:4003/api/communication';
+        const SOCKET_URL = 'http://localhost:4003';
+        
+        let socket = null;
+        let currentPlayer = 'player_1'; // Demo player
+        let currentConversation = null;
+        let isRecording = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        // Initialize the demo
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSocket();
+            loadPlayers();
+            loadConversations();
+            
+            // Auto-resize textarea
+            const messageInput = document.getElementById('message-input');
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+        });
+
+        function initializeSocket() {
+            socket = io(SOCKET_URL);
+            
+            socket.on('connect', () => {
+                console.log('Connected to communication server');
+                updateConnectionStatus(true);
+                socket.emit('player_join', currentPlayer);
+            });
+            
+            socket.on('disconnect', () => {
+                console.log('Disconnected from communication server');
+                updateConnectionStatus(false);
+            });
+            
+            socket.on('new_message', (message) => {
+                if (currentConversation && message.conversationId === currentConversation.id) {
+                    displayMessage(message);
+                }
+                updateConversationPreview(message.conversationId, message.content);
+            });
+            
+            socket.on('player_status_update', (update) => {
+                updatePlayerStatus(update.playerId, update.status);
+            });
+            
+            socket.on('incoming_voice_call', (callData) => {
+                handleIncomingVoiceCall(callData);
+            });
+            
+            socket.on('voice_call_update', (callData) => {
+                updateVoiceCallStatus(callData);
+            });
+            
+            socket.on('reaction_update', (data) => {
+                updateMessageReactions(data.messageId, data.reactions);
+            });
+        }
+
+        function updateConnectionStatus(connected) {
+            const indicator = document.getElementById('connection-indicator');
+            const status = document.getElementById('connection-status');
+            
+            if (connected) {
+                indicator.classList.add('connected');
+                status.textContent = 'Connected';
+            } else {
+                indicator.classList.remove('connected');
+                status.textContent = 'Disconnected';
+            }
+        }
+
+        async function loadPlayers() {
+            try {
+                const response = await fetch(`${API_BASE}/players`);
+                const data = await response.json();
+                
+                displayPlayers(data.players);
+                updatePlayerCounts(data.online, data.total);
+                
+            } catch (error) {
+                console.error('Failed to load players:', error);
+                document.getElementById('player-list').innerHTML = 
+                    '<div class="error">Failed to load players</div>';
+            }
+        }
+
+        function displayPlayers(players) {
+            const container = document.getElementById('player-list');
+            
+            if (players.length === 0) {
+                container.innerHTML = '<div class="loading">No players online</div>';
+                return;
+            }
+            
+            const html = players.map(player => `
+                <div class="player-item" onclick="startDirectMessage('${player.id}')">
+                    <div class="player-status status-${player.status}"></div>
+                    <div class="player-info">
+                        <div class="player-name">${player.name}</div>
+                        <div class="player-civ">${player.civilization}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function updatePlayerCounts(online, total) {
+            document.getElementById('online-count').textContent = online;
+            document.getElementById('total-players').textContent = total;
+        }
+
+        async function loadConversations() {
+            try {
+                const response = await fetch(`${API_BASE}/conversations/${currentPlayer}`);
+                const data = await response.json();
+                
+                displayConversations(data.conversations);
+                
+            } catch (error) {
+                console.error('Failed to load conversations:', error);
+                document.getElementById('conversation-list').innerHTML = 
+                    '<div class="error">Failed to load conversations</div>';
+            }
+        }
+
+        function displayConversations(conversations) {
+            const container = document.getElementById('conversation-list');
+            
+            if (conversations.length === 0) {
+                container.innerHTML = '<div class="loading">No conversations yet</div>';
+                return;
+            }
+            
+            const html = conversations.map(conv => `
+                <div class="conversation-item ${currentConversation?.id === conv.id ? 'active' : ''}" 
+                     onclick="selectConversation('${conv.id}')">
+                    <div class="conversation-name">${conv.name}</div>
+                    <div class="conversation-preview">
+                        ${conv.participantDetails.map(p => p.name).join(', ')}
+                    </div>
+                    <div class="conversation-time">
+                        ${formatTimeAgo(conv.lastActivity)}
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        async function selectConversation(conversationId) {
+            try {
+                // Find conversation data
+                const response = await fetch(`${API_BASE}/conversations/${currentPlayer}`);
+                const data = await response.json();
+                const conversation = data.conversations.find(c => c.id === conversationId);
+                
+                if (!conversation) return;
+                
+                currentConversation = conversation;
+                
+                // Update UI
+                document.getElementById('chat-title').textContent = conversation.name;
+                updateConversationSelection(conversationId);
+                
+                // Load messages
+                await loadMessages(conversationId);
+                
+            } catch (error) {
+                console.error('Failed to select conversation:', error);
+            }
+        }
+
+        function updateConversationSelection(conversationId) {
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const selectedItem = document.querySelector(`[onclick="selectConversation('${conversationId}')"]`);
+            if (selectedItem) {
+                selectedItem.classList.add('active');
+            }
+        }
+
+        async function loadMessages(conversationId) {
+            try {
+                const response = await fetch(`${API_BASE}/conversations/${conversationId}/messages`);
+                const data = await response.json();
+                
+                displayMessages(data.messages);
+                
+            } catch (error) {
+                console.error('Failed to load messages:', error);
+                document.getElementById('messages-container').innerHTML = 
+                    '<div class="error">Failed to load messages</div>';
+            }
+        }
+
+        function displayMessages(messages) {
+            const container = document.getElementById('messages-container');
+            
+            if (messages.length === 0) {
+                container.innerHTML = '<div class="loading">No messages yet. Start the conversation!</div>';
+                return;
+            }
+            
+            const html = messages.map(message => createMessageHTML(message)).join('');
+            container.innerHTML = html;
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function createMessageHTML(message) {
+            const isOwn = message.senderId === currentPlayer;
+            const sender = message.senderDetails || { name: 'Unknown', id: message.senderId };
+            
+            let contentHTML = `<div class="message-text">${message.content}</div>`;
+            
+            if (message.type === 'voice') {
+                contentHTML = `
+                    <div class="voice-controls">
+                        <button class="play-btn" onclick="playVoiceMessage('${message.id}')">▶️</button>
+                        <span class="voice-duration">${message.duration || 0}s</span>
+                    </div>
+                    ${message.transcription ? `<div class="transcription">"${message.transcription}"</div>` : ''}
+                `;
+            }
+            
+            const reactionsHTML = message.reactions && message.reactions.length > 0 ? 
+                `<div class="message-reactions">
+                    ${message.reactions.map(reaction => 
+                        `<span class="reaction" onclick="toggleReaction('${message.id}', '${reaction.emoji}')">${reaction.emoji}</span>`
+                    ).join('')}
+                </div>` : '';
+            
+            return `
+                <div class="message ${isOwn ? 'own' : ''} ${message.type === 'voice' ? 'voice' : ''}">
+                    ${!isOwn ? `<div class="message-avatar">${sender.name.charAt(0)}</div>` : ''}
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">${sender.name}</span>
+                            <span class="message-time">${formatTimeAgo(message.timestamp)}</span>
+                        </div>
+                        ${contentHTML}
+                        ${reactionsHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayMessage(message) {
+            const container = document.getElementById('messages-container');
+            const messageHTML = createMessageHTML(message);
+            container.insertAdjacentHTML('beforeend', messageHTML);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const content = input.value.trim();
+            
+            if (!content || !currentConversation) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        conversationId: currentConversation.id,
+                        senderId: currentPlayer,
+                        type: 'text',
+                        content
+                    })
+                });
+                
+                if (response.ok) {
+                    input.value = '';
+                    input.style.height = 'auto';
+                } else {
+                    throw new Error('Failed to send message');
+                }
+                
+            } catch (error) {
+                console.error('Failed to send message:', error);
+                alert('Failed to send message. Please try again.');
+            }
+        }
+
+        async function toggleVoiceRecording() {
+            const btn = document.getElementById('voice-btn');
+            
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+                    
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        await processVoiceMessage(audioBlob);
+                        
+                        // Stop all tracks
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecording = true;
+                    btn.classList.add('recording');
+                    btn.textContent = '⏹️';
+                    
+                } catch (error) {
+                    console.error('Failed to start recording:', error);
+                    alert('Failed to access microphone. Please check permissions.');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                btn.classList.remove('recording');
+                btn.textContent = '🎤';
+            }
+        }
+
+        async function processVoiceMessage(audioBlob) {
+            try {
+                // Convert to base64 for demo
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    const base64Audio = reader.result.split(',')[1];
+                    
+                    // Get transcription
+                    const sttResponse = await fetch(`${API_BASE.replace('/communication', '')}/stt`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ audioData: base64Audio })
+                    });
+                    
+                    const sttData = await sttResponse.json();
+                    
+                    // Send voice message
+                    const response = await fetch(`${API_BASE}/messages`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            conversationId: currentConversation.id,
+                            senderId: currentPlayer,
+                            type: 'voice',
+                            content: `Voice message: ${sttData.transcription}`,
+                            audioData: {
+                                duration: sttData.duration || 3.5,
+                                transcription: sttData.transcription
+                            }
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to send voice message');
+                    }
+                };
+                
+                reader.readAsDataURL(audioBlob);
+                
+            } catch (error) {
+                console.error('Failed to process voice message:', error);
+                alert('Failed to send voice message. Please try again.');
+            }
+        }
+
+        function playVoiceMessage(messageId) {
+            // Simulate playing voice message
+            alert(`Playing voice message ${messageId} (Demo: Audio playback not implemented)`);
+        }
+
+        function toggleReaction(messageId, emoji) {
+            if (socket) {
+                socket.emit('add_reaction', {
+                    messageId,
+                    playerId: currentPlayer,
+                    emoji
+                });
+            }
+        }
+
+        function startVoiceCall() {
+            if (!currentConversation) {
+                alert('Please select a conversation first');
+                return;
+            }
+            
+            if (socket) {
+                socket.emit('start_voice_call', {
+                    conversationId: currentConversation.id,
+                    callerId: currentPlayer
+                });
+                
+                alert('Voice call started! (Demo: WebRTC implementation not included)');
+            }
+        }
+
+        function handleIncomingVoiceCall(callData) {
+            const accept = confirm(`Incoming voice call from conversation: ${currentConversation?.name || 'Unknown'}. Accept?`);
+            
+            if (accept && socket) {
+                socket.emit('join_voice_call', {
+                    callId: callData.callId,
+                    playerId: currentPlayer
+                });
+            }
+        }
+
+        async function startDirectMessage(playerId) {
+            if (playerId === currentPlayer) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/conversations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'direct',
+                        participants: [currentPlayer, playerId],
+                        creatorId: currentPlayer
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    await loadConversations();
+                    selectConversation(result.conversation.id);
+                } else {
+                    throw new Error('Failed to create conversation');
+                }
+                
+            } catch (error) {
+                console.error('Failed to start direct message:', error);
+                alert('Failed to start conversation. Please try again.');
+            }
+        }
+
+        function createNewConversation() {
+            const name = prompt('Enter conversation name:');
+            if (!name) return;
+            
+            // For demo, create a group with random players
+            const participants = [currentPlayer, 'player_2', 'player_4'];
+            
+            fetch(`${API_BASE}/conversations`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'group',
+                    participants,
+                    name,
+                    creatorId: currentPlayer
+                })
+            }).then(response => {
+                if (response.ok) {
+                    loadConversations();
+                } else {
+                    throw new Error('Failed to create conversation');
+                }
+            }).catch(error => {
+                console.error('Failed to create conversation:', error);
+                alert('Failed to create conversation. Please try again.');
+            });
+        }
+
+        function formatTimeAgo(timestamp) {
+            const now = new Date();
+            const time = new Date(timestamp);
+            const diffMs = now.getTime() - time.getTime();
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'now';
+            if (diffMins < 60) return `${diffMins}m`;
+            if (diffHours < 24) return `${diffHours}h`;
+            return `${diffDays}d`;
+        }
+
+        function updatePlayerStatus(playerId, status) {
+            // Update player status in the UI
+            const playerItems = document.querySelectorAll('.player-item');
+            playerItems.forEach(item => {
+                if (item.onclick.toString().includes(playerId)) {
+                    const statusIndicator = item.querySelector('.player-status');
+                    statusIndicator.className = `player-status status-${status}`;
+                }
+            });
+        }
+
+        function updateConversationPreview(conversationId, content) {
+            // Update conversation preview with latest message
+            const convItems = document.querySelectorAll('.conversation-item');
+            convItems.forEach(item => {
+                if (item.onclick.toString().includes(conversationId)) {
+                    const preview = item.querySelector('.conversation-preview');
+                    if (preview) {
+                        preview.textContent = content.substring(0, 50) + (content.length > 50 ? '...' : '');
+                    }
+                }
+            });
+        }
+
+        function updateMessageReactions(messageId, reactions) {
+            // Update message reactions in real-time
+            const messageElements = document.querySelectorAll('.message');
+            messageElements.forEach(msgEl => {
+                const reactionsContainer = msgEl.querySelector('.message-reactions');
+                if (reactionsContainer) {
+                    const html = reactions.map(reaction => 
+                        `<span class="reaction" onclick="toggleReaction('${messageId}', '${reaction.emoji}')">${reaction.emoji}</span>`
+                    ).join('');
+                    reactionsContainer.innerHTML = html;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,87 @@
+# Task ID: 1
+# Title: Character & Civilization Memory Enhancement
+# Status: in-progress
+# Dependencies: None
+# Priority: high
+# Description: Implement comprehensive memory systems for characters and civilizations including database schema, individual character vector collections, civilization memory system, privacy-aware conversation classification, and migration services.
+# Details:
+- Database Schema: Create PostgreSQL tables for complete Witter feed (posts, comments, interactions) with perfect recall
+- Individual Character Vector Collections: Separate Qdrant collections for each character's personal memory of their own posts and conversations
+- Civilization Memory System: Civilization-wide vector collections for shared events, leader speeches, AI analysis, galactic news
+- Privacy-Aware Conversation Classification: Store character-player conversations, protect player-player communications
+- Migration Service: Move existing gameState Witter posts to database + populate character and civilization vector memories
+- Character Personal Memory: Characters remember and can semantically search their own posts and conversations
+- Civilization Shared Memory: Store leader speeches, major events, intelligence reports, news for simulation context
+- Integrated APIs: Database APIs for global data, vector APIs for personal/civilization memory and context
+- Enhanced AI Responses: Characters and systems use appropriate memory context for realistic, consistent behavior
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Database Schema Design & Implementation [pending]
+### Dependencies: None
+### Description: Create PostgreSQL schema for Witter posts, comments, interactions with perfect recall
+### Details:
+- Design witter_posts table (id, character_id, content, timestamp, metadata)
+- Design witter_comments table (id, post_id, character_id, content, timestamp)
+- Design witter_interactions table (id, post_id, character_id, interaction_type, timestamp)
+- Create migration scripts for schema deployment
+- Add indexes for performance optimization
+- Implement database connection and basic CRUD operations
+
+## 2. Character Vector Memory System [pending]
+### Dependencies: 1.1
+### Description: Implement individual Qdrant vector collections for each character's personal memory
+### Details:
+- Design character-specific collection naming scheme (character_memory_{character_id})
+- Implement collection creation and management
+- Create vector embedding service for character posts and conversations
+- Implement semantic search capabilities for character memory
+- Add metadata filtering for conversation types and timestamps
+- Create character memory retrieval APIs
+
+## 3. Civilization Memory System [pending]
+### Dependencies: 1.1
+### Description: Implement civilization-wide vector collections for shared events and intelligence
+### Details:
+- Design civilization memory collection schema (civilization_memory_{civ_id})
+- Implement storage for leader speeches, major events, AI analysis outputs
+- Create intelligence report storage and retrieval system
+- Implement galactic news and event memory
+- Add temporal indexing for historical context
+- Create civilization memory search and context APIs
+
+## 4. Privacy-Aware Conversation System [pending]
+### Dependencies: 1.2, 1.3
+### Description: Implement privacy-aware conversation classification and storage
+### Details:
+- Create conversation type classification (character-player, player-player, alliance, party)
+- Implement privacy rules: store character-player, protect player-player/alliance/party
+- Design conversation metadata schema with privacy flags
+- Create conversation filtering and access control
+- Implement automatic conversation categorization
+- Add privacy validation and enforcement
+
+## 5. Data Migration Service [pending]
+### Dependencies: 1.4
+### Description: Create migration service to move existing Witter data to new system
+### Details:
+- Analyze existing gameState Witter posts structure
+- Create migration script to transfer posts to PostgreSQL
+- Populate character vector collections with existing posts
+- Migrate conversation history to new privacy-aware system
+- Validate data integrity after migration
+- Create rollback procedures for safety
+
+## 6. API Integration & Endpoints [pending]
+### Dependencies: 1.5
+### Description: Create comprehensive API integration for memory systems
+### Details:
+- Design REST API endpoints for Witter database operations
+- Create character memory API endpoints for vector search
+- Implement civilization memory API for shared context
+- Add conversation storage and retrieval APIs
+- Create memory context APIs for AI system integration
+- Implement real-time memory updates and notifications
+

@@ -1,0 +1,138 @@
+version: '3.9'
+services:
+  ui:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ui
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../src:/app/src
+      - ../vite.config.ts:/app/vite.config.ts
+      - ../tsconfig.json:/app/tsconfig.json
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://api:4000
+    depends_on:
+      - api
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - DATABASE_URL=postgres://gtw:gtw@postgres:5432/gtw
+      - DEMO_START=1
+      - PORT=4000
+    # Override default command to run demo on correct port
+    command: ["node", "--experimental-specifier-resolution=node", "dist/src/demo/sprint4-demo.js"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      nats:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  narrative:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app/dist/src
+    command: ["node", "--experimental-specifier-resolution=node", "demo/index.js"]
+    environment:
+      - NODE_ENV=production
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - DATABASE_URL=postgres://gtw:gtw@postgres:5432/gtw
+      - DEMO_START=1
+    depends_on:
+      ollama:
+        condition: service_started
+      nats:
+        condition: service_started
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    # Temporary port mapping for embedding service testing
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant:/qdrant/storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  nats:
+    image: nats:2
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8222/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  postgres:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=gtw
+      - POSTGRES_PASSWORD=gtw
+      - POSTGRES_DB=gtw
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gtw"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  ollama:
+  qdrant:
+  pgdata:
+
+

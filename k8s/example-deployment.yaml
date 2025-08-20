@@ -1,0 +1,495 @@
+# Example Kubernetes Deployment for Startales
+# This shows how your current Docker Compose services would look in Kubernetes
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: startales
+---
+# API Gateway Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: startales
+  labels:
+    app: api-gateway
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+        tier: frontend
+    spec:
+      containers:
+      - name: api-gateway
+        image: startales/api-gateway:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: REDIS_URL
+          value: "redis://redis-service:6379"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: startales-secrets
+              key: jwt-secret
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+# API Gateway Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway-service
+  namespace: startales
+spec:
+  selector:
+    app: api-gateway
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
+  type: ClusterIP
+---
+# Auto-scaling for API Gateway
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-gateway-hpa
+  namespace: startales
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-gateway
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+---
+# Realtime Gateway Deployment (WebSocket)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realtime-gateway
+  namespace: startales
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: realtime-gateway
+  template:
+    metadata:
+      labels:
+        app: realtime-gateway
+        tier: realtime
+    spec:
+      containers:
+      - name: realtime-gateway
+        image: startales/realtime-gateway:latest
+        ports:
+        - containerPort: 3001
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: REDIS_URL
+          value: "redis://redis-service:6379"
+        - name: NATS_URL
+          value: "nats://nats-service:4222"
+        - name: MAX_CONNECTIONS
+          value: "2000"  # Per pod limit
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+# Realtime Gateway Service (with Session Affinity)
+apiVersion: v1
+kind: Service
+metadata:
+  name: realtime-gateway-service
+  namespace: startales
+spec:
+  selector:
+    app: realtime-gateway
+  ports:
+  - protocol: TCP
+    port: 3001
+    targetPort: 3001
+  sessionAffinity: ClientIP  # Important for WebSocket connections
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800  # 3 hours
+---
+# Simulation Engine Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simulation-engine
+  namespace: startales
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: simulation-engine
+  template:
+    metadata:
+      labels:
+        app: simulation-engine
+        tier: compute
+    spec:
+      containers:
+      - name: simulation-engine
+        image: startales/simulation-engine:latest
+        ports:
+        - containerPort: 3003
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: startales-secrets
+              key: database-url
+        - name: TICK_INTERVAL
+          value: "1000"
+        - name: MAX_PLAYERS_PER_INSTANCE
+          value: "200"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 60
+          periodSeconds: 30
+---
+# Custom Metrics for Player-based Scaling
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: simulation-engine-hpa
+  namespace: startales
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: simulation-engine
+  minReplicas: 3
+  maxReplicas: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Pods
+    pods:
+      metric:
+        name: active_players_per_pod
+      target:
+        type: AverageValue
+        averageValue: "150"  # Scale when >150 players per pod
+---
+# Redis Deployment (StatefulSet for persistence)
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: startales
+spec:
+  serviceName: redis-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+        tier: cache
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        command:
+        - redis-server
+        - --appendonly
+        - "yes"
+        - --maxmemory
+        - "2gb"
+        - --maxmemory-policy
+        - "allkeys-lru"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Gi
+---
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: startales
+spec:
+  selector:
+    app: redis
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379
+  clusterIP: None  # Headless service for StatefulSet
+---
+# PostgreSQL StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: startales
+spec:
+  serviceName: postgres-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+        tier: database
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: "startales"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: startales-secrets
+              key: postgres-password
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - postgres
+          initialDelaySeconds: 30
+          periodSeconds: 10
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 100Gi
+---
+# Secrets
+apiVersion: v1
+kind: Secret
+metadata:
+  name: startales-secrets
+  namespace: startales
+type: Opaque
+data:
+  jwt-secret: <base64-encoded-jwt-secret>
+  postgres-password: <base64-encoded-postgres-password>
+  database-url: <base64-encoded-database-url>
+  openai-api-key: <base64-encoded-openai-key>
+  anthropic-api-key: <base64-encoded-anthropic-key>
+---
+# ConfigMap for application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: startales-config
+  namespace: startales
+data:
+  redis.conf: |
+    maxmemory 2gb
+    maxmemory-policy allkeys-lru
+    appendonly yes
+  app.conf: |
+    RATE_LIMIT_WINDOW=900000
+    RATE_LIMIT_MAX=1000
+    LOG_LEVEL=info
+---
+# Ingress for external access
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: startales-ingress
+  namespace: startales
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rate-limit: "1000"
+    nginx.ingress.kubernetes.io/websocket-services: "realtime-gateway-service"
+spec:
+  tls:
+  - hosts:
+    - startales.com
+    - api.startales.com
+    - ws.startales.com
+    secretName: startales-tls
+  rules:
+  - host: startales.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway-service
+            port:
+              number: 80
+  - host: api.startales.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway-service
+            port:
+              number: 80
+  - host: ws.startales.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: realtime-gateway-service
+            port:
+              number: 3001
+---
+# Network Policy for security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: startales-network-policy
+  namespace: startales
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+  - from:
+    - podSelector: {}
+  egress:
+  - to:
+    - podSelector: {}
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80

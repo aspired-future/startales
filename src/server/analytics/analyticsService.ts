@@ -307,14 +307,31 @@ export class AnalyticsService {
   private calculateEconomicMetrics(economicData: any): any {
     const gdpPerCapita = economicData.totalPopulation > 0 ? economicData.gdpTotal / economicData.totalPopulation : 0;
     
+    // Enhanced inflation calculation using multiple factors
+    const baseInflation = Math.max(0, 5 - (economicData.householdStatus.economic_health_score * 0.05));
+    const demandPressure = economicData.gdpTotal > 1000000 ? 0.5 : 0; // High GDP creates demand pressure
+    const supplyConstraints = economicData.tradeVolume < 50000 ? 0.3 : 0; // Low trade suggests supply issues
+    const monetaryFactor = Math.random() * 0.4 - 0.2; // Random monetary policy effect
+    
+    const enhancedInflation = Math.max(0, Math.min(10, baseInflation + demandPressure + supplyConstraints + monetaryFactor));
+    
     return {
       gdp_total: economicData.gdpTotal,
       gdp_per_capita: gdpPerCapita,
       gini_coefficient: economicData.householdStatus.gini_coefficient,
       unemployment_rate: Math.max(0, 15 - (economicData.householdStatus.economic_health_score * 0.15)),
-      inflation_rate: Math.max(0, 5 - (economicData.householdStatus.economic_health_score * 0.05)),
+      inflation_rate: enhancedInflation,
+      core_inflation_rate: enhancedInflation * 0.8, // Core inflation typically lower
+      food_inflation_rate: enhancedInflation * 1.2, // Food inflation typically higher
+      energy_inflation_rate: enhancedInflation * 1.5, // Energy inflation most volatile
       trade_volume: economicData.tradeVolume,
-      resource_abundance_index: 75 // Mock value
+      resource_abundance_index: 75, // Mock value
+      
+      // Additional inflation-related metrics
+      wage_growth_rate: Math.max(0, enhancedInflation * 0.7), // Wages typically lag inflation
+      productivity_growth_rate: Math.max(0, 3 - enhancedInflation * 0.3), // Productivity inversely related to inflation
+      consumer_confidence: Math.max(0, 100 - enhancedInflation * 10), // Confidence decreases with inflation
+      inflation_expectations: enhancedInflation + (Math.random() * 0.4 - 0.2) // Expectations with some noise
     };
   }
 

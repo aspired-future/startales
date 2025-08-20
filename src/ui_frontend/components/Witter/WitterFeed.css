@@ -1,0 +1,228 @@
+/* Witter Feed Styles */
+.witter-feed {
+  width: 320px;
+  height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 1000;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, width 0.3s ease;
+}
+
+.witter-feed.collapsed {
+  width: 60px;
+  transform: translateX(260px);
+}
+
+.witter-feed.collapsed .witter-content {
+  display: none;
+}
+
+/* Header Styles */
+.witter-header {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(10px);
+}
+
+.witter-header h2 {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.witter-header .logo {
+  font-size: 24px;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.witter-header .controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.connection-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  transition: background-color 0.3s ease;
+}
+
+.connection-status.connected {
+  background: #10b981;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Content Area */
+.witter-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.witter-list {
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.witter-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.witter-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.witter-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.witter-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Error State */
+.witter-error {
+  padding: 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  margin: 16px;
+  text-align: center;
+}
+
+.witter-error p {
+  color: #fca5a5;
+  margin: 0 0 12px 0;
+  font-size: 14px;
+}
+
+.witter-error button {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.witter-error button:hover {
+  background: #dc2626;
+}
+
+/* Loading State */
+.witter-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid #4ecdc4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.witter-loading p {
+  margin: 0;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Empty State */
+.witter-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+.witter-empty p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.witter-empty p:first-child {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .witter-feed {
+    width: 280px;
+  }
+  
+  .witter-feed.collapsed {
+    transform: translateX(220px);
+  }
+}
+
+@media (max-width: 768px) {
+  .witter-feed {
+    width: 100vw;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .witter-feed:not(.collapsed) {
+    transform: translateX(0);
+  }
+  
+  .witter-feed.collapsed {
+    transform: translateX(100%);
+  }
+}

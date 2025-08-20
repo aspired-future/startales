@@ -1,0 +1,634 @@
+# Microservices Docker Compose Configuration
+# Scalable architecture supporting 50-10,000 players
+version: '3.8'
+
+networks:
+  startales-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
+  prometheus-data:
+  grafana-data:
+  nats-data:
+
+services:
+  # Load Balancer / Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - api-gateway
+    networks:
+      - startales-network
+    restart: unless-stopped
+
+  # API Gateway Service
+  api-gateway:
+    build:
+      context: .
+      dockerfile: docker/services/api-gateway/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - RATE_LIMIT_WINDOW=900000
+      - RATE_LIMIT_MAX=1000
+    depends_on:
+      - redis
+      - consul
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Realtime Gateway Service (WebSocket)
+  realtime-gateway:
+    build:
+      context: .
+      dockerfile: docker/services/realtime-gateway/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - REDIS_URL=redis://redis:6379
+      - NATS_URL=nats://nats:4222
+      - MAX_CONNECTIONS=10000
+      - HEARTBEAT_INTERVAL=30000
+    depends_on:
+      - redis
+      - nats
+      - consul
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      replicas: 5
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '1.0'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Campaign Service
+  campaign-service:
+    build:
+      context: .
+      dockerfile: docker/services/campaign/Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/startales_campaigns
+      - REDIS_URL=redis://redis:6379
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - postgres
+      - redis
+      - nats
+      - consul
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Simulation Engine Service
+  simulation-engine:
+    build:
+      context: .
+      dockerfile: docker/services/simulation/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/startales_simulation
+      - REDIS_URL=redis://redis:6379
+      - NATS_URL=nats://nats:4222
+      - TICK_INTERVAL=1000
+      - MAX_PLAYERS_PER_INSTANCE=200
+    depends_on:
+      - postgres
+      - redis
+      - nats
+      - consul
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      replicas: 10
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Provider Adapter Service
+  provider-adapter:
+    build:
+      context: .
+      dockerfile: docker/services/provider-adapter/Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+      - REDIS_URL=redis://redis:6379
+      - NATS_URL=nats://nats:4222
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - CACHE_TTL=3600
+      - MAX_CONCURRENT_REQUESTS=100
+    depends_on:
+      - redis
+      - nats
+      - consul
+      - ollama
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      replicas: 5
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Analytics Service
+  analytics-service:
+    build:
+      context: .
+      dockerfile: docker/services/analytics/Dockerfile
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/startales_analytics
+      - CLICKHOUSE_URL=http://clickhouse:8123
+      - REDIS_URL=redis://redis:6379
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - postgres
+      - clickhouse
+      - redis
+      - nats
+      - consul
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Content Service
+  content-service:
+    build:
+      context: .
+      dockerfile: docker/services/content/Dockerfile
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=production
+      - PORT=3006
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - REDIS_URL=redis://redis:6379
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - minio
+      - redis
+      - nats
+      - consul
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Notification Service
+  notification-service:
+    build:
+      context: .
+      dockerfile: docker/services/notification/Dockerfile
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=production
+      - PORT=3007
+      - REDIS_URL=redis://redis:6379
+      - NATS_URL=nats://nats:4222
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+    depends_on:
+      - redis
+      - nats
+      - consul
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Database Services
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=startales
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_MULTIPLE_DATABASES=startales_campaigns,startales_simulation,startales_analytics
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+    ports:
+      - "5432:5432"
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ClickHouse for Analytics
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    environment:
+      - CLICKHOUSE_DB=analytics
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+    volumes:
+      - ./docker/clickhouse/config.xml:/etc/clickhouse-server/config.xml
+      - ./docker/clickhouse/users.xml:/etc/clickhouse-server/users.xml
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+
+  # Redis for Caching and Sessions
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # NATS for Message Queue
+  nats:
+    image: nats:alpine
+    command: 
+      - "--jetstream"
+      - "--store_dir=/data"
+      - "--max_memory_store=1GB"
+      - "--max_file_store=10GB"
+    volumes:
+      - nats-data:/data
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8222/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MinIO for Object Storage
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Ollama for Local LLM
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ./docker/ollama/models:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+
+  # Service Discovery
+  consul:
+    image: consul:latest
+    command: agent -server -bootstrap-expect=1 -ui -bind=0.0.0.0 -client=0.0.0.0
+    ports:
+      - "8500:8500"
+      - "8600:8600"
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8500/v1/status/leader"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring Services
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Log Aggregation
+  loki:
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./docker/loki/loki-config.yml:/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  promtail:
+    image: grafana/promtail:latest
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./docker/promtail/promtail-config.yml:/etc/promtail/config.yml
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    depends_on:
+      - loki
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+  # Distributed Tracing
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+      - "14250:14250"
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M

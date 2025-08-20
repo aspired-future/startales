@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI-Powered Policy Management System</title>
+    <style>
+      body { font-family: system-ui, sans-serif; padding: 20px; background: #0a0a0a; color: #e0e0e0; margin: 0; }
+      .container { max-width: 1400px; margin: 0 auto; }
+      .header { text-align: center; margin-bottom: 30px; }
+      .main-grid { display: grid; grid-template-columns: 350px 1fr 350px; gap: 20px; margin-bottom: 20px; }
+      .panel { background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333; }
+      .policy-categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0; }
+      .category-card { background: #0a0a0a; padding: 12px; border-radius: 6px; border: 1px solid #333; text-align: center; cursor: pointer; transition: all 0.3s; }
+      .category-card:hover { border-color: #4ecdc4; background: #1a2a2a; }
+      .category-card.selected { border-color: #4ecdc4; background: #1a2a2a; }
+      .category-icon { font-size: 1.5em; margin-bottom: 5px; }
+      .category-name { font-size: 0.9em; font-weight: bold; }
+      .policy-list { max-height: 400px; overflow-y: auto; }
+      .policy-item { background: #0a0a0a; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; cursor: pointer; transition: all 0.3s; }
+      .policy-item:hover { border-color: #4ecdc4; background: #1a2a2a; }
+      .policy-item.active { border-color: #4ecdc4; background: #1a2a2a; }
+      .policy-title { font-weight: bold; margin-bottom: 5px; }
+      .policy-status { font-size: 0.8em; opacity: 0.7; }
+      .policy-impact { font-size: 0.8em; color: #4ecdc4; }
+      .creation-area { display: flex; flex-direction: column; gap: 15px; }
+      .ai-suggestions { background: #2c3e50; padding: 15px; border-radius: 6px; margin: 15px 0; }
+      .suggestion-item { background: #34495e; padding: 10px; margin: 8px 0; border-radius: 5px; cursor: pointer; transition: all 0.3s; }
+      .suggestion-item:hover { background: #3c5a78; }
+      .impact-preview { background: #0a0a0a; padding: 15px; border-radius: 6px; border: 1px solid #333; }
+      .impact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 10px 0; }
+      .impact-item { background: #1a1a1a; padding: 10px; border-radius: 5px; text-align: center; border: 1px solid #333; }
+      .impact-value { font-size: 1.2em; font-weight: bold; color: #4ecdc4; }
+      .impact-label { font-size: 0.8em; opacity: 0.8; }
+      .positive { color: #27ae60; }
+      .negative { color: #e74c3c; }
+      .neutral { color: #f39c12; }
+      input, textarea, select, button { padding: 12px; margin: 5px; border: 1px solid #333; border-radius: 6px; background: #1a1a1a; color: #e0e0e0; font-size: 14px; }
+      button { background: #4ecdc4; color: #0a0a0a; cursor: pointer; font-weight: bold; border: none; transition: background 0.3s; }
+      button:hover { background: #44a08d; }
+      button:disabled { background: #333; color: #666; cursor: not-allowed; }
+      .primary-btn { background: #e74c3c; }
+      .primary-btn:hover { background: #c0392b; }
+      .ai-btn { background: #9b59b6; }
+      .ai-btn:hover { background: #8e44ad; }
+      textarea { width: 100%; min-height: 100px; resize: vertical; font-family: inherit; }
+      .policy-editor { display: flex; flex-direction: column; gap: 10px; }
+      .editor-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+      .status-indicator { padding: 5px 10px; border-radius: 15px; font-size: 0.8em; }
+      .status-draft { background: #f39c12; }
+      .status-active { background: #27ae60; }
+      .status-inactive { background: #7f8c8d; }
+      .status-pending { background: #3498db; }
+      h1, h2, h3 { color: #4ecdc4; margin-top: 0; }
+      .advisor-panel { max-height: 300px; overflow-y: auto; }
+      .advisor-message { background: #2c3e50; padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 3px solid #4ecdc4; }
+      .advisor-meta { font-size: 0.8em; opacity: 0.7; margin-bottom: 5px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🏛️ AI-Powered Policy Management System</h1>
+        <p>Create, analyze, and implement policies with AI-driven insights and real-time impact analysis</p>
+      </div>
+      
+      <div class="main-grid">
+        <!-- Policy Categories & List -->
+        <div class="panel">
+          <h2>📋 Policy Categories</h2>
+          <div class="policy-categories" id="categoryGrid">
+            <div class="category-card selected" data-category="all">
+              <div class="category-icon">📊</div>
+              <div class="category-name">All</div>
+            </div>
+            <div class="category-card" data-category="economy">
+              <div class="category-icon">💰</div>
+              <div class="category-name">Economy</div>
+            </div>
+            <div class="category-card" data-category="science">
+              <div class="category-icon">🔬</div>
+              <div class="category-name">Science</div>
+            </div>
+            <div class="category-card" data-category="military">
+              <div class="category-icon">⚔️</div>
+              <div class="category-name">Military</div>
+            </div>
+            <div class="category-card" data-category="social">
+              <div class="category-icon">👥</div>
+              <div class="category-name">Social</div>
+            </div>
+            <div class="category-card" data-category="environment">
+              <div class="category-icon">🌍</div>
+              <div class="category-name">Environment</div>
+            </div>
+          </div>
+          
+          <h3>Active Policies</h3>
+          <div class="policy-list" id="policyList">
+            <div class="policy-item active" data-policy="tax-reform">
+              <div class="policy-title">Progressive Tax Reform</div>
+              <div class="policy-status">Status: <span class="status-indicator status-active">Active</span></div>
+              <div class="policy-impact">Impact: +15% Revenue, -5% Approval</div>
+            </div>
+            <div class="policy-item" data-policy="research-boost">
+              <div class="policy-title">Research Funding Initiative</div>
+              <div class="policy-status">Status: <span class="status-indicator status-pending">Pending</span></div>
+              <div class="policy-impact">Impact: +25% Research, -10% Budget</div>
+            </div>
+            <div class="policy-item" data-policy="trade-agreement">
+              <div class="policy-title">Interstellar Trade Agreement</div>
+              <div class="policy-status">Status: <span class="status-indicator status-draft">Draft</span></div>
+              <div class="policy-impact">Impact: +20% Trade, +5% Diplomacy</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Policy Creation & Editing -->
+        <div class="panel">
+          <h2>✏️ Policy Editor</h2>
+          <div class="policy-editor">
+            <div class="editor-controls">
+              <select id="policyCategory">
+                <option value="economy">💰 Economy</option>
+                <option value="science">🔬 Science</option>
+                <option value="military">⚔️ Military</option>
+                <option value="social">👥 Social</option>
+                <option value="environment">🌍 Environment</option>
+                <option value="diplomacy">🤝 Diplomacy</option>
+              </select>
+              <select id="policyScope">
+                <option value="local">Local</option>
+                <option value="planetary">Planetary</option>
+                <option value="system">Star System</option>
+                <option value="galactic">Galactic</option>
+              </select>
+              <button class="ai-btn" id="aiGenerateBtn">🤖 AI Generate</button>
+              <button id="analyzeBtn">📊 Analyze Impact</button>
+            </div>
+            
+            <input type="text" id="policyTitle" placeholder="Policy Title..." />
+            <textarea id="policyDescription" placeholder="Describe your policy goals and implementation details..."></textarea>
+            
+            <div class="ai-suggestions" id="aiSuggestions" style="display: none;">
+              <h3>🤖 AI Suggestions</h3>
+              <div id="suggestionsList"></div>
+            </div>
+            
+            <div class="editor-controls">
+              <button class="primary-btn" id="createPolicyBtn">📝 Create Policy</button>
+              <button id="saveDraftBtn">💾 Save Draft</button>
+              <button id="previewBtn">👁️ Preview</button>
+            </div>
+          </div>
+          
+          <div class="impact-preview" id="impactPreview">
+            <h3>📈 Impact Analysis</h3>
+            <div class="impact-grid">
+              <div class="impact-item">
+                <div class="impact-value" id="economyImpact">+0%</div>
+                <div class="impact-label">Economy</div>
+              </div>
+              <div class="impact-item">
+                <div class="impact-value" id="approvalImpact">+0%</div>
+                <div class="impact-label">Approval</div>
+              </div>
+              <div class="impact-item">
+                <div class="impact-value" id="stabilityImpact">+0%</div>
+                <div class="impact-label">Stability</div>
+              </div>
+              <div class="impact-item">
+                <div class="impact-value" id="researchImpact">+0%</div>
+                <div class="impact-label">Research</div>
+              </div>
+            </div>
+            <div id="detailedAnalysis" style="margin-top: 15px; padding: 10px; background: #2c3e50; border-radius: 5px;">
+              <p>Select a policy or create a new one to see detailed impact analysis.</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- AI Advisors Panel -->
+        <div class="panel">
+          <h2>🎯 AI Policy Advisors</h2>
+          
+          <div style="margin-bottom: 15px;">
+            <select id="advisorType">
+              <option value="economic">💰 Economic Advisor</option>
+              <option value="science">🔬 Science Advisor</option>
+              <option value="military">⚔️ Military Advisor</option>
+              <option value="diplomatic">🤝 Diplomatic Advisor</option>
+              <option value="social">👥 Social Advisor</option>
+              <option value="environmental">🌍 Environmental Advisor</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <input type="text" id="advisorQuery" placeholder="Ask your advisor a question..." style="width: 100%;" />
+            <button id="askAdvisorBtn" style="width: 100%; margin-top: 5px;">💬 Ask Advisor</button>
+          </div>
+          
+          <div class="advisor-panel" id="advisorPanel">
+            <div class="advisor-message">
+              <div class="advisor-meta">Economic Advisor • System Ready</div>
+              <div>Welcome! I'm here to help you analyze economic policies and their potential impacts on your civilization. What would you like to discuss?</div>
+            </div>
+            <div class="advisor-message">
+              <div class="advisor-meta">Science Advisor • System Ready</div>
+              <div>Greetings! I can assist with research policies, technology development strategies, and scientific resource allocation. How can I help?</div>
+            </div>
+            <div class="advisor-message">
+              <div class="advisor-meta">Military Advisor • System Ready</div>
+              <div>Ready for duty! I'm prepared to advise on defense policies, military spending, and security strategies. What's your concern?</div>
+            </div>
+          </div>
+          
+          <div style="margin-top: 20px;">
+            <h3>📊 Quick Policy Templates</h3>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              <button class="template-btn" data-template="tax-policy">📈 Tax Policy</button>
+              <button class="template-btn" data-template="research-funding">🔬 Research Funding</button>
+              <button class="template-btn" data-template="trade-agreement">🤝 Trade Agreement</button>
+              <button class="template-btn" data-template="military-budget">⚔️ Military Budget</button>
+              <button class="template-btn" data-template="social-program">👥 Social Program</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentCategory = 'all';
+      let currentPolicy = null;
+      let policies = {
+        'tax-reform': {
+          title: 'Progressive Tax Reform',
+          category: 'economy',
+          status: 'active',
+          description: 'Implement a progressive tax system that increases rates for higher income brackets while providing tax relief for lower-income citizens.',
+          impacts: { economy: 15, approval: -5, stability: 5, research: 0 }
+        },
+        'research-boost': {
+          title: 'Research Funding Initiative',
+          category: 'science',
+          status: 'pending',
+          description: 'Increase funding for scientific research by 40% with focus on quantum computing and space exploration technologies.',
+          impacts: { economy: -10, approval: 10, stability: 0, research: 25 }
+        },
+        'trade-agreement': {
+          title: 'Interstellar Trade Agreement',
+          category: 'economy',
+          status: 'draft',
+          description: 'Establish comprehensive trade agreements with neighboring star systems to boost economic growth and diplomatic relations.',
+          impacts: { economy: 20, approval: 5, stability: 10, research: 0 }
+        }
+      };
+      
+      const policyTemplates = {
+        'tax-policy': {
+          title: 'Tax Policy Reform',
+          description: 'Restructure the tax system to balance revenue generation with economic growth incentives.',
+          category: 'economy'
+        },
+        'research-funding': {
+          title: 'Scientific Research Initiative',
+          description: 'Allocate additional resources to accelerate breakthrough research in key technological areas.',
+          category: 'science'
+        },
+        'trade-agreement': {
+          title: 'Trade Partnership Agreement',
+          description: 'Establish mutually beneficial trade relationships with allied civilizations.',
+          category: 'economy'
+        },
+        'military-budget': {
+          title: 'Defense Spending Allocation',
+          description: 'Optimize military budget to ensure adequate defense while maintaining fiscal responsibility.',
+          category: 'military'
+        },
+        'social-program': {
+          title: 'Citizen Welfare Program',
+          description: 'Implement comprehensive social programs to improve quality of life for all citizens.',
+          category: 'social'
+        }
+      };
+      
+      // Category selection
+      document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          currentCategory = card.dataset.category;
+          filterPolicies();
+        });
+      });
+      
+      // Policy selection
+      document.querySelectorAll('.policy-item').forEach(item => {
+        item.addEventListener('click', () => {
+          document.querySelectorAll('.policy-item').forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+          currentPolicy = item.dataset.policy;
+          loadPolicy(currentPolicy);
+        });
+      });
+      
+      // Template buttons
+      document.querySelectorAll('.template-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const template = policyTemplates[btn.dataset.template];
+          if (template) {
+            document.getElementById('policyTitle').value = template.title;
+            document.getElementById('policyDescription').value = template.description;
+            document.getElementById('policyCategory').value = template.category;
+            analyzeImpact();
+          }
+        });
+      });
+      
+      function filterPolicies() {
+        // In a real implementation, this would filter the policy list
+        console.log('Filtering policies by category:', currentCategory);
+      }
+      
+      function loadPolicy(policyId) {
+        const policy = policies[policyId];
+        if (!policy) return;
+        
+        document.getElementById('policyTitle').value = policy.title;
+        document.getElementById('policyDescription').value = policy.description;
+        document.getElementById('policyCategory').value = policy.category;
+        
+        updateImpactDisplay(policy.impacts);
+        
+        document.getElementById('detailedAnalysis').innerHTML = `
+          <h4>Policy Analysis: ${policy.title}</h4>
+          <p><strong>Status:</strong> ${policy.status.charAt(0).toUpperCase() + policy.status.slice(1)}</p>
+          <p><strong>Category:</strong> ${policy.category.charAt(0).toUpperCase() + policy.category.slice(1)}</p>
+          <p><strong>Description:</strong> ${policy.description}</p>
+          <p><strong>Predicted Outcomes:</strong></p>
+          <ul>
+            <li>Economic Impact: ${policy.impacts.economy > 0 ? '+' : ''}${policy.impacts.economy}%</li>
+            <li>Public Approval: ${policy.impacts.approval > 0 ? '+' : ''}${policy.impacts.approval}%</li>
+            <li>Political Stability: ${policy.impacts.stability > 0 ? '+' : ''}${policy.impacts.stability}%</li>
+            <li>Research Progress: ${policy.impacts.research > 0 ? '+' : ''}${policy.impacts.research}%</li>
+          </ul>
+        `;
+      }
+      
+      function updateImpactDisplay(impacts) {
+        document.getElementById('economyImpact').textContent = (impacts.economy > 0 ? '+' : '') + impacts.economy + '%';
+        document.getElementById('economyImpact').className = 'impact-value ' + (impacts.economy > 0 ? 'positive' : impacts.economy < 0 ? 'negative' : 'neutral');
+        
+        document.getElementById('approvalImpact').textContent = (impacts.approval > 0 ? '+' : '') + impacts.approval + '%';
+        document.getElementById('approvalImpact').className = 'impact-value ' + (impacts.approval > 0 ? 'positive' : impacts.approval < 0 ? 'negative' : 'neutral');
+        
+        document.getElementById('stabilityImpact').textContent = (impacts.stability > 0 ? '+' : '') + impacts.stability + '%';
+        document.getElementById('stabilityImpact').className = 'impact-value ' + (impacts.stability > 0 ? 'positive' : impacts.stability < 0 ? 'negative' : 'neutral');
+        
+        document.getElementById('researchImpact').textContent = (impacts.research > 0 ? '+' : '') + impacts.research + '%';
+        document.getElementById('researchImpact').className = 'impact-value ' + (impacts.research > 0 ? 'positive' : impacts.research < 0 ? 'negative' : 'neutral');
+      }
+      
+      // AI Generation
+      document.getElementById('aiGenerateBtn').addEventListener('click', async () => {
+        const category = document.getElementById('policyCategory').value;
+        const scope = document.getElementById('policyScope').value;
+        
+        document.getElementById('aiSuggestions').style.display = 'block';
+        document.getElementById('suggestionsList').innerHTML = '<p>🤖 Generating AI policy suggestions...</p>';
+        
+        // Simulate AI generation
+        setTimeout(() => {
+          const suggestions = generatePolicySuggestions(category, scope);
+          displaySuggestions(suggestions);
+        }, 2000);
+      });
+      
+      function generatePolicySuggestions(category, scope) {
+        const suggestions = {
+          economy: [
+            'Implement dynamic taxation based on economic performance metrics',
+            'Create incentive programs for small business development',
+            'Establish sovereign wealth fund for long-term economic stability'
+          ],
+          science: [
+            'Launch collaborative research initiatives with allied civilizations',
+            'Establish innovation hubs in major population centers',
+            'Create fast-track approval process for breakthrough technologies'
+          ],
+          military: [
+            'Modernize defense systems with AI-enhanced capabilities',
+            'Establish joint training programs with allied forces',
+            'Implement cybersecurity protocols for critical infrastructure'
+          ],
+          social: [
+            'Expand universal basic services to all citizens',
+            'Create cultural exchange programs between star systems',
+            'Implement comprehensive education reform initiative'
+          ],
+          environment: [
+            'Mandate renewable energy transition for all colonies',
+            'Establish protected zones for endangered ecosystems',
+            'Implement carbon credit trading system across star systems'
+          ]
+        };
+        
+        return suggestions[category] || suggestions.economy;
+      }
+      
+      function displaySuggestions(suggestions) {
+        const html = suggestions.map(suggestion => 
+          `<div class="suggestion-item" onclick="applySuggestion('${suggestion}')">${suggestion}</div>`
+        ).join('');
+        
+        document.getElementById('suggestionsList').innerHTML = html;
+      }
+      
+      function applySuggestion(suggestion) {
+        const currentDesc = document.getElementById('policyDescription').value;
+        const newDesc = currentDesc ? currentDesc + '\n\n' + suggestion : suggestion;
+        document.getElementById('policyDescription').value = newDesc;
+        analyzeImpact();
+      }
+      
+      // Impact Analysis
+      document.getElementById('analyzeBtn').addEventListener('click', analyzeImpact);
+      
+      function analyzeImpact() {
+        const title = document.getElementById('policyTitle').value;
+        const description = document.getElementById('policyDescription').value;
+        const category = document.getElementById('policyCategory').value;
+        
+        if (!description.trim()) return;
+        
+        // Simulate AI impact analysis
+        const impacts = simulateImpactAnalysis(description, category);
+        updateImpactDisplay(impacts);
+        
+        document.getElementById('detailedAnalysis').innerHTML = `
+          <h4>AI Impact Analysis</h4>
+          <p><strong>Policy:</strong> ${title || 'Untitled Policy'}</p>
+          <p><strong>Analysis:</strong> This ${category} policy is predicted to have moderate positive effects on economic growth while maintaining political stability. The implementation timeline should consider current resource allocation and public sentiment.</p>
+          <p><strong>Recommendations:</strong></p>
+          <ul>
+            <li>Phase implementation over 6-12 months for optimal adoption</li>
+            <li>Monitor public approval ratings during rollout</li>
+            <li>Prepare contingency measures for unexpected outcomes</li>
+          </ul>
+        `;
+      }
+      
+      function simulateImpactAnalysis(description, category) {
+        // Simple keyword-based impact simulation
+        const text = description.toLowerCase();
+        let impacts = { economy: 0, approval: 0, stability: 0, research: 0 };
+        
+        // Economic keywords
+        if (text.includes('tax') || text.includes('revenue')) impacts.economy += Math.random() * 20 - 5;
+        if (text.includes('trade') || text.includes('business')) impacts.economy += Math.random() * 15;
+        if (text.includes('spending') || text.includes('budget')) impacts.economy -= Math.random() * 10;
+        
+        // Approval keywords
+        if (text.includes('citizen') || text.includes('welfare')) impacts.approval += Math.random() * 15;
+        if (text.includes('tax increase') || text.includes('restriction')) impacts.approval -= Math.random() * 10;
+        
+        // Stability keywords
+        if (text.includes('reform') || text.includes('change')) impacts.stability += Math.random() * 10 - 5;
+        if (text.includes('security') || text.includes('defense')) impacts.stability += Math.random() * 10;
+        
+        // Research keywords
+        if (text.includes('research') || text.includes('science')) impacts.research += Math.random() * 20;
+        if (text.includes('innovation') || text.includes('technology')) impacts.research += Math.random() * 15;
+        
+        // Round to integers
+        Object.keys(impacts).forEach(key => {
+          impacts[key] = Math.round(impacts[key]);
+        });
+        
+        return impacts;
+      }
+      
+      // Create Policy
+      document.getElementById('createPolicyBtn').addEventListener('click', async () => {
+        const title = document.getElementById('policyTitle').value;
+        const description = document.getElementById('policyDescription').value;
+        const category = document.getElementById('policyCategory').value;
+        const scope = document.getElementById('policyScope').value;
+        
+        if (!title.trim() || !description.trim()) {
+          alert('Please provide both a title and description for the policy.');
+          return;
+        }
+        
+        try {
+          const response = await fetch('/api/policies', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, body: description, scope, category })
+          });
+          
+          const result = await response.json();
+          
+          // Add to advisor panel
+          addAdvisorMessage('Policy System', `Policy "${title}" has been created successfully. ${result.suggestions ? 'AI suggestions have been generated.' : ''}`);
+          
+          // Clear form
+          document.getElementById('policyTitle').value = '';
+          document.getElementById('policyDescription').value = '';
+          
+        } catch (error) {
+          addAdvisorMessage('System Error', 'Failed to create policy: ' + error.message);
+        }
+      });
+      
+      // Ask Advisor
+      document.getElementById('askAdvisorBtn').addEventListener('click', async () => {
+        const query = document.getElementById('advisorQuery').value.trim();
+        const advisorType = document.getElementById('advisorType').value;
+        
+        if (!query) return;
+        
+        // Add user question
+        addAdvisorMessage('You', query);
+        document.getElementById('advisorQuery').value = '';
+        
+        try {
+          const response = await fetch(`/api/advisors/${advisorType}/query`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query })
+          });
+          
+          const result = await response.json();
+          
+          // Add advisor response
+          const advisorName = advisorType.charAt(0).toUpperCase() + advisorType.slice(1) + ' Advisor';
+          addAdvisorMessage(advisorName, result.response || 'I understand your concern. Based on current data and policy trends, I recommend a cautious approach that balances immediate needs with long-term strategic goals.');
+          
+        } catch (error) {
+          addAdvisorMessage('System Error', 'Unable to reach advisor: ' + error.message);
+        }
+      });
+      
+      // Allow Enter key for advisor queries
+      document.getElementById('advisorQuery').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          document.getElementById('askAdvisorBtn').click();
+        }
+      });
+      
+      function addAdvisorMessage(sender, message) {
+        const panel = document.getElementById('advisorPanel');
+        const messageEl = document.createElement('div');
+        messageEl.className = 'advisor-message';
+        messageEl.innerHTML = `
+          <div class="advisor-meta">${sender} • ${new Date().toLocaleTimeString()}</div>
+          <div>${message}</div>
+        `;
+        panel.appendChild(messageEl);
+        panel.scrollTop = panel.scrollHeight;
+        
+        // Keep only last 10 messages
+        while (panel.children.length > 10) {
+          panel.removeChild(panel.firstChild);
+        }
+      }
+      
+      // Initialize with first policy selected
+      loadPolicy('tax-reform');
+    </script>
+  </body>
+</html>

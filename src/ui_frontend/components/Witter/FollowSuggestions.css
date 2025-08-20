@@ -1,0 +1,99 @@
+.follow-suggestions {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.follow-suggestions h3 {
+  color: #00d4ff;
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.suggestion-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.suggestion-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+.suggestion-avatar {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 212, 255, 0.1);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.suggestion-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.suggestion-name {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.suggestion-title {
+  color: #00d4ff;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.suggestion-location {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.suggestion-followers {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+}
+
+.follow-btn {
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.follow-btn:hover {
+  background: linear-gradient(135deg, #00b8e6, #0088bb);
+  transform: translateY(-1px);
+}
+
+.follow-btn:active {
+  transform: translateY(0);
+}

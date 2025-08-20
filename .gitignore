@@ -34,3 +34,7 @@ dist/
 coverage/
 coverage-api/
 playwright-report/
+
+# Task files
+# tasks.json
+# tasks/ 
