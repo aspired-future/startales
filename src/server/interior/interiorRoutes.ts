@@ -1,8 +1,96 @@
 import { Router, Request, Response } from 'express';
 import { getPool } from '../storage/db.js';
 import { InteriorSecretaryService } from './InteriorSecretaryService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
+
+// Enhanced AI Knobs for Interior Department System
+const interiorKnobsData = {
+  // Natural Resources & Conservation
+  conservation_priority: 0.8,             // Natural resource conservation and protection priority
+  renewable_energy_development: 0.7,      // Renewable energy development and promotion
+  fossil_fuel_extraction_regulation: 0.6, // Fossil fuel extraction regulation and oversight
+  
+  // Public Lands & National Parks
+  public_land_protection: 0.8,            // Public land protection and preservation
+  national_park_funding: 0.8,             // National park system funding and maintenance
+  recreational_access_balance: 0.7,       // Recreation access vs conservation balance
+  
+  // Infrastructure Development
+  infrastructure_investment_level: 0.7,   // Infrastructure development and investment level
+  transportation_network_expansion: 0.6,  // Transportation network expansion and modernization
+  utility_infrastructure_modernization: 0.7, // Utility infrastructure modernization and reliability
+  
+  // Environmental Protection & Regulation
+  environmental_regulation_strictness: 0.8, // Environmental regulation strictness and enforcement
+  pollution_control_measures: 0.8,        // Pollution control and remediation measures
+  climate_change_adaptation: 0.7,         // Climate change adaptation and resilience planning
+  
+  // Water Resources Management
+  water_resource_conservation: 0.8,       // Water resource conservation and management
+  watershed_protection: 0.8,              // Watershed protection and restoration
+  water_quality_standards: 0.9,           // Water quality standards and monitoring
+  
+  // Mining & Mineral Resources
+  mining_regulation_strictness: 0.7,      // Mining operation regulation and oversight
+  mineral_extraction_sustainability: 0.7, // Mineral extraction sustainability requirements
+  mining_safety_standards: 0.9,           // Mining safety standards and enforcement
+  
+  // Wildlife & Ecosystem Management
+  wildlife_protection_priority: 0.8,      // Wildlife protection and habitat conservation
+  endangered_species_protection: 0.9,     // Endangered species protection and recovery
+  ecosystem_restoration_investment: 0.7,  // Ecosystem restoration and rehabilitation investment
+  
+  // Indigenous Affairs & Tribal Relations
+  tribal_sovereignty_respect: 0.8,        // Tribal sovereignty and self-determination respect
+  indigenous_land_rights_protection: 0.8, // Indigenous land rights protection and recognition
+  tribal_consultation_requirements: 0.8,  // Tribal consultation and engagement requirements
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Interior Department
+const interiorKnobSystem = new EnhancedKnobSystem(interiorKnobsData);
+
+// Apply interior department knobs to game state
+function applyInteriorKnobsToGameState() {
+  const knobs = interiorKnobSystem.knobs;
+  
+  // Apply natural resources settings
+  const naturalResources = (knobs.conservation_priority + knobs.renewable_energy_development + 
+    knobs.fossil_fuel_extraction_regulation) / 3;
+  
+  // Apply public lands settings
+  const publicLands = (knobs.public_land_protection + knobs.national_park_funding + 
+    knobs.recreational_access_balance) / 3;
+  
+  // Apply infrastructure settings
+  const infrastructure = (knobs.infrastructure_investment_level + knobs.transportation_network_expansion + 
+    knobs.utility_infrastructure_modernization) / 3;
+  
+  // Apply environmental protection settings
+  const environmentalProtection = (knobs.environmental_regulation_strictness + knobs.pollution_control_measures + 
+    knobs.climate_change_adaptation) / 3;
+  
+  // Apply water resources settings
+  const waterResources = (knobs.water_resource_conservation + knobs.watershed_protection + 
+    knobs.water_quality_standards) / 3;
+  
+  // Apply wildlife management settings
+  const wildlifeManagement = (knobs.wildlife_protection_priority + knobs.endangered_species_protection + 
+    knobs.ecosystem_restoration_investment) / 3;
+  
+  console.log('Applied interior department knobs to game state:', {
+    naturalResources,
+    publicLands,
+    infrastructure,
+    environmentalProtection,
+    waterResources,
+    wildlifeManagement
+  });
+}
+
 const interiorService = new InteriorSecretaryService(getPool());
 
 // ===== DASHBOARD & OVERVIEW =====
@@ -640,5 +728,8 @@ router.post('/actions/emergency-response', async (req: Request, res: Response) =
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'interior', interiorKnobSystem, applyInteriorKnobsToGameState);
 
 export default router;

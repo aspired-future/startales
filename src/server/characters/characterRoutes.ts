@@ -10,11 +10,108 @@ import { DynamicCharacterEngine } from './DynamicCharacterEngine.js';
 import { CharacterService } from './CharacterService.js';
 import { ProceduralCharacterGenerator } from './ProceduralCharacterGenerator.js';
 import { initializeCharacterSchema } from './characterSchema.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
 let characterEngine: DynamicCharacterEngine;
 let characterService: CharacterService;
 let characterGenerator: ProceduralCharacterGenerator;
+
+// Enhanced AI Knobs for Characters System
+const charactersKnobsData = {
+  // Character Generation & Diversity
+  character_diversity_level: 0.8,       // Character diversity and uniqueness level
+  procedural_generation_complexity: 0.7, // Procedural character generation complexity
+  character_archetype_variety: 0.8,     // Character archetype and role variety
+  
+  // Personality & Behavior
+  personality_trait_intensity: 0.7,     // Character personality trait intensity
+  behavioral_consistency: 0.8,          // Character behavioral consistency and reliability
+  emotional_response_variability: 0.6,  // Emotional response variability and authenticity
+  
+  // Character Development & Growth
+  character_development_rate: 0.6,      // Character growth and development rate
+  skill_progression_speed: 0.7,         // Character skill and ability progression
+  relationship_evolution_rate: 0.6,     // Character relationship development rate
+  
+  // Social Dynamics & Relationships
+  social_network_complexity: 0.7,       // Character social network complexity
+  interpersonal_conflict_frequency: 0.5, // Interpersonal conflict and drama frequency
+  alliance_formation_tendency: 0.6,     // Character alliance and friendship formation
+  
+  // Character Agency & Autonomy
+  autonomous_decision_making: 0.7,      // Character autonomous decision-making capability
+  proactive_behavior_level: 0.6,        // Character proactive behavior and initiative
+  goal_pursuit_persistence: 0.8,        // Character goal pursuit and persistence
+  
+  // Communication & Interaction
+  dialogue_sophistication: 0.8,         // Character dialogue sophistication and depth
+  communication_frequency: 0.7,         // Character communication and interaction frequency
+  storytelling_contribution: 0.8,       // Character contribution to narrative and story
+  
+  // Cultural & Background Authenticity
+  cultural_background_depth: 0.8,       // Character cultural background authenticity
+  historical_context_integration: 0.7,  // Historical and contextual background integration
+  species_trait_expression: 0.8,        // Species-specific trait expression and authenticity
+  
+  // Character Specialization & Roles
+  professional_competence_level: 0.8,   // Character professional skill and competence
+  role_specialization_depth: 0.7,       // Character role specialization and expertise
+  leadership_capability_variation: 0.6, // Leadership capability variation across characters
+  
+  // Narrative Integration
+  plot_relevance_weighting: 0.7,        // Character plot relevance and story integration
+  dramatic_timing_sensitivity: 0.6,     // Character dramatic timing and narrative awareness
+  story_arc_contribution: 0.8,          // Character story arc and development contribution
+  
+  // Character Persistence & Memory
+  memory_retention_accuracy: 0.8,       // Character memory retention and recall accuracy
+  relationship_memory_depth: 0.7,       // Character relationship history memory depth
+  experience_learning_rate: 0.6,        // Character learning from experience rate
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Characters
+const charactersKnobSystem = new EnhancedKnobSystem(charactersKnobsData);
+
+// Apply characters knobs to game state
+function applyCharactersKnobsToGameState() {
+  const knobs = charactersKnobSystem.knobs;
+  
+  // Apply character generation settings
+  const characterGeneration = (knobs.character_diversity_level + knobs.procedural_generation_complexity + 
+    knobs.character_archetype_variety) / 3;
+  
+  // Apply personality and behavior settings
+  const personalityBehavior = (knobs.personality_trait_intensity + knobs.behavioral_consistency + 
+    knobs.emotional_response_variability) / 3;
+  
+  // Apply character development settings
+  const characterDevelopment = (knobs.character_development_rate + knobs.skill_progression_speed + 
+    knobs.relationship_evolution_rate) / 3;
+  
+  // Apply social dynamics settings
+  const socialDynamics = (knobs.social_network_complexity + knobs.interpersonal_conflict_frequency + 
+    knobs.alliance_formation_tendency) / 3;
+  
+  // Apply character agency settings
+  const characterAgency = (knobs.autonomous_decision_making + knobs.proactive_behavior_level + 
+    knobs.goal_pursuit_persistence) / 3;
+  
+  // Apply narrative integration settings
+  const narrativeIntegration = (knobs.plot_relevance_weighting + knobs.dramatic_timing_sensitivity + 
+    knobs.story_arc_contribution) / 3;
+  
+  console.log('Applied characters knobs to game state:', {
+    characterGeneration,
+    personalityBehavior,
+    characterDevelopment,
+    socialDynamics,
+    characterAgency,
+    narrativeIntegration
+  });
+}
 
 export function initializeCharacterService(pool: Pool): void {
   characterService = new CharacterService(pool);
@@ -339,5 +436,8 @@ router.get('/:characterId/analytics', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'characters', charactersKnobSystem, applyCharactersKnobsToGameState);
 
 export default router;

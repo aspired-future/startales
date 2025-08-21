@@ -1,8 +1,95 @@
 import express from 'express';
 import { getPool } from '../storage/db.js';
 import { ScienceSecretaryService } from './ScienceSecretaryService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Science & Technology System
+const scienceKnobsData = {
+  // Research & Development Focus
+  basic_research_emphasis: 0.7,              // Basic research emphasis and fundamental science priority
+  applied_research_priority: 0.8,            // Applied research priority and practical application focus
+  technology_transfer_acceleration: 0.7,     // Technology transfer acceleration and commercialization
+  
+  // Innovation & Discovery
+  innovation_risk_tolerance: 0.6,            // Innovation risk tolerance and experimental approach
+  breakthrough_research_investment: 0.7,     // Breakthrough research investment and moonshot projects
+  interdisciplinary_collaboration: 0.8,      // Interdisciplinary collaboration and cross-field integration
+  
+  // Scientific Infrastructure & Resources
+  research_facility_modernization: 0.7,      // Research facility modernization and equipment upgrades
+  scientific_talent_recruitment: 0.8,        // Scientific talent recruitment and retention
+  research_funding_allocation: 0.8,          // Research funding allocation and resource distribution
+  
+  // Technology Development & Advancement
+  emerging_technology_adoption: 0.7,         // Emerging technology adoption and early implementation
+  technology_maturation_acceleration: 0.7,   // Technology maturation acceleration and development speed
+  prototype_development_emphasis: 0.7,       // Prototype development emphasis and proof-of-concept focus
+  
+  // Scientific Education & Training
+  stem_education_promotion: 0.8,             // STEM education promotion and public engagement
+  researcher_training_quality: 0.8,          // Researcher training quality and skill development
+  scientific_literacy_advancement: 0.7,      // Scientific literacy advancement and public understanding
+  
+  // International Collaboration & Competition
+  international_research_cooperation: 0.7,   // International research cooperation and partnership
+  scientific_diplomacy_engagement: 0.6,      // Scientific diplomacy engagement and global leadership
+  competitive_research_positioning: 0.7,     // Competitive research positioning and strategic advantage
+  
+  // Ethics & Responsibility
+  research_ethics_enforcement: 0.9,          // Research ethics enforcement and responsible conduct
+  dual_use_technology_oversight: 0.8,        // Dual-use technology oversight and security considerations
+  environmental_impact_assessment: 0.8,      // Environmental impact assessment and sustainability
+  
+  // Performance & Impact Measurement
+  research_impact_evaluation: 0.7,           // Research impact evaluation and outcome assessment
+  innovation_metrics_tracking: 0.7,          // Innovation metrics tracking and performance monitoring
+  scientific_productivity_optimization: 0.7, // Scientific productivity optimization and efficiency
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Science
+const scienceKnobSystem = new EnhancedKnobSystem(scienceKnobsData);
+
+// Apply science knobs to game state
+function applyScienceKnobsToGameState() {
+  const knobs = scienceKnobSystem.knobs;
+  
+  // Apply research and development settings
+  const researchDevelopment = (knobs.basic_research_emphasis + knobs.applied_research_priority + 
+    knobs.technology_transfer_acceleration) / 3;
+  
+  // Apply innovation settings
+  const innovation = (knobs.innovation_risk_tolerance + knobs.breakthrough_research_investment + 
+    knobs.interdisciplinary_collaboration) / 3;
+  
+  // Apply infrastructure settings
+  const infrastructure = (knobs.research_facility_modernization + knobs.scientific_talent_recruitment + 
+    knobs.research_funding_allocation) / 3;
+  
+  // Apply technology development settings
+  const technologyDevelopment = (knobs.emerging_technology_adoption + knobs.technology_maturation_acceleration + 
+    knobs.prototype_development_emphasis) / 3;
+  
+  // Apply education settings
+  const education = (knobs.stem_education_promotion + knobs.researcher_training_quality + 
+    knobs.scientific_literacy_advancement) / 3;
+  
+  // Apply ethics settings
+  const ethics = (knobs.research_ethics_enforcement + knobs.dual_use_technology_oversight + 
+    knobs.environmental_impact_assessment) / 3;
+  
+  console.log('Applied science knobs to game state:', {
+    researchDevelopment,
+    innovation,
+    infrastructure,
+    technologyDevelopment,
+    education,
+    ethics
+  });
+}
 
 // Initialize service
 const getScienceService = () => new ScienceSecretaryService(getPool());
@@ -778,5 +865,8 @@ router.get('/dashboard', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'science', scienceKnobSystem, applyScienceKnobsToGameState);
 
 export default router;

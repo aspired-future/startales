@@ -7,6 +7,328 @@ const {
   simulateMarket, 
   getTradeAnalytics 
 } = require('../game-state/trade-state.cjs');
+const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('./enhanced-knob-system.cjs');
+
+// AI Integration Knobs - Enhanced system supporting multiple input formats
+const tradeKnobsData = {
+  // Market Regulation
+  market_regulation_level: 0.5,      // AI can adjust market oversight (0.0=free market, 1.0=heavy regulation)
+  trade_tariff_rate: 0.2,           // AI can set tariff rates (0.0-1.0, normalized from 0-50%)
+  export_incentives: 0.3,           // AI can boost exports (0.0-1.0)
+  import_restrictions: 0.2,         // AI can restrict imports (0.0-1.0)
+  
+  // Economic Policy
+  currency_stability_focus: 0.6,    // AI can prioritize currency stability (0.0-1.0)
+  inflation_control_priority: 0.7,  // AI can control inflation through trade (0.0-1.0)
+  employment_protection: 0.5,       // AI can protect domestic jobs (0.0-1.0)
+  
+  // Trade Infrastructure
+  logistics_investment: 0.4,        // AI can invest in trade infrastructure (0.0-1.0)
+  technology_adoption: 0.6,         // AI can modernize trade systems (0.0-1.0)
+  security_measures: 0.5,           // AI can enhance trade security (0.0-1.0)
+  
+  // International Relations
+  trade_diplomacy_focus: 0.5,       // AI can prioritize trade diplomacy (0.0-1.0)
+  alliance_trade_preference: 0.7,   // AI can favor allied trade partners (0.0-1.0)
+  sanctions_enforcement: 0.3,       // AI can enforce trade sanctions (0.0-1.0)
+  
+  // Market Dynamics
+  speculation_controls: 0.4,        // AI can control market speculation (0.0-1.0)
+  price_volatility_dampening: 0.6, // AI can reduce price swings (0.0-1.0)
+  supply_chain_resilience: 0.5,    // AI can strengthen supply chains (0.0-1.0)
+  
+  lastUpdated: Date.now()
+};
+
+// Create enhanced knob system
+const tradeKnobSystem = new EnhancedKnobSystem(tradeKnobsData);
+
+// Backward compatibility - expose knobs directly
+const tradeKnobs = tradeKnobSystem.knobs;
+
+// Structured Outputs - For AI consumption, HUD display, and game state
+function generateTradeStructuredOutputs() {
+  const commodities = Array.from(tradeGameState.commodities.values());
+  const routes = Array.from(tradeGameState.tradeRoutes.values());
+  const corporations = Array.from(tradeGameState.corporations.values());
+  
+  // Calculate market health metrics
+  const avgPriceVolatility = commodities.reduce((sum, commodity) => {
+    const priceHistory = commodity.priceHistory || [];
+    if (priceHistory.length < 2) return sum;
+    
+    const volatility = priceHistory.reduce((vSum, price, index) => {
+      if (index === 0) return vSum;
+      return vSum + Math.abs(price - priceHistory[index - 1]) / priceHistory[index - 1];
+    }, 0) / (priceHistory.length - 1);
+    
+    return sum + volatility;
+  }, 0) / commodities.length;
+  
+  const totalTradeVolume = routes.reduce((sum, route) => sum + (route.volume || 0), 0);
+  const activeRoutes = routes.filter(route => route.status === 'active').length;
+  const profitableRoutes = routes.filter(route => (route.profitability || 0) > 0).length;
+  
+  return {
+    // High-level metrics for AI decision-making
+    market_metrics: {
+      total_trade_volume: totalTradeVolume,
+      active_trade_routes: activeRoutes,
+      route_profitability_ratio: activeRoutes > 0 ? profitableRoutes / activeRoutes : 0,
+      market_volatility: avgPriceVolatility,
+      commodity_diversity: commodities.length,
+      corporate_competition: corporations.length,
+      trade_balance: calculateTradeBalance(),
+      economic_integration: calculateEconomicIntegration()
+    },
+    
+    // Trade flow analysis for AI strategic planning
+    trade_flows: {
+      export_strength: analyzeExportStrength(),
+      import_dependency: analyzeImportDependency(),
+      supply_chain_stability: analyzeSupplyChainStability(),
+      market_concentration: analyzeMarketConcentration(),
+      trade_route_efficiency: analyzeRouteEfficiency()
+    },
+    
+    // Policy impact assessment for AI feedback
+    policy_effectiveness: {
+      tariff_impact: assessTariffPolicy(),
+      regulation_outcomes: assessRegulationPolicy(),
+      infrastructure_roi: assessInfrastructureInvestment(),
+      diplomacy_benefits: assessTradeDiplomacy(),
+      security_effectiveness: assessSecurityMeasures()
+    },
+    
+    // Market alerts and opportunities for AI attention
+    ai_alerts: generateTradeAIAlerts(),
+    
+    // Structured data for other systems
+    cross_system_data: {
+      economic_impact: calculateEconomicImpact(),
+      employment_effects: calculateEmploymentEffects(),
+      resource_availability: calculateResourceAvailability(),
+      technological_advancement: calculateTechAdvancement(),
+      diplomatic_influence: calculateDiplomaticInfluence()
+    },
+    
+    timestamp: Date.now(),
+    knobs_applied: { ...tradeKnobs }
+  };
+}
+
+// Helper functions for trade structured outputs
+function calculateTradeBalance() {
+  const routes = Array.from(tradeGameState.tradeRoutes.values());
+  const exports = routes.filter(r => r.type === 'export').reduce((sum, r) => sum + (r.volume || 0), 0);
+  const imports = routes.filter(r => r.type === 'import').reduce((sum, r) => sum + (r.volume || 0), 0);
+  return exports - imports;
+}
+
+function calculateEconomicIntegration() {
+  const routes = Array.from(tradeGameState.tradeRoutes.values());
+  const uniquePartners = new Set(routes.map(r => r.destination || r.origin)).size;
+  return Math.min(1.0, uniquePartners / 20); // Normalized to max 20 partners
+}
+
+function analyzeExportStrength() {
+  const commodities = Array.from(tradeGameState.commodities.values());
+  const exportCommodities = commodities.filter(c => (c.supply || 0) > (c.demand || 0));
+  const strength = exportCommodities.length / commodities.length;
+  return { strength_ratio: strength, competitive_commodities: exportCommodities.length };
+}
+
+function analyzeImportDependency() {
+  const commodities = Array.from(tradeGameState.commodities.values());
+  const importCommodities = commodities.filter(c => (c.demand || 0) > (c.supply || 0));
+  const dependency = importCommodities.length / commodities.length;
+  return { dependency_ratio: dependency, critical_imports: importCommodities.length };
+}
+
+function analyzeSupplyChainStability() {
+  const routes = Array.from(tradeGameState.tradeRoutes.values());
+  const stableRoutes = routes.filter(r => (r.reliability || 0) > 0.7).length;
+  const stability = routes.length > 0 ? stableRoutes / routes.length : 0;
+  return { stability_score: stability, stable_routes: stableRoutes, total_routes: routes.length };
+}
+
+function analyzeMarketConcentration() {
+  const corporations = Array.from(tradeGameState.corporations.values());
+  const totalMarketShare = corporations.reduce((sum, corp) => sum + (corp.marketShare || 0), 0);
+  const topCorps = corporations.sort((a, b) => (b.marketShare || 0) - (a.marketShare || 0)).slice(0, 3);
+  const concentration = topCorps.reduce((sum, corp) => sum + (corp.marketShare || 0), 0);
+  return { concentration_ratio: concentration, market_leaders: topCorps.length };
+}
+
+function analyzeRouteEfficiency() {
+  const routes = Array.from(tradeGameState.tradeRoutes.values());
+  const avgEfficiency = routes.reduce((sum, route) => sum + (route.efficiency || 0.5), 0) / routes.length;
+  return { average_efficiency: avgEfficiency, efficient_routes: routes.filter(r => (r.efficiency || 0) > 0.8).length };
+}
+
+function assessTariffPolicy() {
+  const tariffRate = tradeKnobs.trade_tariff_rate;
+  const tradeBalance = calculateTradeBalance();
+  const impact = tariffRate * (tradeBalance < 0 ? 2 : 1); // Higher impact if trade deficit
+  return { tariff_rate: tariffRate, trade_balance_impact: impact, effectiveness: impact > 0.15 ? 'significant' : 'moderate' };
+}
+
+function assessRegulationPolicy() {
+  const regulation = tradeKnobs.market_regulation_level;
+  const stability = analyzeSupplyChainStability().stability_score;
+  const outcome = regulation * stability;
+  return { regulation_level: regulation, market_stability: stability, regulatory_effectiveness: outcome };
+}
+
+function assessInfrastructureInvestment() {
+  const investment = tradeKnobs.logistics_investment;
+  const efficiency = analyzeRouteEfficiency().average_efficiency;
+  const roi = investment * efficiency * 1.5; // Infrastructure multiplier
+  return { investment_level: investment, route_efficiency: efficiency, roi_score: roi };
+}
+
+function assessTradeDiplomacy() {
+  const diplomacy = tradeKnobs.trade_diplomacy_focus;
+  const integration = calculateEconomicIntegration();
+  const benefits = diplomacy * integration;
+  return { diplomacy_focus: diplomacy, economic_integration: integration, diplomatic_benefits: benefits };
+}
+
+function assessSecurityMeasures() {
+  const security = tradeKnobs.security_measures;
+  const stability = analyzeSupplyChainStability().stability_score;
+  const effectiveness = security * stability;
+  return { security_investment: security, supply_chain_stability: stability, security_effectiveness: effectiveness };
+}
+
+function generateTradeAIAlerts() {
+  const alerts = [];
+  
+  // Trade balance alerts
+  const tradeBalance = calculateTradeBalance();
+  if (tradeBalance < -1000000) alerts.push({ type: 'trade_deficit', severity: 'high', message: 'Large trade deficit threatens economic stability' });
+  if (tradeBalance > 2000000) alerts.push({ type: 'trade_surplus', severity: 'medium', message: 'Large trade surplus may invite retaliation' });
+  
+  // Market volatility alert
+  const commodities = Array.from(tradeGameState.commodities.values());
+  const volatileCommodities = commodities.filter(c => {
+    const history = c.priceHistory || [];
+    if (history.length < 2) return false;
+    const lastChange = Math.abs(history[history.length - 1] - history[history.length - 2]) / history[history.length - 2];
+    return lastChange > 0.2; // 20% price change
+  });
+  
+  if (volatileCommodities.length > commodities.length * 0.3) {
+    alerts.push({ type: 'market_volatility', severity: 'high', message: 'High market volatility detected across multiple commodities' });
+  }
+  
+  // Supply chain disruption alert
+  const stability = analyzeSupplyChainStability();
+  if (stability.stability_score < 0.4) {
+    alerts.push({ type: 'supply_chain_risk', severity: 'high', message: 'Supply chain instability threatens trade operations' });
+  }
+  
+  // Market concentration alert
+  const concentration = analyzeMarketConcentration();
+  if (concentration.concentration_ratio > 0.7) {
+    alerts.push({ type: 'market_concentration', severity: 'medium', message: 'High market concentration may reduce competition' });
+  }
+  
+  return alerts;
+}
+
+function calculateEconomicImpact() {
+  const totalVolume = Array.from(tradeGameState.tradeRoutes.values()).reduce((sum, route) => sum + (route.volume || 0), 0);
+  const avgProfitability = Array.from(tradeGameState.tradeRoutes.values()).reduce((sum, route) => sum + (route.profitability || 0), 0) / tradeGameState.tradeRoutes.size;
+  const gdpContribution = totalVolume * avgProfitability * 0.1; // Simplified GDP calculation
+  return { trade_volume: totalVolume, gdp_contribution: gdpContribution, economic_multiplier: avgProfitability };
+}
+
+function calculateEmploymentEffects() {
+  const corporations = Array.from(tradeGameState.corporations.values());
+  const totalEmployment = corporations.reduce((sum, corp) => sum + (corp.employees || 0), 0);
+  const tradeJobs = totalEmployment * 0.3; // Assume 30% of corporate jobs are trade-related
+  return { direct_employment: tradeJobs, indirect_employment: tradeJobs * 1.5, total_impact: tradeJobs * 2.5 };
+}
+
+function calculateResourceAvailability() {
+  const commodities = Array.from(tradeGameState.commodities.values());
+  const criticalResources = commodities.filter(c => c.category === 'raw_materials' || c.category === 'energy');
+  const availability = criticalResources.reduce((sum, resource) => sum + (resource.supply || 0), 0) / criticalResources.length;
+  return { resource_abundance: availability, critical_resources: criticalResources.length, supply_security: availability > 0.7 ? 'secure' : 'at_risk' };
+}
+
+function calculateTechAdvancement() {
+  const techAdoption = tradeKnobs.technology_adoption;
+  const efficiency = analyzeRouteEfficiency().average_efficiency;
+  const advancement = techAdoption * efficiency;
+  return { technology_level: techAdoption, operational_efficiency: efficiency, innovation_index: advancement };
+}
+
+function calculateDiplomaticInfluence() {
+  const diplomacy = tradeKnobs.trade_diplomacy_focus;
+  const integration = calculateEconomicIntegration();
+  const influence = diplomacy * integration * 1.2; // Diplomatic multiplier
+  return { diplomatic_investment: diplomacy, economic_leverage: integration, soft_power_index: influence };
+}
+
+// Apply AI knobs to actual trade game state
+function applyTradeKnobsToGameState() {
+  const commodities = Array.from(tradeGameState.commodities.values());
+  const routes = Array.from(tradeGameState.tradeRoutes.values());
+  
+  // Apply market regulation to price volatility
+  const regulationEffect = 1 - (tradeKnobs.market_regulation_level * 0.3); // Reduce volatility by up to 30%
+  commodities.forEach(commodity => {
+    if (commodity.priceHistory && commodity.priceHistory.length > 0) {
+      const basePrice = commodity.basePrice;
+      const currentPrice = commodity.currentPrice || basePrice;
+      const maxDeviation = basePrice * 0.5 * regulationEffect; // Regulation limits price swings
+      
+      commodity.currentPrice = Math.max(basePrice - maxDeviation, Math.min(basePrice + maxDeviation, currentPrice));
+    }
+  });
+  
+  // Apply tariffs to trade routes (convert 0.0-1.0 to 0-50% tariff rate)
+  routes.forEach(route => {
+    if (route.type === 'import') {
+      const tariffRate = tradeKnobs.trade_tariff_rate * 0.5; // Convert to 0-50% range
+      const tariffCost = (route.value || 0) * tariffRate;
+      route.cost = (route.cost || 0) + tariffCost;
+      route.profitability = (route.profitability || 0) - (tariffCost / (route.value || 1));
+    }
+    
+    if (route.type === 'export' && tradeKnobs.export_incentives > 0.5) {
+      const incentive = (tradeKnobs.export_incentives - 0.5) * 0.2; // Up to 10% bonus
+      route.profitability = (route.profitability || 0) * (1 + incentive);
+    }
+  });
+  
+  // Apply infrastructure investment to route efficiency
+  const infrastructureBonus = tradeKnobs.logistics_investment * 0.2; // Up to 20% efficiency bonus
+  routes.forEach(route => {
+    route.efficiency = Math.min(1.0, (route.efficiency || 0.5) + infrastructureBonus);
+  });
+  
+  // Apply security measures to route reliability
+  const securityBonus = tradeKnobs.security_measures * 0.15; // Up to 15% reliability bonus
+  routes.forEach(route => {
+    route.reliability = Math.min(1.0, (route.reliability || 0.7) + securityBonus);
+  });
+  
+  // Apply technology adoption to overall system efficiency
+  const techBonus = tradeKnobs.technology_adoption * 0.1; // Up to 10% system-wide bonus
+  routes.forEach(route => {
+    route.volume = Math.floor((route.volume || 0) * (1 + techBonus));
+  });
+  
+  console.log('🎛️ Trade knobs applied to game state:', {
+    market_regulation: tradeKnobs.market_regulation_level,
+    tariff_rate: tradeKnobs.trade_tariff_rate,
+    infrastructure_investment: tradeKnobs.logistics_investment,
+    security_measures: tradeKnobs.security_measures
+  });
+}
 
 function setupTradeAPIs(app) {
   // Get all star systems with trade data
@@ -511,6 +833,124 @@ function setupTradeAPIs(app) {
       contract,
       message: `Contract status updated to ${status}`
     });
+  });
+
+  // ===== AI INTEGRATION ENDPOINTS =====
+  
+  // Enhanced AI knob endpoints with multi-format input support
+  app.get('/api/trade/knobs', (req, res) => {
+    const knobData = tradeKnobSystem.getKnobsWithMetadata();
+    res.json({
+      ...knobData,
+      system: 'trade',
+      description: 'AI-adjustable parameters for trade system with enhanced input support',
+      input_help: tradeKnobSystem.getKnobDescriptions()
+    });
+  });
+
+  app.post('/api/trade/knobs', (req, res) => {
+    const { knobs, source = 'ai' } = req.body;
+    
+    if (!knobs || typeof knobs !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid knobs data. Expected object with knob values.',
+        help: tradeKnobSystem.getKnobDescriptions().examples
+      });
+    }
+    
+    // Update knobs using enhanced system
+    const updateResult = tradeKnobSystem.updateKnobs(knobs, source);
+    
+    // Apply knobs to game state (this is where the magic happens)
+    try {
+      applyTradeKnobsToGameState();
+    } catch (error) {
+      console.error('Error applying trade knobs to game state:', error);
+    }
+    
+    res.json({
+      success: updateResult.success,
+      system: 'trade',
+      ...updateResult,
+      message: 'Trade knobs updated successfully using enhanced input processing'
+    });
+  });
+
+  // Get knob help/documentation
+  app.get('/api/trade/knobs/help', (req, res) => {
+    res.json({
+      system: 'trade',
+      help: tradeKnobSystem.getKnobDescriptions(),
+      current_values: tradeKnobSystem.getKnobsWithMetadata()
+    });
+  });
+
+  // Get structured outputs for AI consumption
+  app.get('/api/trade/ai-data', (req, res) => {
+    const structuredData = generateTradeStructuredOutputs();
+    res.json({
+      ...structuredData,
+      description: 'Structured trade data for AI analysis and decision-making'
+    });
+  });
+
+  // Get cross-system integration data
+  app.get('/api/trade/cross-system', (req, res) => {
+    const outputs = generateTradeStructuredOutputs();
+    res.json({
+      economic_data: outputs.cross_system_data.economic_impact,
+      employment_data: outputs.cross_system_data.employment_effects,
+      resource_data: outputs.cross_system_data.resource_availability,
+      technology_data: outputs.cross_system_data.technological_advancement,
+      diplomatic_data: outputs.cross_system_data.diplomatic_influence,
+      market_summary: outputs.market_metrics,
+      timestamp: outputs.timestamp
+    });
+  });
+
+  // Get trade alerts for AI attention
+  app.get('/api/trade/alerts', (req, res) => {
+    const outputs = generateTradeStructuredOutputs();
+    res.json({
+      alerts: outputs.ai_alerts,
+      alert_count: outputs.ai_alerts.length,
+      high_priority: outputs.ai_alerts.filter(alert => alert.severity === 'high').length,
+      timestamp: outputs.timestamp
+    });
+  });
+
+  // Simulate market changes (for AI testing and game progression)
+  app.post('/api/trade/simulate', (req, res) => {
+    const { steps = 1, applyKnobs = true } = req.body;
+    
+    try {
+      // Apply current knobs if requested
+      if (applyKnobs) {
+        applyTradeKnobsToGameState();
+      }
+      
+      // Run market simulation
+      for (let i = 0; i < steps; i++) {
+        simulateMarket();
+      }
+      
+      const outputs = generateTradeStructuredOutputs();
+      
+      res.json({
+        success: true,
+        simulation_steps: steps,
+        knobs_applied: applyKnobs,
+        market_state: outputs.market_metrics,
+        alerts: outputs.ai_alerts,
+        timestamp: outputs.timestamp
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        error: 'Market simulation failed', 
+        details: error.message 
+      });
+    }
   });
 }
 

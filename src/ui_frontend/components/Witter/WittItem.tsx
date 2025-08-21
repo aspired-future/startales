@@ -87,8 +87,8 @@ export const WittItem: React.FC<WittItemProps> = ({
 
   // Check if content is contextually relevant
   const isContextuallyRelevant = witt.metadata.relevantEntities.some(entity => 
-    gameContext.currentLocation?.includes(entity) ||
-    gameContext.recentEvents?.some(event => event.includes(entity))
+    gameContext?.currentLocation?.includes(entity) ||
+    gameContext?.recentEvents?.some(event => event.includes(entity))
   );
 
   return (

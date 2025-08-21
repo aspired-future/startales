@@ -62,13 +62,20 @@ import characterRouter from './characters/characterRoutes.js';
 import smallBusinessRouter from './small-business/smallBusinessRoutes.js';
 import economicTierRouter from './economic-tiers/economicTierRoutes.js';
 import educationRouter from './education/educationRoutes.js';
+import conquestRouter from './conquest/conquestRoutes.js';
+import tradeRoutesRouter from './trade/tradeRoutes.js';
+import witterRouter from './witter/witterRoutes.js';
+import memoryRouter from './memory/memoryRoutes.js';
+import whoseappRouter from './whoseapp/whoseappRoutes.js';
+import galaxyRouter from './galaxy/galaxyRoutes.js';
+import campaignRoutesRouter from './campaigns/campaignRoutes.js';
+import scheduleRoutesRouter from './schedules/scheduleRoutes.js';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/campaigns', campaignsRouter);
-app.use('/api/schedules', schedulesRouter);
+// Removed duplicate campaigns and schedules - using new enhanced versions below
 app.use('/api/audio', audioRouter);
 app.use('/api/personalities', personalitiesRouter);
 app.use('/api/outcome', outcomeRouter);
@@ -79,12 +86,11 @@ app.use('/api/vezy', vezyRouter);
 app.use('/api/generator', generatorRouter);
 app.use('/api/empire', empireRouter);
 app.use('/api/map', mapRouter);
-app.use('/api/trade', tradeRouter);
+// Removed duplicate trade - using new enhanced version below
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/policies', policiesRouter);
 app.use('/api/advisors', advisorsRouter);
 app.use('/api/civilization-analytics', civilizationAnalyticsRouter);
-app.use('/api/intelligence', intelligenceDirectorsRouter);
 app.use('/api/providers', providersRouter);
 app.use('/api/treasury', treasuryRouter);
 app.use('/api/defense', defenseRouter);
@@ -112,6 +118,14 @@ app.use('/api/characters', characterRouter);
 app.use('/api/small-business', smallBusinessRouter);
 app.use('/api/economic-tiers', economicTierRouter);
 app.use('/api/education', educationRouter);
+app.use('/api/conquest', conquestRouter);
+app.use('/api/trade', tradeRoutesRouter);
+app.use('/api/witter', witterRouter);
+app.use('/api/memory', memoryRouter);
+app.use('/api/whoseapp', whoseappRouter);
+app.use('/api/galaxy', galaxyRouter);
+app.use('/api/campaigns', campaignRoutesRouter);
+app.use('/api/schedules', scheduleRoutesRouter);
 // Serve built UI (run: npm run ui -- --build)
 app.use('/app', express.static('dist/ui'));
 app.get('/app/*', (_req, res) => res.sendFile('dist/ui/index.html', { root: process.cwd() }));

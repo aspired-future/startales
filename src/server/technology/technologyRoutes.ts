@@ -6,10 +6,94 @@
 import { Router } from 'express';
 import { TechnologyEngine } from './TechnologyEngine.js';
 import { TechnologyAnalytics } from './TechnologyAnalytics.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
 const technologyEngine = new TechnologyEngine();
 const technologyAnalytics = new TechnologyAnalytics();
+
+// Enhanced AI Knobs for Technology System
+const technologyKnobsData = {
+  // Research & Development Investment
+  research_investment_level: 0.6,       // Overall R&D investment level
+  basic_research_priority: 0.5,         // Priority on basic vs applied research
+  private_sector_collaboration: 0.7,    // Collaboration with private sector
+  
+  // Innovation Focus Areas
+  ai_research_priority: 0.8,            // Artificial intelligence research priority
+  biotechnology_priority: 0.6,          // Biotechnology research priority
+  space_technology_priority: 0.5,       // Space technology research priority
+  quantum_computing_priority: 0.4,      // Quantum computing research priority
+  renewable_energy_priority: 0.7,       // Renewable energy research priority
+  
+  // Technology Transfer & Commercialization
+  technology_transfer_rate: 0.6,        // Rate of tech transfer from research to application
+  startup_ecosystem_support: 0.6,       // Support for technology startups
+  intellectual_property_protection: 0.8, // IP protection strength
+  
+  // International Cooperation
+  international_research_cooperation: 0.4, // Level of international research collaboration
+  technology_sharing_openness: 0.3,     // Openness to technology sharing
+  foreign_researcher_attraction: 0.6,   // Programs to attract foreign researchers
+  
+  // Education & Workforce
+  education_technology_integration: 0.5, // Integration of technology in education
+  stem_education_priority: 0.8,         // STEM education priority
+  researcher_training_programs: 0.7,    // Researcher training and development
+  
+  // Ethics & Oversight
+  technology_ethics_oversight: 0.5,     // Level of ethical oversight for emerging tech
+  safety_testing_rigor: 0.8,           // Rigor of safety testing for new technologies
+  public_engagement_in_tech: 0.4,      // Public engagement in technology decisions
+  
+  // Infrastructure & Resources
+  research_infrastructure_investment: 0.6, // Investment in research infrastructure
+  data_sharing_platforms: 0.5,         // Development of data sharing platforms
+  computing_resources_allocation: 0.7,  // Allocation of computing resources for research
+  
+  // Strategic Technology Areas
+  defense_technology_priority: 0.6,     // Defense technology research priority
+  healthcare_technology_priority: 0.8,  // Healthcare technology research priority
+  environmental_technology_priority: 0.7, // Environmental technology research priority
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Technology
+const technologyKnobSystem = new EnhancedKnobSystem(technologyKnobsData);
+
+// Apply technology knobs to game state
+function applyTechnologyKnobsToGameState() {
+  const knobs = technologyKnobSystem.knobs;
+  
+  // Apply research investment settings
+  const researchInvestmentImpact = knobs.research_investment_level * knobs.private_sector_collaboration;
+  
+  // Apply innovation focus areas
+  const innovationFocusImpact = (knobs.ai_research_priority + knobs.biotechnology_priority + 
+    knobs.space_technology_priority + knobs.quantum_computing_priority + knobs.renewable_energy_priority) / 5;
+  
+  // Apply technology transfer settings
+  const transferEffectiveness = knobs.technology_transfer_rate * knobs.startup_ecosystem_support;
+  
+  // Apply international cooperation settings
+  const internationalCooperation = knobs.international_research_cooperation * knobs.foreign_researcher_attraction;
+  
+  // Apply education and workforce settings
+  const educationImpact = knobs.education_technology_integration * knobs.stem_education_priority;
+  
+  // Apply ethics and oversight settings
+  const ethicsOversight = knobs.technology_ethics_oversight * knobs.safety_testing_rigor;
+  
+  console.log('Applied technology knobs to game state:', {
+    researchInvestmentImpact,
+    innovationFocusImpact,
+    transferEffectiveness,
+    internationalCooperation,
+    educationImpact,
+    ethicsOversight
+  });
+}
 
 // Health check endpoint
 router.get('/health', (req, res) => {
@@ -881,5 +965,8 @@ router.post('/setup/civilization/:civilizationId', (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'technology', technologyKnobSystem, applyTechnologyKnobsToGameState);
 
 export default router;

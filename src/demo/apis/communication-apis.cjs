@@ -13,6 +13,100 @@ const {
   getStatistics,
   simulateIncomingMessage
 } = require('../game-state/communication-state.cjs');
+const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('./enhanced-knob-system.cjs');
+
+// AI Integration Knobs - Enhanced system supporting multiple input formats
+const communicationKnobsData = {
+  // Message Processing
+  message_priority_intelligence: 0.7,    // AI can intelligently prioritize messages (0.0-1.0)
+  auto_translation_quality: 0.8,         // AI can improve translation accuracy (0.0-1.0)
+  sentiment_analysis_depth: 0.6,         // AI can analyze message sentiment (0.0-1.0)
+  context_awareness: 0.7,                // AI can understand conversation context (0.0-1.0)
+  
+  // Diplomatic Communications
+  diplomatic_protocol_strictness: 0.6,   // AI can enforce diplomatic protocols (0.0-1.0)
+  negotiation_assistance: 0.5,           // AI can assist in negotiations (0.0-1.0)
+  cultural_sensitivity: 0.8,             // AI can adapt to cultural differences (0.0-1.0)
+  conflict_de_escalation: 0.7,           // AI can help de-escalate tensions (0.0-1.0)
+  
+  // Security & Privacy
+  encryption_strength: 0.9,              // AI can adjust encryption levels (0.0-1.0)
+  surveillance_detection: 0.7,           // AI can detect surveillance attempts (0.0-1.0)
+  information_leak_prevention: 0.8,      // AI can prevent sensitive info leaks (0.0-1.0)
+  authentication_strictness: 0.6,        // AI can adjust identity verification (0.0-1.0)
+  
+  // Communication Efficiency
+  message_routing_optimization: 0.7,     // AI can optimize message delivery (0.0-1.0)
+  response_time_prioritization: 0.6,     // AI can prioritize urgent messages (0.0-1.0)
+  channel_management_automation: 0.5,    // AI can auto-manage channels (0.0-1.0)
+  spam_filtering_aggressiveness: 0.7,    // AI can filter unwanted messages (0.0-1.0)
+  
+  // Character Interaction
+  character_proactivity: 0.6,            // AI can make characters more proactive (0.0-1.0)
+  relationship_tracking: 0.8,            // AI can track relationship dynamics (0.0-1.0)
+  conversation_continuity: 0.7,          // AI can maintain conversation flow (0.0-1.0)
+  
+  lastUpdated: Date.now()
+};
+
+// Create enhanced knob system
+const communicationKnobSystem = new EnhancedKnobSystem(communicationKnobsData);
+
+// Backward compatibility - expose knobs directly
+const communicationKnobs = communicationKnobSystem.knobs;
+
+// Structured Outputs - For AI consumption, HUD display, and game state
+function generateCommunicationStructuredOutputs() {
+  const contacts = getContacts();
+  const channels = getChannels();
+  const stats = getStatistics();
+  
+  return {
+    // High-level metrics for AI decision-making
+    communication_metrics: {
+      total_contacts: contacts.length,
+      active_channels: channels.filter(c => c.status === 'active').length,
+      message_volume: stats.totalMessages || 0,
+      response_rate: calculateResponseRate(),
+      diplomatic_health: calculateDiplomaticHealth(),
+      communication_efficiency: calculateCommunicationEfficiency(),
+      security_status: calculateSecurityStatus()
+    },
+    
+    // Communication analysis for AI strategic planning
+    communication_analysis: {
+      contact_relationship_status: analyzeContactRelationships(),
+      channel_activity_patterns: analyzeChannelActivity(),
+      message_sentiment_trends: analyzeMessageSentiment(),
+      diplomatic_engagement_levels: analyzeDiplomaticEngagement(),
+      cross_civilization_communications: analyzeCrossCivCommunications()
+    },
+    
+    // Communication effectiveness for AI feedback
+    effectiveness_assessment: {
+      diplomatic_success_rate: assessDiplomaticSuccess(),
+      negotiation_outcomes: assessNegotiationOutcomes(),
+      conflict_resolution_effectiveness: assessConflictResolution(),
+      information_security_incidents: assessSecurityIncidents(),
+      communication_protocol_compliance: assessProtocolCompliance()
+    },
+    
+    // Communication alerts and recommendations for AI attention
+    ai_alerts: generateCommunicationAIAlerts(),
+    
+    // Structured data for other systems
+    cross_system_data: {
+      diplomatic_relations_status: calculateDiplomaticRelationsStatus(),
+      intelligence_gathering_opportunities: identifyIntelligenceOpportunities(),
+      alliance_coordination_effectiveness: calculateAllianceCoordination(),
+      trade_negotiation_progress: calculateTradeNegotiationProgress(),
+      crisis_communication_readiness: calculateCrisisCommunicationReadiness()
+    },
+    
+    timestamp: Date.now(),
+    knobs_applied: { ...communicationKnobs }
+  };
+}
 
 function setupCommunicationAPIs(app) {
   // Get communication system status
@@ -1578,6 +1672,337 @@ function setupCommunicationAPIs(app) {
     } catch (error) {
       res.status(500).json({ error: 'Failed to toggle voice mode', details: error.message });
     }
+  });
+
+  // Helper functions for communication structured outputs (streamlined)
+  function calculateResponseRate() {
+    const stats = getStatistics();
+    const totalMessages = stats.totalMessages || 0;
+    const responses = stats.totalResponses || 0;
+    return totalMessages > 0 ? responses / totalMessages : 0.5;
+  }
+
+  function calculateDiplomaticHealth() {
+    const contacts = getContacts();
+    const diplomaticContacts = contacts.filter(c => c.category === 'diplomatic' || c.role?.includes('diplomat'));
+    const healthyRelations = diplomaticContacts.filter(c => c.relationshipStatus === 'positive' || c.relationshipStatus === 'neutral').length;
+    return diplomaticContacts.length > 0 ? healthyRelations / diplomaticContacts.length : 0.7;
+  }
+
+  function calculateCommunicationEfficiency() {
+    const routing = communicationKnobs.message_routing_optimization;
+    const prioritization = communicationKnobs.response_time_prioritization;
+    const automation = communicationKnobs.channel_management_automation;
+    return (routing + prioritization + automation) / 3;
+  }
+
+  function calculateSecurityStatus() {
+    const encryption = communicationKnobs.encryption_strength;
+    const surveillance = communicationKnobs.surveillance_detection;
+    const leakPrevention = communicationKnobs.information_leak_prevention;
+    return (encryption + surveillance + leakPrevention) / 3;
+  }
+
+  function analyzeContactRelationships() {
+    const contacts = getContacts();
+    const relationships = { positive: 0, neutral: 0, negative: 0, unknown: 0 };
+    contacts.forEach(contact => {
+      const status = contact.relationshipStatus || 'unknown';
+      relationships[status] = (relationships[status] || 0) + 1;
+    });
+    return relationships;
+  }
+
+  function analyzeChannelActivity() {
+    const channels = getChannels();
+    const activeChannels = channels.filter(c => c.status === 'active').length;
+    const totalChannels = channels.length;
+    return { active_channels: activeChannels, total_channels: totalChannels, activity_rate: totalChannels > 0 ? activeChannels / totalChannels : 0 };
+  }
+
+  function analyzeMessageSentiment() {
+    const sentimentDepth = communicationKnobs.sentiment_analysis_depth;
+    // Simplified sentiment analysis based on knob setting
+    return { 
+      analysis_depth: sentimentDepth, 
+      positive_trend: 0.6 + (sentimentDepth * 0.2), 
+      negative_trend: 0.2 - (sentimentDepth * 0.1) 
+    };
+  }
+
+  function analyzeDiplomaticEngagement() {
+    const contacts = getContacts();
+    const diplomaticContacts = contacts.filter(c => c.category === 'diplomatic');
+    const engagementLevel = communicationKnobs.negotiation_assistance + communicationKnobs.cultural_sensitivity;
+    return { diplomatic_contacts: diplomaticContacts.length, engagement_strength: engagementLevel / 2 };
+  }
+
+  function analyzeCrossCivCommunications() {
+    const contacts = getContacts();
+    const crossCivContacts = contacts.filter(c => c.civilization && c.civilization !== 'own');
+    const channels = getChannels();
+    const crossCivChannels = channels.filter(c => c.category === 'inter-civilization' || c.crossCivilization);
+    return { cross_civ_contacts: crossCivContacts.length, cross_civ_channels: crossCivChannels.length };
+  }
+
+  function assessDiplomaticSuccess() {
+    const diplomaticHealth = calculateDiplomaticHealth();
+    const protocolCompliance = communicationKnobs.diplomatic_protocol_strictness;
+    const culturalSensitivity = communicationKnobs.cultural_sensitivity;
+    return { success_rate: diplomaticHealth, protocol_strength: protocolCompliance, cultural_adaptation: culturalSensitivity };
+  }
+
+  function assessNegotiationOutcomes() {
+    const negotiationAssistance = communicationKnobs.negotiation_assistance;
+    const conflictDeEscalation = communicationKnobs.conflict_de_escalation;
+    const outcomeScore = (negotiationAssistance + conflictDeEscalation) / 2;
+    return { assistance_level: negotiationAssistance, de_escalation_capability: conflictDeEscalation, outcome_score: outcomeScore };
+  }
+
+  function assessConflictResolution() {
+    const deEscalation = communicationKnobs.conflict_de_escalation;
+    const culturalSensitivity = communicationKnobs.cultural_sensitivity;
+    const effectiveness = (deEscalation + culturalSensitivity) / 2;
+    return { de_escalation_strength: deEscalation, cultural_awareness: culturalSensitivity, resolution_effectiveness: effectiveness };
+  }
+
+  function assessSecurityIncidents() {
+    const surveillance = communicationKnobs.surveillance_detection;
+    const leakPrevention = communicationKnobs.information_leak_prevention;
+    const incidentRate = 1 - ((surveillance + leakPrevention) / 2); // Higher security = lower incidents
+    return { incident_rate: incidentRate, detection_capability: surveillance, prevention_strength: leakPrevention };
+  }
+
+  function assessProtocolCompliance() {
+    const protocolStrictness = communicationKnobs.diplomatic_protocol_strictness;
+    const authentication = communicationKnobs.authentication_strictness;
+    const complianceScore = (protocolStrictness + authentication) / 2;
+    return { compliance_score: complianceScore, protocol_enforcement: protocolStrictness, auth_strictness: authentication };
+  }
+
+  function generateCommunicationAIAlerts() {
+    const alerts = [];
+    
+    // Diplomatic crisis alert
+    const diplomaticHealth = calculateDiplomaticHealth();
+    if (diplomaticHealth < 0.4) {
+      alerts.push({ type: 'diplomatic_crisis', severity: 'high', message: 'Multiple diplomatic relationships deteriorating' });
+    }
+    
+    // Security breach alert
+    const securityStatus = calculateSecurityStatus();
+    if (securityStatus < 0.6) {
+      alerts.push({ type: 'security_vulnerability', severity: 'high', message: 'Communication security below acceptable levels' });
+    }
+    
+    // Communication overload alert
+    const stats = getStatistics();
+    if ((stats.totalMessages || 0) > 1000) {
+      alerts.push({ type: 'message_overload', severity: 'medium', message: 'High message volume may impact response times' });
+    }
+    
+    // Response rate alert
+    const responseRate = calculateResponseRate();
+    if (responseRate < 0.3) {
+      alerts.push({ type: 'poor_response_rate', severity: 'medium', message: 'Low response rate to incoming messages' });
+    }
+    
+    return alerts;
+  }
+
+  function calculateDiplomaticRelationsStatus() {
+    const contacts = getContacts();
+    const diplomaticContacts = contacts.filter(c => c.category === 'diplomatic');
+    const positiveRelations = diplomaticContacts.filter(c => c.relationshipStatus === 'positive').length;
+    const neutralRelations = diplomaticContacts.filter(c => c.relationshipStatus === 'neutral').length;
+    const negativeRelations = diplomaticContacts.filter(c => c.relationshipStatus === 'negative').length;
+    
+    return {
+      total_diplomatic_contacts: diplomaticContacts.length,
+      positive_relations: positiveRelations,
+      neutral_relations: neutralRelations,
+      negative_relations: negativeRelations,
+      diplomatic_stability: diplomaticContacts.length > 0 ? (positiveRelations + neutralRelations) / diplomaticContacts.length : 0.7
+    };
+  }
+
+  function identifyIntelligenceOpportunities() {
+    const contacts = getContacts();
+    const intelligenceContacts = contacts.filter(c => c.category === 'intelligence' || c.role?.includes('intelligence'));
+    const surveillanceCapability = communicationKnobs.surveillance_detection;
+    return { intelligence_contacts: intelligenceContacts.length, surveillance_strength: surveillanceCapability, opportunities: intelligenceContacts.length * surveillanceCapability };
+  }
+
+  function calculateAllianceCoordination() {
+    const channels = getChannels();
+    const allianceChannels = channels.filter(c => c.category === 'alliance' || c.name?.includes('alliance'));
+    const coordinationEffectiveness = communicationKnobs.channel_management_automation + communicationKnobs.message_routing_optimization;
+    return { alliance_channels: allianceChannels.length, coordination_strength: coordinationEffectiveness / 2 };
+  }
+
+  function calculateTradeNegotiationProgress() {
+    const contacts = getContacts();
+    const tradeContacts = contacts.filter(c => c.category === 'trade' || c.role?.includes('trade'));
+    const negotiationCapability = communicationKnobs.negotiation_assistance;
+    return { trade_contacts: tradeContacts.length, negotiation_strength: negotiationCapability, progress_indicator: tradeContacts.length * negotiationCapability };
+  }
+
+  function calculateCrisisCommunicationReadiness() {
+    const efficiency = calculateCommunicationEfficiency();
+    const security = calculateSecurityStatus();
+    const deEscalation = communicationKnobs.conflict_de_escalation;
+    const readiness = (efficiency + security + deEscalation) / 3;
+    return { readiness_score: readiness, crisis_protocols: deEscalation, system_reliability: efficiency };
+  }
+
+  // Apply AI knobs to actual communication game state
+  function applyCommunicationKnobsToGameState() {
+    const contacts = getContacts();
+    const channels = getChannels();
+    
+    // Apply character proactivity to generate more messages
+    const proactivity = communicationKnobs.character_proactivity;
+    if (proactivity > 0.6) {
+      // High proactivity increases message generation from characters
+      contacts.forEach(contact => {
+        if (contact.category === 'character' && Math.random() < proactivity * 0.3) {
+          // Simulate proactive message generation
+          contact.lastMessageTime = Date.now();
+          contact.messageFrequency = (contact.messageFrequency || 1) * (1 + proactivity * 0.5);
+        }
+      });
+    }
+    
+    // Apply relationship tracking to update contact relationships
+    const relationshipTracking = communicationKnobs.relationship_tracking;
+    if (relationshipTracking > 0.7) {
+      contacts.forEach(contact => {
+        // Enhanced relationship tracking improves relationship status accuracy
+        if (contact.relationshipStatus === 'unknown') {
+          contact.relationshipStatus = Math.random() > 0.5 ? 'neutral' : 'positive';
+        }
+        contact.relationshipAccuracy = relationshipTracking;
+      });
+    }
+    
+    // Apply encryption strength to channels
+    const encryptionStrength = communicationKnobs.encryption_strength;
+    channels.forEach(channel => {
+      if (encryptionStrength > 0.8) {
+        channel.encryption = 'quantum-grade';
+        channel.securityLevel = 'maximum';
+      } else if (encryptionStrength > 0.6) {
+        channel.encryption = 'military-grade';
+        channel.securityLevel = 'high';
+      } else {
+        channel.encryption = 'standard';
+        channel.securityLevel = 'medium';
+      }
+    });
+    
+    // Apply spam filtering
+    const spamFiltering = communicationKnobs.spam_filtering_aggressiveness;
+    if (spamFiltering > 0.7) {
+      // High spam filtering reduces unwanted messages
+      const stats = getStatistics();
+      stats.filteredMessages = Math.floor((stats.totalMessages || 0) * spamFiltering * 0.1);
+    }
+    
+    // Apply diplomatic protocol strictness
+    const protocolStrictness = communicationKnobs.diplomatic_protocol_strictness;
+    contacts.forEach(contact => {
+      if (contact.category === 'diplomatic') {
+        contact.protocolCompliance = protocolStrictness;
+        if (protocolStrictness > 0.8) {
+          contact.communicationStyle = 'formal';
+        } else if (protocolStrictness > 0.5) {
+          contact.communicationStyle = 'professional';
+        } else {
+          contact.communicationStyle = 'casual';
+        }
+      }
+    });
+    
+    console.log('🎛️ Communication knobs applied to game state:', {
+      character_proactivity: communicationKnobs.character_proactivity,
+      relationship_tracking: communicationKnobs.relationship_tracking,
+      encryption_strength: communicationKnobs.encryption_strength,
+      diplomatic_protocol: communicationKnobs.diplomatic_protocol_strictness
+    });
+  }
+
+  // ===== AI INTEGRATION ENDPOINTS =====
+  
+  // Enhanced AI knob endpoints with multi-format input support
+  app.get('/api/communication/knobs', (req, res) => {
+    const knobData = communicationKnobSystem.getKnobsWithMetadata();
+    res.json({
+      ...knobData,
+      system: 'communication',
+      description: 'AI-adjustable parameters for communication system with enhanced input support',
+      input_help: communicationKnobSystem.getKnobDescriptions()
+    });
+  });
+
+  app.post('/api/communication/knobs', (req, res) => {
+    const { knobs, source = 'ai' } = req.body;
+    
+    if (!knobs || typeof knobs !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid knobs data. Expected object with knob values.',
+        help: communicationKnobSystem.getKnobDescriptions().examples
+      });
+    }
+    
+    // Update knobs using enhanced system
+    const updateResult = communicationKnobSystem.updateKnobs(knobs, source);
+    
+    // Apply knobs to game state
+    try {
+      applyCommunicationKnobsToGameState();
+    } catch (error) {
+      console.error('Error applying communication knobs to game state:', error);
+    }
+    
+    res.json({
+      success: updateResult.success,
+      system: 'communication',
+      ...updateResult,
+      message: 'Communication knobs updated successfully using enhanced input processing'
+    });
+  });
+
+  // Get knob help/documentation
+  app.get('/api/communication/knobs/help', (req, res) => {
+    res.json({
+      system: 'communication',
+      help: communicationKnobSystem.getKnobDescriptions(),
+      current_values: communicationKnobSystem.getKnobsWithMetadata()
+    });
+  });
+
+  // Get structured outputs for AI consumption
+  app.get('/api/communication/ai-data', (req, res) => {
+    const structuredData = generateCommunicationStructuredOutputs();
+    res.json({
+      ...structuredData,
+      description: 'Structured communication data for AI analysis and decision-making'
+    });
+  });
+
+  // Get cross-system integration data
+  app.get('/api/communication/cross-system', (req, res) => {
+    const outputs = generateCommunicationStructuredOutputs();
+    res.json({
+      diplomatic_data: outputs.cross_system_data.diplomatic_relations_status,
+      intelligence_data: outputs.cross_system_data.intelligence_gathering_opportunities,
+      alliance_data: outputs.cross_system_data.alliance_coordination_effectiveness,
+      trade_data: outputs.cross_system_data.trade_negotiation_progress,
+      crisis_data: outputs.cross_system_data.crisis_communication_readiness,
+      communication_summary: outputs.communication_metrics,
+      timestamp: outputs.timestamp
+    });
   });
 }
 

@@ -14,7 +14,7 @@ import {
   SimulationEffect,
   NaturalLanguageEffect
 } from './types.js';
-import { LLMProvider } from '../providers/LLMProvider.js';
+import { LLMProvider, SimpleLLMProvider } from '../providers/LLMProvider.js';
 import { vectorMemory } from '../storage/VectorMemory.js';
 import { db } from '../storage/db.js';
 import { nanoid } from 'nanoid';
@@ -23,7 +23,7 @@ export class LeaderSpeechEngine {
   private llmProvider: LLMProvider;
 
   constructor() {
-    this.llmProvider = new LLMProvider();
+    this.llmProvider = new SimpleLLMProvider();
   }
 
   /**

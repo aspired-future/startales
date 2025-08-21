@@ -1,8 +1,105 @@
 import express from 'express';
 import InflationTrackingService from './InflationTrackingService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
 const inflationService = new InflationTrackingService();
+
+// Enhanced AI Knobs for Economics/Inflation System
+const economicsKnobsData = {
+  // Monetary Policy
+  interest_rate_sensitivity: 0.7,       // Interest rate policy sensitivity
+  money_supply_control: 0.6,            // Money supply growth control
+  inflation_targeting_strictness: 0.8,  // Inflation targeting adherence
+  
+  // Fiscal Policy
+  government_spending_multiplier: 0.6,  // Government spending economic impact
+  tax_policy_effectiveness: 0.7,        // Tax policy economic effectiveness
+  deficit_tolerance: 0.4,               // Budget deficit tolerance level
+  
+  // Price Controls & Regulation
+  price_control_enforcement: 0.3,       // Price control mechanism strength
+  market_intervention_readiness: 0.5,   // Market intervention willingness
+  competition_policy_strength: 0.8,     // Competition and antitrust enforcement
+  
+  // Labor Market
+  wage_growth_management: 0.6,          // Wage growth policy influence
+  employment_priority: 0.8,             // Employment vs inflation priority
+  labor_market_flexibility: 0.7,        // Labor market regulatory flexibility
+  
+  // Supply Chain & Trade
+  supply_chain_resilience: 0.7,         // Supply chain stability measures
+  trade_policy_openness: 0.6,           // International trade openness
+  strategic_reserve_management: 0.8,    // Strategic commodity reserve management
+  
+  // Financial Stability
+  banking_regulation_strictness: 0.8,   // Banking sector regulation strength
+  credit_market_oversight: 0.7,         // Credit market monitoring intensity
+  systemic_risk_prevention: 0.9,        // Systemic financial risk prevention
+  
+  // Economic Measurement
+  inflation_measurement_accuracy: 0.9,  // CPI and inflation measurement precision
+  economic_data_transparency: 0.8,      // Economic statistics transparency
+  forecasting_model_sophistication: 0.7, // Economic forecasting capability
+  
+  // Crisis Response
+  economic_crisis_preparedness: 0.8,    // Economic crisis response readiness
+  emergency_policy_flexibility: 0.7,    // Emergency policy implementation speed
+  international_coordination: 0.6,      // International economic policy coordination
+  
+  // Innovation & Growth
+  productivity_enhancement_focus: 0.7,  // Productivity growth policy focus
+  innovation_investment_level: 0.6,     // Innovation and R&D investment
+  infrastructure_development_priority: 0.8, // Infrastructure investment priority
+  
+  // Social & Environmental
+  inequality_reduction_priority: 0.6,   // Income inequality reduction focus
+  environmental_cost_integration: 0.5,  // Environmental costs in economic policy
+  social_safety_net_strength: 0.7,      // Social safety net robustness
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Economics
+const economicsKnobSystem = new EnhancedKnobSystem(economicsKnobsData);
+
+// Apply economics knobs to game state
+function applyEconomicsKnobsToGameState() {
+  const knobs = economicsKnobSystem.knobs;
+  
+  // Apply monetary policy settings
+  const monetaryPolicyEffectiveness = (knobs.interest_rate_sensitivity + knobs.money_supply_control + 
+    knobs.inflation_targeting_strictness) / 3;
+  
+  // Apply fiscal policy settings
+  const fiscalPolicyImpact = (knobs.government_spending_multiplier + knobs.tax_policy_effectiveness + 
+    (1 - knobs.deficit_tolerance)) / 3;
+  
+  // Apply market regulation settings
+  const marketRegulation = (knobs.price_control_enforcement + knobs.market_intervention_readiness + 
+    knobs.competition_policy_strength) / 3;
+  
+  // Apply labor market settings
+  const laborMarketHealth = (knobs.wage_growth_management + knobs.employment_priority + 
+    knobs.labor_market_flexibility) / 3;
+  
+  // Apply financial stability settings
+  const financialStability = (knobs.banking_regulation_strictness + knobs.credit_market_oversight + 
+    knobs.systemic_risk_prevention) / 3;
+  
+  // Apply crisis response settings
+  const crisisResilience = (knobs.economic_crisis_preparedness + knobs.emergency_policy_flexibility + 
+    knobs.international_coordination) / 3;
+  
+  console.log('Applied economics knobs to game state:', {
+    monetaryPolicyEffectiveness,
+    fiscalPolicyImpact,
+    marketRegulation,
+    laborMarketHealth,
+    financialStability,
+    crisisResilience
+  });
+}
 
 /**
  * Get current inflation metrics for a civilization
@@ -363,5 +460,8 @@ function generatePolicyActions(metrics: any, forecast: any): string[] {
     ];
   }
 }
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'economics', economicsKnobSystem, applyEconomicsKnobsToGameState);
 
 export default router;

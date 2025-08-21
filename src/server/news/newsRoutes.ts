@@ -16,8 +16,105 @@ import {
   PaginatedNewsResponse
 } from './types.js';
 import { db } from '../storage/db.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
+
+// Enhanced AI Knobs for News Generation System
+const newsKnobsData = {
+  // Content Generation
+  article_generation_frequency: 0.7,    // Frequency of news article generation
+  breaking_news_threshold: 0.8,         // Threshold for breaking news classification
+  story_depth_level: 0.6,               // Depth and detail level of stories
+  
+  // Editorial Control
+  editorial_bias_neutrality: 0.7,       // Editorial bias control (higher = more neutral)
+  fact_checking_rigor: 0.8,             // Fact-checking process rigor
+  source_verification_level: 0.9,       // Source verification requirements
+  
+  // Content Diversity
+  perspective_diversity: 0.8,           // Diversity of perspectives in coverage
+  topic_coverage_breadth: 0.7,          // Breadth of topic coverage
+  local_vs_galactic_balance: 0.6,       // Balance between local and galactic news
+  
+  // Media Outlet Management
+  outlet_credibility_standards: 0.8,    // Credibility standards for outlets
+  sensationalism_tolerance: 0.3,        // Tolerance for sensationalized content
+  investigative_journalism_support: 0.7, // Support for investigative journalism
+  
+  // Information Flow
+  news_circulation_speed: 0.8,          // Speed of news circulation
+  information_transparency: 0.7,        // Information transparency level
+  government_information_access: 0.6,   // Government information access level
+  
+  // Public Impact
+  public_opinion_influence: 0.6,        // News influence on public opinion
+  social_media_integration: 0.7,        // Integration with social media platforms
+  citizen_journalism_recognition: 0.5,  // Recognition of citizen journalism
+  
+  // Crisis Communication
+  emergency_broadcast_readiness: 0.9,   // Emergency broadcast system readiness
+  misinformation_countermeasures: 0.8,  // Misinformation prevention measures
+  crisis_communication_protocols: 0.8,  // Crisis communication effectiveness
+  
+  // Technology & Innovation
+  ai_content_generation: 0.4,           // AI-assisted content generation level
+  real_time_reporting_capability: 0.8,  // Real-time reporting capabilities
+  multimedia_content_richness: 0.7,     // Multimedia content integration
+  
+  // Regulatory Environment
+  press_freedom_level: 0.8,             // Press freedom and independence
+  censorship_resistance: 0.7,           // Resistance to censorship
+  journalist_protection_measures: 0.9,  // Journalist safety and protection
+  
+  // Audience Engagement
+  audience_feedback_integration: 0.6,   // Audience feedback incorporation
+  interactive_content_level: 0.5,       // Interactive content features
+  community_engagement_focus: 0.7,      // Community engagement emphasis
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for News
+const newsKnobSystem = new EnhancedKnobSystem(newsKnobsData);
+
+// Apply news knobs to game state
+function applyNewsKnobsToGameState() {
+  const knobs = newsKnobSystem.knobs;
+  
+  // Apply content generation settings
+  const contentQuality = (knobs.article_generation_frequency + knobs.story_depth_level + 
+    knobs.breaking_news_threshold) / 3;
+  
+  // Apply editorial control settings
+  const editorialIntegrity = (knobs.editorial_bias_neutrality + knobs.fact_checking_rigor + 
+    knobs.source_verification_level) / 3;
+  
+  // Apply content diversity settings
+  const contentDiversity = (knobs.perspective_diversity + knobs.topic_coverage_breadth + 
+    knobs.local_vs_galactic_balance) / 3;
+  
+  // Apply media outlet management settings
+  const mediaStandards = (knobs.outlet_credibility_standards + knobs.investigative_journalism_support + 
+    (1 - knobs.sensationalism_tolerance)) / 3;
+  
+  // Apply information flow settings
+  const informationFlow = (knobs.news_circulation_speed + knobs.information_transparency + 
+    knobs.government_information_access) / 3;
+  
+  // Apply crisis communication settings
+  const crisisCommunication = (knobs.emergency_broadcast_readiness + knobs.misinformation_countermeasures + 
+    knobs.crisis_communication_protocols) / 3;
+  
+  console.log('Applied news knobs to game state:', {
+    contentQuality,
+    editorialIntegrity,
+    contentDiversity,
+    mediaStandards,
+    informationFlow,
+    crisisCommunication
+  });
+}
 
 /**
  * Generate news articles based on simulation results
@@ -768,5 +865,8 @@ async function getNewsFeed(feedId: string, page: number, limit: number): Promise
 
   return await searchArticles(query);
 }
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'news', newsKnobSystem, applyNewsKnobsToGameState);
 
 export default router;

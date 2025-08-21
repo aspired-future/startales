@@ -1,0 +1,650 @@
+.education-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* View Tabs - Compact */
+.view-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+  flex-wrap: wrap;
+}
+
+.view-tabs .tab {
+  background: none;
+  border: none;
+  color: #b8bcc8;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-size: 10px;
+  font-weight: 500;
+  min-width: 80px;
+  flex: 1;
+}
+
+.view-tabs .tab:hover {
+  color: #4fc3f7;
+}
+
+.view-tabs .tab.active {
+  color: #4fc3f7;
+  border-bottom-color: #4fc3f7;
+}
+
+/* Tab Content */
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Tab-specific Styles */
+.overview-tab, .universities-tab, .research-tab, .priorities-tab, .budget-tab, .secretary-tab {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Overview Tab */
+.overview-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.metric-card {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  border-color: #4fc3f7;
+  box-shadow: 0 4px 15px rgba(79, 195, 247, 0.2);
+}
+
+.metric-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #4fc3f7;
+  margin-bottom: 4px;
+}
+
+.metric-label {
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+/* Universities Tab */
+.universities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.university-item {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.university-item:hover {
+  border-color: #4fc3f7;
+  box-shadow: 0 4px 15px rgba(79, 195, 247, 0.2);
+}
+
+.university-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.university-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4fc3f7;
+}
+
+.university-ranking {
+  font-size: 11px;
+  font-weight: 600;
+  color: #81c784;
+  background: rgba(129, 199, 132, 0.2);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.university-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 8px;
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.university-type {
+  background: rgba(79, 195, 247, 0.2);
+  color: #4fc3f7;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+  display: inline-block;
+  width: fit-content;
+}
+
+.university-accreditation, .university-research, .university-achievements {
+  margin-bottom: 8px;
+  font-size: 9px;
+  color: #e0e0e0;
+}
+
+.research-areas, .achievements-list {
+  margin-top: 4px;
+}
+
+.research-tag {
+  background: rgba(79, 195, 247, 0.2);
+  color: #4fc3f7;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+  margin-right: 4px;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+
+.achievement-item {
+  font-size: 8px;
+  color: #b8bcc8;
+  margin-bottom: 2px;
+}
+
+/* Research Tab */
+.research-section {
+  margin-bottom: 20px;
+}
+
+.research-section h4 {
+  color: #4fc3f7;
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+  padding-bottom: 4px;
+}
+
+.research-projects, .research-grants {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 12px;
+}
+
+.project-item, .grant-item {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.project-item:hover, .grant-item:hover {
+  border-color: #4fc3f7;
+  box-shadow: 0 4px 15px rgba(79, 195, 247, 0.2);
+}
+
+.project-header, .grant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.project-title, .grant-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4fc3f7;
+}
+
+.project-priority {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.grant-amount {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4caf50;
+}
+
+.project-details, .grant-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.project-category, .grant-category {
+  background: rgba(79, 195, 247, 0.2);
+  color: #4fc3f7;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+  display: inline-block;
+  width: fit-content;
+}
+
+.project-progress {
+  margin: 10px 0;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: #b8bcc8;
+  margin-bottom: 4px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4fc3f7, #29b6f6);
+  transition: width 0.3s ease;
+}
+
+.project-description {
+  font-size: 9px;
+  color: #e0e0e0;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.project-outcomes, .grant-objectives, .grant-milestones {
+  margin-top: 10px;
+  font-size: 9px;
+  color: #e0e0e0;
+}
+
+.outcomes-list, .objectives-list, .milestones-list {
+  margin-top: 4px;
+}
+
+.outcome-item, .objective-item, .milestone-item {
+  font-size: 8px;
+  color: #b8bcc8;
+  margin-bottom: 2px;
+}
+
+/* Priorities Tab */
+.research-priorities {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.priority-item {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.priority-item:hover {
+  border-color: #4fc3f7;
+  box-shadow: 0 4px 15px rgba(79, 195, 247, 0.2);
+}
+
+.priority-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.priority-area {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4fc3f7;
+}
+
+.priority-level {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.priority-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.priority-description, .priority-impact {
+  font-size: 9px;
+  color: #e0e0e0;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.priority-institutions {
+  margin-top: 8px;
+  font-size: 9px;
+  color: #e0e0e0;
+}
+
+.institutions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.institution-tag {
+  background: rgba(79, 195, 247, 0.2);
+  color: #4fc3f7;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+}
+
+/* Budget Tab */
+.budget-overview {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  border-radius: 6px;
+}
+
+.total-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4fc3f7;
+  margin-bottom: 4px;
+}
+
+.total-label {
+  font-size: 12px;
+  color: #b8bcc8;
+}
+
+.budget-allocations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.allocation-item {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.allocation-item:hover {
+  border-color: #4fc3f7;
+  box-shadow: 0 4px 15px rgba(79, 195, 247, 0.2);
+}
+
+.allocation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.allocation-category {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4fc3f7;
+}
+
+.allocation-amount {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4caf50;
+}
+
+.allocation-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.allocation-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.allocation-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4fc3f7, #29b6f6);
+  transition: width 0.3s ease;
+}
+
+.allocation-description {
+  font-size: 9px;
+  color: #e0e0e0;
+  line-height: 1.4;
+}
+
+/* Secretary Tab */
+.secretary-profile {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 15px;
+}
+
+.secretary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.secretary-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #4fc3f7;
+}
+
+.secretary-approval {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.secretary-title {
+  font-size: 12px;
+  color: #b8bcc8;
+  margin-bottom: 4px;
+}
+
+.secretary-tenure, .secretary-experience {
+  font-size: 10px;
+  color: #b8bcc8;
+  margin-bottom: 4px;
+}
+
+.secretary-education, .secretary-achievements, .secretary-priorities {
+  margin-top: 15px;
+}
+
+.secretary-education h4, .secretary-achievements h4, .secretary-priorities h4 {
+  color: #4fc3f7;
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.education-list, .achievements-list {
+  margin-top: 4px;
+}
+
+.education-item, .achievement-item {
+  font-size: 9px;
+  color: #b8bcc8;
+  margin-bottom: 4px;
+}
+
+.priorities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.priority-tag {
+  background: rgba(79, 195, 247, 0.2);
+  color: #4fc3f7;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+/* Tab Actions */
+.tab-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  flex-wrap: wrap;
+  padding-top: 15px;
+  border-top: 1px solid rgba(79, 195, 247, 0.2);
+}
+
+.action-btn {
+  background: rgba(79, 195, 247, 0.2);
+  border: 1px solid #4fc3f7;
+  color: #4fc3f7;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 80px;
+}
+
+.action-btn:hover {
+  background: rgba(79, 195, 247, 0.3);
+  transform: translateY(-1px);
+}
+
+.action-btn.secondary {
+  background: rgba(108, 117, 125, 0.2);
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.action-btn.secondary:hover {
+  background: rgba(108, 117, 125, 0.3);
+}
+
+/* Loading and Error States */
+.loading, .error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  font-size: 14px;
+  color: #4fc3f7;
+}
+
+.error {
+  color: #f44336;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .overview-metrics {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+  }
+  
+  .universities-grid,
+  .research-projects,
+  .research-grants,
+  .research-priorities {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .overview-metrics {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+  }
+  
+  .budget-allocations {
+    grid-template-columns: 1fr;
+  }
+  
+  .university-details, .project-details, .grant-details, .allocation-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab-actions {
+    flex-direction: column;
+  }
+  
+  .action-btn {
+    flex: none;
+  }
+  
+  .secretary-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

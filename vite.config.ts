@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   root: 'src/ui_frontend',
   server: { 
-    port: 5173,
+    port: 5174,
     hmr: {
       overlay: false // Disable error overlay to prevent blocking
     }

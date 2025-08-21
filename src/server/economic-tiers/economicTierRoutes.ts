@@ -9,8 +9,96 @@ import { Pool } from 'pg';
 import { EconomicTierService } from './EconomicTierService.js';
 import { EconomicTierEvolutionEngine } from './EconomicTierEvolutionEngine.js';
 import { initializeEconomicTierSchema } from './economicTierSchema.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Economic Tiers System
+const economicTiersKnobsData = {
+  // Economic Development & Growth
+  economic_development_speed: 0.7,        // Economic development and growth speed
+  innovation_investment_priority: 0.8,    // Innovation and R&D investment priority
+  infrastructure_development_focus: 0.7,  // Infrastructure development focus and investment
+  
+  // Market Structure & Competition
+  market_competition_level: 0.7,          // Market competition and antitrust enforcement
+  monopoly_prevention_strictness: 0.8,    // Monopoly prevention and market regulation
+  small_business_support: 0.7,            // Small business support and development programs
+  
+  // Economic Tier Progression
+  tier_advancement_criteria: 0.7,         // Economic tier advancement criteria and standards
+  tier_transition_support: 0.8,           // Support for businesses transitioning between tiers
+  economic_mobility_promotion: 0.7,       // Economic mobility and opportunity promotion
+  
+  // Industry Specialization & Diversification
+  industry_specialization_focus: 0.6,     // Industry specialization vs diversification focus
+  emerging_sector_development: 0.8,       // Emerging sector development and support
+  traditional_industry_modernization: 0.6, // Traditional industry modernization and upgrade
+  
+  // Labor Market & Skills Development
+  workforce_skill_development: 0.8,       // Workforce skill development and training
+  labor_market_flexibility: 0.6,          // Labor market flexibility and mobility
+  education_industry_alignment: 0.8,      // Education-industry alignment and coordination
+  
+  // Capital Markets & Investment
+  capital_market_development: 0.7,        // Capital market development and accessibility
+  venture_capital_ecosystem: 0.7,         // Venture capital and startup ecosystem support
+  foreign_investment_openness: 0.6,       // Foreign investment openness and regulation
+  
+  // Regional Economic Balance
+  regional_development_balance: 0.6,      // Regional economic development balance
+  urban_rural_economic_integration: 0.6,  // Urban-rural economic integration and development
+  economic_cluster_development: 0.7,      // Economic cluster and hub development
+  
+  // Sustainability & Environmental Integration
+  sustainable_development_priority: 0.8,  // Sustainable development and green economy priority
+  circular_economy_promotion: 0.7,        // Circular economy and resource efficiency promotion
+  environmental_economic_integration: 0.7, // Environmental and economic policy integration
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Economic Tiers
+const economicTiersKnobSystem = new EnhancedKnobSystem(economicTiersKnobsData);
+
+// Apply economic tiers knobs to game state
+function applyEconomicTiersKnobsToGameState() {
+  const knobs = economicTiersKnobSystem.knobs;
+  
+  // Apply economic development settings
+  const economicDevelopment = (knobs.economic_development_speed + knobs.innovation_investment_priority + 
+    knobs.infrastructure_development_focus) / 3;
+  
+  // Apply market structure settings
+  const marketStructure = (knobs.market_competition_level + knobs.monopoly_prevention_strictness + 
+    knobs.small_business_support) / 3;
+  
+  // Apply tier progression settings
+  const tierProgression = (knobs.tier_advancement_criteria + knobs.tier_transition_support + 
+    knobs.economic_mobility_promotion) / 3;
+  
+  // Apply industry development settings
+  const industryDevelopment = (knobs.industry_specialization_focus + knobs.emerging_sector_development + 
+    knobs.traditional_industry_modernization) / 3;
+  
+  // Apply labor market settings
+  const laborMarket = (knobs.workforce_skill_development + knobs.labor_market_flexibility + 
+    knobs.education_industry_alignment) / 3;
+  
+  // Apply sustainability settings
+  const sustainability = (knobs.sustainable_development_priority + knobs.circular_economy_promotion + 
+    knobs.environmental_economic_integration) / 3;
+  
+  console.log('Applied economic tiers knobs to game state:', {
+    economicDevelopment,
+    marketStructure,
+    tierProgression,
+    industryDevelopment,
+    laborMarket,
+    sustainability
+  });
+}
+
 let tierService: EconomicTierService;
 let evolutionEngine: EconomicTierEvolutionEngine;
 
@@ -599,5 +687,8 @@ router.get('/plans/:cityId', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'economic-tiers', economicTiersKnobSystem, applyEconomicTiersKnobsToGameState);
 
 export default router;

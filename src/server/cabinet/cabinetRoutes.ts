@@ -14,8 +14,95 @@ import {
   CabinetMeeting,
   DecisionSupportRequest
 } from './types.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
+
+// Enhanced AI Knobs for Cabinet System
+const cabinetKnobsData = {
+  // Cabinet Leadership & Coordination
+  cabinet_cohesion_level: 0.7,            // Cabinet unity and coordination effectiveness
+  executive_decision_speed: 0.6,          // Executive decision-making speed and efficiency
+  inter_department_collaboration: 0.7,    // Inter-departmental collaboration and communication
+  
+  // Bureaucratic Efficiency & Management
+  bureaucratic_streamlining: 0.6,         // Bureaucratic process streamlining and efficiency
+  administrative_oversight: 0.8,          // Administrative oversight and quality control
+  policy_implementation_coordination: 0.7, // Policy implementation coordination across departments
+  
+  // Cabinet Meeting & Decision Processes
+  cabinet_meeting_frequency: 0.7,         // Cabinet meeting frequency and regularity
+  decision_making_transparency: 0.6,      // Decision-making process transparency
+  stakeholder_consultation_level: 0.7,    // Stakeholder consultation and input gathering
+  
+  // Personnel Management & Appointments
+  cabinet_appointment_standards: 0.8,     // Cabinet appointment quality and standards
+  senior_staff_retention: 0.7,            // Senior staff retention and stability
+  merit_based_promotions: 0.8,            // Merit-based promotion and advancement
+  
+  // Crisis Management & Emergency Response
+  crisis_response_coordination: 0.8,      // Crisis response coordination and effectiveness
+  emergency_decision_authority: 0.7,      // Emergency decision-making authority and speed
+  inter_agency_crisis_communication: 0.8, // Inter-agency crisis communication and coordination
+  
+  // Policy Development & Analysis
+  policy_research_investment: 0.7,        // Policy research and analysis investment
+  evidence_based_decision_making: 0.8,    // Evidence-based decision-making emphasis
+  long_term_strategic_planning: 0.6,      // Long-term strategic planning and vision
+  
+  // Public Communication & Messaging
+  government_messaging_coordination: 0.7, // Government messaging coordination and consistency
+  public_communication_transparency: 0.6, // Public communication transparency and openness
+  media_relations_management: 0.6,        // Media relations and press management
+  
+  // Accountability & Ethics
+  cabinet_ethics_enforcement: 0.9,        // Cabinet ethics enforcement and compliance
+  conflict_of_interest_management: 0.8,   // Conflict of interest management and disclosure
+  government_accountability_measures: 0.8, // Government accountability and oversight measures
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Cabinet
+const cabinetKnobSystem = new EnhancedKnobSystem(cabinetKnobsData);
+
+// Apply cabinet knobs to game state
+function applyCabinetKnobsToGameState() {
+  const knobs = cabinetKnobSystem.knobs;
+  
+  // Apply cabinet leadership settings
+  const cabinetLeadership = (knobs.cabinet_cohesion_level + knobs.executive_decision_speed + 
+    knobs.inter_department_collaboration) / 3;
+  
+  // Apply bureaucratic efficiency settings
+  const bureaucraticEfficiency = (knobs.bureaucratic_streamlining + knobs.administrative_oversight + 
+    knobs.policy_implementation_coordination) / 3;
+  
+  // Apply decision processes settings
+  const decisionProcesses = (knobs.cabinet_meeting_frequency + knobs.decision_making_transparency + 
+    knobs.stakeholder_consultation_level) / 3;
+  
+  // Apply personnel management settings
+  const personnelManagement = (knobs.cabinet_appointment_standards + knobs.senior_staff_retention + 
+    knobs.merit_based_promotions) / 3;
+  
+  // Apply crisis management settings
+  const crisisManagement = (knobs.crisis_response_coordination + knobs.emergency_decision_authority + 
+    knobs.inter_agency_crisis_communication) / 3;
+  
+  // Apply accountability settings
+  const accountability = (knobs.cabinet_ethics_enforcement + knobs.conflict_of_interest_management + 
+    knobs.government_accountability_measures) / 3;
+  
+  console.log('Applied cabinet knobs to game state:', {
+    cabinetLeadership,
+    bureaucraticEfficiency,
+    decisionProcesses,
+    personnelManagement,
+    crisisManagement,
+    accountability
+  });
+}
 
 // ===== CABINET MEMBERS ENDPOINTS =====
 
@@ -718,5 +805,8 @@ router.post('/initialize', async (req: Request, res: Response) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'cabinet', cabinetKnobSystem, applyCabinetKnobsToGameState);
 
 export default router;

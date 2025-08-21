@@ -8,8 +8,96 @@
 import { Router, Request, Response } from 'express';
 import { GameModesEngine } from './GameModesEngine.js';
 import { GameModeType, DifficultyLevel } from './types.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
+
+// Enhanced AI Knobs for Game Modes System
+const gameModesKnobsData = {
+  // Game Mode Difficulty & Balance
+  difficulty_scaling_intensity: 0.7,      // Difficulty scaling and challenge intensity
+  player_skill_adaptation: 0.7,           // Player skill adaptation and dynamic difficulty
+  challenge_progression_rate: 0.6,        // Challenge progression and learning curve rate
+  
+  // Cooperative & Multiplayer Features
+  cooperative_gameplay_emphasis: 0.8,     // Cooperative gameplay and team collaboration emphasis
+  multiplayer_interaction_depth: 0.7,     // Multiplayer interaction depth and social features
+  team_coordination_requirements: 0.6,    // Team coordination and communication requirements
+  
+  // Achievement & Progression Systems
+  achievement_system_complexity: 0.7,     // Achievement system complexity and variety
+  progression_reward_frequency: 0.7,      // Progression reward frequency and motivation
+  milestone_celebration_intensity: 0.6,   // Milestone celebration and recognition intensity
+  
+  // Conquest & Competition Features
+  conquest_mode_aggressiveness: 0.6,      // Conquest mode competitiveness and aggression
+  territorial_expansion_emphasis: 0.7,     // Territorial expansion and control emphasis
+  competitive_ranking_importance: 0.6,    // Competitive ranking and leaderboard importance
+  
+  // Hero & Character Development
+  hero_progression_depth: 0.8,            // Hero character progression depth and customization
+  character_specialization_variety: 0.8,  // Character specialization and role variety
+  narrative_integration_strength: 0.7,    // Narrative integration and story importance
+  
+  // Game Session Management
+  session_flexibility: 0.7,               // Game session flexibility and adaptability
+  save_system_robustness: 0.9,            // Save system robustness and reliability
+  session_recovery_capability: 0.8,       // Session recovery and crash resilience
+  
+  // Player Experience & Accessibility
+  accessibility_feature_support: 0.8,     // Accessibility feature support and inclusion
+  user_interface_customization: 0.7,      // User interface customization and personalization
+  tutorial_system_comprehensiveness: 0.7, // Tutorial system comprehensiveness and guidance
+  
+  // Content Generation & Variety
+  procedural_content_generation: 0.6,     // Procedural content generation and variety
+  dynamic_event_frequency: 0.6,           // Dynamic event frequency and unpredictability
+  replayability_enhancement: 0.7,         // Replayability enhancement and content longevity
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Game Modes
+const gameModesKnobSystem = new EnhancedKnobSystem(gameModesKnobsData);
+
+// Apply game modes knobs to game state
+function applyGameModesKnobsToGameState() {
+  const knobs = gameModesKnobSystem.knobs;
+  
+  // Apply difficulty and balance settings
+  const difficultyBalance = (knobs.difficulty_scaling_intensity + knobs.player_skill_adaptation + 
+    knobs.challenge_progression_rate) / 3;
+  
+  // Apply cooperative gameplay settings
+  const cooperativeGameplay = (knobs.cooperative_gameplay_emphasis + knobs.multiplayer_interaction_depth + 
+    knobs.team_coordination_requirements) / 3;
+  
+  // Apply achievement system settings
+  const achievementSystem = (knobs.achievement_system_complexity + knobs.progression_reward_frequency + 
+    knobs.milestone_celebration_intensity) / 3;
+  
+  // Apply conquest features settings
+  const conquestFeatures = (knobs.conquest_mode_aggressiveness + knobs.territorial_expansion_emphasis + 
+    knobs.competitive_ranking_importance) / 3;
+  
+  // Apply hero development settings
+  const heroDevelopment = (knobs.hero_progression_depth + knobs.character_specialization_variety + 
+    knobs.narrative_integration_strength) / 3;
+  
+  // Apply player experience settings
+  const playerExperience = (knobs.accessibility_feature_support + knobs.user_interface_customization + 
+    knobs.tutorial_system_comprehensiveness) / 3;
+  
+  console.log('Applied game modes knobs to game state:', {
+    difficultyBalance,
+    cooperativeGameplay,
+    achievementSystem,
+    conquestFeatures,
+    heroDevelopment,
+    playerExperience
+  });
+}
+
 const gameModesEngine = new GameModesEngine();
 
 // ===== GAME MODE ENDPOINTS =====
@@ -1010,5 +1098,8 @@ router.get('/health', (req: Request, res: Response) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'game-modes', gameModesKnobSystem, applyGameModesKnobsToGameState);
 
 export default router;

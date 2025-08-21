@@ -8,8 +8,95 @@
 import { Router, Request, Response } from 'express';
 import { getPool } from '../storage/db.js';
 import { StateSecretaryService } from './StateSecretaryService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
+
+// Enhanced AI Knobs for State Department System
+const stateKnobsData = {
+  // Diplomatic Relations & Foreign Policy
+  diplomatic_engagement_level: 0.7,       // Overall diplomatic engagement and activity level
+  multilateral_diplomacy_priority: 0.8,   // Multilateral diplomacy and international organization priority
+  bilateral_relations_focus: 0.7,         // Bilateral relations development and maintenance focus
+  
+  // Treaty & Agreement Management
+  treaty_negotiation_aggressiveness: 0.6, // Treaty negotiation approach and aggressiveness
+  international_agreement_compliance: 0.9, // International agreement compliance and adherence
+  treaty_ratification_speed: 0.6,         // Treaty ratification process speed and efficiency
+  
+  // Embassy & Consular Operations
+  embassy_security_level: 0.8,            // Embassy and diplomatic mission security level
+  consular_service_quality: 0.8,          // Consular services quality and accessibility
+  diplomatic_immunity_enforcement: 0.8,   // Diplomatic immunity enforcement and protection
+  
+  // International Communication & Public Diplomacy
+  public_diplomacy_investment: 0.7,       // Public diplomacy and soft power investment
+  international_media_engagement: 0.6,    // International media and communication engagement
+  cultural_exchange_programs: 0.7,        // Cultural exchange and educational programs
+  
+  // Crisis Management & Conflict Resolution
+  crisis_response_speed: 0.8,             // International crisis response speed and effectiveness
+  conflict_mediation_willingness: 0.7,    // Conflict mediation and peacekeeping willingness
+  humanitarian_intervention_threshold: 0.6, // Humanitarian intervention decision threshold
+  
+  // Economic Diplomacy & Trade Relations
+  economic_diplomacy_priority: 0.8,       // Economic diplomacy and trade relations priority
+  sanctions_policy_strictness: 0.6,       // Economic sanctions policy strictness and enforcement
+  trade_agreement_negotiation: 0.7,       // Trade agreement negotiation and promotion
+  
+  // International Law & Human Rights
+  international_law_adherence: 0.9,       // International law adherence and compliance
+  human_rights_advocacy: 0.8,             // Human rights advocacy and promotion internationally
+  war_crimes_prosecution_support: 0.8,    // War crimes prosecution and justice support
+  
+  // Intelligence & Information Sharing
+  diplomatic_intelligence_sharing: 0.7,   // Diplomatic intelligence sharing with allies
+  information_transparency: 0.6,          // Information transparency in diplomatic communications
+  classified_information_protection: 0.9, // Classified diplomatic information protection
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for State Department
+const stateKnobSystem = new EnhancedKnobSystem(stateKnobsData);
+
+// Apply state department knobs to game state
+function applyStateKnobsToGameState() {
+  const knobs = stateKnobSystem.knobs;
+  
+  // Apply diplomatic relations settings
+  const diplomaticRelations = (knobs.diplomatic_engagement_level + knobs.multilateral_diplomacy_priority + 
+    knobs.bilateral_relations_focus) / 3;
+  
+  // Apply treaty management settings
+  const treatyManagement = (knobs.treaty_negotiation_aggressiveness + knobs.international_agreement_compliance + 
+    knobs.treaty_ratification_speed) / 3;
+  
+  // Apply embassy operations settings
+  const embassyOperations = (knobs.embassy_security_level + knobs.consular_service_quality + 
+    knobs.diplomatic_immunity_enforcement) / 3;
+  
+  // Apply public diplomacy settings
+  const publicDiplomacy = (knobs.public_diplomacy_investment + knobs.international_media_engagement + 
+    knobs.cultural_exchange_programs) / 3;
+  
+  // Apply crisis management settings
+  const crisisManagement = (knobs.crisis_response_speed + knobs.conflict_mediation_willingness + 
+    knobs.humanitarian_intervention_threshold) / 3;
+  
+  // Apply international law settings
+  const internationalLaw = (knobs.international_law_adherence + knobs.human_rights_advocacy + 
+    knobs.war_crimes_prosecution_support) / 3;
+  
+  console.log('Applied state department knobs to game state:', {
+    diplomaticRelations,
+    treatyManagement,
+    embassyOperations,
+    publicDiplomacy,
+    crisisManagement,
+    internationalLaw
+  });
+}
 
 // Initialize service with database pool
 const stateService = new StateSecretaryService(getPool());
@@ -718,5 +805,8 @@ router.post('/actions/establish-embassy', async (req: Request, res: Response) =>
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'state', stateKnobSystem, applyStateKnobsToGameState);
 
 export default router;

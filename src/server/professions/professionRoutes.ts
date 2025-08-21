@@ -7,6 +7,7 @@ import { Router, Request, Response } from 'express';
 import { ProfessionEngine } from './ProfessionEngine.js';
 import { LaborMarketAnalytics } from './LaborMarketAnalytics.js';
 import { CitizenEngine } from '../population/CitizenEngine.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
 
@@ -14,6 +15,102 @@ const router = Router();
 const professionEngine = new ProfessionEngine();
 const laborMarketAnalytics = new LaborMarketAnalytics();
 const citizenEngine = new CitizenEngine();
+
+// Enhanced AI Knobs for Professions System
+const professionsKnobsData = {
+  // Labor Market Dynamics
+  labor_market_flexibility: 0.7,        // Labor market flexibility and job mobility
+  employment_protection_level: 0.6,     // Employment protection and job security level
+  wage_determination_freedom: 0.6,      // Wage determination freedom and negotiation
+  
+  // Skills Development & Training
+  vocational_training_investment: 0.8,  // Vocational training and skill development investment
+  continuous_learning_support: 0.7,     // Continuous learning and reskilling support
+  apprenticeship_program_strength: 0.7, // Apprenticeship and mentorship program strength
+  
+  // Career Advancement & Mobility
+  career_advancement_opportunities: 0.7, // Career advancement and promotion opportunities
+  professional_development_support: 0.8, // Professional development and certification support
+  inter_industry_mobility: 0.6,         // Inter-industry career mobility and transition support
+  
+  // Workplace Standards & Conditions
+  workplace_safety_standards: 0.9,      // Workplace safety and health standards
+  work_life_balance_priority: 0.7,      // Work-life balance and flexible work arrangements
+  employee_rights_protection: 0.8,      // Employee rights and workplace protection
+  
+  // Compensation & Benefits
+  minimum_wage_adequacy: 0.6,           // Minimum wage adequacy and living standards
+  benefits_package_comprehensiveness: 0.7, // Employee benefits package comprehensiveness
+  performance_based_compensation: 0.6,  // Performance-based compensation and incentives
+  
+  // Employment Diversity & Inclusion
+  workplace_diversity_promotion: 0.8,   // Workplace diversity and inclusion promotion
+  equal_opportunity_enforcement: 0.9,   // Equal opportunity and anti-discrimination enforcement
+  accessibility_accommodation: 0.8,     // Workplace accessibility and accommodation
+  
+  // Innovation & Technology in Work
+  workplace_technology_adoption: 0.7,   // Workplace technology adoption and integration
+  automation_impact_management: 0.6,    // Automation impact management and worker transition
+  digital_skills_development: 0.8,      // Digital skills development and literacy programs
+  
+  // Labor Relations & Unions
+  collective_bargaining_rights: 0.7,    // Collective bargaining rights and union representation
+  labor_dispute_resolution: 0.8,        // Labor dispute resolution and mediation effectiveness
+  worker_participation_level: 0.6,      // Worker participation in workplace decisions
+  
+  // Economic Sectors & Industries
+  service_sector_development: 0.7,      // Service sector development and modernization
+  manufacturing_sector_support: 0.6,    // Manufacturing sector support and competitiveness
+  knowledge_economy_transition: 0.8,    // Knowledge economy and high-skill job transition
+  
+  // Employment Analytics & Planning
+  labor_market_data_quality: 0.8,       // Labor market data collection and analysis quality
+  workforce_planning_effectiveness: 0.7, // Workforce planning and demand forecasting
+  employment_policy_evaluation: 0.7,    // Employment policy effectiveness evaluation
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Professions
+const professionsKnobSystem = new EnhancedKnobSystem(professionsKnobsData);
+
+// Apply professions knobs to game state
+function applyProfessionsKnobsToGameState() {
+  const knobs = professionsKnobSystem.knobs;
+  
+  // Apply labor market dynamics settings
+  const laborMarketDynamics = (knobs.labor_market_flexibility + knobs.employment_protection_level + 
+    knobs.wage_determination_freedom) / 3;
+  
+  // Apply skills development settings
+  const skillsDevelopment = (knobs.vocational_training_investment + knobs.continuous_learning_support + 
+    knobs.apprenticeship_program_strength) / 3;
+  
+  // Apply career advancement settings
+  const careerAdvancement = (knobs.career_advancement_opportunities + knobs.professional_development_support + 
+    knobs.inter_industry_mobility) / 3;
+  
+  // Apply workplace standards settings
+  const workplaceStandards = (knobs.workplace_safety_standards + knobs.work_life_balance_priority + 
+    knobs.employee_rights_protection) / 3;
+  
+  // Apply diversity and inclusion settings
+  const diversityInclusion = (knobs.workplace_diversity_promotion + knobs.equal_opportunity_enforcement + 
+    knobs.accessibility_accommodation) / 3;
+  
+  // Apply employment analytics settings
+  const employmentAnalytics = (knobs.labor_market_data_quality + knobs.workforce_planning_effectiveness + 
+    knobs.employment_policy_evaluation) / 3;
+  
+  console.log('Applied professions knobs to game state:', {
+    laborMarketDynamics,
+    skillsDevelopment,
+    careerAdvancement,
+    workplaceStandards,
+    diversityInclusion,
+    employmentAnalytics
+  });
+}
 
 /**
  * Health check endpoint
@@ -480,5 +577,8 @@ router.get('/statistics', (req: Request, res: Response) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'professions', professionsKnobSystem, applyProfessionsKnobsToGameState);
 
 export default router;

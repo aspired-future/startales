@@ -8,8 +8,105 @@
 import express from 'express';
 import { Pool } from 'pg';
 import { JusticeSecretaryService } from './JusticeSecretaryService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Justice System
+const justiceKnobsData = {
+  // Law Enforcement & Policing
+  law_enforcement_funding: 0.7,          // Law enforcement funding and resource allocation
+  police_accountability_measures: 0.8,   // Police accountability and oversight measures
+  community_policing_emphasis: 0.7,      // Community policing and engagement emphasis
+  
+  // Criminal Justice System
+  criminal_justice_reform_priority: 0.6, // Criminal justice reform and modernization priority
+  sentencing_guidelines_strictness: 0.6, // Sentencing guidelines and judicial discretion
+  rehabilitation_vs_punishment: 0.7,     // Rehabilitation vs punishment emphasis in corrections
+  
+  // Court System & Judicial Administration
+  court_system_efficiency: 0.8,          // Court system efficiency and case processing speed
+  judicial_independence_protection: 0.9, // Judicial independence and separation of powers
+  legal_aid_accessibility: 0.8,          // Legal aid and public defender accessibility
+  
+  // Civil Rights & Constitutional Protection
+  civil_rights_enforcement: 0.9,         // Civil rights enforcement and protection
+  constitutional_rights_protection: 0.9, // Constitutional rights protection and oversight
+  discrimination_prosecution_priority: 0.8, // Discrimination and hate crime prosecution priority
+  
+  // Federal Law Enforcement
+  federal_investigation_capability: 0.8, // Federal investigation and enforcement capability
+  organized_crime_focus: 0.7,            // Organized crime and racketeering investigation focus
+  cybercrime_enforcement: 0.8,           // Cybercrime and digital crime enforcement
+  
+  // Prison System & Corrections
+  prison_system_reform: 0.6,             // Prison system reform and modernization
+  prisoner_rehabilitation_programs: 0.7, // Prisoner rehabilitation and reentry programs
+  prison_overcrowding_management: 0.7,   // Prison overcrowding management and alternatives
+  
+  // Legal Policy & Regulation
+  legal_policy_development: 0.7,         // Legal policy development and implementation
+  regulatory_enforcement_consistency: 0.8, // Regulatory enforcement consistency and fairness
+  legal_system_transparency: 0.8,        // Legal system transparency and public access
+  
+  // Immigration & Border Justice
+  immigration_enforcement_priority: 0.6, // Immigration law enforcement priority and approach
+  asylum_processing_efficiency: 0.7,     // Asylum and refugee processing efficiency
+  border_security_legal_compliance: 0.8, // Border security legal compliance and oversight
+  
+  // Anti-Corruption & Ethics
+  government_corruption_prosecution: 0.9, // Government corruption prosecution and prevention
+  ethics_enforcement_strictness: 0.8,    // Ethics enforcement and compliance monitoring
+  whistleblower_protection_strength: 0.8, // Whistleblower protection and support programs
+  
+  // International Justice Cooperation
+  international_law_enforcement_cooperation: 0.7, // International law enforcement cooperation
+  extradition_treaty_enforcement: 0.8,   // Extradition treaty enforcement and compliance
+  transnational_crime_coordination: 0.7, // Transnational crime investigation coordination
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Justice
+const justiceKnobSystem = new EnhancedKnobSystem(justiceKnobsData);
+
+// Apply justice knobs to game state
+function applyJusticeKnobsToGameState() {
+  const knobs = justiceKnobSystem.knobs;
+  
+  // Apply law enforcement settings
+  const lawEnforcement = (knobs.law_enforcement_funding + knobs.police_accountability_measures + 
+    knobs.community_policing_emphasis) / 3;
+  
+  // Apply criminal justice system settings
+  const criminalJusticeSystem = (knobs.criminal_justice_reform_priority + knobs.sentencing_guidelines_strictness + 
+    knobs.rehabilitation_vs_punishment) / 3;
+  
+  // Apply court system settings
+  const courtSystem = (knobs.court_system_efficiency + knobs.judicial_independence_protection + 
+    knobs.legal_aid_accessibility) / 3;
+  
+  // Apply civil rights settings
+  const civilRights = (knobs.civil_rights_enforcement + knobs.constitutional_rights_protection + 
+    knobs.discrimination_prosecution_priority) / 3;
+  
+  // Apply prison system settings
+  const prisonSystem = (knobs.prison_system_reform + knobs.prisoner_rehabilitation_programs + 
+    knobs.prison_overcrowding_management) / 3;
+  
+  // Apply anti-corruption settings
+  const antiCorruption = (knobs.government_corruption_prosecution + knobs.ethics_enforcement_strictness + 
+    knobs.whistleblower_protection_strength) / 3;
+  
+  console.log('Applied justice knobs to game state:', {
+    lawEnforcement,
+    criminalJusticeSystem,
+    courtSystem,
+    civilRights,
+    prisonSystem,
+    antiCorruption
+  });
+}
 
 // Initialize service (will be properly injected in production)
 let justiceService: JusticeSecretaryService;
@@ -590,5 +687,8 @@ router.post('/simulate/:civilizationId', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'justice', justiceKnobSystem, applyJusticeKnobsToGameState);
 
 export default router;

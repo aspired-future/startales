@@ -6,8 +6,96 @@
 import express from 'express';
 import { SecurityEngine } from './SecurityEngine.js';
 import { SecurityAnalytics } from './SecurityAnalytics.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Security System
+const securityKnobsData = {
+  // Law Enforcement & Policing
+  police_force_size: 0.7,                 // Police force size and deployment level
+  community_policing_emphasis: 0.6,       // Community policing vs traditional enforcement
+  police_training_standards: 0.8,         // Police training quality and standards
+  
+  // Crime Prevention & Response
+  crime_prevention_priority: 0.8,         // Crime prevention vs reactive response
+  emergency_response_speed: 0.8,          // Emergency response time and efficiency
+  investigation_thoroughness: 0.7,        // Criminal investigation depth and quality
+  
+  // Security Technology & Surveillance
+  surveillance_technology_adoption: 0.6,  // Surveillance technology deployment level
+  cybersecurity_investment: 0.8,          // Cybersecurity infrastructure investment
+  biometric_security_usage: 0.5,          // Biometric security system deployment
+  
+  // Federal & National Security
+  federal_security_coordination: 0.7,     // Federal security agency coordination
+  intelligence_sharing: 0.8,              // Intelligence sharing between agencies
+  national_security_priority: 0.8,        // National security threat response priority
+  
+  // Border & Immigration Security
+  border_security_strictness: 0.7,        // Border control and security measures
+  immigration_enforcement: 0.6,           // Immigration law enforcement intensity
+  customs_inspection_thoroughness: 0.7,   // Customs and trade security inspection
+  
+  // Personal & Private Security
+  private_security_regulation: 0.6,       // Private security industry regulation
+  personal_protection_accessibility: 0.5, // Personal security service accessibility
+  corporate_security_standards: 0.7,      // Corporate security requirement standards
+  
+  // Prison & Correctional Security
+  prison_security_level: 0.8,             // Prison security measures and protocols
+  rehabilitation_vs_punishment: 0.6,      // Rehabilitation vs punishment emphasis
+  prisoner_rights_protection: 0.7,        // Prisoner rights and treatment standards
+  
+  // Public Safety & Emergency Management
+  disaster_preparedness: 0.8,             // Disaster and emergency preparedness
+  public_safety_education: 0.6,           // Public safety awareness and education
+  crisis_communication: 0.8,              // Crisis communication and coordination
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Security
+const securityKnobSystem = new EnhancedKnobSystem(securityKnobsData);
+
+// Apply security knobs to game state
+function applySecurityKnobsToGameState() {
+  const knobs = securityKnobSystem.knobs;
+  
+  // Apply law enforcement settings
+  const lawEnforcement = (knobs.police_force_size + knobs.community_policing_emphasis + 
+    knobs.police_training_standards) / 3;
+  
+  // Apply crime prevention settings
+  const crimePrevention = (knobs.crime_prevention_priority + knobs.emergency_response_speed + 
+    knobs.investigation_thoroughness) / 3;
+  
+  // Apply security technology settings
+  const securityTechnology = (knobs.surveillance_technology_adoption + knobs.cybersecurity_investment + 
+    knobs.biometric_security_usage) / 3;
+  
+  // Apply federal security settings
+  const federalSecurity = (knobs.federal_security_coordination + knobs.intelligence_sharing + 
+    knobs.national_security_priority) / 3;
+  
+  // Apply border security settings
+  const borderSecurity = (knobs.border_security_strictness + knobs.immigration_enforcement + 
+    knobs.customs_inspection_thoroughness) / 3;
+  
+  // Apply public safety settings
+  const publicSafety = (knobs.disaster_preparedness + knobs.public_safety_education + 
+    knobs.crisis_communication) / 3;
+  
+  console.log('Applied security knobs to game state:', {
+    lawEnforcement,
+    crimePrevention,
+    securityTechnology,
+    federalSecurity,
+    borderSecurity,
+    publicSafety
+  });
+}
+
 const securityEngine = new SecurityEngine();
 const securityAnalytics = new SecurityAnalytics();
 
@@ -485,5 +573,8 @@ router.post('/demo/generate', (req, res) => {
     res.status(500).json({ error: (error as Error).message });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'security', securityKnobSystem, applySecurityKnobsToGameState);
 
 export default router;

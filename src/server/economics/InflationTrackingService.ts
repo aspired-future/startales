@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { pgPool } from '../storage/db.js';
+import { getPool } from '../storage/db.js';
 
 export interface InflationMetrics {
   id: string;
@@ -127,7 +127,7 @@ export class InflationTrackingService {
   private pool: Pool;
 
   constructor() {
-    this.pool = pgPool;
+    this.pool = getPool();
   }
 
   /**

@@ -3,10 +3,107 @@ import { getPool } from '../storage/db';
 import { TreasuryService } from './TreasuryService';
 import { DepartmentBudgetService } from './DepartmentBudgetService';
 import departmentBudgetRouter from './departmentBudgetRoutes';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const treasuryRouter = Router();
 const treasuryService = new TreasuryService(getPool());
 const departmentBudgetService = new DepartmentBudgetService(getPool(), treasuryService);
+
+// Enhanced AI Knobs for Treasury System
+const treasuryKnobsData = {
+  // Budget Planning & Management
+  budget_planning_horizon: 0.7,         // Budget planning time horizon and forecasting
+  budget_flexibility: 0.6,              // Budget reallocation and adjustment flexibility
+  contingency_reserve_ratio: 0.8,       // Emergency and contingency fund allocation
+  
+  // Revenue Management
+  tax_collection_efficiency: 0.8,       // Tax collection and compliance efficiency
+  revenue_diversification: 0.6,         // Revenue source diversification strategy
+  tax_policy_optimization: 0.7,         // Tax policy design and optimization
+  
+  // Expenditure Control
+  spending_oversight_strictness: 0.8,   // Government spending oversight and control
+  procurement_efficiency: 0.7,          // Government procurement process efficiency
+  cost_benefit_analysis_rigor: 0.8,     // Cost-benefit analysis requirements
+  
+  // Debt Management
+  debt_sustainability_focus: 0.9,       // Debt sustainability and management focus
+  borrowing_cost_optimization: 0.8,     // Government borrowing cost optimization
+  debt_transparency: 0.8,               // Public debt transparency and reporting
+  
+  // Financial Controls & Compliance
+  financial_controls_strictness: 0.9,   // Financial controls and audit requirements
+  anti_fraud_measures: 0.9,             // Anti-fraud and corruption prevention
+  regulatory_compliance_level: 0.8,     // Financial regulatory compliance level
+  
+  // Investment & Asset Management
+  sovereign_wealth_management: 0.6,     // Sovereign wealth fund management
+  public_asset_optimization: 0.7,       // Public asset management and optimization
+  infrastructure_investment_priority: 0.8, // Infrastructure investment prioritization
+  
+  // Economic Stabilization
+  counter_cyclical_policy: 0.6,         // Counter-cyclical fiscal policy implementation
+  automatic_stabilizers: 0.7,           // Automatic fiscal stabilizer mechanisms
+  crisis_response_readiness: 0.8,       // Financial crisis response preparedness
+  
+  // Intergovernmental Finance
+  federal_state_coordination: 0.7,      // Federal-state financial coordination
+  local_government_support: 0.6,        // Local government financial support
+  fiscal_equalization: 0.5,             // Fiscal equalization between regions
+  
+  // Technology & Innovation
+  financial_system_digitization: 0.7,   // Treasury system digitization and automation
+  blockchain_adoption: 0.4,             // Blockchain and digital currency adoption
+  data_analytics_usage: 0.6,            // Financial data analytics and AI usage
+  
+  // Transparency & Accountability
+  public_financial_transparency: 0.8,   // Public financial reporting transparency
+  citizen_engagement_level: 0.6,        // Citizen participation in budget process
+  parliamentary_oversight: 0.8,         // Legislative oversight of treasury operations
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Treasury
+const treasuryKnobSystem = new EnhancedKnobSystem(treasuryKnobsData);
+
+// Apply treasury knobs to game state
+function applyTreasuryKnobsToGameState() {
+  const knobs = treasuryKnobSystem.knobs;
+  
+  // Apply budget management settings
+  const budgetManagement = (knobs.budget_planning_horizon + knobs.budget_flexibility + 
+    knobs.contingency_reserve_ratio) / 3;
+  
+  // Apply revenue management settings
+  const revenueManagement = (knobs.tax_collection_efficiency + knobs.revenue_diversification + 
+    knobs.tax_policy_optimization) / 3;
+  
+  // Apply expenditure control settings
+  const expenditureControl = (knobs.spending_oversight_strictness + knobs.procurement_efficiency + 
+    knobs.cost_benefit_analysis_rigor) / 3;
+  
+  // Apply debt management settings
+  const debtManagement = (knobs.debt_sustainability_focus + knobs.borrowing_cost_optimization + 
+    knobs.debt_transparency) / 3;
+  
+  // Apply financial controls settings
+  const financialControls = (knobs.financial_controls_strictness + knobs.anti_fraud_measures + 
+    knobs.regulatory_compliance_level) / 3;
+  
+  // Apply transparency and accountability settings
+  const transparency = (knobs.public_financial_transparency + knobs.citizen_engagement_level + 
+    knobs.parliamentary_oversight) / 3;
+  
+  console.log('Applied treasury knobs to game state:', {
+    budgetManagement,
+    revenueManagement,
+    expenditureControl,
+    debtManagement,
+    financialControls,
+    transparency
+  });
+}
 
 // Mount department budget routes
 treasuryRouter.use('/', departmentBudgetRouter);
@@ -571,5 +668,8 @@ treasuryRouter.post('/department-budgets/:department/allocate', async (req, res)
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(treasuryRouter, 'treasury', treasuryKnobSystem, applyTreasuryKnobsToGameState);
 
 export default treasuryRouter;

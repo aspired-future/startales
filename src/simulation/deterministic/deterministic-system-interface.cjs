@@ -72,6 +72,23 @@ class DeterministicSystemInterface extends EventEmitter {
         console.log(`Input knob defined: ${this.systemId}.${knobId}`);
     }
 
+    // Simplified input knob method for newer systems
+    addInputKnob(knobId, type, defaultValue, description, min = null, max = null) {
+        const constraints = {};
+        if (min !== null) constraints.min = min;
+        if (max !== null) constraints.max = max;
+        
+        return this.defineInputKnob(knobId, {
+            name: knobId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            description: description,
+            aiDescription: description,
+            type: type,
+            defaultValue: defaultValue,
+            constraints: constraints,
+            category: 'ai_adjustable'
+        });
+    }
+
     // Output Channel Management
     defineOutputChannel(channelId, definition) {
         this.outputChannels.set(channelId, {
@@ -101,6 +118,33 @@ class DeterministicSystemInterface extends EventEmitter {
         });
         
         console.log(`Output channel defined: ${this.systemId}.${channelId}`);
+    }
+
+    // Simplified output channel method for newer systems
+    addOutputChannel(channelId, dataType, description) {
+        return this.defineOutputChannel(channelId, {
+            name: channelId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            description: description,
+            dataType: dataType,
+            structure: this.inferDataStructure(dataType),
+            category: 'ai_consumable',
+            aiConsumable: true,
+            gameConsumable: true
+        });
+    }
+
+    // Helper method to infer data structure from type
+    inferDataStructure(dataType) {
+        const structures = {
+            'int': 'number',
+            'float': 'number', 
+            'boolean': 'boolean',
+            'string': 'string',
+            'array': 'array',
+            'map': 'object',
+            'object': 'object'
+        };
+        return structures[dataType] || 'any';
     }
 
     // Input Operations

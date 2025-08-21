@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('../../../src/demo/apis/enhanced-knob-system.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 4001;
@@ -7,6 +8,126 @@ const PORT = process.env.PORT || 4001;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Enhanced AI Knobs for Witter (Social Media) System
+const witterKnobsData = {
+  // Content Moderation
+  content_filtering_strictness: 0.6,    // Strictness of content filtering
+  misinformation_detection: 0.8,        // Detection of misinformation
+  hate_speech_sensitivity: 0.9,         // Sensitivity to hate speech
+  
+  // Algorithmic Feed
+  engagement_prioritization: 0.7,       // Prioritization of engaging content
+  chronological_vs_algorithmic: 0.4,    // Balance between chronological and algorithmic feed
+  echo_chamber_prevention: 0.6,         // Prevention of echo chambers
+  
+  // Trending & Viral Content
+  trending_threshold: 0.5,              // Threshold for trending topics
+  viral_amplification_rate: 0.6,        // Rate of viral content amplification
+  news_prioritization: 0.8,             // Prioritization of news content
+  
+  // User Engagement
+  notification_frequency: 0.5,          // Frequency of notifications
+  recommendation_aggressiveness: 0.6,   // Aggressiveness of content recommendations
+  social_pressure_indicators: 0.3,      // Display of social pressure indicators (likes, shares)
+  
+  // Political & Social Impact
+  political_content_balance: 0.5,       // Balance of political content exposure
+  fact_checking_prominence: 0.8,        // Prominence of fact-checking labels
+  source_credibility_weighting: 0.9,    // Weighting of source credibility
+  
+  // AI Character Integration
+  ai_character_post_frequency: 0.4,     // Frequency of AI character posts
+  character_influence_on_trends: 0.6,   // Influence of characters on trending topics
+  character_response_authenticity: 0.8, // Authenticity of character responses
+  
+  // Privacy & Data
+  data_collection_scope: 0.5,           // Scope of user data collection
+  personalization_depth: 0.7,           // Depth of content personalization
+  cross_platform_tracking: 0.3,         // Level of cross-platform tracking
+  
+  // Crisis Management
+  crisis_information_priority: 0.9,     // Priority of crisis information
+  emergency_broadcast_reach: 0.8,       // Reach of emergency broadcasts
+  rumor_suppression_speed: 0.7,         // Speed of rumor suppression
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System
+const witterKnobSystem = new EnhancedKnobSystem(witterKnobsData);
+
+// Apply knobs to game state
+function applyWitterKnobsToGameState() {
+  const knobs = witterKnobSystem.knobs;
+  
+  // Apply content moderation settings
+  const moderationSettings = {
+    filtering: knobs.content_filtering_strictness,
+    misinformation: knobs.misinformation_detection,
+    hateSpeech: knobs.hate_speech_sensitivity
+  };
+  
+  // Apply algorithmic feed settings
+  const feedAlgorithm = {
+    engagement: knobs.engagement_prioritization,
+    chronological: knobs.chronological_vs_algorithmic,
+    echoChamber: knobs.echo_chamber_prevention
+  };
+  
+  // Apply trending content settings
+  const trendingSettings = {
+    threshold: knobs.trending_threshold,
+    amplification: knobs.viral_amplification_rate,
+    newsPriority: knobs.news_prioritization
+  };
+  
+  // Apply user engagement settings
+  const engagementSettings = {
+    notifications: knobs.notification_frequency,
+    recommendations: knobs.recommendation_aggressiveness,
+    socialPressure: knobs.social_pressure_indicators
+  };
+  
+  // Apply political and social impact settings
+  const politicalSettings = {
+    balance: knobs.political_content_balance,
+    factChecking: knobs.fact_checking_prominence,
+    credibility: knobs.source_credibility_weighting
+  };
+  
+  // Apply AI character integration settings
+  const characterSettings = {
+    postFrequency: knobs.ai_character_post_frequency,
+    trendInfluence: knobs.character_influence_on_trends,
+    authenticity: knobs.character_response_authenticity
+  };
+  
+  // Apply privacy and data settings
+  const privacySettings = {
+    dataCollection: knobs.data_collection_scope,
+    personalization: knobs.personalization_depth,
+    tracking: knobs.cross_platform_tracking
+  };
+  
+  // Apply crisis management settings
+  const crisisSettings = {
+    infoPriority: knobs.crisis_information_priority,
+    broadcastReach: knobs.emergency_broadcast_reach,
+    rumorSuppression: knobs.rumor_suppression_speed
+  };
+  
+  console.log('Applied Witter knobs to game state:', {
+    moderationSettings,
+    feedAlgorithm,
+    trendingSettings,
+    engagementSettings,
+    politicalSettings,
+    characterSettings,
+    privacySettings,
+    crisisSettings
+  });
+}
 
 // In-memory data store for demo
 const gameState = {
@@ -386,9 +507,14 @@ app.use((req, res) => {
   });
 });
 
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(app, 'witter', witterKnobSystem, applyWitterKnobsToGameState);
+
 app.listen(PORT, () => {
   console.log(`🚀 Witter AI Demo Server running on port ${PORT}`);
   console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
   console.log(`🐦 Witter feed: http://localhost:${PORT}/api/witter/feed`);
+  console.log(`🎛️ AI Knobs: http://localhost:${PORT}/api/witter/knobs`);
+  console.log(`📚 Knob Help: http://localhost:${PORT}/api/witter/knobs/help`);
   console.log(`🎯 AI generation: http://localhost:${PORT}/api/ai/generate`);
 });

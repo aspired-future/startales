@@ -1,0 +1,507 @@
+.cabinet-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* View Tabs - Compact */
+.view-tabs {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.view-tabs .tab {
+  background: none;
+  border: none;
+  color: #b8bcc8;
+  padding: 8px 15px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.view-tabs .tab:hover {
+  color: #4ecdc4;
+}
+
+.view-tabs .tab.active {
+  color: #4ecdc4;
+  border-bottom-color: #4ecdc4;
+}
+
+/* Tab Content */
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Overview */
+.cabinet-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.metric-card {
+  background: rgba(26, 26, 46, 0.8);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 20px rgba(78, 205, 196, 0.2);
+}
+
+.metric-icon {
+  font-size: 32px;
+  opacity: 0.8;
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #4ecdc4;
+  line-height: 1;
+}
+
+.metric-label {
+  color: #b8bcc8;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Cabinet Summary */
+.cabinet-summary h3 {
+  color: #4ecdc4;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+}
+
+.member-summary {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.member-summary:hover {
+  border-color: rgba(78, 205, 196, 0.4);
+  background: rgba(26, 26, 46, 0.8);
+}
+
+.member-avatar {
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.member-avatar img,
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  background: linear-gradient(135deg, #4ecdc4, #45b7aa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  font-size: 16px;
+}
+
+.status-indicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(15, 15, 35, 0.9);
+}
+
+.member-info {
+  flex: 1;
+}
+
+.member-name {
+  color: #4ecdc4;
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.member-position {
+  color: #b8bcc8;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.member-stats {
+  display: flex;
+  gap: 15px;
+  font-size: 12px;
+  color: #b8bcc8;
+}
+
+/* Members View */
+.cabinet-members {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}
+
+.members-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+}
+
+.member-card {
+  background: rgba(26, 26, 46, 0.8);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.member-card:hover,
+.member-card.selected {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 20px rgba(78, 205, 196, 0.2);
+}
+
+.member-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.member-details h4 {
+  color: #4ecdc4;
+  margin: 0 0 5px 0;
+  font-size: 18px;
+}
+
+.member-details p {
+  color: #b8bcc8;
+  margin: 0 0 10px 0;
+  font-size: 14px;
+}
+
+.member-metrics {
+  display: flex;
+  gap: 15px;
+  font-size: 12px;
+  color: #b8bcc8;
+}
+
+.member-specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.specialty-tag {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.member-tasks {
+  border-top: 1px solid rgba(78, 205, 196, 0.2);
+  padding-top: 15px;
+}
+
+.tasks-header {
+  color: #4ecdc4;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.task-preview {
+  margin-bottom: 10px;
+}
+
+.task-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.task-title {
+  color: #e0e6ed;
+  font-size: 13px;
+}
+
+.task-priority {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.task-progress {
+  height: 4px;
+  background: rgba(78, 205, 196, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #4ecdc4;
+  transition: width 0.3s ease;
+}
+
+/* Member Detail Panel */
+.member-detail-panel {
+  width: 300px;
+  background: rgba(26, 26, 46, 0.9);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  height: fit-content;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.detail-header h3 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 18px;
+}
+
+.detail-header button {
+  background: none;
+  border: none;
+  color: #b8bcc8;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+}
+
+.performance-charts {
+  margin-bottom: 20px;
+}
+
+.performance-metric {
+  margin-bottom: 15px;
+}
+
+.performance-metric label {
+  display: block;
+  color: #b8bcc8;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.metric-bar {
+  height: 8px;
+  background: rgba(78, 205, 196, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.metric-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4, #45b7aa);
+  transition: width 0.3s ease;
+}
+
+.performance-metric span {
+  color: #4ecdc4;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.member-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Tasks View */
+.cabinet-tasks {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.tasks-header h3 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 18px;
+}
+
+.tasks-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.task-card {
+  background: rgba(26, 26, 46, 0.8);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.task-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 20px rgba(78, 205, 196, 0.2);
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.task-title {
+  color: #4ecdc4;
+  font-size: 16px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.task-details {
+  margin-bottom: 15px;
+}
+
+.task-assignee,
+.task-deadline {
+  color: #b8bcc8;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.progress-label {
+  color: #b8bcc8;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4, #45b7aa);
+  transition: width 0.3s ease;
+}
+
+.task-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+/* Action Buttons */
+.action-btn {
+  background: rgba(78, 205, 196, 0.2);
+  border: 1px solid rgba(78, 205, 196, 0.5);
+  color: #4ecdc4;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background: rgba(78, 205, 196, 0.3);
+  border-color: #4ecdc4;
+}
+
+.action-btn.primary {
+  background: rgba(78, 205, 196, 0.3);
+  border-color: #4ecdc4;
+}
+
+.action-btn.secondary {
+  background: rgba(78, 205, 196, 0.1);
+}
+
+.action-btn.small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .cabinet-members {
+    flex-direction: column;
+  }
+  
+  .member-detail-panel {
+    width: 100%;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tasks-list {
+    grid-template-columns: 1fr;
+  }
+}

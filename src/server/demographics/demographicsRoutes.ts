@@ -17,10 +17,107 @@ import {
   InjurySeverity,
   CasualtyOutcome
 } from './types.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
 const demographicsEngine = new DemographicsEngine();
 const demographicsAnalytics = new DemographicsAnalytics();
+
+// Enhanced AI Knobs for Demographics System
+const demographicsKnobsData = {
+  // Population Health & Mortality
+  baseline_mortality_rate: 0.3,         // Baseline population mortality rate
+  disease_outbreak_frequency: 0.2,      // Disease outbreak frequency and severity
+  healthcare_system_effectiveness: 0.8, // Healthcare system effectiveness and coverage
+  
+  // Life Expectancy & Aging
+  life_expectancy_improvement_rate: 0.6, // Life expectancy improvement rate
+  aging_population_support: 0.7,        // Aging population care and support systems
+  geriatric_healthcare_quality: 0.8,    // Geriatric and elderly healthcare quality
+  
+  // Birth Rates & Fertility
+  fertility_rate_factors: 0.6,          // Fertility rate influencing factors
+  family_planning_accessibility: 0.8,   // Family planning services accessibility
+  reproductive_health_programs: 0.8,    // Reproductive health program quality
+  
+  // Child & Youth Demographics
+  child_mortality_prevention: 0.9,      // Child mortality prevention programs
+  youth_development_programs: 0.7,      // Youth development and education programs
+  pediatric_healthcare_quality: 0.9,    // Pediatric healthcare quality and access
+  
+  // Population Distribution & Mobility
+  urban_rural_migration_patterns: 0.5,  // Urban-rural migration pattern influence
+  internal_mobility_freedom: 0.8,       // Internal population mobility freedom
+  regional_development_balance: 0.6,     // Regional development balance and equity
+  
+  // Social Demographics
+  gender_equality_level: 0.8,           // Gender equality and representation level
+  social_mobility_opportunities: 0.6,   // Social mobility and opportunity access
+  minority_integration_support: 0.7,    // Minority group integration and support
+  
+  // Economic Demographics
+  employment_demographic_patterns: 0.7, // Employment patterns across demographics
+  income_inequality_management: 0.6,    // Income inequality management and reduction
+  poverty_reduction_effectiveness: 0.7, // Poverty reduction program effectiveness
+  
+  // Education & Human Development
+  education_access_universality: 0.9,   // Universal education access and quality
+  literacy_improvement_programs: 0.8,   // Literacy and basic education programs
+  skill_development_opportunities: 0.7, // Skill development and training opportunities
+  
+  // Cultural & Ethnic Demographics
+  cultural_diversity_preservation: 0.8, // Cultural diversity preservation and support
+  ethnic_harmony_promotion: 0.8,        // Ethnic harmony and integration promotion
+  indigenous_population_support: 0.7,   // Indigenous population rights and support
+  
+  // Demographic Data & Analytics
+  census_accuracy_and_frequency: 0.9,   // Census data accuracy and collection frequency
+  demographic_research_investment: 0.7, // Demographic research and analysis investment
+  population_forecasting_capability: 0.8, // Population forecasting and planning capability
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Demographics
+const demographicsKnobSystem = new EnhancedKnobSystem(demographicsKnobsData);
+
+// Apply demographics knobs to game state
+function applyDemographicsKnobsToGameState() {
+  const knobs = demographicsKnobSystem.knobs;
+  
+  // Apply population health settings
+  const populationHealth = (knobs.baseline_mortality_rate + knobs.disease_outbreak_frequency + 
+    knobs.healthcare_system_effectiveness) / 3;
+  
+  // Apply life expectancy settings
+  const lifeExpectancy = (knobs.life_expectancy_improvement_rate + knobs.aging_population_support + 
+    knobs.geriatric_healthcare_quality) / 3;
+  
+  // Apply birth rate settings
+  const birthRates = (knobs.fertility_rate_factors + knobs.family_planning_accessibility + 
+    knobs.reproductive_health_programs) / 3;
+  
+  // Apply child and youth settings
+  const childYouthDemographics = (knobs.child_mortality_prevention + knobs.youth_development_programs + 
+    knobs.pediatric_healthcare_quality) / 3;
+  
+  // Apply social demographics settings
+  const socialDemographics = (knobs.gender_equality_level + knobs.social_mobility_opportunities + 
+    knobs.minority_integration_support) / 3;
+  
+  // Apply demographic analytics settings
+  const demographicAnalytics = (knobs.census_accuracy_and_frequency + knobs.demographic_research_investment + 
+    knobs.population_forecasting_capability) / 3;
+  
+  console.log('Applied demographics knobs to game state:', {
+    populationHealth,
+    lifeExpectancy,
+    birthRates,
+    childYouthDemographics,
+    socialDemographics,
+    demographicAnalytics
+  });
+}
 
 // ===== HEALTH CHECK =====
 router.get('/health', (req, res) => {
@@ -582,5 +679,8 @@ router.post('/simulate/populate', (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'demographics', demographicsKnobSystem, applyDemographicsKnobsToGameState);
 
 export default router;

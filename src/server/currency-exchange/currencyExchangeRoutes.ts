@@ -1,7 +1,95 @@
 import express from 'express';
 import { getCurrencyExchangeService } from './CurrencyExchangeService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Currency Exchange System
+const currencyExchangeKnobsData = {
+  // Exchange Rate Management
+  exchange_rate_volatility: 0.5,        // Allowed volatility in exchange rates
+  rate_adjustment_speed: 0.6,           // Speed of rate adjustments to market conditions
+  intervention_threshold: 0.7,          // Threshold for market intervention
+  
+  // Monetary Policy
+  interest_rate_differential: 0.5,      // Interest rate differential impact
+  inflation_targeting: 0.8,             // Inflation targeting policy strength
+  money_supply_growth: 0.6,             // Money supply growth rate control
+  
+  // Market Operations
+  market_liquidity_support: 0.7,        // Market liquidity support level
+  trading_fee_structure: 0.4,           // Trading fee levels
+  transaction_processing_speed: 0.8,    // Transaction processing efficiency
+  
+  // Reserve Management
+  foreign_reserve_ratio: 0.6,           // Foreign currency reserve ratio
+  gold_reserve_allocation: 0.3,         // Gold reserve allocation percentage
+  strategic_reserve_buffer: 0.7,        // Strategic reserve buffer size
+  
+  // Currency Union Policy
+  union_membership_openness: 0.4,       // Openness to currency union membership
+  common_currency_adoption: 0.3,        // Common currency adoption rate
+  fiscal_convergence_criteria: 0.8,     // Fiscal convergence requirements
+  
+  // International Cooperation
+  bilateral_swap_agreements: 0.5,       // Bilateral currency swap agreements
+  multilateral_coordination: 0.6,       // Multilateral policy coordination
+  capital_flow_management: 0.7,         // Capital flow management measures
+  
+  // Market Stability
+  speculation_controls: 0.6,            // Speculation control measures
+  crisis_response_mechanisms: 0.8,      // Crisis response mechanism strength
+  systemic_risk_monitoring: 0.9,        // Systemic risk monitoring intensity
+  
+  // Digital Currency Integration
+  digital_currency_adoption: 0.4,       // Digital currency adoption rate
+  blockchain_integration: 0.3,          // Blockchain technology integration
+  cross_border_payment_efficiency: 0.7, // Cross-border payment efficiency
+  
+  // Economic Integration
+  trade_settlement_preferences: 0.6,    // Trade settlement currency preferences
+  investment_flow_facilitation: 0.7,    // Investment flow facilitation
+  economic_sanctions_compliance: 0.9,   // Economic sanctions compliance
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Currency Exchange
+const currencyExchangeKnobSystem = new EnhancedKnobSystem(currencyExchangeKnobsData);
+
+// Apply currency exchange knobs to game state
+function applyCurrencyExchangeKnobsToGameState() {
+  const knobs = currencyExchangeKnobSystem.knobs;
+  
+  // Apply exchange rate management settings
+  const exchangeRateStability = knobs.exchange_rate_volatility * knobs.rate_adjustment_speed;
+  
+  // Apply monetary policy settings
+  const monetaryPolicyEffectiveness = knobs.interest_rate_differential * knobs.inflation_targeting;
+  
+  // Apply market operations settings
+  const marketEfficiency = knobs.market_liquidity_support * knobs.transaction_processing_speed;
+  
+  // Apply reserve management settings
+  const reserveAdequacy = (knobs.foreign_reserve_ratio + knobs.gold_reserve_allocation + 
+    knobs.strategic_reserve_buffer) / 3;
+  
+  // Apply international cooperation settings
+  const internationalIntegration = knobs.bilateral_swap_agreements * knobs.multilateral_coordination;
+  
+  // Apply market stability settings
+  const marketStability = (knobs.speculation_controls + knobs.crisis_response_mechanisms + 
+    knobs.systemic_risk_monitoring) / 3;
+  
+  console.log('Applied currency exchange knobs to game state:', {
+    exchangeRateStability,
+    monetaryPolicyEffectiveness,
+    marketEfficiency,
+    reserveAdequacy,
+    internationalIntegration,
+    marketStability
+  });
+}
 
 /**
  * GET /api/currency-exchange/currencies - List all currencies
@@ -714,5 +802,8 @@ router.get('/analytics/market-summary', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'currency-exchange', currencyExchangeKnobSystem, applyCurrencyExchangeKnobsToGameState);
 
 export default router;

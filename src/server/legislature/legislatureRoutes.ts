@@ -1,8 +1,95 @@
 import express from 'express';
 import { getPool } from '../storage/db.js';
 import { LegislativeBodiesAdvisoryService } from './LegislativeBodiesAdvisoryService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Legislature System
+const legislatureKnobsData = {
+  // Legislative Process & Efficiency
+  legislative_process_speed: 0.6,         // Legislative process speed and efficiency
+  committee_effectiveness: 0.7,           // Committee system effectiveness and thoroughness
+  debate_quality_standards: 0.8,          // Debate quality and deliberation standards
+  
+  // Democratic Participation & Representation
+  public_participation_level: 0.7,        // Public participation in legislative process
+  constituent_representation: 0.8,        // Constituent representation and responsiveness
+  minority_rights_protection: 0.8,        // Minority party rights and protection
+  
+  // Legislative Transparency & Accountability
+  legislative_transparency: 0.8,          // Legislative process transparency and openness
+  voting_record_accessibility: 0.9,       // Voting record public accessibility
+  lobbying_regulation_strictness: 0.7,    // Lobbying regulation and oversight strictness
+  
+  // Bill Quality & Review
+  bill_drafting_standards: 0.8,           // Bill drafting quality and standards
+  constitutional_review_rigor: 0.9,       // Constitutional review and compliance rigor
+  impact_assessment_requirement: 0.8,     // Impact assessment requirement and quality
+  
+  // Partisan Dynamics & Cooperation
+  bipartisan_cooperation_level: 0.6,      // Bipartisan cooperation and collaboration
+  party_discipline_strength: 0.5,         // Political party discipline and unity
+  cross_party_dialogue: 0.6,              // Cross-party dialogue and negotiation
+  
+  // Legislative Oversight & Control
+  executive_oversight_intensity: 0.8,     // Executive branch oversight intensity
+  budget_review_thoroughness: 0.8,        // Budget review and approval thoroughness
+  regulatory_oversight: 0.7,              // Regulatory agency oversight and control
+  
+  // Legislative Innovation & Modernization
+  legislative_technology_adoption: 0.6,   // Technology adoption in legislative process
+  digital_democracy_tools: 0.5,           // Digital democracy and e-participation tools
+  legislative_research_capacity: 0.8,     // Legislative research and analysis capacity
+  
+  // Ethics & Integrity
+  ethical_standards_enforcement: 0.9,     // Ethical standards enforcement and compliance
+  conflict_of_interest_management: 0.8,   // Conflict of interest management and disclosure
+  legislative_ethics_training: 0.7,       // Legislative ethics training and education
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Legislature
+const legislatureKnobSystem = new EnhancedKnobSystem(legislatureKnobsData);
+
+// Apply legislature knobs to game state
+function applyLegislatureKnobsToGameState() {
+  const knobs = legislatureKnobSystem.knobs;
+  
+  // Apply legislative process settings
+  const legislativeProcess = (knobs.legislative_process_speed + knobs.committee_effectiveness + 
+    knobs.debate_quality_standards) / 3;
+  
+  // Apply democratic participation settings
+  const democraticParticipation = (knobs.public_participation_level + knobs.constituent_representation + 
+    knobs.minority_rights_protection) / 3;
+  
+  // Apply transparency and accountability settings
+  const transparencyAccountability = (knobs.legislative_transparency + knobs.voting_record_accessibility + 
+    knobs.lobbying_regulation_strictness) / 3;
+  
+  // Apply bill quality settings
+  const billQuality = (knobs.bill_drafting_standards + knobs.constitutional_review_rigor + 
+    knobs.impact_assessment_requirement) / 3;
+  
+  // Apply partisan dynamics settings
+  const partisanDynamics = (knobs.bipartisan_cooperation_level + knobs.party_discipline_strength + 
+    knobs.cross_party_dialogue) / 3;
+  
+  // Apply legislative oversight settings
+  const legislativeOversight = (knobs.executive_oversight_intensity + knobs.budget_review_thoroughness + 
+    knobs.regulatory_oversight) / 3;
+  
+  console.log('Applied legislature knobs to game state:', {
+    legislativeProcess,
+    democraticParticipation,
+    transparencyAccountability,
+    billQuality,
+    partisanDynamics,
+    legislativeOversight
+  });
+}
 
 // Initialize service
 const getLegislatureService = () => new LegislativeBodiesAdvisoryService(getPool());
@@ -656,5 +743,8 @@ router.get('/dashboard', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'legislature', legislatureKnobSystem, applyLegislatureKnobsToGameState);
 
 export default router;

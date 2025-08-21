@@ -9,8 +9,96 @@ import { Pool } from 'pg';
 import { SmallBusinessService } from './SmallBusinessService.js';
 import { SmallBusinessGenerator } from './SmallBusinessGenerator.js';
 import { initializeSmallBusinessSchema } from './smallBusinessSchema.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Small Business Ecosystem System
+const smallBusinessKnobsData = {
+  // Business Formation & Entrepreneurship
+  entrepreneurship_encouragement: 0.8,       // Entrepreneurship encouragement and startup promotion
+  business_formation_ease: 0.7,              // Business formation ease and regulatory simplification
+  innovation_startup_support: 0.7,           // Innovation startup support and incubation programs
+  
+  // Economic Development & Growth
+  local_economic_development: 0.8,           // Local economic development and community growth
+  job_creation_emphasis: 0.8,                // Job creation emphasis and employment generation
+  economic_diversification_priority: 0.7,    // Economic diversification priority and sector balance
+  
+  // Financial Support & Access
+  small_business_lending_accessibility: 0.7, // Small business lending accessibility and credit availability
+  microfinance_program_strength: 0.6,        // Microfinance program strength and micro-lending support
+  grant_funding_availability: 0.6,           // Grant funding availability and financial assistance
+  
+  // Regulatory Environment & Compliance
+  regulatory_burden_reduction: 0.7,          // Regulatory burden reduction and compliance simplification
+  tax_incentive_generosity: 0.6,             // Tax incentive generosity and small business benefits
+  licensing_process_efficiency: 0.8,         // Licensing process efficiency and permit streamlining
+  
+  // Market Access & Competition
+  market_competition_fairness: 0.8,          // Market competition fairness and anti-monopoly enforcement
+  procurement_opportunity_access: 0.7,       // Government procurement opportunity access for small businesses
+  export_assistance_program_quality: 0.6,    // Export assistance program quality and international market access
+  
+  // Technology & Digital Transformation
+  digital_transformation_support: 0.7,       // Digital transformation support and technology adoption
+  e_commerce_platform_integration: 0.7,      // E-commerce platform integration and online market access
+  cybersecurity_assistance_provision: 0.7,   // Cybersecurity assistance provision and digital security support
+  
+  // Workforce Development & Skills
+  workforce_training_program_quality: 0.7,   // Workforce training program quality and skill development
+  apprenticeship_program_expansion: 0.6,     // Apprenticeship program expansion and hands-on learning
+  entrepreneurial_education_emphasis: 0.7,   // Entrepreneurial education emphasis and business skill training
+  
+  // Community Integration & Social Impact
+  community_business_integration: 0.8,       // Community business integration and local engagement
+  social_enterprise_support: 0.6,            // Social enterprise support and mission-driven business promotion
+  minority_business_development: 0.7,        // Minority business development and inclusive entrepreneurship
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Small Business
+const smallBusinessKnobSystem = new EnhancedKnobSystem(smallBusinessKnobsData);
+
+// Apply small business knobs to game state
+function applySmallBusinessKnobsToGameState() {
+  const knobs = smallBusinessKnobSystem.knobs;
+  
+  // Apply business formation settings
+  const businessFormation = (knobs.entrepreneurship_encouragement + knobs.business_formation_ease + 
+    knobs.innovation_startup_support) / 3;
+  
+  // Apply economic development settings
+  const economicDevelopment = (knobs.local_economic_development + knobs.job_creation_emphasis + 
+    knobs.economic_diversification_priority) / 3;
+  
+  // Apply financial support settings
+  const financialSupport = (knobs.small_business_lending_accessibility + knobs.microfinance_program_strength + 
+    knobs.grant_funding_availability) / 3;
+  
+  // Apply regulatory environment settings
+  const regulatoryEnvironment = (knobs.regulatory_burden_reduction + knobs.tax_incentive_generosity + 
+    knobs.licensing_process_efficiency) / 3;
+  
+  // Apply market access settings
+  const marketAccess = (knobs.market_competition_fairness + knobs.procurement_opportunity_access + 
+    knobs.export_assistance_program_quality) / 3;
+  
+  // Apply community integration settings
+  const communityIntegration = (knobs.community_business_integration + knobs.social_enterprise_support + 
+    knobs.minority_business_development) / 3;
+  
+  console.log('Applied small business knobs to game state:', {
+    businessFormation,
+    economicDevelopment,
+    financialSupport,
+    regulatoryEnvironment,
+    marketAccess,
+    communityIntegration
+  });
+}
+
 let businessService: SmallBusinessService;
 let businessGenerator: SmallBusinessGenerator;
 
@@ -397,5 +485,8 @@ router.get('/:businessId/analytics', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'small-business', smallBusinessKnobSystem, applySmallBusinessKnobsToGameState);
 
 export default router;

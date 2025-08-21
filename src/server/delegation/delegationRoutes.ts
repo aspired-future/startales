@@ -14,8 +14,95 @@ import {
   DecisionCategory,
   ApprovalStatus
 } from './types.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
+
+// Enhanced AI Knobs for Delegation & Authority Management System
+const delegationKnobsData = {
+  // Authority Distribution & Hierarchy
+  authority_distribution_balance: 0.7,       // Authority distribution balance and power sharing
+  hierarchical_structure_flexibility: 0.6,   // Hierarchical structure flexibility and adaptability
+  delegation_scope_breadth: 0.7,             // Delegation scope breadth and comprehensive coverage
+  
+  // Decision-Making Efficiency
+  decision_approval_speed: 0.7,              // Decision approval speed and processing efficiency
+  bureaucratic_streamlining: 0.8,            // Bureaucratic streamlining and red tape reduction
+  emergency_decision_authority: 0.8,         // Emergency decision authority and rapid response
+  
+  // Role Definition & Clarity
+  role_responsibility_clarity: 0.9,          // Role responsibility clarity and definition precision
+  permission_granularity_detail: 0.8,       // Permission granularity detail and specificity
+  accountability_mechanism_strength: 0.8,    // Accountability mechanism strength and enforcement
+  
+  // Delegation Oversight & Control
+  delegation_monitoring_intensity: 0.7,      // Delegation monitoring intensity and supervision
+  authority_abuse_prevention: 0.9,           // Authority abuse prevention and safeguards
+  performance_evaluation_rigor: 0.7,         // Performance evaluation rigor and assessment quality
+  
+  // Inter-Department Coordination
+  cross_department_collaboration: 0.7,       // Cross-department collaboration and coordination
+  information_sharing_openness: 0.7,         // Information sharing openness and transparency
+  jurisdictional_conflict_resolution: 0.8,   // Jurisdictional conflict resolution and mediation
+  
+  // Adaptive Management & Learning
+  delegation_pattern_optimization: 0.7,      // Delegation pattern optimization and continuous improvement
+  organizational_learning_integration: 0.6,  // Organizational learning integration and knowledge retention
+  best_practice_adoption_speed: 0.7,         // Best practice adoption speed and innovation
+  
+  // Security & Access Control
+  security_clearance_rigor: 0.8,             // Security clearance rigor and vetting thoroughness
+  access_control_granularity: 0.8,           // Access control granularity and permission precision
+  sensitive_information_protection: 0.9,     // Sensitive information protection and confidentiality
+  
+  // Performance & Efficiency Metrics
+  delegation_effectiveness_measurement: 0.7, // Delegation effectiveness measurement and analytics
+  resource_allocation_optimization: 0.7,     // Resource allocation optimization and efficiency
+  workflow_automation_integration: 0.6,      // Workflow automation integration and digital transformation
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Delegation
+const delegationKnobSystem = new EnhancedKnobSystem(delegationKnobsData);
+
+// Apply delegation knobs to game state
+function applyDelegationKnobsToGameState() {
+  const knobs = delegationKnobSystem.knobs;
+  
+  // Apply authority distribution settings
+  const authorityDistribution = (knobs.authority_distribution_balance + knobs.hierarchical_structure_flexibility + 
+    knobs.delegation_scope_breadth) / 3;
+  
+  // Apply decision-making efficiency settings
+  const decisionEfficiency = (knobs.decision_approval_speed + knobs.bureaucratic_streamlining + 
+    knobs.emergency_decision_authority) / 3;
+  
+  // Apply role clarity settings
+  const roleClarity = (knobs.role_responsibility_clarity + knobs.permission_granularity_detail + 
+    knobs.accountability_mechanism_strength) / 3;
+  
+  // Apply oversight and control settings
+  const oversightControl = (knobs.delegation_monitoring_intensity + knobs.authority_abuse_prevention + 
+    knobs.performance_evaluation_rigor) / 3;
+  
+  // Apply coordination settings
+  const coordination = (knobs.cross_department_collaboration + knobs.information_sharing_openness + 
+    knobs.jurisdictional_conflict_resolution) / 3;
+  
+  // Apply security settings
+  const security = (knobs.security_clearance_rigor + knobs.access_control_granularity + 
+    knobs.sensitive_information_protection) / 3;
+  
+  console.log('Applied delegation knobs to game state:', {
+    authorityDistribution,
+    decisionEfficiency,
+    roleClarity,
+    oversightControl,
+    coordination,
+    security
+  });
+}
 
 // ===== GOVERNMENT ROLES ENDPOINTS =====
 
@@ -550,5 +637,8 @@ router.post('/initialize', async (req: Request, res: Response) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'delegation', delegationKnobSystem, applyDelegationKnobsToGameState);
 
 export default router;

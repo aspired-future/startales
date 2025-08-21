@@ -9,12 +9,109 @@ import express from 'express';
 import { CityEngine } from './CityEngine.js';
 import { CityAnalyticsEngine } from './CityAnalytics.js';
 import { City, CitySpecialization, DEFAULT_SPECIALIZATIONS } from './types.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
 
 // Initialize engines
 const cityEngine = new CityEngine();
 const analyticsEngine = new CityAnalyticsEngine();
+
+// Enhanced AI Knobs for Cities System
+const citiesKnobsData = {
+  // Urban Planning & Development
+  urban_planning_efficiency: 0.7,       // Urban planning and zoning efficiency
+  mixed_use_development: 0.6,           // Mixed-use development encouragement
+  green_space_priority: 0.8,            // Green space and park development priority
+  
+  // Infrastructure & Services
+  infrastructure_investment_level: 0.8, // Infrastructure development investment
+  public_transportation_priority: 0.7,  // Public transportation system priority
+  utilities_modernization_rate: 0.6,    // Utilities infrastructure modernization
+  
+  // Housing & Residential
+  affordable_housing_mandate: 0.6,      // Affordable housing development mandate
+  housing_density_tolerance: 0.5,       // Housing density and high-rise tolerance
+  residential_quality_standards: 0.8,   // Residential building quality standards
+  
+  // Economic Development
+  business_development_incentives: 0.7, // Business development and attraction incentives
+  industrial_zoning_flexibility: 0.6,   // Industrial and commercial zoning flexibility
+  startup_ecosystem_support: 0.5,       // Startup and innovation ecosystem support
+  
+  // Environmental Sustainability
+  environmental_regulations_strictness: 0.8, // Environmental protection regulations
+  renewable_energy_adoption: 0.7,       // Renewable energy adoption in cities
+  waste_management_efficiency: 0.8,     // Waste management and recycling efficiency
+  
+  // Social Services & Quality of Life
+  public_services_quality: 0.8,         // Public services quality and accessibility
+  cultural_amenities_investment: 0.6,   // Cultural and recreational amenities investment
+  community_engagement_level: 0.7,      // Community participation and engagement
+  
+  // Safety & Security
+  public_safety_investment: 0.8,        // Public safety and emergency services investment
+  crime_prevention_programs: 0.7,       // Crime prevention and community policing
+  disaster_preparedness_level: 0.8,     // Disaster preparedness and resilience
+  
+  // Technology & Innovation
+  smart_city_technology_adoption: 0.6,  // Smart city technology integration
+  digital_infrastructure_priority: 0.7, // Digital and broadband infrastructure
+  data_driven_governance: 0.5,          // Data-driven city management and analytics
+  
+  // Transportation & Mobility
+  traffic_management_efficiency: 0.7,   // Traffic flow and congestion management
+  pedestrian_infrastructure: 0.8,       // Pedestrian and cycling infrastructure
+  parking_policy_strictness: 0.6,       // Parking restrictions and management
+  
+  // Governance & Administration
+  bureaucratic_efficiency: 0.6,         // City administration and permit efficiency
+  citizen_service_digitization: 0.7,    // Digital citizen services and e-government
+  transparency_and_accountability: 0.8, // Government transparency and public accountability
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Cities
+const citiesKnobSystem = new EnhancedKnobSystem(citiesKnobsData);
+
+// Apply cities knobs to game state
+function applyCitiesKnobsToGameState() {
+  const knobs = citiesKnobSystem.knobs;
+  
+  // Apply urban planning settings
+  const urbanPlanningEffectiveness = (knobs.urban_planning_efficiency + knobs.mixed_use_development + 
+    knobs.green_space_priority) / 3;
+  
+  // Apply infrastructure settings
+  const infrastructureQuality = (knobs.infrastructure_investment_level + knobs.public_transportation_priority + 
+    knobs.utilities_modernization_rate) / 3;
+  
+  // Apply housing settings
+  const housingPolicy = (knobs.affordable_housing_mandate + knobs.housing_density_tolerance + 
+    knobs.residential_quality_standards) / 3;
+  
+  // Apply environmental sustainability settings
+  const environmentalSustainability = (knobs.environmental_regulations_strictness + knobs.renewable_energy_adoption + 
+    knobs.waste_management_efficiency) / 3;
+  
+  // Apply social services settings
+  const socialServices = (knobs.public_services_quality + knobs.cultural_amenities_investment + 
+    knobs.community_engagement_level) / 3;
+  
+  // Apply governance settings
+  const governanceEfficiency = (knobs.bureaucratic_efficiency + knobs.citizen_service_digitization + 
+    knobs.transparency_and_accountability) / 3;
+  
+  console.log('Applied cities knobs to game state:', {
+    urbanPlanningEffectiveness,
+    infrastructureQuality,
+    housingPolicy,
+    environmentalSustainability,
+    socialServices,
+    governanceEfficiency
+  });
+}
 
 // Initialize with some sample cities for demonstration
 initializeSampleCities();
@@ -474,5 +571,8 @@ function initializeSampleCities() {
     }
   });
 }
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'cities', citiesKnobSystem, applyCitiesKnobsToGameState);
 
 export default router;

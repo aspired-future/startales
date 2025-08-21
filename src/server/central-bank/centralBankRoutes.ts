@@ -1,8 +1,95 @@
 import express from 'express';
 import { getPool } from '../storage/db.js';
 import { CentralBankAdvisoryService } from './CentralBankAdvisoryService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Central Bank System
+const centralBankKnobsData = {
+  // Monetary Policy & Interest Rates
+  monetary_policy_aggressiveness: 0.6,    // Monetary policy aggressiveness and intervention level
+  interest_rate_adjustment_speed: 0.7,    // Interest rate adjustment speed and responsiveness
+  inflation_targeting_strictness: 0.8,    // Inflation targeting strictness and adherence
+  
+  // Financial Stability & Regulation
+  financial_stability_priority: 0.9,      // Financial stability and systemic risk priority
+  banking_regulation_strictness: 0.8,     // Banking regulation and oversight strictness
+  systemic_risk_monitoring: 0.9,          // Systemic risk monitoring and early warning systems
+  
+  // Currency & Exchange Rate Management
+  currency_stability_focus: 0.7,          // Currency stability and exchange rate management focus
+  foreign_exchange_intervention: 0.6,     // Foreign exchange market intervention willingness
+  capital_flow_management: 0.7,           // Capital flow management and controls
+  
+  // Economic Growth & Employment
+  employment_consideration_weight: 0.7,   // Employment consideration in monetary policy decisions
+  economic_growth_support: 0.6,           // Economic growth support vs price stability balance
+  business_cycle_smoothing: 0.7,          // Business cycle smoothing and counter-cyclical policy
+  
+  // Financial Market Operations
+  market_liquidity_provision: 0.8,        // Market liquidity provision and emergency lending
+  quantitative_easing_readiness: 0.6,     // Quantitative easing and unconventional policy readiness
+  financial_market_intervention: 0.7,     // Financial market intervention and stabilization
+  
+  // International Coordination & Policy
+  international_policy_coordination: 0.7, // International monetary policy coordination
+  global_financial_integration: 0.6,      // Global financial system integration and cooperation
+  cross_border_payment_facilitation: 0.7, // Cross-border payment system facilitation
+  
+  // Communication & Transparency
+  policy_communication_clarity: 0.8,      // Monetary policy communication clarity and guidance
+  forward_guidance_strength: 0.7,         // Forward guidance strength and market signaling
+  central_bank_transparency: 0.8,         // Central bank transparency and accountability
+  
+  // Innovation & Digital Currency
+  digital_currency_development: 0.5,      // Central bank digital currency development
+  fintech_regulation_balance: 0.6,        // Fintech regulation and innovation balance
+  payment_system_modernization: 0.7,      // Payment system modernization and efficiency
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Central Bank
+const centralBankKnobSystem = new EnhancedKnobSystem(centralBankKnobsData);
+
+// Apply central bank knobs to game state
+function applyCentralBankKnobsToGameState() {
+  const knobs = centralBankKnobSystem.knobs;
+  
+  // Apply monetary policy settings
+  const monetaryPolicy = (knobs.monetary_policy_aggressiveness + knobs.interest_rate_adjustment_speed + 
+    knobs.inflation_targeting_strictness) / 3;
+  
+  // Apply financial stability settings
+  const financialStability = (knobs.financial_stability_priority + knobs.banking_regulation_strictness + 
+    knobs.systemic_risk_monitoring) / 3;
+  
+  // Apply currency management settings
+  const currencyManagement = (knobs.currency_stability_focus + knobs.foreign_exchange_intervention + 
+    knobs.capital_flow_management) / 3;
+  
+  // Apply economic growth settings
+  const economicGrowthSupport = (knobs.employment_consideration_weight + knobs.economic_growth_support + 
+    knobs.business_cycle_smoothing) / 3;
+  
+  // Apply market operations settings
+  const marketOperations = (knobs.market_liquidity_provision + knobs.quantitative_easing_readiness + 
+    knobs.financial_market_intervention) / 3;
+  
+  // Apply communication settings
+  const communication = (knobs.policy_communication_clarity + knobs.forward_guidance_strength + 
+    knobs.central_bank_transparency) / 3;
+  
+  console.log('Applied central bank knobs to game state:', {
+    monetaryPolicy,
+    financialStability,
+    currencyManagement,
+    economicGrowthSupport,
+    marketOperations,
+    communication
+  });
+}
 
 // Initialize service
 const getCentralBankService = () => new CentralBankAdvisoryService(getPool());
@@ -709,5 +796,8 @@ router.get('/dashboard', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'central-bank', centralBankKnobSystem, applyCentralBankKnobsToGameState);
 
 export default router;

@@ -16,7 +16,7 @@ import {
   NewsOutletType,
   NewsEventTrigger
 } from './types.js';
-import { LLMProvider } from '../providers/LLMProvider.js';
+import { LLMProvider, SimpleLLMProvider } from '../providers/LLMProvider.js';
 import { vectorMemory } from '../storage/VectorMemory.js';
 import { db } from '../storage/db.js';
 import { nanoid } from 'nanoid';
@@ -27,7 +27,7 @@ export class NewsEngine {
   private eventTriggers: Map<string, NewsEventTrigger> = new Map();
 
   constructor() {
-    this.llmProvider = new LLMProvider();
+    this.llmProvider = new SimpleLLMProvider();
     this.initializeDefaultOutlets();
     this.initializeEventTriggers();
   }

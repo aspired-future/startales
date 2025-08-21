@@ -10,11 +10,22 @@ const { getCommunicationDemo } = require('./communication-demo.cjs');
 const { getGalaxyMapDemo } = require('./galaxy-map-demo.cjs');
 const { getConquestDemo } = require('./conquest-demo.cjs');
 const { getMainHUD } = require('./main-hud.cjs');
+const { getIntegratedWittyGalaxyHUD } = require('../../../temp_dev/integrated_witty_galaxy_hud.js');
 
 function setupDemoPages(app) {
   // Main Command Center HUD
   app.get('/demo/command-center', (req, res) => {
     res.type('html').send(getMainHUD());
+  });
+
+  // Integrated Witty Galaxy HUD (New Enhanced Version)
+  app.get('/demo/witty-galaxy-hud', (req, res) => {
+    res.type('html').send(getIntegratedWittyGalaxyHUD());
+  });
+
+  // Main HUD route (redirect to integrated version)
+  app.get('/hud', (req, res) => {
+    res.redirect('/demo/witty-galaxy-hud');
   });
 
   // Demo Hub page

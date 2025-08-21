@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { Server } = require('socket.io');
 const http = require('http');
+const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('../../../src/demo/apis/enhanced-knob-system.cjs');
 
 const app = express();
 const server = http.createServer(app);
@@ -18,6 +19,113 @@ const PORT = process.env.PORT || 4003;
 app.use(cors());
 app.use(express.json());
 
+// Enhanced AI Knobs for Communication System
+const communicationKnobsData = {
+  // Message Processing
+  message_filtering_strictness: 0.5,    // Strictness of message content filtering
+  auto_translation_quality: 0.8,        // Quality of automatic translation
+  message_priority_weighting: 0.6,      // Weighting of message priority algorithms
+  
+  // Channel Management
+  channel_creation_freedom: 0.7,        // Freedom for users to create channels
+  moderation_automation_level: 0.6,     // Level of automated moderation
+  channel_discovery_visibility: 0.8,    // Visibility of channels in discovery
+  
+  // Diplomatic Communications
+  diplomatic_protocol_strictness: 0.8,  // Strictness of diplomatic protocols
+  treaty_negotiation_assistance: 0.7,   // AI assistance in treaty negotiations
+  conflict_mediation_involvement: 0.6,  // AI involvement in conflict mediation
+  
+  // AI Character Interactions
+  character_response_frequency: 0.5,    // Frequency of AI character responses
+  character_personality_consistency: 0.9, // Consistency of character personalities
+  character_knowledge_accuracy: 0.8,    // Accuracy of character knowledge
+  
+  // Security & Privacy
+  encryption_strength: 0.9,             // Strength of message encryption
+  surveillance_detection: 0.7,          // Detection of surveillance attempts
+  privacy_protection_level: 0.8,        // Level of privacy protection
+  
+  // Communication Analytics
+  sentiment_analysis_depth: 0.6,        // Depth of sentiment analysis
+  relationship_tracking_detail: 0.7,    // Detail of relationship tracking
+  influence_network_mapping: 0.5,       // Mapping of influence networks
+  
+  // Real-time Features
+  voice_processing_quality: 0.8,        // Quality of voice processing
+  real_time_translation_speed: 0.7,     // Speed of real-time translation
+  connection_stability_priority: 0.9,   // Priority of connection stability
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System
+const communicationKnobSystem = new EnhancedKnobSystem(communicationKnobsData);
+
+// Apply knobs to game state
+function applyCommunicationKnobsToGameState() {
+  const knobs = communicationKnobSystem.knobs;
+  
+  // Apply message processing settings
+  const messageProcessing = {
+    filtering: knobs.message_filtering_strictness,
+    translation: knobs.auto_translation_quality,
+    priority: knobs.message_priority_weighting
+  };
+  
+  // Apply channel management settings
+  const channelManagement = {
+    creation: knobs.channel_creation_freedom,
+    moderation: knobs.moderation_automation_level,
+    discovery: knobs.channel_discovery_visibility
+  };
+  
+  // Apply diplomatic settings
+  const diplomaticSettings = {
+    protocol: knobs.diplomatic_protocol_strictness,
+    negotiation: knobs.treaty_negotiation_assistance,
+    mediation: knobs.conflict_mediation_involvement
+  };
+  
+  // Apply AI character settings
+  const characterSettings = {
+    frequency: knobs.character_response_frequency,
+    consistency: knobs.character_personality_consistency,
+    accuracy: knobs.character_knowledge_accuracy
+  };
+  
+  // Apply security settings
+  const securitySettings = {
+    encryption: knobs.encryption_strength,
+    surveillance: knobs.surveillance_detection,
+    privacy: knobs.privacy_protection_level
+  };
+  
+  // Apply analytics settings
+  const analyticsSettings = {
+    sentiment: knobs.sentiment_analysis_depth,
+    relationships: knobs.relationship_tracking_detail,
+    influence: knobs.influence_network_mapping
+  };
+  
+  // Apply real-time settings
+  const realtimeSettings = {
+    voice: knobs.voice_processing_quality,
+    translation: knobs.real_time_translation_speed,
+    stability: knobs.connection_stability_priority
+  };
+  
+  console.log('Applied communication knobs to game state:', {
+    messageProcessing,
+    channelManagement,
+    diplomaticSettings,
+    characterSettings,
+    securitySettings,
+    analyticsSettings,
+    realtimeSettings
+  });
+}
+
 // In-memory data store for demo
 const gameData = {
   players: new Map([
@@ -29,29 +137,110 @@ const gameData = {
   ]),
   
   conversations: new Map([
-    ['conv_1', {
-      id: 'conv_1',
+    // Direct Messages
+    ['conv_direct_1', {
+      id: 'conv_direct_1',
       type: 'direct',
       participants: ['player_1', 'player_2'],
       name: 'Commander Alpha & Admiral Zara',
+      description: 'Direct communication with Admiral Zara',
       created: new Date(Date.now() - 86400000).toISOString(),
-      lastActivity: new Date(Date.now() - 1800000).toISOString()
+      lastActivity: new Date(Date.now() - 1800000).toISOString(),
+      unreadCount: 2
     }],
-    ['conv_2', {
-      id: 'conv_2',
+    ['conv_direct_2', {
+      id: 'conv_direct_2',
+      type: 'direct',
+      participants: ['player_1', 'player_4'],
+      name: 'Commander Alpha & Marshal Vex',
+      description: 'Direct communication with Marshal Vex',
+      created: new Date(Date.now() - 172800000).toISOString(),
+      lastActivity: new Date(Date.now() - 14400000).toISOString(),
+      unreadCount: 0
+    }],
+    
+    // Government Groups
+    ['conv_cabinet', {
+      id: 'conv_cabinet',
+      type: 'group',
+      participants: ['player_1', 'player_2', 'player_3', 'player_4'],
+      name: 'Imperial Cabinet',
+      description: 'High-level government decision making',
+      created: new Date(Date.now() - 604800000).toISOString(),
+      lastActivity: new Date(Date.now() - 3600000).toISOString(),
+      unreadCount: 1
+    }],
+    ['conv_security_council', {
+      id: 'conv_security_council',
       type: 'group',
       participants: ['player_1', 'player_2', 'player_4'],
-      name: 'Alliance Command',
-      created: new Date(Date.now() - 172800000).toISOString(),
-      lastActivity: new Date(Date.now() - 3600000).toISOString()
+      name: 'Security Council',
+      description: 'Military and security coordination',
+      created: new Date(Date.now() - 432000000).toISOString(),
+      lastActivity: new Date(Date.now() - 7200000).toISOString(),
+      unreadCount: 0
     }],
-    ['conv_3', {
-      id: 'conv_3',
+    ['conv_science_committee', {
+      id: 'conv_science_committee',
+      type: 'group',
+      participants: ['player_1', 'player_3', 'player_5'],
+      name: 'Science & Technology Committee',
+      description: 'Research and development coordination',
+      created: new Date(Date.now() - 345600000).toISOString(),
+      lastActivity: new Date(Date.now() - 10800000).toISOString(),
+      unreadCount: 1
+    }],
+    
+    // Inter-Galactic Channels
+    ['conv_galactic_council', {
+      id: 'conv_galactic_council',
       type: 'channel',
       participants: ['player_1', 'player_2', 'player_3', 'player_4', 'player_5'],
       name: 'Galactic Council',
-      created: new Date(Date.now() - 604800000).toISOString(),
-      lastActivity: new Date(Date.now() - 7200000).toISOString()
+      description: 'Inter-civilization diplomatic forum',
+      created: new Date(Date.now() - 1209600000).toISOString(),
+      lastActivity: new Date(Date.now() - 7200000).toISOString(),
+      unreadCount: 0
+    }],
+    ['conv_alliance_command', {
+      id: 'conv_alliance_command',
+      type: 'channel',
+      participants: ['player_1', 'player_2', 'player_4'],
+      name: 'Alliance Command',
+      description: 'Military alliance coordination',
+      created: new Date(Date.now() - 864000000).toISOString(),
+      lastActivity: new Date(Date.now() - 14400000).toISOString(),
+      unreadCount: 3
+    }],
+    ['conv_trade_federation', {
+      id: 'conv_trade_federation',
+      type: 'channel',
+      participants: ['player_1', 'player_2', 'player_3', 'player_5'],
+      name: 'Trade Federation',
+      description: 'Interstellar commerce and trade agreements',
+      created: new Date(Date.now() - 691200000).toISOString(),
+      lastActivity: new Date(Date.now() - 21600000).toISOString(),
+      unreadCount: 0
+    }],
+    ['conv_research_network', {
+      id: 'conv_research_network',
+      type: 'channel',
+      participants: ['player_1', 'player_3', 'player_5'],
+      name: 'Galactic Research Network',
+      description: 'Scientific collaboration across civilizations',
+      created: new Date(Date.now() - 518400000).toISOString(),
+      lastActivity: new Date(Date.now() - 28800000).toISOString(),
+      unreadCount: 1
+    }],
+    ['conv_emergency_response', {
+      id: 'conv_emergency_response',
+      type: 'channel',
+      participants: ['player_1', 'player_2', 'player_4'],
+      name: 'Emergency Response Network',
+      description: 'Crisis management and emergency coordination',
+      created: new Date(Date.now() - 259200000).toISOString(),
+      lastActivity: new Date(Date.now() - 43200000).toISOString(),
+      unreadCount: 0
     }]
   ]),
   
@@ -352,10 +541,19 @@ app.get('/api/communication/conversations/:conversationId/messages', (req, res) 
 
 // Create new conversation
 app.post('/api/communication/conversations', (req, res) => {
-  const { type, participants, name, creatorId } = req.body;
+  const { type, participants, name, creatorId, description, isScheduled, scheduledTime, agenda } = req.body;
   
   if (!participants || participants.length < 2) {
     return res.status(400).json({ error: 'At least 2 participants required' });
+  }
+  
+  // Validate participants exist
+  const invalidParticipants = participants.filter(pid => !gameData.players.has(pid));
+  if (invalidParticipants.length > 0) {
+    return res.status(400).json({ 
+      error: 'Invalid participants', 
+      invalidParticipants 
+    });
   }
   
   const conversationId = `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -364,9 +562,16 @@ app.post('/api/communication/conversations', (req, res) => {
     type: type || 'group',
     participants,
     name: name || `Conversation ${conversationId}`,
+    description: description || `${type === 'summit' ? 'Diplomatic summit' : 'Group conversation'} created by ${gameData.players.get(creatorId)?.name || creatorId}`,
     created: new Date().toISOString(),
     lastActivity: new Date().toISOString(),
-    createdBy: creatorId
+    createdBy: creatorId,
+    unreadCount: 0,
+    // Summit-specific fields
+    isScheduled: isScheduled || false,
+    scheduledTime: scheduledTime || null,
+    agenda: agenda || null,
+    summitType: type === 'summit' ? (participants.length > 2 ? 'multilateral' : 'bilateral') : null
   };
   
   gameData.conversations.set(conversationId, conversation);
@@ -397,6 +602,419 @@ app.post('/api/communication/conversations', (req, res) => {
       ...conversation,
       participantDetails: participants.map(pid => gameData.players.get(pid)).filter(Boolean)
     }
+  });
+});
+
+// Schedule diplomatic summit
+app.post('/api/communication/summits', (req, res) => {
+  const { 
+    name, 
+    participants, 
+    scheduledTime, 
+    agenda, 
+    creatorId, 
+    type = 'summit',
+    description,
+    priority = 'normal'
+  } = req.body;
+  
+  if (!participants || participants.length < 2) {
+    return res.status(400).json({ error: 'At least 2 participants required for a summit' });
+  }
+  
+  if (!scheduledTime) {
+    return res.status(400).json({ error: 'Scheduled time is required for summits' });
+  }
+  
+  // Validate participants exist and get their details
+  const participantDetails = [];
+  const invalidParticipants = [];
+  
+  participants.forEach(pid => {
+    const player = gameData.players.get(pid);
+    if (player) {
+      participantDetails.push(player);
+    } else {
+      invalidParticipants.push(pid);
+    }
+  });
+  
+  if (invalidParticipants.length > 0) {
+    return res.status(400).json({ 
+      error: 'Invalid participants', 
+      invalidParticipants 
+    });
+  }
+  
+  // Check if any participants are human leaders (they need to be available)
+  const humanLeaders = participantDetails.filter(p => 
+    p.name.includes('Commander') || 
+    p.name.includes('President') || 
+    p.name.includes('Director') ||
+    p.name.includes('Emperor')
+  );
+  
+  const summitId = `summit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const summit = {
+    id: summitId,
+    type: 'summit',
+    participants,
+    name: name || `${participants.length > 2 ? 'Multilateral' : 'Bilateral'} Summit`,
+    description: description || `Diplomatic summit scheduled for ${new Date(scheduledTime).toLocaleString()}`,
+    created: new Date().toISOString(),
+    lastActivity: new Date().toISOString(),
+    createdBy: creatorId,
+    unreadCount: 0,
+    // Summit-specific fields
+    isScheduled: true,
+    scheduledTime,
+    agenda: agenda || 'Diplomatic discussions and negotiations',
+    summitType: participants.length > 2 ? 'multilateral' : 'bilateral',
+    priority,
+    status: 'scheduled',
+    humanLeadersInvolved: humanLeaders.length,
+    participantCivilizations: participantDetails.map(p => p.civilization)
+  };
+  
+  gameData.conversations.set(summitId, summit);
+  
+  // Add participants to the socket room
+  participants.forEach(playerId => {
+    const playerSockets = Array.from(connectedPlayers.entries())
+      .filter(([socketId, pid]) => pid === playerId)
+      .map(([socketId]) => socketId);
+    
+    playerSockets.forEach(socketId => {
+      const socket = io.sockets.sockets.get(socketId);
+      if (socket) {
+        socket.join(summitId);
+      }
+    });
+  });
+  
+  // Send summit invitations
+  io.to(summitId).emit('summit_scheduled', {
+    ...summit,
+    participantDetails,
+    message: `You have been invited to a ${summit.summitType} summit: ${summit.name}`
+  });
+  
+  // Create initial summit message
+  const welcomeMessageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const welcomeMessage = {
+    id: welcomeMessageId,
+    conversationId: summitId,
+    senderId: 'system',
+    type: 'system',
+    content: `🏛️ Summit "${summit.name}" has been scheduled for ${new Date(scheduledTime).toLocaleString()}.\n\n📋 Agenda: ${summit.agenda}\n\n👥 Participants: ${participantDetails.map(p => `${p.name} (${p.civilization})`).join(', ')}`,
+    timestamp: new Date().toISOString(),
+    edited: false,
+    reactions: []
+  };
+  
+  gameData.messages.set(welcomeMessageId, welcomeMessage);
+  
+  res.json({
+    success: true,
+    summit: {
+      ...summit,
+      participantDetails
+    },
+    message: 'Summit scheduled successfully'
+  });
+});
+
+// Get scheduled summits
+app.get('/api/communication/summits', (req, res) => {
+  const { playerId, status = 'all' } = req.query;
+  
+  let summits = Array.from(gameData.conversations.values())
+    .filter(conv => conv.type === 'summit');
+  
+  if (playerId) {
+    summits = summits.filter(summit => summit.participants.includes(playerId));
+  }
+  
+  if (status !== 'all') {
+    summits = summits.filter(summit => summit.status === status);
+  }
+  
+  const summitsWithDetails = summits.map(summit => ({
+    ...summit,
+    participantDetails: summit.participants.map(pid => gameData.players.get(pid)).filter(Boolean)
+  })).sort((a, b) => new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime());
+  
+  res.json({
+    summits: summitsWithDetails,
+    total: summitsWithDetails.length
+  });
+});
+
+// Auto-create diplomatic channels when relationships form
+app.post('/api/communication/diplomatic-relationships', (req, res) => {
+  const { 
+    relationshipType, // 'trade_federation', 'alliance', 'research_pact', 'non_aggression', 'mutual_defense'
+    participants, 
+    relationshipName,
+    creatorId,
+    isInternal = false // true for internal civ groups, false for inter-civ
+  } = req.body;
+  
+  if (!participants || participants.length < 2) {
+    return res.status(400).json({ error: 'At least 2 participants required' });
+  }
+  
+  // Auto-generate channel based on relationship type
+  const channelTemplates = {
+    trade_federation: {
+      type: 'channel',
+      namePrefix: 'Trade Federation',
+      description: 'Commercial cooperation and trade agreements',
+      icon: '💼'
+    },
+    alliance: {
+      type: 'channel', 
+      namePrefix: 'Military Alliance',
+      description: 'Strategic military cooperation and defense coordination',
+      icon: '⚔️'
+    },
+    research_pact: {
+      type: 'group',
+      namePrefix: 'Research Collaboration',
+      description: 'Scientific research and technology sharing',
+      icon: '🔬'
+    },
+    non_aggression: {
+      type: 'group',
+      namePrefix: 'Non-Aggression Pact',
+      description: 'Peaceful coexistence and conflict prevention',
+      icon: '🕊️'
+    },
+    mutual_defense: {
+      type: 'channel',
+      namePrefix: 'Defense Coalition',
+      description: 'Mutual defense and security cooperation',
+      icon: '🛡️'
+    }
+  };
+  
+  const template = channelTemplates[relationshipType];
+  if (!template) {
+    return res.status(400).json({ error: 'Invalid relationship type' });
+  }
+  
+  // Generate channel name
+  const participantCivs = participants.map(pid => {
+    const player = gameData.players.get(pid);
+    return player ? player.civilization : 'Unknown';
+  }).filter(civ => civ !== 'Unknown');
+  
+  const channelName = relationshipName || 
+    `${template.namePrefix}: ${participantCivs.join(' & ')}`;
+  
+  // Create the diplomatic channel
+  const channelId = `diplomatic_${relationshipType}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const diplomaticChannel = {
+    id: channelId,
+    type: template.type,
+    participants,
+    name: channelName,
+    description: `${template.description} between ${participantCivs.join(', ')}`,
+    created: new Date().toISOString(),
+    lastActivity: new Date().toISOString(),
+    createdBy: creatorId,
+    unreadCount: 0,
+    // Diplomatic relationship metadata
+    relationshipType,
+    isInternal,
+    participantCivilizations: participantCivs,
+    diplomaticStatus: 'active',
+    icon: template.icon
+  };
+  
+  gameData.conversations.set(channelId, diplomaticChannel);
+  
+  // Add participants to socket room
+  participants.forEach(playerId => {
+    const playerSockets = Array.from(connectedPlayers.entries())
+      .filter(([socketId, pid]) => pid === playerId)
+      .map(([socketId]) => socketId);
+    
+    playerSockets.forEach(socketId => {
+      const socket = io.sockets.sockets.get(socketId);
+      if (socket) {
+        socket.join(channelId);
+      }
+    });
+  });
+  
+  // Send notification about new diplomatic relationship
+  io.to(channelId).emit('diplomatic_channel_created', {
+    ...diplomaticChannel,
+    participantDetails: participants.map(pid => gameData.players.get(pid)).filter(Boolean),
+    message: `${template.icon} New ${template.namePrefix.toLowerCase()} established: ${channelName}`
+  });
+  
+  // Create initial diplomatic message
+  const welcomeMessageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const welcomeMessage = {
+    id: welcomeMessageId,
+    conversationId: channelId,
+    senderId: 'system',
+    type: 'system',
+    content: `${template.icon} **${channelName}** has been established!\n\n📋 Purpose: ${diplomaticChannel.description}\n\n👥 Participants: ${participantCivs.join(', ')}\n\n🤝 This ${isInternal ? 'internal' : 'inter-civilization'} ${relationshipType.replace('_', ' ')} is now active.`,
+    timestamp: new Date().toISOString(),
+    edited: false,
+    reactions: []
+  };
+  
+  gameData.messages.set(welcomeMessageId, welcomeMessage);
+  
+  res.json({
+    success: true,
+    diplomaticChannel: {
+      ...diplomaticChannel,
+      participantDetails: participants.map(pid => gameData.players.get(pid)).filter(Boolean)
+    },
+    message: `${template.namePrefix} channel created successfully`
+  });
+});
+
+// Initialize enhanced conversations (for testing/setup)
+app.post('/api/communication/initialize-enhanced', (req, res) => {
+  console.log('🔄 Initializing enhanced conversation data...');
+  
+  // Clear existing conversations except user-created ones
+  const userCreated = Array.from(gameData.conversations.entries())
+    .filter(([id, conv]) => id.startsWith('conv_') && conv.createdBy);
+  
+  gameData.conversations.clear();
+  
+  // Re-add user created conversations
+  userCreated.forEach(([id, conv]) => {
+    gameData.conversations.set(id, conv);
+  });
+  
+  // Add enhanced pre-filled conversations
+  const enhancedConversations = [
+    // Direct Messages
+    {
+      id: 'conv_direct_1',
+      type: 'direct',
+      participants: ['player_1', 'player_2'],
+      name: 'Commander Alpha & Admiral Zara',
+      description: 'Direct communication with Admiral Zara',
+      created: new Date(Date.now() - 86400000).toISOString(),
+      lastActivity: new Date(Date.now() - 1800000).toISOString(),
+      unreadCount: 2
+    },
+    {
+      id: 'conv_direct_2',
+      type: 'direct',
+      participants: ['player_1', 'player_4'],
+      name: 'Commander Alpha & Marshal Vex',
+      description: 'Direct communication with Marshal Vex',
+      created: new Date(Date.now() - 172800000).toISOString(),
+      lastActivity: new Date(Date.now() - 14400000).toISOString(),
+      unreadCount: 0
+    },
+    
+    // Government Groups
+    {
+      id: 'conv_cabinet',
+      type: 'group',
+      participants: ['player_1', 'player_2', 'player_3', 'player_4'],
+      name: 'Imperial Cabinet',
+      description: 'High-level government decision making',
+      created: new Date(Date.now() - 604800000).toISOString(),
+      lastActivity: new Date(Date.now() - 3600000).toISOString(),
+      unreadCount: 1
+    },
+    {
+      id: 'conv_security_council',
+      type: 'group',
+      participants: ['player_1', 'player_2', 'player_4'],
+      name: 'Security Council',
+      description: 'Military and security coordination',
+      created: new Date(Date.now() - 432000000).toISOString(),
+      lastActivity: new Date(Date.now() - 7200000).toISOString(),
+      unreadCount: 0
+    },
+    {
+      id: 'conv_science_committee',
+      type: 'group',
+      participants: ['player_1', 'player_3', 'player_5'],
+      name: 'Science & Technology Committee',
+      description: 'Research and development coordination',
+      created: new Date(Date.now() - 345600000).toISOString(),
+      lastActivity: new Date(Date.now() - 10800000).toISOString(),
+      unreadCount: 1
+    },
+    
+    // Inter-Galactic Channels
+    {
+      id: 'conv_galactic_council',
+      type: 'channel',
+      participants: ['player_1', 'player_2', 'player_3', 'player_4', 'player_5'],
+      name: 'Galactic Council',
+      description: 'Inter-civilization diplomatic forum',
+      created: new Date(Date.now() - 1209600000).toISOString(),
+      lastActivity: new Date(Date.now() - 7200000).toISOString(),
+      unreadCount: 0
+    },
+    {
+      id: 'conv_alliance_command',
+      type: 'channel',
+      participants: ['player_1', 'player_2', 'player_4'],
+      name: 'Alliance Command',
+      description: 'Military alliance coordination',
+      created: new Date(Date.now() - 864000000).toISOString(),
+      lastActivity: new Date(Date.now() - 14400000).toISOString(),
+      unreadCount: 3
+    },
+    {
+      id: 'conv_trade_federation',
+      type: 'channel',
+      participants: ['player_1', 'player_2', 'player_3', 'player_5'],
+      name: 'Trade Federation',
+      description: 'Interstellar commerce and trade agreements',
+      created: new Date(Date.now() - 691200000).toISOString(),
+      lastActivity: new Date(Date.now() - 21600000).toISOString(),
+      unreadCount: 0
+    },
+    {
+      id: 'conv_research_network',
+      type: 'channel',
+      participants: ['player_1', 'player_3', 'player_5'],
+      name: 'Galactic Research Network',
+      description: 'Scientific collaboration across civilizations',
+      created: new Date(Date.now() - 518400000).toISOString(),
+      lastActivity: new Date(Date.now() - 28800000).toISOString(),
+      unreadCount: 1
+    },
+    {
+      id: 'conv_emergency_response',
+      type: 'channel',
+      participants: ['player_1', 'player_2', 'player_4'],
+      name: 'Emergency Response Network',
+      description: 'Crisis management and emergency coordination',
+      created: new Date(Date.now() - 259200000).toISOString(),
+      lastActivity: new Date(Date.now() - 43200000).toISOString(),
+      unreadCount: 0
+    }
+  ];
+  
+  enhancedConversations.forEach(conv => {
+    gameData.conversations.set(conv.id, conv);
+  });
+  
+  console.log(`✅ Enhanced conversations initialized: ${enhancedConversations.length} channels added`);
+  
+  res.json({
+    success: true,
+    message: 'Enhanced conversations initialized',
+    conversationsAdded: enhancedConversations.length,
+    totalConversations: gameData.conversations.size
   });
 });
 
@@ -547,6 +1165,10 @@ app.use((req, res) => {
       'GET /api/communication/conversations/:playerId',
       'GET /api/communication/conversations/:conversationId/messages',
       'POST /api/communication/conversations',
+      'POST /api/communication/summits',
+      'GET /api/communication/summits',
+      'POST /api/communication/diplomatic-relationships',
+      'POST /api/communication/initialize-enhanced',
       'POST /api/communication/messages',
       'GET /api/communication/voice-calls',
       'POST /api/communication/tts',
@@ -556,10 +1178,15 @@ app.use((req, res) => {
   });
 });
 
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(app, 'communication', communicationKnobSystem, applyCommunicationKnobsToGameState);
+
 server.listen(PORT, () => {
   console.log(`💬 Communication API Server running on port ${PORT}`);
   console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
   console.log(`👥 Players: http://localhost:${PORT}/api/communication/players`);
+  console.log(`🎛️ AI Knobs: http://localhost:${PORT}/api/communication/knobs`);
+  console.log(`📚 Knob Help: http://localhost:${PORT}/api/communication/knobs/help`);
   console.log(`🔊 Voice & Text: WebSocket enabled`);
   console.log(`🎙️ STT/TTS: http://localhost:${PORT}/api/communication/tts`);
 });

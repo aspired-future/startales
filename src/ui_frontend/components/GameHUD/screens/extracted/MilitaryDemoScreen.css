@@ -1,0 +1,978 @@
+.military-demo-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* View Tabs - Compact */
+.view-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+  flex-wrap: wrap;
+}
+
+.view-tabs .tab {
+  background: none;
+  border: none;
+  color: #b8bcc8;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-size: 10px;
+  font-weight: 500;
+  min-width: 100px;
+  flex: 1;
+}
+
+.view-tabs .tab:hover {
+  color: #4ecdc4;
+}
+
+.view-tabs .tab.active {
+  color: #4ecdc4;
+  border-bottom-color: #4ecdc4;
+}
+
+/* Tab Content */
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Common Action Buttons */
+.action-btn {
+  background: rgba(78, 205, 196, 0.2);
+  border: 1px solid #4ecdc4;
+  color: #4ecdc4;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background: rgba(78, 205, 196, 0.3);
+}
+
+.action-btn.secondary {
+  background: rgba(108, 117, 125, 0.2);
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.action-btn.secondary:hover {
+  background: rgba(108, 117, 125, 0.3);
+}
+
+/* Units View */
+.units-view {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.units-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.units-header h4 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 12px;
+}
+
+.units-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.overview-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.stat-card {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #4ecdc4;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.units-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.unit-card {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.unit-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
+}
+
+.unit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.unit-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4ecdc4;
+}
+
+.unit-status {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.unit-type {
+  font-size: 10px;
+  color: #b8bcc8;
+  background: rgba(78, 205, 196, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.unit-commander, .unit-location {
+  font-size: 9px;
+  color: #e0e0e0;
+  margin-bottom: 4px;
+}
+
+.unit-metrics {
+  margin: 10px 0;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  margin-bottom: 3px;
+}
+
+.metric-row span:first-child {
+  color: #b8bcc8;
+}
+
+.metric-value {
+  color: #4ecdc4;
+  font-weight: 500;
+}
+
+.unit-equipment {
+  margin-top: 10px;
+}
+
+.unit-equipment h6 {
+  color: #4ecdc4;
+  margin: 0 0 6px 0;
+  font-size: 10px;
+}
+
+.equipment-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.equipment-tag {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+}
+
+/* Battles View */
+.battles-view {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.battles-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.battles-header h4 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 12px;
+}
+
+.battles-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.battles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+.battle-card {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.battle-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
+}
+
+.battle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.battle-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4ecdc4;
+}
+
+.battle-outcome {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.outcome-victory {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.outcome-defeat {
+  background: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+}
+
+.outcome-stalemate {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.battle-date, .battle-duration {
+  font-size: 9px;
+  color: #b8bcc8;
+  margin-bottom: 4px;
+}
+
+.battle-conditions {
+  margin: 10px 0;
+}
+
+.condition-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  margin-bottom: 3px;
+}
+
+.condition-item span:first-child {
+  color: #b8bcc8;
+}
+
+.condition-item span:last-child {
+  color: #4ecdc4;
+  font-weight: 500;
+}
+
+.casualties-section {
+  margin: 10px 0;
+}
+
+.casualties-section h6 {
+  color: #4ecdc4;
+  margin: 0 0 6px 0;
+  font-size: 10px;
+}
+
+.casualties-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.casualty-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  padding: 4px 6px;
+  border-radius: 3px;
+}
+
+.casualty-item.friendly {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.casualty-item.enemy {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.participants-section {
+  margin-top: 10px;
+}
+
+.participants-section h6 {
+  color: #4ecdc4;
+  margin: 0 0 6px 0;
+  font-size: 10px;
+}
+
+.participants-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.participant-tag {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+}
+
+/* Morale View */
+.morale-view {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.morale-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.morale-header h4 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 12px;
+}
+
+.morale-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.morale-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 12px;
+}
+
+.morale-card {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.morale-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
+}
+
+.morale-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.morale-trend {
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.current-morale {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.morale-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4ecdc4;
+  margin-bottom: 6px;
+}
+
+.morale-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.morale-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.morale-factors {
+  margin-bottom: 15px;
+}
+
+.morale-factors h6 {
+  color: #4ecdc4;
+  margin: 0 0 8px 0;
+  font-size: 10px;
+}
+
+.factor-item {
+  margin-bottom: 6px;
+}
+
+.factor-name {
+  font-size: 9px;
+  color: #b8bcc8;
+  display: inline-block;
+  width: 80px;
+}
+
+.factor-value {
+  font-size: 9px;
+  color: #4ecdc4;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.factor-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.factor-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.recommendations {
+  margin-top: 10px;
+}
+
+.recommendations h6 {
+  color: #4ecdc4;
+  margin: 0 0 6px 0;
+  font-size: 10px;
+}
+
+.recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.recommendation-item {
+  font-size: 9px;
+  color: #e0e0e0;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+/* Alliance View */
+.alliance-view {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.alliance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alliance-header h4 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 12px;
+}
+
+.alliance-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.alliance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+.alliance-card {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.alliance-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
+}
+
+.alliance-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.alliance-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4ecdc4;
+}
+
+.alliance-status {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.alliance-strength {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.strength-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #4ecdc4;
+  margin-bottom: 4px;
+}
+
+.strength-label {
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.alliance-metrics {
+  margin-bottom: 15px;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  margin-bottom: 4px;
+}
+
+.metric-item span:first-child {
+  color: #b8bcc8;
+}
+
+.metric-item span:last-child {
+  color: #4ecdc4;
+  font-weight: 500;
+}
+
+.alliance-members {
+  margin-bottom: 15px;
+}
+
+.alliance-members h6 {
+  color: #4ecdc4;
+  margin: 0 0 6px 0;
+  font-size: 10px;
+}
+
+.members-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.member-tag {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.alliance-objectives {
+  margin-top: 10px;
+}
+
+.alliance-objectives h6 {
+  color: #4ecdc4;
+  margin: 0 0 6px 0;
+  font-size: 10px;
+}
+
+.objectives-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.objective-item {
+  font-size: 9px;
+  color: #e0e0e0;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+/* Sensors View */
+.sensors-view {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sensors-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sensors-header h4 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 12px;
+}
+
+.sensors-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.sensors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.sensor-card {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.sensor-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
+}
+
+.sensor-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.sensor-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4ecdc4;
+}
+
+.sensor-status {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sensor-type {
+  font-size: 10px;
+  color: #b8bcc8;
+  background: rgba(78, 205, 196, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.sensor-location {
+  font-size: 9px;
+  color: #e0e0e0;
+  margin-bottom: 10px;
+}
+
+.sensor-metrics {
+  display: flex;
+  justify-content: space-around;
+  margin: 15px 0;
+}
+
+.metric-circle {
+  text-align: center;
+}
+
+.metric-circle .metric-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #4ecdc4;
+  margin-bottom: 4px;
+}
+
+.metric-circle .metric-label {
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.sensor-details {
+  margin-top: 10px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  margin-bottom: 4px;
+}
+
+.detail-item span:first-child {
+  color: #b8bcc8;
+}
+
+.detail-item span:last-child {
+  color: #4ecdc4;
+  font-weight: 500;
+}
+
+/* Intelligence View */
+.intelligence-view {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.intelligence-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.intelligence-header h4 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 12px;
+}
+
+.intelligence-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.intelligence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 12px;
+}
+
+.intel-card {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.intel-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
+}
+
+.intel-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.intel-codename {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4ecdc4;
+}
+
+.intel-priority {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.intel-type {
+  font-size: 10px;
+  color: #b8bcc8;
+  background: rgba(78, 205, 196, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.intel-status {
+  font-size: 9px;
+  margin-bottom: 10px;
+}
+
+.intel-progress {
+  margin: 15px 0;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: #b8bcc8;
+  margin-bottom: 4px;
+}
+
+.progress-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-bar, .risk-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4, #44a08d);
+  transition: width 0.3s ease;
+}
+
+.risk-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffc107, #fd7e14);
+  transition: width 0.3s ease;
+}
+
+.intel-details {
+  margin: 15px 0;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  margin-bottom: 4px;
+}
+
+.detail-row span:first-child {
+  color: #b8bcc8;
+}
+
+.detail-row span:last-child {
+  color: #4ecdc4;
+  font-weight: 500;
+}
+
+.intel-intelligence {
+  margin-top: 10px;
+}
+
+.intel-intelligence h6 {
+  color: #4ecdc4;
+  margin: 0 0 6px 0;
+  font-size: 10px;
+}
+
+.intelligence-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.intelligence-item {
+  font-size: 9px;
+  color: #e0e0e0;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+/* Loading and Error States */
+.loading, .error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  font-size: 12px;
+  color: #4ecdc4;
+}
+
+.error {
+  color: #f44336;
+}

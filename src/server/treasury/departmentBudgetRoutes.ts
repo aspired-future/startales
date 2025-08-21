@@ -2,8 +2,96 @@ import { Router } from 'express';
 import { getPool } from '../storage/db';
 import { TreasuryService } from './TreasuryService';
 import { DepartmentBudgetService } from './DepartmentBudgetService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const departmentBudgetRouter = Router();
+
+// Enhanced AI Knobs for Department Budget System
+const departmentBudgetKnobsData = {
+  // Budget Allocation & Planning
+  budget_allocation_efficiency: 0.8,      // Budget allocation efficiency and optimization
+  strategic_priority_weighting: 0.7,      // Strategic priority weighting in budget decisions
+  cross_department_coordination: 0.7,     // Cross-department budget coordination and alignment
+  
+  // Fiscal Discipline & Control
+  spending_control_strictness: 0.8,       // Spending control and fiscal discipline strictness
+  budget_variance_tolerance: 0.6,         // Budget variance tolerance and flexibility
+  emergency_fund_management: 0.8,         // Emergency fund management and reserve allocation
+  
+  // Performance-Based Budgeting
+  performance_based_allocation: 0.7,      // Performance-based budget allocation emphasis
+  outcome_measurement_rigor: 0.8,         // Outcome measurement and evaluation rigor
+  efficiency_incentive_strength: 0.7,     // Efficiency incentive and reward system strength
+  
+  // Budget Transparency & Accountability
+  budget_transparency_level: 0.8,         // Budget transparency and public disclosure level
+  accountability_mechanism_strength: 0.8, // Accountability mechanism and oversight strength
+  audit_frequency_intensity: 0.7,         // Internal audit frequency and intensity
+  
+  // Multi-Year Planning & Forecasting
+  long_term_planning_horizon: 0.6,        // Long-term budget planning and forecasting horizon
+  fiscal_sustainability_focus: 0.8,       // Fiscal sustainability and long-term viability focus
+  contingency_planning_thoroughness: 0.7, // Contingency planning and risk management thoroughness
+  
+  // Resource Optimization & Efficiency
+  resource_utilization_optimization: 0.8, // Resource utilization optimization and waste reduction
+  shared_service_consolidation: 0.6,      // Shared service consolidation and efficiency gains
+  technology_investment_priority: 0.7,    // Technology investment priority and modernization
+  
+  // Stakeholder Engagement & Communication
+  stakeholder_consultation_level: 0.7,    // Stakeholder consultation and engagement level
+  budget_communication_clarity: 0.8,      // Budget communication clarity and accessibility
+  public_participation_openness: 0.6,     // Public participation in budget process openness
+  
+  // Innovation & Adaptive Management
+  budget_innovation_encouragement: 0.6,   // Budget innovation and creative solution encouragement
+  adaptive_management_flexibility: 0.7,   // Adaptive management and mid-cycle adjustment flexibility
+  pilot_program_investment: 0.6,          // Pilot program and experimental initiative investment
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Department Budget
+const departmentBudgetKnobSystem = new EnhancedKnobSystem(departmentBudgetKnobsData);
+
+// Apply department budget knobs to game state
+function applyDepartmentBudgetKnobsToGameState() {
+  const knobs = departmentBudgetKnobSystem.knobs;
+  
+  // Apply budget allocation settings
+  const budgetAllocation = (knobs.budget_allocation_efficiency + knobs.strategic_priority_weighting + 
+    knobs.cross_department_coordination) / 3;
+  
+  // Apply fiscal discipline settings
+  const fiscalDiscipline = (knobs.spending_control_strictness + knobs.budget_variance_tolerance + 
+    knobs.emergency_fund_management) / 3;
+  
+  // Apply performance-based budgeting settings
+  const performanceBasedBudgeting = (knobs.performance_based_allocation + knobs.outcome_measurement_rigor + 
+    knobs.efficiency_incentive_strength) / 3;
+  
+  // Apply transparency and accountability settings
+  const transparencyAccountability = (knobs.budget_transparency_level + knobs.accountability_mechanism_strength + 
+    knobs.audit_frequency_intensity) / 3;
+  
+  // Apply multi-year planning settings
+  const multiYearPlanning = (knobs.long_term_planning_horizon + knobs.fiscal_sustainability_focus + 
+    knobs.contingency_planning_thoroughness) / 3;
+  
+  // Apply resource optimization settings
+  const resourceOptimization = (knobs.resource_utilization_optimization + knobs.shared_service_consolidation + 
+    knobs.technology_investment_priority) / 3;
+  
+  console.log('Applied department budget knobs to game state:', {
+    budgetAllocation,
+    fiscalDiscipline,
+    performanceBasedBudgeting,
+    transparencyAccountability,
+    multiYearPlanning,
+    resourceOptimization
+  });
+}
+
 const treasuryService = new TreasuryService(getPool());
 const departmentBudgetService = new DepartmentBudgetService(getPool(), treasuryService);
 
@@ -502,5 +590,8 @@ departmentBudgetRouter.get('/departments/comparison', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(departmentBudgetRouter, 'department-budget', departmentBudgetKnobSystem, applyDepartmentBudgetKnobsToGameState);
 
 export default departmentBudgetRouter;

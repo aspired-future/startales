@@ -8,8 +8,105 @@
 import { Router } from 'express';
 import { warSimulatorService } from './WarSimulatorService.js';
 import { db } from '../storage/db.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
+
+// Enhanced AI Knobs for Military System
+const militaryKnobsData = {
+  // Military Doctrine & Strategy
+  offensive_doctrine_emphasis: 0.6,     // Offensive vs defensive military doctrine
+  combined_arms_coordination: 0.8,      // Combined arms warfare coordination
+  asymmetric_warfare_capability: 0.5,   // Asymmetric and guerrilla warfare capability
+  
+  // Force Structure & Organization
+  professional_military_ratio: 0.7,     // Professional vs conscript military ratio
+  special_forces_investment: 0.6,       // Special operations forces investment
+  reserve_force_integration: 0.5,       // Reserve and militia integration level
+  
+  // Technology & Equipment
+  military_technology_priority: 0.8,    // Military technology development priority
+  equipment_modernization_rate: 0.7,    // Equipment modernization and upgrade rate
+  indigenous_defense_production: 0.6,   // Indigenous defense manufacturing capability
+  
+  // Intelligence & Reconnaissance
+  intelligence_gathering_capability: 0.8, // Intelligence collection and analysis capability
+  surveillance_network_coverage: 0.7,   // Surveillance and monitoring network coverage
+  cyber_warfare_capability: 0.6,        // Cyber warfare and electronic warfare capability
+  
+  // Logistics & Support
+  logistics_efficiency: 0.8,            // Military logistics and supply chain efficiency
+  maintenance_capability: 0.7,          // Equipment maintenance and repair capability
+  medical_support_quality: 0.8,         // Military medical and casualty care quality
+  
+  // Training & Readiness
+  training_intensity: 0.7,              // Military training intensity and frequency
+  joint_operations_training: 0.6,       // Joint and coalition operations training
+  simulation_training_usage: 0.5,       // Advanced simulation and VR training usage
+  
+  // Command & Control
+  command_structure_efficiency: 0.8,    // Command and control structure efficiency
+  decision_making_speed: 0.7,           // Military decision-making speed and agility
+  communication_security: 0.9,          // Military communication security and encryption
+  
+  // Morale & Personnel
+  military_morale_support: 0.8,         // Military morale and welfare programs
+  veteran_support_quality: 0.7,         // Veteran care and support quality
+  recruitment_standards: 0.6,           // Military recruitment standards and selectivity
+  
+  // International Cooperation
+  alliance_integration_level: 0.6,      // Military alliance integration and cooperation
+  peacekeeping_participation: 0.5,      // International peacekeeping participation
+  military_diplomacy_engagement: 0.7,   // Military diplomacy and defense cooperation
+  
+  // Defense Economics
+  defense_spending_efficiency: 0.7,     // Defense spending efficiency and value
+  defense_industrial_base: 0.6,         // Defense industrial base strength
+  military_export_capability: 0.4,      // Military equipment export capability
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Military
+const militaryKnobSystem = new EnhancedKnobSystem(militaryKnobsData);
+
+// Apply military knobs to game state
+function applyMilitaryKnobsToGameState() {
+  const knobs = militaryKnobSystem.knobs;
+  
+  // Apply military doctrine settings
+  const militaryDoctrine = (knobs.offensive_doctrine_emphasis + knobs.combined_arms_coordination + 
+    knobs.asymmetric_warfare_capability) / 3;
+  
+  // Apply force structure settings
+  const forceStructure = (knobs.professional_military_ratio + knobs.special_forces_investment + 
+    knobs.reserve_force_integration) / 3;
+  
+  // Apply technology and equipment settings
+  const militaryTechnology = (knobs.military_technology_priority + knobs.equipment_modernization_rate + 
+    knobs.indigenous_defense_production) / 3;
+  
+  // Apply intelligence capabilities
+  const intelligenceCapability = (knobs.intelligence_gathering_capability + knobs.surveillance_network_coverage + 
+    knobs.cyber_warfare_capability) / 3;
+  
+  // Apply logistics and support settings
+  const logisticsSupport = (knobs.logistics_efficiency + knobs.maintenance_capability + 
+    knobs.medical_support_quality) / 3;
+  
+  // Apply command and control settings
+  const commandControl = (knobs.command_structure_efficiency + knobs.decision_making_speed + 
+    knobs.communication_security) / 3;
+  
+  console.log('Applied military knobs to game state:', {
+    militaryDoctrine,
+    forceStructure,
+    militaryTechnology,
+    intelligenceCapability,
+    logisticsSupport,
+    commandControl
+  });
+}
 
 // ===== MILITARY UNIT MANAGEMENT =====
 
@@ -796,5 +893,8 @@ router.get('/overview', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'military', militaryKnobSystem, applyMilitaryKnobsToGameState);
 
 export default router;

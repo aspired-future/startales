@@ -8,8 +8,96 @@
 import express from 'express';
 import { LegalEngine } from './LegalEngine.js';
 import { LegalAnalytics } from './LegalAnalytics.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Legal & Justice System
+const legalKnobsData = {
+  // Court System & Judicial Process
+  judicial_efficiency_optimization: 0.8,     // Judicial efficiency optimization and case processing speed
+  court_accessibility_enhancement: 0.8,      // Court accessibility enhancement and public access to justice
+  judicial_independence_protection: 0.9,     // Judicial independence protection and impartial decision-making
+  
+  // Law Enforcement & Crime Prevention
+  law_enforcement_effectiveness: 0.8,        // Law enforcement effectiveness and crime prevention capability
+  community_policing_emphasis: 0.7,          // Community policing emphasis and public engagement
+  crime_investigation_sophistication: 0.8,   // Crime investigation sophistication and forensic capability
+  
+  // Legal Representation & Access
+  legal_aid_availability: 0.7,               // Legal aid availability and public defender quality
+  attorney_quality_standards: 0.8,           // Attorney quality standards and professional competence
+  legal_education_accessibility: 0.7,        // Legal education accessibility and public legal literacy
+  
+  // Anti-Corruption & Integrity
+  corruption_detection_capability: 0.8,      // Corruption detection capability and investigative strength
+  anti_corruption_enforcement: 0.8,          // Anti-corruption enforcement and prosecution effectiveness
+  government_transparency_promotion: 0.8,    // Government transparency promotion and accountability measures
+  
+  // Criminal Justice & Rehabilitation
+  criminal_justice_fairness: 0.8,            // Criminal justice fairness and equitable treatment
+  rehabilitation_program_quality: 0.7,       // Rehabilitation program quality and recidivism reduction
+  victim_support_services: 0.7,              // Victim support services and restorative justice
+  
+  // Legal Innovation & Technology
+  legal_technology_adoption: 0.7,            // Legal technology adoption and digital court systems
+  evidence_management_sophistication: 0.8,   // Evidence management sophistication and chain of custody
+  legal_database_integration: 0.7,           // Legal database integration and information sharing
+  
+  // Civil Rights & Constitutional Protection
+  civil_rights_enforcement: 0.9,             // Civil rights enforcement and constitutional protection
+  minority_rights_protection: 0.8,           // Minority rights protection and equal treatment
+  due_process_adherence: 0.9,                // Due process adherence and procedural fairness
+  
+  // Legal System Performance & Analytics
+  legal_outcome_analysis: 0.7,               // Legal outcome analysis and system performance monitoring
+  case_management_efficiency: 0.8,           // Case management efficiency and administrative optimization
+  legal_precedent_consistency: 0.8,          // Legal precedent consistency and jurisprudential coherence
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Legal
+const legalKnobSystem = new EnhancedKnobSystem(legalKnobsData);
+
+// Apply legal knobs to game state
+function applyLegalKnobsToGameState() {
+  const knobs = legalKnobSystem.knobs;
+  
+  // Apply court system settings
+  const courtSystem = (knobs.judicial_efficiency_optimization + knobs.court_accessibility_enhancement + 
+    knobs.judicial_independence_protection) / 3;
+  
+  // Apply law enforcement settings
+  const lawEnforcement = (knobs.law_enforcement_effectiveness + knobs.community_policing_emphasis + 
+    knobs.crime_investigation_sophistication) / 3;
+  
+  // Apply legal representation settings
+  const legalRepresentation = (knobs.legal_aid_availability + knobs.attorney_quality_standards + 
+    knobs.legal_education_accessibility) / 3;
+  
+  // Apply anti-corruption settings
+  const antiCorruption = (knobs.corruption_detection_capability + knobs.anti_corruption_enforcement + 
+    knobs.government_transparency_promotion) / 3;
+  
+  // Apply criminal justice settings
+  const criminalJustice = (knobs.criminal_justice_fairness + knobs.rehabilitation_program_quality + 
+    knobs.victim_support_services) / 3;
+  
+  // Apply civil rights settings
+  const civilRights = (knobs.civil_rights_enforcement + knobs.minority_rights_protection + 
+    knobs.due_process_adherence) / 3;
+  
+  console.log('Applied legal knobs to game state:', {
+    courtSystem,
+    lawEnforcement,
+    legalRepresentation,
+    antiCorruption,
+    criminalJustice,
+    civilRights
+  });
+}
+
 const legalEngine = new LegalEngine();
 const legalAnalytics = new LegalAnalytics();
 
@@ -693,5 +781,8 @@ router.post('/simulate', (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'legal', legalKnobSystem, applyLegalKnobsToGameState);
 
 export default router;

@@ -37,8 +37,95 @@ import {
   GOVERNMENT_TYPES,
   ELECTORAL_SYSTEMS
 } from './types.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
+
+// Enhanced AI Knobs for Governance System
+const governanceKnobsData = {
+  // Democratic Institutions & Processes
+  democratic_institution_strength: 0.8,   // Democratic institution strength and independence
+  electoral_system_fairness: 0.8,         // Electoral system fairness and representation
+  voting_accessibility: 0.8,              // Voting accessibility and participation ease
+  
+  // Constitutional Framework & Rule of Law
+  constitutional_adherence: 0.9,          // Constitutional adherence and respect
+  rule_of_law_strength: 0.9,              // Rule of law strength and enforcement
+  judicial_independence: 0.9,             // Judicial independence from political influence
+  
+  // Political Participation & Representation
+  citizen_political_engagement: 0.7,      // Citizen political engagement and participation
+  minority_representation: 0.7,           // Minority group representation and rights
+  political_party_diversity: 0.6,         // Political party diversity and competition
+  
+  // Government Transparency & Accountability
+  government_transparency: 0.8,           // Government transparency and information access
+  public_accountability_mechanisms: 0.8,  // Public accountability and oversight mechanisms
+  corruption_prevention: 0.8,             // Corruption prevention and anti-corruption measures
+  
+  // Civil Liberties & Human Rights
+  civil_liberties_protection: 0.9,        // Civil liberties and individual rights protection
+  freedom_of_expression: 0.8,             // Freedom of expression and speech protection
+  freedom_of_assembly: 0.8,               // Freedom of assembly and association protection
+  
+  // Government Efficiency & Service Delivery
+  bureaucratic_efficiency: 0.6,           // Government bureaucratic efficiency and responsiveness
+  public_service_quality: 0.7,            // Public service delivery quality and effectiveness
+  policy_implementation_effectiveness: 0.7, // Policy implementation effectiveness and follow-through
+  
+  // Federalism & Decentralization
+  federal_state_balance: 0.6,             // Federal-state power balance and distribution
+  local_government_autonomy: 0.7,         // Local government autonomy and decision-making power
+  subsidiarity_principle: 0.6,            // Subsidiarity principle application and respect
+  
+  // Crisis Management & Emergency Powers
+  emergency_response_capability: 0.8,     // Government emergency response capability
+  crisis_leadership_effectiveness: 0.7,   // Crisis leadership and decision-making effectiveness
+  emergency_powers_limitation: 0.8,       // Emergency powers limitation and oversight
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Governance
+const governanceKnobSystem = new EnhancedKnobSystem(governanceKnobsData);
+
+// Apply governance knobs to game state
+function applyGovernanceKnobsToGameState() {
+  const knobs = governanceKnobSystem.knobs;
+  
+  // Apply democratic institutions settings
+  const democraticInstitutions = (knobs.democratic_institution_strength + knobs.electoral_system_fairness + 
+    knobs.voting_accessibility) / 3;
+  
+  // Apply constitutional framework settings
+  const constitutionalFramework = (knobs.constitutional_adherence + knobs.rule_of_law_strength + 
+    knobs.judicial_independence) / 3;
+  
+  // Apply political participation settings
+  const politicalParticipation = (knobs.citizen_political_engagement + knobs.minority_representation + 
+    knobs.political_party_diversity) / 3;
+  
+  // Apply transparency and accountability settings
+  const transparencyAccountability = (knobs.government_transparency + knobs.public_accountability_mechanisms + 
+    knobs.corruption_prevention) / 3;
+  
+  // Apply civil liberties settings
+  const civilLiberties = (knobs.civil_liberties_protection + knobs.freedom_of_expression + 
+    knobs.freedom_of_assembly) / 3;
+  
+  // Apply government efficiency settings
+  const governmentEfficiency = (knobs.bureaucratic_efficiency + knobs.public_service_quality + 
+    knobs.policy_implementation_effectiveness) / 3;
+  
+  console.log('Applied governance knobs to game state:', {
+    democraticInstitutions,
+    constitutionalFramework,
+    politicalParticipation,
+    transparencyAccountability,
+    civilLiberties,
+    governmentEfficiency
+  });
+}
 
 // Initialize governance engine
 const governanceEngine = new GovernanceEngine();
@@ -968,5 +1055,8 @@ function generateGovernanceRecommendations(analytics: any): string[] {
   
   return recommendations;
 }
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'governance', governanceKnobSystem, applyGovernanceKnobsToGameState);
 
 export default router;

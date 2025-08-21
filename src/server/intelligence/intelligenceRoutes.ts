@@ -1,7 +1,94 @@
 import express from 'express';
 import { getIntelligenceDirectorsService } from './IntelligenceDirectorsService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Intelligence System
+const intelligenceKnobsData = {
+  // Intelligence Collection & Analysis
+  intelligence_gathering_intensity: 0.7,  // Intelligence collection intensity and scope
+  analysis_depth: 0.8,                    // Intelligence analysis depth and accuracy
+  source_diversification: 0.7,            // Intelligence source diversification
+  
+  // Human Intelligence (HUMINT)
+  human_intelligence_priority: 0.6,       // Human intelligence operations priority
+  agent_recruitment: 0.5,                 // Agent recruitment and network building
+  covert_operations: 0.4,                 // Covert operations authorization level
+  
+  // Signals Intelligence (SIGINT)
+  signals_intelligence_capability: 0.8,   // Electronic surveillance and interception
+  communication_monitoring: 0.7,          // Communication monitoring and analysis
+  cyber_intelligence: 0.8,                // Cyber intelligence and digital surveillance
+  
+  // Imagery Intelligence (IMINT)
+  satellite_surveillance: 0.7,            // Satellite and aerial surveillance
+  reconnaissance_frequency: 0.6,          // Reconnaissance mission frequency
+  imagery_analysis_quality: 0.8,          // Imagery analysis and interpretation
+  
+  // Counter-Intelligence
+  counter_intelligence_priority: 0.8,     // Counter-intelligence operations priority
+  security_clearance_strictness: 0.9,     // Security clearance and vetting strictness
+  leak_prevention: 0.8,                   // Information leak prevention measures
+  
+  // Intelligence Sharing & Coordination
+  inter_agency_cooperation: 0.7,          // Inter-agency intelligence sharing
+  international_intelligence_sharing: 0.6, // International intelligence cooperation
+  intelligence_fusion: 0.8,               // Intelligence fusion and integration
+  
+  // Threat Assessment & Warning
+  threat_assessment_frequency: 0.8,       // Threat assessment and analysis frequency
+  early_warning_systems: 0.9,             // Early warning system effectiveness
+  risk_analysis_sophistication: 0.8,      // Risk analysis methodology sophistication
+  
+  // Technology & Innovation
+  intelligence_technology_adoption: 0.7,  // Advanced technology adoption in intelligence
+  artificial_intelligence_usage: 0.6,     // AI and machine learning in intelligence
+  quantum_computing_research: 0.4,        // Quantum computing for intelligence applications
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Intelligence
+const intelligenceKnobSystem = new EnhancedKnobSystem(intelligenceKnobsData);
+
+// Apply intelligence knobs to game state
+function applyIntelligenceKnobsToGameState() {
+  const knobs = intelligenceKnobSystem.knobs;
+  
+  // Apply intelligence collection settings
+  const intelligenceCollection = (knobs.intelligence_gathering_intensity + knobs.analysis_depth + 
+    knobs.source_diversification) / 3;
+  
+  // Apply human intelligence settings
+  const humanIntelligence = (knobs.human_intelligence_priority + knobs.agent_recruitment + 
+    knobs.covert_operations) / 3;
+  
+  // Apply signals intelligence settings
+  const signalsIntelligence = (knobs.signals_intelligence_capability + knobs.communication_monitoring + 
+    knobs.cyber_intelligence) / 3;
+  
+  // Apply counter-intelligence settings
+  const counterIntelligence = (knobs.counter_intelligence_priority + knobs.security_clearance_strictness + 
+    knobs.leak_prevention) / 3;
+  
+  // Apply intelligence sharing settings
+  const intelligenceSharing = (knobs.inter_agency_cooperation + knobs.international_intelligence_sharing + 
+    knobs.intelligence_fusion) / 3;
+  
+  // Apply threat assessment settings
+  const threatAssessment = (knobs.threat_assessment_frequency + knobs.early_warning_systems + 
+    knobs.risk_analysis_sophistication) / 3;
+  
+  console.log('Applied intelligence knobs to game state:', {
+    intelligenceCollection,
+    humanIntelligence,
+    signalsIntelligence,
+    counterIntelligence,
+    intelligenceSharing,
+    threatAssessment
+  });
+}
 
 /**
  * GET /api/intelligence/directors - List all intelligence directors
@@ -875,5 +962,8 @@ router.get('/coordination/briefing', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'intelligence', intelligenceKnobSystem, applyIntelligenceKnobsToGameState);
 
 export default router;

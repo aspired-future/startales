@@ -4,8 +4,95 @@ import { getProceduralCorporationGenerator } from './ProceduralCorporationGenera
 import { getDynamicCityGenerator } from './DynamicCityGenerator.js';
 import { getTradePactsService } from './TradePactsService.js';
 import corporateLifecycleRouter from './corporateLifecycleRoutes.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Economic Ecosystem System
+const economicEcosystemKnobsData = {
+  // Market Structure & Competition
+  market_competition_intensity: 0.7,         // Market competition intensity and competitive dynamics
+  monopoly_prevention_enforcement: 0.8,      // Monopoly prevention enforcement and anti-trust regulation
+  market_entry_barrier_reduction: 0.7,       // Market entry barrier reduction and startup accessibility
+  
+  // Economic Diversification & Development
+  economic_sector_diversification: 0.8,      // Economic sector diversification and industry balance
+  emerging_industry_support: 0.7,            // Emerging industry support and innovation promotion
+  traditional_industry_modernization: 0.6,   // Traditional industry modernization and efficiency improvement
+  
+  // Trade & International Commerce
+  international_trade_facilitation: 0.7,     // International trade facilitation and export promotion
+  trade_agreement_negotiation: 0.7,          // Trade agreement negotiation and diplomatic commerce
+  supply_chain_resilience: 0.8,              // Supply chain resilience and risk mitigation
+  
+  // Corporate Governance & Regulation
+  corporate_governance_standards: 0.8,       // Corporate governance standards and accountability
+  business_ethics_enforcement: 0.8,          // Business ethics enforcement and compliance monitoring
+  regulatory_framework_modernization: 0.7,   // Regulatory framework modernization and adaptive governance
+  
+  // Innovation & Technology Adoption
+  technological_innovation_promotion: 0.8,   // Technological innovation promotion and R&D incentives
+  digital_transformation_acceleration: 0.7,  // Digital transformation acceleration and tech adoption
+  intellectual_property_protection: 0.8,     // Intellectual property protection and innovation security
+  
+  // Labor Market & Employment
+  employment_opportunity_creation: 0.8,      // Employment opportunity creation and job market health
+  workforce_skill_development: 0.8,          // Workforce skill development and training programs
+  labor_rights_protection: 0.8,              // Labor rights protection and worker welfare
+  
+  // Financial Market Integration
+  capital_market_development: 0.7,           // Capital market development and investment facilitation
+  financial_inclusion_promotion: 0.7,        // Financial inclusion promotion and access to capital
+  investment_climate_improvement: 0.7,       // Investment climate improvement and business confidence
+  
+  // Sustainability & Environmental Impact
+  sustainable_business_practices: 0.7,       // Sustainable business practices and environmental responsibility
+  circular_economy_promotion: 0.6,           // Circular economy promotion and waste reduction
+  green_technology_incentivization: 0.7,     // Green technology incentivization and clean innovation
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Economic Ecosystem
+const economicEcosystemKnobSystem = new EnhancedKnobSystem(economicEcosystemKnobsData);
+
+// Apply economic ecosystem knobs to game state
+function applyEconomicEcosystemKnobsToGameState() {
+  const knobs = economicEcosystemKnobSystem.knobs;
+  
+  // Apply market structure settings
+  const marketStructure = (knobs.market_competition_intensity + knobs.monopoly_prevention_enforcement + 
+    knobs.market_entry_barrier_reduction) / 3;
+  
+  // Apply economic diversification settings
+  const economicDiversification = (knobs.economic_sector_diversification + knobs.emerging_industry_support + 
+    knobs.traditional_industry_modernization) / 3;
+  
+  // Apply trade settings
+  const trade = (knobs.international_trade_facilitation + knobs.trade_agreement_negotiation + 
+    knobs.supply_chain_resilience) / 3;
+  
+  // Apply corporate governance settings
+  const corporateGovernance = (knobs.corporate_governance_standards + knobs.business_ethics_enforcement + 
+    knobs.regulatory_framework_modernization) / 3;
+  
+  // Apply innovation settings
+  const innovation = (knobs.technological_innovation_promotion + knobs.digital_transformation_acceleration + 
+    knobs.intellectual_property_protection) / 3;
+  
+  // Apply sustainability settings
+  const sustainability = (knobs.sustainable_business_practices + knobs.circular_economy_promotion + 
+    knobs.green_technology_incentivization) / 3;
+  
+  console.log('Applied economic ecosystem knobs to game state:', {
+    marketStructure,
+    economicDiversification,
+    trade,
+    corporateGovernance,
+    innovation,
+    sustainability
+  });
+}
 
 /**
  * GET /api/economic-ecosystem/overview/:civilization - Get economic ecosystem overview
@@ -1087,5 +1174,8 @@ router.get('/trade-pacts/analytics/:civilization', async (req, res) => {
 
 // Mount Corporate Lifecycle routes
 router.use('/lifecycle', corporateLifecycleRouter);
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'economic-ecosystem', economicEcosystemKnobSystem, applyEconomicEcosystemKnobsToGameState);
 
 export default router;

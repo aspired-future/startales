@@ -16,12 +16,109 @@ import {
   MIGRATION_SUBTYPES,
   INTEGRATION_STAGES
 } from './types.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
 
 // Initialize engines
 const migrationEngine = new MigrationEngine();
 const analyticsEngine = new IntegrationAnalyticsEngine();
+
+// Enhanced AI Knobs for Migration System
+const migrationKnobsData = {
+  // Immigration Policy & Controls
+  immigration_openness_level: 0.6,      // Overall immigration openness and acceptance
+  border_security_strictness: 0.7,      // Border control and security measures
+  visa_processing_efficiency: 0.7,      // Visa application processing speed and efficiency
+  
+  // Refugee & Humanitarian Policy
+  refugee_acceptance_rate: 0.5,         // Refugee and asylum seeker acceptance rate
+  humanitarian_priority: 0.8,           // Humanitarian crisis response priority
+  family_reunification_support: 0.7,    // Family reunification program support
+  
+  // Economic Migration
+  skilled_worker_attraction: 0.8,       // Skilled worker immigration incentives
+  labor_market_testing_rigor: 0.6,      // Labor market testing requirements
+  temporary_worker_programs: 0.6,       // Temporary and seasonal worker programs
+  
+  // Integration & Settlement Services
+  language_training_investment: 0.8,    // Language training program investment
+  cultural_orientation_programs: 0.7,   // Cultural orientation and integration programs
+  settlement_service_quality: 0.8,      // Settlement and support service quality
+  
+  // Social Integration
+  community_integration_support: 0.7,   // Community integration and social cohesion
+  anti_discrimination_enforcement: 0.8, // Anti-discrimination law enforcement
+  multicultural_policy_strength: 0.6,   // Multicultural and diversity policy strength
+  
+  // Economic Integration
+  credential_recognition_efficiency: 0.6, // Foreign credential recognition efficiency
+  employment_support_programs: 0.7,     // Employment assistance and job placement
+  entrepreneurship_support: 0.6,        // Immigrant entrepreneurship support programs
+  
+  // Education & Youth Integration
+  education_access_equality: 0.8,       // Equal education access for immigrant children
+  higher_education_pathways: 0.7,       // Higher education pathways for immigrants
+  youth_integration_programs: 0.7,      // Youth-specific integration programs
+  
+  // Health & Social Services
+  healthcare_access_universality: 0.8,  // Universal healthcare access for immigrants
+  mental_health_support: 0.6,           // Mental health and trauma support services
+  social_safety_net_inclusion: 0.7,     // Social safety net inclusion level
+  
+  // Regional Distribution & Planning
+  regional_distribution_strategy: 0.5,  // Regional immigrant distribution strategy
+  rural_immigration_incentives: 0.4,    // Rural and remote area immigration incentives
+  urban_integration_capacity: 0.7,      // Urban area integration capacity management
+  
+  // Monitoring & Evaluation
+  integration_outcome_tracking: 0.8,    // Integration outcome measurement and tracking
+  policy_effectiveness_evaluation: 0.7, // Immigration policy effectiveness evaluation
+  data_driven_policy_adjustment: 0.6,   // Data-driven policy adjustment and improvement
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Migration
+const migrationKnobSystem = new EnhancedKnobSystem(migrationKnobsData);
+
+// Apply migration knobs to game state
+function applyMigrationKnobsToGameState() {
+  const knobs = migrationKnobSystem.knobs;
+  
+  // Apply immigration policy settings
+  const immigrationPolicy = (knobs.immigration_openness_level + knobs.border_security_strictness + 
+    knobs.visa_processing_efficiency) / 3;
+  
+  // Apply refugee and humanitarian settings
+  const humanitarianPolicy = (knobs.refugee_acceptance_rate + knobs.humanitarian_priority + 
+    knobs.family_reunification_support) / 3;
+  
+  // Apply integration services settings
+  const integrationServices = (knobs.language_training_investment + knobs.cultural_orientation_programs + 
+    knobs.settlement_service_quality) / 3;
+  
+  // Apply social integration settings
+  const socialIntegration = (knobs.community_integration_support + knobs.anti_discrimination_enforcement + 
+    knobs.multicultural_policy_strength) / 3;
+  
+  // Apply economic integration settings
+  const economicIntegration = (knobs.credential_recognition_efficiency + knobs.employment_support_programs + 
+    knobs.entrepreneurship_support) / 3;
+  
+  // Apply monitoring and evaluation settings
+  const policyEvaluation = (knobs.integration_outcome_tracking + knobs.policy_effectiveness_evaluation + 
+    knobs.data_driven_policy_adjustment) / 3;
+  
+  console.log('Applied migration knobs to game state:', {
+    immigrationPolicy,
+    humanitarianPolicy,
+    integrationServices,
+    socialIntegration,
+    economicIntegration,
+    policyEvaluation
+  });
+}
 
 // Initialize with sample data for demonstration
 initializeSampleData();
@@ -715,5 +812,8 @@ function generateDefaultIntegrationFactors() {
     resourceAccess: 60
   };
 }
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'migration', migrationKnobSystem, applyMigrationKnobsToGameState);
 
 export default router;

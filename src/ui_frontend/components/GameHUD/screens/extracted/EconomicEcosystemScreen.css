@@ -1,0 +1,1016 @@
+/* Economic Ecosystem Screen Styles */
+.economic-ecosystem-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+  color: #e8eaed;
+}
+
+/* View Tabs - Compact */
+.view-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+  flex-wrap: wrap;
+}
+
+.view-tabs .tab {
+  background: none;
+  border: none;
+  color: #b8bcc8;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-size: 9px;
+  font-weight: 500;
+  min-width: 70px;
+  flex: 1;
+}
+
+.view-tabs .tab.active {
+  color: #4ecdc4;
+  border-bottom-color: #4ecdc4;
+}
+
+.view-tabs .tab:hover:not(.active) {
+  color: #d1d5db;
+  background: rgba(78, 205, 196, 0.1);
+}
+
+/* Tab Content */
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+/* Overview Tab */
+.overview-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.overview-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.metric-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.metric-card:hover {
+  border-color: #4ecdc4;
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.metric-icon {
+  font-size: 20px;
+  width: 35px;
+  text-align: center;
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #4ecdc4;
+  margin-bottom: 3px;
+}
+
+.metric-label {
+  font-size: 10px;
+  color: #b8bcc8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.overview-summary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  border-radius: 8px;
+  padding: 18px;
+  backdrop-filter: blur(10px);
+}
+
+.summary-panel h3 {
+  color: #4ecdc4;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.summary-panel p {
+  color: #d1d5db;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.status-indicators {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-label {
+  color: #b8bcc8;
+  font-size: 11px;
+}
+
+.status-value {
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.status-value.positive {
+  color: #4ecdc4;
+}
+
+.status-value.negative {
+  color: #ff6b6b;
+}
+
+/* Cities Tab */
+.cities-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.cities-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cities-header h3 {
+  color: #4ecdc4;
+  font-size: 15px;
+}
+
+.city-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 15px;
+}
+
+.city-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.city-card:hover {
+  border-color: #4ecdc4;
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.city-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.city-name {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.city-name h4 {
+  color: #e8eaed;
+  font-size: 13px;
+  margin: 0;
+}
+
+.city-tier {
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #1a1a2e;
+  width: fit-content;
+}
+
+.equilibrium-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.equilibrium-indicator.balanced {
+  background: #4ecdc4;
+}
+
+.equilibrium-indicator.surplus {
+  background: #ffd93d;
+}
+
+.equilibrium-indicator.deficit {
+  background: #ff6b6b;
+}
+
+.city-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.stat-label {
+  color: #b8bcc8;
+}
+
+.stat-value {
+  color: #4ecdc4;
+  font-weight: 500;
+}
+
+.city-industries h5 {
+  color: #4ecdc4;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.industry-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.industry-tag {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+/* Products Tab */
+.products-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.products-header h3 {
+  color: #4ecdc4;
+  font-size: 15px;
+}
+
+.product-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.product-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.product-card:hover {
+  border-color: #4ecdc4;
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.product-header {
+  margin-bottom: 12px;
+}
+
+.product-name {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-name h4 {
+  color: #e8eaed;
+  font-size: 13px;
+  margin: 0;
+}
+
+.product-status {
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #1a1a2e;
+}
+
+.product-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.detail-label {
+  color: #b8bcc8;
+}
+
+.detail-value {
+  color: #4ecdc4;
+  font-weight: 500;
+}
+
+.product-players h5 {
+  color: #4ecdc4;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.product-players ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.product-players li {
+  font-size: 10px;
+  color: #d1d5db;
+  padding: 1px 0;
+  padding-left: 10px;
+  position: relative;
+}
+
+.product-players li::before {
+  content: "•";
+  color: #4ecdc4;
+  position: absolute;
+  left: 0;
+}
+
+/* Corporations Tab */
+.corporations-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.corporations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.corporations-header h3 {
+  color: #4ecdc4;
+  font-size: 15px;
+}
+
+.corporation-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.corporations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 15px;
+}
+
+.corporation-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.corporation-card:hover {
+  border-color: #4ecdc4;
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.corporation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.corporation-name {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.corporation-name h4 {
+  color: #e8eaed;
+  font-size: 13px;
+  margin: 0;
+}
+
+.corporation-symbol {
+  color: #b8bcc8;
+  font-size: 10px;
+}
+
+.corporation-size {
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #1a1a2e;
+}
+
+.corporation-size.large {
+  background: #4ecdc4;
+}
+
+.corporation-size.medium {
+  background: #ffd93d;
+}
+
+.corporation-size.small {
+  background: #ff9f43;
+}
+
+.corporation-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.corporation-advantages h5 {
+  color: #4ecdc4;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.advantage-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.advantage-tag {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+/* Supply Chains Tab */
+.supply-chains-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.supply-chains-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.supply-chains-header h3 {
+  color: #4ecdc4;
+  font-size: 15px;
+}
+
+.supply-chain-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.supply-chains-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 15px;
+}
+
+.supply-chain-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.supply-chain-card:hover {
+  border-color: #4ecdc4;
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.chain-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.chain-header h4 {
+  color: #e8eaed;
+  font-size: 13px;
+  margin: 0;
+}
+
+.chain-location {
+  color: #b8bcc8;
+  font-size: 10px;
+  background: rgba(78, 205, 196, 0.2);
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.chain-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.chain-materials h5 {
+  color: #4ecdc4;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.material-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.material-tag {
+  background: rgba(255, 215, 61, 0.2);
+  color: #ffd93d;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.chain-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-label {
+  color: #b8bcc8;
+  font-size: 10px;
+  min-width: 60px;
+}
+
+.progress-bar {
+  flex: 1;
+  background: rgba(78, 205, 196, 0.2);
+  border-radius: 10px;
+  height: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #4ecdc4, #45b7aa);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.progress-value {
+  color: #4ecdc4;
+  font-size: 10px;
+  font-weight: 500;
+  min-width: 35px;
+  text-align: right;
+}
+
+/* Trade Tab */
+.trade-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.trade-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.trade-header h3 {
+  color: #4ecdc4;
+  font-size: 15px;
+}
+
+.trade-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.trade-policies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 15px;
+}
+
+.trade-policy-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.trade-policy-card:hover {
+  border-color: #4ecdc4;
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.policy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.policy-header h4 {
+  color: #e8eaed;
+  font-size: 13px;
+  margin: 0;
+}
+
+.relationship-badge {
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #1a1a2e;
+}
+
+.policy-overview {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 11px;
+}
+
+.overview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.overview-label {
+  color: #b8bcc8;
+}
+
+.overview-value {
+  color: #4ecdc4;
+  font-weight: 500;
+}
+
+.strategic-products h5 {
+  color: #4ecdc4;
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+
+.product-policy {
+  margin-bottom: 8px;
+  padding: 8px;
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 6px;
+}
+
+.product-name {
+  color: #e8eaed;
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.policy-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.policy-detail {
+  color: #d1d5db;
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+/* Talent Tab */
+.talent-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.talent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.talent-header h3 {
+  color: #4ecdc4;
+  font-size: 15px;
+}
+
+.talent-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.talent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.skill-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.skill-card:hover {
+  border-color: #4ecdc4;
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.skill-header {
+  margin-bottom: 12px;
+}
+
+.skill-header h4 {
+  color: #e8eaed;
+  font-size: 13px;
+  margin: 0 0 4px 0;
+}
+
+.skill-name {
+  color: #4ecdc4;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.skill-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.metric-label {
+  color: #b8bcc8;
+}
+
+.metric-value {
+  color: #4ecdc4;
+  font-weight: 500;
+}
+
+.metric-value.positive {
+  color: #4ecdc4;
+}
+
+.metric-value.negative {
+  color: #ff6b6b;
+}
+
+.availability-scarce {
+  color: #ff6b6b !important;
+}
+
+.availability-critical {
+  color: #ff4757 !important;
+}
+
+.availability-moderate {
+  color: #ffd93d !important;
+}
+
+.availability-abundant {
+  color: #4ecdc4 !important;
+}
+
+.demand-very-high {
+  color: #ff6b6b !important;
+}
+
+.demand-high {
+  color: #ff9f43 !important;
+}
+
+.demand-medium {
+  color: #ffd93d !important;
+}
+
+.demand-low {
+  color: #4ecdc4 !important;
+}
+
+.skill-progress {
+  margin-top: 8px;
+}
+
+/* Action Buttons */
+.action-btn {
+  background: linear-gradient(90deg, #4ecdc4, #45b7aa);
+  border: none;
+  color: #1a1a2e;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+}
+
+.action-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  color: #4ecdc4;
+  backdrop-filter: blur(10px);
+}
+
+.action-btn.secondary:hover {
+  background: rgba(78, 205, 196, 0.2);
+}
+
+/* Loading and Error States */
+.loading {
+  text-align: center;
+  color: #4ecdc4;
+  font-size: 14px;
+  padding: 40px;
+}
+
+.error {
+  text-align: center;
+  color: #ff6b6b;
+  font-size: 14px;
+  padding: 40px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  margin: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .overview-metrics,
+  .cities-grid,
+  .products-grid,
+  .corporations-grid,
+  .supply-chains-grid,
+  .trade-policies-grid,
+  .talent-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .view-tabs {
+    flex-direction: column;
+  }
+  
+  .view-tabs .tab {
+    min-width: auto;
+    flex: none;
+  }
+  
+  .cities-header,
+  .products-header,
+  .corporations-header,
+  .supply-chains-header,
+  .trade-header,
+  .talent-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .city-controls,
+  .product-controls,
+  .corporation-controls,
+  .supply-chain-controls,
+  .trade-controls,
+  .talent-controls {
+    justify-content: center;
+  }
+}

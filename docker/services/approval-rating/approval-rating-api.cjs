@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('../../../src/demo/apis/enhanced-knob-system.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 4002;
@@ -7,6 +8,90 @@ const PORT = process.env.PORT || 4002;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Enhanced AI Knobs for Approval Rating System
+const approvalRatingKnobsData = {
+  // Public Opinion Influence
+  media_influence_level: 0.6,           // How much media coverage affects ratings
+  social_media_impact: 0.7,             // Impact of social media on approval
+  public_event_sensitivity: 0.5,        // Sensitivity to public events
+  
+  // Policy Impact Factors
+  economic_policy_weight: 0.8,          // Weight of economic policies on approval
+  social_policy_weight: 0.6,            // Weight of social policies on approval
+  foreign_policy_weight: 0.4,           // Weight of foreign policy on approval
+  
+  // Demographic Response Rates
+  youth_responsiveness: 0.7,            // How quickly young voters change opinion
+  elder_stability: 0.3,                 // How stable older voter opinions are
+  professional_influence: 0.5,          // Professional class influence on ratings
+  
+  // Crisis Management
+  crisis_response_bonus: 0.6,           // Bonus for good crisis management
+  scandal_impact_severity: 0.8,         // How much scandals hurt approval
+  recovery_rate: 0.4,                   // Rate of approval recovery over time
+  
+  // Communication Effectiveness
+  speech_effectiveness: 0.6,            // Impact of leader speeches
+  transparency_bonus: 0.5,              // Bonus for government transparency
+  propaganda_effectiveness: 0.3,        // Effectiveness of propaganda campaigns
+  
+  // External Factors
+  economic_correlation: 0.9,            // Correlation with economic performance
+  security_correlation: 0.7,            // Correlation with security situation
+  international_reputation_impact: 0.4, // Impact of international standing
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System
+const approvalRatingKnobSystem = new EnhancedKnobSystem(approvalRatingKnobsData);
+
+// Apply knobs to game state
+function applyApprovalRatingKnobsToGameState() {
+  const knobs = approvalRatingKnobSystem.knobs;
+  
+  // Apply media influence to rating volatility
+  const mediaVolatility = knobs.media_influence_level * knobs.social_media_impact;
+  
+  // Apply policy weights to historical data processing
+  const policyImpactMultiplier = (knobs.economic_policy_weight + knobs.social_policy_weight + knobs.foreign_policy_weight) / 3;
+  
+  // Apply demographic responsiveness to rating calculations
+  const demographicVariance = {
+    youth: knobs.youth_responsiveness,
+    elder: 1 - knobs.elder_stability,
+    professional: knobs.professional_influence
+  };
+  
+  // Apply crisis management factors
+  const crisisModifiers = {
+    response_bonus: knobs.crisis_response_bonus,
+    scandal_penalty: knobs.scandal_impact_severity,
+    recovery: knobs.recovery_rate
+  };
+  
+  // Apply communication effectiveness
+  const communicationMultiplier = (knobs.speech_effectiveness + knobs.transparency_bonus - knobs.propaganda_effectiveness * 0.5) / 2;
+  
+  // Apply external correlations
+  const externalFactors = {
+    economic: knobs.economic_correlation,
+    security: knobs.security_correlation,
+    international: knobs.international_reputation_impact
+  };
+  
+  // Update approval data with knob-influenced calculations
+  // This would integrate with the actual approval rating calculation logic
+  console.log('Applied approval rating knobs to game state:', {
+    mediaVolatility,
+    policyImpactMultiplier,
+    demographicVariance,
+    crisisModifiers,
+    communicationMultiplier,
+    externalFactors
+  });
+}
 
 // In-memory data store for demo
 const approvalData = {
@@ -469,10 +554,15 @@ app.use((req, res) => {
   });
 });
 
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(app, 'approval-rating', approvalRatingKnobSystem, applyApprovalRatingKnobsToGameState);
+
 app.listen(PORT, () => {
   console.log(`🏛️ Approval Rating API Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`📈 Current rating: http://localhost:${PORT}/api/approval/current`);
   console.log(`💬 Citizen feedback: http://localhost:${PORT}/api/approval/feedback`);
+  console.log(`🎛️ AI Knobs: http://localhost:${PORT}/api/approval-rating/knobs`);
+  console.log(`📚 Knob Help: http://localhost:${PORT}/api/approval-rating/knobs/help`);
 });
 

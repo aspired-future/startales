@@ -15,8 +15,96 @@ import {
   DataInputs,
   AIAnalysisEngineConfig
 } from './types.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
+
+// Enhanced AI Knobs for AI Analysis System
+const aiAnalysisKnobsData = {
+  // Analysis Depth & Scope
+  analysis_depth_level: 0.8,              // Analysis depth and thoroughness level
+  multi_dimensional_analysis: 0.8,        // Multi-dimensional and cross-domain analysis
+  predictive_analysis_emphasis: 0.7,      // Predictive analysis and forecasting emphasis
+  
+  // Data Processing & Integration
+  data_source_diversity: 0.8,             // Data source diversity and integration breadth
+  real_time_data_priority: 0.7,           // Real-time data processing and integration priority
+  historical_context_weighting: 0.7,      // Historical context and trend analysis weighting
+  
+  // AI Model Configuration
+  ai_model_sophistication: 0.8,           // AI model sophistication and complexity level
+  natural_language_processing_depth: 0.8, // Natural language processing depth and nuance
+  pattern_recognition_sensitivity: 0.7,   // Pattern recognition sensitivity and detection
+  
+  // Analysis Quality & Accuracy
+  analysis_validation_rigor: 0.9,         // Analysis validation and accuracy checking rigor
+  bias_detection_sensitivity: 0.8,        // Bias detection and mitigation sensitivity
+  uncertainty_quantification: 0.8,        // Uncertainty quantification and confidence scoring
+  
+  // Reporting & Communication
+  insight_clarity_priority: 0.8,          // Insight clarity and communication priority
+  actionable_recommendation_focus: 0.8,   // Actionable recommendation generation focus
+  visualization_sophistication: 0.7,      // Data visualization sophistication and clarity
+  
+  // Performance & Efficiency
+  analysis_speed_optimization: 0.6,       // Analysis speed vs thoroughness optimization
+  computational_resource_allocation: 0.7, // Computational resource allocation and efficiency
+  concurrent_analysis_capability: 0.6,    // Concurrent analysis processing capability
+  
+  // Domain Specialization
+  economic_analysis_expertise: 0.8,       // Economic analysis specialization and expertise
+  social_dynamics_analysis: 0.7,          // Social dynamics and behavioral analysis
+  technological_trend_analysis: 0.7,      // Technological trend and innovation analysis
+  
+  // Adaptive Learning & Improvement
+  continuous_learning_rate: 0.7,          // Continuous learning and model improvement rate
+  feedback_integration_speed: 0.7,        // Feedback integration and adaptation speed
+  analysis_methodology_evolution: 0.6,    // Analysis methodology evolution and innovation
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for AI Analysis
+const aiAnalysisKnobSystem = new EnhancedKnobSystem(aiAnalysisKnobsData);
+
+// Apply AI analysis knobs to game state
+function applyAIAnalysisKnobsToGameState() {
+  const knobs = aiAnalysisKnobSystem.knobs;
+  
+  // Apply analysis depth settings
+  const analysisDepth = (knobs.analysis_depth_level + knobs.multi_dimensional_analysis + 
+    knobs.predictive_analysis_emphasis) / 3;
+  
+  // Apply data processing settings
+  const dataProcessing = (knobs.data_source_diversity + knobs.real_time_data_priority + 
+    knobs.historical_context_weighting) / 3;
+  
+  // Apply AI model settings
+  const aiModelConfig = (knobs.ai_model_sophistication + knobs.natural_language_processing_depth + 
+    knobs.pattern_recognition_sensitivity) / 3;
+  
+  // Apply quality assurance settings
+  const qualityAssurance = (knobs.analysis_validation_rigor + knobs.bias_detection_sensitivity + 
+    knobs.uncertainty_quantification) / 3;
+  
+  // Apply reporting settings
+  const reportingQuality = (knobs.insight_clarity_priority + knobs.actionable_recommendation_focus + 
+    knobs.visualization_sophistication) / 3;
+  
+  // Apply domain specialization settings
+  const domainExpertise = (knobs.economic_analysis_expertise + knobs.social_dynamics_analysis + 
+    knobs.technological_trend_analysis) / 3;
+  
+  console.log('Applied AI analysis knobs to game state:', {
+    analysisDepth,
+    dataProcessing,
+    aiModelConfig,
+    qualityAssurance,
+    reportingQuality,
+    domainExpertise
+  });
+}
+
 const aiAnalysisEngine = new AIAnalysisEngine();
 
 // ===== CORE ANALYSIS ENDPOINTS =====
@@ -856,5 +944,8 @@ async function gatherTrendData(civilizationId?: string): Promise<any[]> {
     { trend: 'environmental_awareness', strength: 0.75, direction: 'increasing' }
   ];
 }
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'ai-analysis', aiAnalysisKnobSystem, applyAIAnalysisKnobsToGameState);
 
 export default router;

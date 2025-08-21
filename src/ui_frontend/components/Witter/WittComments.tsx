@@ -23,7 +23,7 @@ export interface WittCommentsProps {
 
 export const WittComments: React.FC<WittCommentsProps> = ({
   wittId,
-  comments,
+  comments = [],
   onAddComment,
   onLikeComment,
   onReplyToComment
@@ -76,7 +76,7 @@ export const WittComments: React.FC<WittCommentsProps> = ({
           </form>
 
           <div className="comments-list">
-            {comments.map((comment) => (
+            {comments && comments.map((comment) => (
               <div key={comment.id} className="comment-item">
                 <div className="comment-avatar">
                   {comment.authorAvatar || '👤'}

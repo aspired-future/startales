@@ -1,9 +1,98 @@
 const { demographicsGameState, initializeDemographicsSystem } = require('../game-state/demographics-state');
 const { citiesGameState } = require('../game-state/cities-state');
+const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('./enhanced-knob-system.cjs');
 
 function setupDemographicsAPIs(app) {
   // Initialize demographics system
   initializeDemographicsSystem();
+
+  // Enhanced AI Knobs for Demographics System
+  const demographicsKnobsData = {
+    // Population Growth Factors
+    birth_rate_influence: 0.6,           // Influence on birth rates
+    death_rate_influence: 0.5,           // Influence on death rates
+    migration_attractiveness: 0.7,       // Attractiveness for migration
+    
+    // Age Distribution Management
+    youth_support_programs: 0.6,         // Support for youth programs
+    elderly_care_quality: 0.7,           // Quality of elderly care
+    working_age_retention: 0.8,          // Retention of working-age population
+    
+    // Education & Skills
+    education_investment_level: 0.7,     // Investment in education
+    skill_development_programs: 0.6,     // Skill development initiatives
+    higher_education_accessibility: 0.5, // Higher education accessibility
+    
+    // Employment & Economy
+    job_creation_focus: 0.8,             // Focus on job creation
+    unemployment_support: 0.6,           // Unemployment support programs
+    economic_opportunity_creation: 0.7,  // Economic opportunity creation
+    
+    // Health & Wellness
+    healthcare_accessibility: 0.8,       // Healthcare accessibility
+    public_health_programs: 0.7,         // Public health program effectiveness
+    mental_health_support: 0.5,          // Mental health support services
+    
+    // Social Integration
+    cultural_diversity_support: 0.6,     // Support for cultural diversity
+    social_cohesion_programs: 0.7,       // Social cohesion programs
+    community_engagement: 0.5,           // Community engagement initiatives
+    
+    // Urban Planning
+    housing_affordability: 0.6,          // Housing affordability programs
+    infrastructure_development: 0.8,     // Infrastructure development
+    environmental_quality: 0.7,          // Environmental quality maintenance
+    
+    // Data Collection & Analysis
+    census_accuracy: 0.9,                // Census and data collection accuracy
+    demographic_forecasting: 0.7,        // Demographic forecasting capability
+    policy_impact_measurement: 0.6,      // Policy impact measurement
+    
+    lastUpdated: Date.now()
+  };
+
+  // Initialize Enhanced Knob System
+  const demographicsKnobSystem = new EnhancedKnobSystem(demographicsKnobsData);
+
+  // Apply knobs to game state
+  function applyDemographicsKnobsToGameState() {
+    const knobs = demographicsKnobSystem.knobs;
+    
+    // Apply population growth factors
+    const populationGrowthImpact = (knobs.birth_rate_influence - knobs.death_rate_influence + knobs.migration_attractiveness) / 3;
+    
+    // Apply age distribution management
+    const ageDistributionImpact = (knobs.youth_support_programs + knobs.elderly_care_quality + knobs.working_age_retention) / 3;
+    
+    // Apply education and skills impact
+    const educationImpact = (knobs.education_investment_level + knobs.skill_development_programs + knobs.higher_education_accessibility) / 3;
+    
+    // Apply employment and economy impact
+    const employmentImpact = (knobs.job_creation_focus + knobs.unemployment_support + knobs.economic_opportunity_creation) / 3;
+    
+    // Apply health and wellness impact
+    const healthImpact = (knobs.healthcare_accessibility + knobs.public_health_programs + knobs.mental_health_support) / 3;
+    
+    // Apply social integration impact
+    const socialImpact = (knobs.cultural_diversity_support + knobs.social_cohesion_programs + knobs.community_engagement) / 3;
+    
+    // Apply urban planning impact
+    const urbanPlanningImpact = (knobs.housing_affordability + knobs.infrastructure_development + knobs.environmental_quality) / 3;
+    
+    // Apply data collection impact
+    const dataQualityImpact = (knobs.census_accuracy + knobs.demographic_forecasting + knobs.policy_impact_measurement) / 3;
+    
+    console.log('Applied demographics knobs to game state:', {
+      populationGrowthImpact,
+      ageDistributionImpact,
+      educationImpact,
+      employmentImpact,
+      healthImpact,
+      socialImpact,
+      urbanPlanningImpact,
+      dataQualityImpact
+    });
+  }
 
   // Get demographic data for all cities
   app.get('/api/demographics/population', (req, res) => {
@@ -378,6 +467,9 @@ function setupDemographicsAPIs(app) {
       }
     };
   }
+
+  // Enhanced Knob System Endpoints
+  createEnhancedKnobEndpoints(app, 'demographics-js', demographicsKnobSystem, applyDemographicsKnobsToGameState);
 }
 
 module.exports = { setupDemographicsAPIs };

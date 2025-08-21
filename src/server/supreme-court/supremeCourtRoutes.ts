@@ -1,8 +1,95 @@
 import express from 'express';
 import { getPool } from '../storage/db.js';
 import { SupremeCourtAdvisoryService } from './SupremeCourtAdvisoryService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Supreme Court System
+const supremeCourtKnobsData = {
+  // Constitutional Interpretation & Review
+  constitutional_interpretation_rigor: 0.9,  // Constitutional interpretation rigor and textual analysis
+  precedent_adherence_strength: 0.8,         // Precedent adherence strength and stare decisis respect
+  constitutional_originalism_emphasis: 0.7,  // Constitutional originalism emphasis and historical context
+  
+  // Judicial Independence & Integrity
+  judicial_independence_protection: 0.9,     // Judicial independence protection and political insulation
+  judicial_ethics_enforcement: 0.9,          // Judicial ethics enforcement and integrity standards
+  decision_impartiality_maintenance: 0.9,    // Decision impartiality maintenance and bias prevention
+  
+  // Rights Protection & Civil Liberties
+  civil_rights_protection_strength: 0.9,     // Civil rights protection strength and constitutional guarantees
+  minority_rights_safeguarding: 0.8,         // Minority rights safeguarding and equal protection
+  due_process_enforcement_rigor: 0.9,        // Due process enforcement rigor and procedural fairness
+  
+  // Legal Reasoning & Analysis
+  legal_reasoning_sophistication: 0.8,       // Legal reasoning sophistication and analytical depth
+  constitutional_scholarship_integration: 0.8, // Constitutional scholarship integration and academic rigor
+  legal_precedent_analysis_thoroughness: 0.8, // Legal precedent analysis thoroughness and case law review
+  
+  // Court Administration & Efficiency
+  case_processing_efficiency: 0.7,           // Case processing efficiency and timely resolution
+  court_administration_excellence: 0.8,      // Court administration excellence and operational management
+  judicial_resource_optimization: 0.7,       // Judicial resource optimization and capacity management
+  
+  // Public Trust & Transparency
+  judicial_transparency_commitment: 0.7,     // Judicial transparency commitment and public accountability
+  public_confidence_maintenance: 0.8,        // Public confidence maintenance and institutional legitimacy
+  judicial_communication_clarity: 0.7,       // Judicial communication clarity and decision explanation
+  
+  // Constitutional Evolution & Adaptation
+  constitutional_adaptation_balance: 0.7,    // Constitutional adaptation balance between stability and change
+  emerging_rights_recognition: 0.7,          // Emerging rights recognition and evolving constitutional understanding
+  societal_change_responsiveness: 0.6,       // Societal change responsiveness and contemporary relevance
+  
+  // Inter-Branch Relations & Separation of Powers
+  separation_of_powers_enforcement: 0.9,     // Separation of powers enforcement and constitutional balance
+  executive_oversight_capability: 0.8,       // Executive oversight capability and checks and balances
+  legislative_review_thoroughness: 0.8,      // Legislative review thoroughness and constitutional compliance
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Supreme Court
+const supremeCourtKnobSystem = new EnhancedKnobSystem(supremeCourtKnobsData);
+
+// Apply supreme court knobs to game state
+function applySupremeCourtKnobsToGameState() {
+  const knobs = supremeCourtKnobSystem.knobs;
+  
+  // Apply constitutional interpretation settings
+  const constitutionalInterpretation = (knobs.constitutional_interpretation_rigor + knobs.precedent_adherence_strength + 
+    knobs.constitutional_originalism_emphasis) / 3;
+  
+  // Apply judicial independence settings
+  const judicialIndependence = (knobs.judicial_independence_protection + knobs.judicial_ethics_enforcement + 
+    knobs.decision_impartiality_maintenance) / 3;
+  
+  // Apply rights protection settings
+  const rightsProtection = (knobs.civil_rights_protection_strength + knobs.minority_rights_safeguarding + 
+    knobs.due_process_enforcement_rigor) / 3;
+  
+  // Apply legal reasoning settings
+  const legalReasoning = (knobs.legal_reasoning_sophistication + knobs.constitutional_scholarship_integration + 
+    knobs.legal_precedent_analysis_thoroughness) / 3;
+  
+  // Apply public trust settings
+  const publicTrust = (knobs.judicial_transparency_commitment + knobs.public_confidence_maintenance + 
+    knobs.judicial_communication_clarity) / 3;
+  
+  // Apply separation of powers settings
+  const separationOfPowers = (knobs.separation_of_powers_enforcement + knobs.executive_oversight_capability + 
+    knobs.legislative_review_thoroughness) / 3;
+  
+  console.log('Applied supreme court knobs to game state:', {
+    constitutionalInterpretation,
+    judicialIndependence,
+    rightsProtection,
+    legalReasoning,
+    publicTrust,
+    separationOfPowers
+  });
+}
 
 // Initialize service
 const getSupremeCourtService = () => new SupremeCourtAdvisoryService(getPool());
@@ -694,5 +781,8 @@ router.get('/dashboard', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'supreme-court', supremeCourtKnobSystem, applySupremeCourtKnobsToGameState);
 
 export default router;

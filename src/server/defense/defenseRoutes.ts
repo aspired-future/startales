@@ -4,8 +4,96 @@ import { DefenseSecretaryService } from './DefenseSecretaryService';
 import { DepartmentBudgetService } from '../treasury/DepartmentBudgetService';
 import { TreasuryService } from '../treasury/TreasuryService';
 import { WarSimulatorService } from '../military/WarSimulatorService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const defenseRouter = Router();
+
+// Enhanced AI Knobs for Defense Department System
+const defenseKnobsData = {
+  // Defense Strategy & Policy
+  national_defense_strategy_focus: 0.8,      // National defense strategy focus and strategic priorities
+  military_doctrine_modernization: 0.7,      // Military doctrine modernization and tactical evolution
+  defense_policy_integration: 0.8,           // Defense policy integration with national security objectives
+  
+  // Military Readiness & Capability
+  force_readiness_maintenance: 0.9,          // Force readiness maintenance and operational preparedness
+  military_capability_development: 0.8,      // Military capability development and force modernization
+  training_program_intensity: 0.8,           // Training program intensity and skill development emphasis
+  
+  // Defense Budget & Resource Management
+  defense_budget_optimization: 0.8,          // Defense budget optimization and resource allocation efficiency
+  procurement_process_efficiency: 0.7,       // Procurement process efficiency and acquisition management
+  cost_effectiveness_prioritization: 0.7,    // Cost-effectiveness prioritization and value optimization
+  
+  // Technology & Innovation
+  defense_technology_advancement: 0.8,       // Defense technology advancement and R&D investment
+  military_innovation_adoption: 0.7,         // Military innovation adoption and emerging technology integration
+  cyber_defense_capability: 0.8,             // Cyber defense capability and digital warfare preparedness
+  
+  // International Defense Relations
+  alliance_military_cooperation: 0.7,        // Alliance military cooperation and coalition building
+  defense_diplomacy_engagement: 0.6,         // Defense diplomacy engagement and international partnerships
+  arms_control_compliance: 0.8,              // Arms control compliance and treaty adherence
+  
+  // Homeland Security & Protection
+  homeland_defense_priority: 0.8,            // Homeland defense priority and domestic security focus
+  critical_infrastructure_protection: 0.8,   // Critical infrastructure protection and vulnerability mitigation
+  emergency_response_coordination: 0.8,      // Emergency response coordination and disaster preparedness
+  
+  // Personnel & Human Resources
+  military_personnel_development: 0.8,       // Military personnel development and career advancement
+  veteran_affairs_support: 0.7,              // Veteran affairs support and post-service care
+  diversity_inclusion_emphasis: 0.7,         // Diversity and inclusion emphasis in military ranks
+  
+  // Intelligence & Surveillance
+  defense_intelligence_integration: 0.8,     // Defense intelligence integration and information sharing
+  surveillance_capability_enhancement: 0.7,  // Surveillance capability enhancement and monitoring systems
+  threat_assessment_sophistication: 0.8,     // Threat assessment sophistication and risk analysis
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Defense
+const defenseKnobSystem = new EnhancedKnobSystem(defenseKnobsData);
+
+// Apply defense knobs to game state
+function applyDefenseKnobsToGameState() {
+  const knobs = defenseKnobSystem.knobs;
+  
+  // Apply defense strategy settings
+  const defenseStrategy = (knobs.national_defense_strategy_focus + knobs.military_doctrine_modernization + 
+    knobs.defense_policy_integration) / 3;
+  
+  // Apply military readiness settings
+  const militaryReadiness = (knobs.force_readiness_maintenance + knobs.military_capability_development + 
+    knobs.training_program_intensity) / 3;
+  
+  // Apply budget management settings
+  const budgetManagement = (knobs.defense_budget_optimization + knobs.procurement_process_efficiency + 
+    knobs.cost_effectiveness_prioritization) / 3;
+  
+  // Apply technology settings
+  const technology = (knobs.defense_technology_advancement + knobs.military_innovation_adoption + 
+    knobs.cyber_defense_capability) / 3;
+  
+  // Apply homeland security settings
+  const homelandSecurity = (knobs.homeland_defense_priority + knobs.critical_infrastructure_protection + 
+    knobs.emergency_response_coordination) / 3;
+  
+  // Apply intelligence settings
+  const intelligence = (knobs.defense_intelligence_integration + knobs.surveillance_capability_enhancement + 
+    knobs.threat_assessment_sophistication) / 3;
+  
+  console.log('Applied defense knobs to game state:', {
+    defenseStrategy,
+    militaryReadiness,
+    budgetManagement,
+    technology,
+    homelandSecurity,
+    intelligence
+  });
+}
+
 const pool = getPool();
 const treasuryService = new TreasuryService(pool);
 const departmentBudgetService = new DepartmentBudgetService(pool, treasuryService);
@@ -676,5 +764,8 @@ defenseRouter.post('/units/:unitId/orders', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(defenseRouter, 'defense', defenseKnobSystem, applyDefenseKnobsToGameState);
 
 export default defenseRouter;

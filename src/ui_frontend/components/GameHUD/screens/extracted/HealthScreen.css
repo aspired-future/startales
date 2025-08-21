@@ -1,0 +1,857 @@
+.health-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* View Tabs - Compact */
+.view-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(74, 222, 128, 0.3);
+  flex-wrap: wrap;
+}
+
+.view-tabs .tab {
+  background: none;
+  border: none;
+  color: #b8bcc8;
+  padding: 5px 6px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-size: 9px;
+  font-weight: 500;
+  min-width: 70px;
+  flex: 1;
+}
+
+.view-tabs .tab:hover {
+  color: #4ade80;
+}
+
+.view-tabs .tab.active {
+  color: #4ade80;
+  border-bottom-color: #4ade80;
+}
+
+/* Tab Content */
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Tab-specific Styles */
+.leadership-tab, .population-tab, .diseases-tab, .infrastructure-tab, .policies-tab, .emergencies-tab, .budget-tab, .workflows-tab {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Leadership Tab */
+.leadership-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.leader-card {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: 6px;
+  padding: 15px;
+  transition: all 0.3s ease;
+}
+
+.leader-card:hover {
+  border-color: #4ade80;
+  box-shadow: 0 4px 15px rgba(74, 222, 128, 0.2);
+}
+
+.leader-card h4 {
+  color: #4ade80;
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.leader-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4ade80;
+  margin-bottom: 4px;
+}
+
+.leader-title {
+  font-size: 10px;
+  color: #b8bcc8;
+  margin-bottom: 8px;
+}
+
+.leader-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.leader-background {
+  font-size: 9px;
+  color: #e0e0e0;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.leader-specializations, .leader-achievements, .leader-medical-background, .leader-initiatives {
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #e0e0e0;
+}
+
+.specialization-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.specialization-tag {
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.achievements-list, .background-list, .initiatives-list {
+  margin-top: 4px;
+}
+
+.achievement-item, .background-item, .initiative-item {
+  font-size: 8px;
+  color: #b8bcc8;
+  margin-bottom: 2px;
+}
+
+.no-leader {
+  font-size: 10px;
+  color: #b8bcc8;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Population Tab */
+.population-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.metric-card {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  border-color: #4ade80;
+  box-shadow: 0 4px 15px rgba(74, 222, 128, 0.2);
+}
+
+.metric-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #4ade80;
+  margin-bottom: 4px;
+}
+
+.metric-label {
+  font-size: 8px;
+  color: #b8bcc8;
+}
+
+/* Diseases Tab */
+.diseases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.disease-item {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.disease-item:hover {
+  border-color: #4ade80;
+  box-shadow: 0 4px 15px rgba(74, 222, 128, 0.2);
+}
+
+.disease-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.disease-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4ade80;
+}
+
+.disease-trend {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.disease-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.disease-demographics, .disease-programs {
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #e0e0e0;
+}
+
+.demographics-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.demographic-tag {
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.programs-list {
+  margin-top: 4px;
+}
+
+.program-item {
+  font-size: 8px;
+  color: #b8bcc8;
+  margin-bottom: 2px;
+}
+
+/* Infrastructure Tab */
+.facilities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.facility-item {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.facility-item:hover {
+  border-color: #4ade80;
+  box-shadow: 0 4px 15px rgba(74, 222, 128, 0.2);
+}
+
+.facility-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.facility-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4ade80;
+}
+
+.facility-rating {
+  font-size: 10px;
+  color: #fbbf24;
+}
+
+.facility-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.facility-type {
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+  display: inline-block;
+  width: fit-content;
+}
+
+.facility-utilization-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.utilization-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  transition: width 0.3s ease;
+}
+
+.facility-specialties, .facility-equipment {
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #e0e0e0;
+}
+
+.specialties-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.specialty-tag {
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.equipment-list {
+  margin-top: 4px;
+}
+
+.equipment-item {
+  font-size: 8px;
+  color: #b8bcc8;
+  margin-bottom: 2px;
+}
+
+/* Policies Tab */
+.policies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.policy-item {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.policy-item:hover {
+  border-color: #4ade80;
+  box-shadow: 0 4px 15px rgba(74, 222, 128, 0.2);
+}
+
+.policy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.policy-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4ade80;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.policy-priority {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.policy-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.policy-category {
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+  display: inline-block;
+  width: fit-content;
+}
+
+.policy-description, .policy-impact {
+  font-size: 9px;
+  color: #e0e0e0;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.policy-objectives {
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #e0e0e0;
+}
+
+.objectives-list {
+  margin-top: 4px;
+}
+
+.objective-item {
+  font-size: 8px;
+  color: #b8bcc8;
+  margin-bottom: 2px;
+}
+
+/* Emergencies Tab */
+.emergencies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.emergency-item {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.emergency-item:hover {
+  border-color: #ef4444;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+}
+
+.emergency-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.emergency-type {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ef4444;
+}
+
+.emergency-severity {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.emergency-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.emergency-description {
+  font-size: 9px;
+  color: #e0e0e0;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.emergency-areas, .emergency-resources, .emergency-actions {
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #e0e0e0;
+}
+
+.areas-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.area-tag {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.resources-list, .actions-list {
+  margin-top: 4px;
+}
+
+.resource-item, .action-item {
+  font-size: 8px;
+  color: #b8bcc8;
+  margin-bottom: 2px;
+}
+
+/* Budget Tab */
+.budget-overview {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: 6px;
+}
+
+.total-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4ade80;
+  margin-bottom: 4px;
+}
+
+.total-label {
+  font-size: 12px;
+  color: #b8bcc8;
+}
+
+.budget-allocations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.allocation-item {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.allocation-item:hover {
+  border-color: #4ade80;
+  box-shadow: 0 4px 15px rgba(74, 222, 128, 0.2);
+}
+
+.allocation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.allocation-category {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4ade80;
+}
+
+.allocation-amount {
+  font-size: 11px;
+  font-weight: 600;
+  color: #22c55e;
+}
+
+.allocation-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.allocation-bar, .utilization-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.allocation-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  transition: width 0.3s ease;
+}
+
+.allocation-description {
+  font-size: 9px;
+  color: #e0e0e0;
+  line-height: 1.4;
+}
+
+/* Workflows Tab */
+.workflows-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.workflow-item {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.workflow-item:hover {
+  border-color: #4ade80;
+  box-shadow: 0 4px 15px rgba(74, 222, 128, 0.2);
+}
+
+.workflow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.workflow-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4ade80;
+}
+
+.workflow-status {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.workflow-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #b8bcc8;
+}
+
+.workflow-type {
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 500;
+  display: inline-block;
+  width: fit-content;
+}
+
+.workflow-progress {
+  margin: 10px 0;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: #b8bcc8;
+  margin-bottom: 4px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  transition: width 0.3s ease;
+}
+
+.workflow-description {
+  font-size: 9px;
+  color: #e0e0e0;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.workflow-steps, .workflow-outcomes {
+  margin-bottom: 10px;
+  font-size: 9px;
+  color: #e0e0e0;
+}
+
+.steps-list, .outcomes-list {
+  margin-top: 4px;
+}
+
+.step-item, .outcome-item {
+  font-size: 8px;
+  color: #b8bcc8;
+  margin-bottom: 2px;
+}
+
+/* Tab Actions */
+.tab-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  flex-wrap: wrap;
+  padding-top: 15px;
+  border-top: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.action-btn {
+  background: rgba(74, 222, 128, 0.2);
+  border: 1px solid #4ade80;
+  color: #4ade80;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 80px;
+}
+
+.action-btn:hover {
+  background: rgba(74, 222, 128, 0.3);
+  transform: translateY(-1px);
+}
+
+.action-btn.secondary {
+  background: rgba(108, 117, 125, 0.2);
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.action-btn.secondary:hover {
+  background: rgba(108, 117, 125, 0.3);
+}
+
+.action-btn.urgent {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.action-btn.urgent:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+/* Loading and Error States */
+.loading, .error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  font-size: 14px;
+  color: #4ade80;
+}
+
+.error {
+  color: #ef4444;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .population-metrics {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+  }
+  
+  .leadership-grid,
+  .diseases-grid,
+  .facilities-grid,
+  .policies-grid,
+  .emergencies-grid,
+  .workflows-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .population-metrics {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+  }
+  
+  .budget-allocations {
+    grid-template-columns: 1fr;
+  }
+  
+  .leader-details, .disease-stats, .facility-details, .policy-details, .emergency-details, .workflow-details, .allocation-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab-actions {
+    flex-direction: column;
+  }
+  
+  .action-btn {
+    flex: none;
+  }
+  
+  .view-tabs .tab {
+    font-size: 8px;
+    min-width: 60px;
+    padding: 4px 5px;
+  }
+}

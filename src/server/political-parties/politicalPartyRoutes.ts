@@ -1,8 +1,95 @@
 import express from 'express';
 import { getPool } from '../storage/db.js';
 import { PoliticalPartySystemService } from './PoliticalPartySystemService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Political Parties System
+const politicalPartiesKnobsData = {
+  // Party System Structure & Diversity
+  political_party_diversity: 0.8,            // Political party diversity and ideological spectrum breadth
+  multi_party_system_strength: 0.8,          // Multi-party system strength and competitive democracy
+  party_formation_accessibility: 0.7,        // Party formation accessibility and new party emergence
+  
+  // Democratic Participation & Engagement
+  voter_engagement_facilitation: 0.8,        // Voter engagement facilitation and civic participation
+  grassroots_organization_support: 0.7,      // Grassroots organization support and community involvement
+  political_education_promotion: 0.7,        // Political education promotion and informed citizenship
+  
+  // Electoral Competition & Fairness
+  electoral_competition_fairness: 0.9,       // Electoral competition fairness and level playing field
+  campaign_finance_regulation: 0.8,          // Campaign finance regulation and transparency
+  media_access_equality: 0.7,                // Media access equality and fair representation
+  
+  // Party Governance & Internal Democracy
+  internal_party_democracy: 0.7,             // Internal party democracy and member participation
+  leadership_selection_transparency: 0.8,    // Leadership selection transparency and accountability
+  party_platform_development: 0.8,           // Party platform development and policy formulation
+  
+  // Coalition Building & Cooperation
+  inter_party_cooperation_facilitation: 0.7, // Inter-party cooperation facilitation and consensus building
+  coalition_government_effectiveness: 0.7,   // Coalition government effectiveness and stability
+  bipartisan_collaboration_promotion: 0.6,   // Bipartisan collaboration promotion and compromise
+  
+  // Political Innovation & Adaptation
+  political_innovation_openness: 0.6,        // Political innovation openness and system evolution
+  digital_democracy_integration: 0.7,        // Digital democracy integration and online participation
+  youth_political_engagement: 0.7,           // Youth political engagement and generational representation
+  
+  // Accountability & Transparency
+  party_accountability_mechanisms: 0.8,      // Party accountability mechanisms and oversight
+  political_transparency_standards: 0.8,     // Political transparency standards and open governance
+  corruption_prevention_measures: 0.8,       // Corruption prevention measures and ethical standards
+  
+  // Representation & Inclusivity
+  minority_representation_promotion: 0.8,    // Minority representation promotion and inclusive politics
+  gender_equality_advancement: 0.8,          // Gender equality advancement and women's political participation
+  socioeconomic_diversity_inclusion: 0.7,    // Socioeconomic diversity inclusion and broad representation
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Political Parties
+const politicalPartiesKnobSystem = new EnhancedKnobSystem(politicalPartiesKnobsData);
+
+// Apply political parties knobs to game state
+function applyPoliticalPartiesKnobsToGameState() {
+  const knobs = politicalPartiesKnobSystem.knobs;
+  
+  // Apply party system settings
+  const partySystem = (knobs.political_party_diversity + knobs.multi_party_system_strength + 
+    knobs.party_formation_accessibility) / 3;
+  
+  // Apply democratic participation settings
+  const democraticParticipation = (knobs.voter_engagement_facilitation + knobs.grassroots_organization_support + 
+    knobs.political_education_promotion) / 3;
+  
+  // Apply electoral competition settings
+  const electoralCompetition = (knobs.electoral_competition_fairness + knobs.campaign_finance_regulation + 
+    knobs.media_access_equality) / 3;
+  
+  // Apply party governance settings
+  const partyGovernance = (knobs.internal_party_democracy + knobs.leadership_selection_transparency + 
+    knobs.party_platform_development) / 3;
+  
+  // Apply coalition building settings
+  const coalitionBuilding = (knobs.inter_party_cooperation_facilitation + knobs.coalition_government_effectiveness + 
+    knobs.bipartisan_collaboration_promotion) / 3;
+  
+  // Apply representation settings
+  const representation = (knobs.minority_representation_promotion + knobs.gender_equality_advancement + 
+    knobs.socioeconomic_diversity_inclusion) / 3;
+  
+  console.log('Applied political parties knobs to game state:', {
+    partySystem,
+    democraticParticipation,
+    electoralCompetition,
+    partyGovernance,
+    coalitionBuilding,
+    representation
+  });
+}
 
 // Initialize service
 const getPoliticalPartyService = () => new PoliticalPartySystemService(getPool());
@@ -806,5 +893,8 @@ router.get('/dashboard', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'political-parties', politicalPartiesKnobSystem, applyPoliticalPartiesKnobsToGameState);
 
 export default router;

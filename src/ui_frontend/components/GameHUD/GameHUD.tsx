@@ -4,6 +4,7 @@ import { ExplorationDashboard } from '../Exploration/ExplorationDashboard';
 import { CivilizationBrowser } from './CivilizationBrowser';
 import { GalacticMap } from './GalacticMap';
 import { CharacterInteraction } from './CharacterInteraction';
+import { TradeEconomics } from './TradeEconomics';
 import { GameMasterPersonality } from '../../services/ContentGenerator';
 import { GalacticCivilizationGenerator } from '../../services/GalacticCivilizationGenerator';
 import { GalacticExplorationService } from '../../services/GalacticExplorationService';
@@ -174,6 +175,16 @@ export const GameHUD: React.FC<GameHUDProps> = ({
         isVisible: false,
         position: { x: 300, y: 150 },
         size: { width: 600, height: 500 },
+        isMinimized: false
+      },
+      {
+        id: 'trade_economics',
+        name: 'Trade & Economics',
+        icon: '💰',
+        component: TradeEconomics,
+        isVisible: false,
+        position: { x: 400, y: 100 },
+        size: { width: 800, height: 600 },
         isMinimized: false
       }
     ];
@@ -362,6 +373,14 @@ export const GameHUD: React.FC<GameHUDProps> = ({
                       loreGenerator={civilizationLoreGenerator}
                       playerId={playerId}
                       onClose={() => setSelectedCharacter(null)}
+                    />
+                  )}
+                  
+                  {panel.id === 'trade_economics' && (
+                    <PanelComponent
+                      playerId={playerId}
+                      gameContext={gameContext}
+                      onClose={() => closePanel(panel.id)}
                     />
                   )}
                 </div>

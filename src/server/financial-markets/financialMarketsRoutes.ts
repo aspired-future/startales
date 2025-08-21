@@ -1,7 +1,104 @@
 import express from 'express';
 import { getFinancialMarketsService } from './FinancialMarketsService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Financial Markets System
+const financialMarketsKnobsData = {
+  // Market Structure & Regulation
+  market_transparency: 0.8,             // Market transparency and disclosure requirements
+  insider_trading_enforcement: 0.9,     // Insider trading enforcement strength
+  market_manipulation_controls: 0.8,    // Market manipulation prevention measures
+  
+  // Trading & Liquidity
+  high_frequency_trading_limits: 0.6,   // High-frequency trading restrictions
+  market_maker_incentives: 0.7,         // Market maker participation incentives
+  circuit_breaker_sensitivity: 0.7,     // Circuit breaker trigger sensitivity
+  
+  // Capital Markets
+  ipo_approval_speed: 0.6,               // IPO approval process speed
+  listing_requirements_strictness: 0.8,  // Stock exchange listing requirements
+  delisting_threshold: 0.7,              // Delisting criteria strictness
+  
+  // Bond Markets
+  government_bond_issuance: 0.6,         // Government bond issuance frequency
+  corporate_bond_rating_standards: 0.8,  // Corporate bond rating standards
+  yield_curve_management: 0.5,           // Yield curve management intervention
+  
+  // Risk Management
+  margin_requirements: 0.7,              // Margin trading requirements
+  leverage_limits: 0.6,                  // Maximum leverage allowed
+  stress_testing_frequency: 0.8,         // Financial stress testing frequency
+  
+  // Market Access & Participation
+  foreign_investment_openness: 0.6,      // Foreign investor access level
+  retail_investor_protection: 0.8,       // Retail investor protection measures
+  institutional_investor_privileges: 0.5, // Institutional investor special access
+  
+  // Technology & Innovation
+  algorithmic_trading_oversight: 0.7,    // Algorithmic trading oversight level
+  blockchain_integration: 0.4,           // Blockchain technology adoption
+  digital_asset_regulation: 0.6,         // Digital asset regulatory framework
+  
+  // Market Stability
+  volatility_dampening_measures: 0.6,    // Volatility reduction mechanisms
+  crisis_intervention_readiness: 0.9,    // Crisis intervention preparedness
+  systemic_risk_monitoring: 0.8,         // Systemic risk monitoring intensity
+  
+  // Information & Analytics
+  real_time_data_availability: 0.8,      // Real-time market data access
+  market_sentiment_tracking: 0.7,        // Market sentiment analysis depth
+  economic_indicator_integration: 0.8,   // Economic indicator integration level
+  
+  // Cross-Border Integration
+  international_market_linkages: 0.5,    // International market connectivity
+  cross_listing_facilitation: 0.6,       // Cross-listing process facilitation
+  currency_hedging_instruments: 0.7,     // Currency hedging tool availability
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Financial Markets
+const financialMarketsKnobSystem = new EnhancedKnobSystem(financialMarketsKnobsData);
+
+// Apply financial markets knobs to game state
+function applyFinancialMarketsKnobsToGameState() {
+  const knobs = financialMarketsKnobSystem.knobs;
+  
+  // Apply market structure and regulation settings
+  const marketIntegrity = (knobs.market_transparency + knobs.insider_trading_enforcement + 
+    knobs.market_manipulation_controls) / 3;
+  
+  // Apply trading and liquidity settings
+  const marketLiquidity = (knobs.high_frequency_trading_limits + knobs.market_maker_incentives + 
+    knobs.circuit_breaker_sensitivity) / 3;
+  
+  // Apply capital markets settings
+  const capitalMarketEfficiency = (knobs.ipo_approval_speed + knobs.listing_requirements_strictness + 
+    knobs.delisting_threshold) / 3;
+  
+  // Apply risk management settings
+  const riskManagement = (knobs.margin_requirements + knobs.leverage_limits + 
+    knobs.stress_testing_frequency) / 3;
+  
+  // Apply market access settings
+  const marketAccessibility = (knobs.foreign_investment_openness + knobs.retail_investor_protection + 
+    knobs.institutional_investor_privileges) / 3;
+  
+  // Apply market stability settings
+  const marketStability = (knobs.volatility_dampening_measures + knobs.crisis_intervention_readiness + 
+    knobs.systemic_risk_monitoring) / 3;
+  
+  console.log('Applied financial markets knobs to game state:', {
+    marketIntegrity,
+    marketLiquidity,
+    capitalMarketEfficiency,
+    riskManagement,
+    marketAccessibility,
+    marketStability
+  });
+}
 
 /**
  * GET /api/financial-markets/overview/:civilization - Get complete market overview
@@ -959,5 +1056,8 @@ router.get('/companies/:companyId/news', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'financial-markets', financialMarketsKnobSystem, applyFinancialMarketsKnobsToGameState);
 
 export default router;

@@ -1,8 +1,105 @@
 import express from 'express';
 import { Pool } from 'pg';
 import { getEducationService } from './EducationService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Education System
+const educationKnobsData = {
+  // Education System Structure
+  education_system_centralization: 0.6,  // Education system centralization vs local control
+  public_private_education_balance: 0.7, // Public vs private education provision balance
+  education_funding_adequacy: 0.8,       // Education funding adequacy and resource allocation
+  
+  // Early Childhood & Primary Education
+  early_childhood_education_access: 0.8, // Early childhood education access and quality
+  primary_education_universality: 0.9,   // Universal primary education access and completion
+  primary_curriculum_standards: 0.8,     // Primary education curriculum standards and quality
+  
+  // Secondary Education
+  secondary_education_completion_rate: 0.8, // Secondary education completion and retention rate
+  vocational_education_integration: 0.7, // Vocational and technical education integration
+  college_preparatory_programs: 0.7,     // College preparatory and advanced placement programs
+  
+  // Higher Education & Universities
+  higher_education_accessibility: 0.7,   // Higher education accessibility and affordability
+  university_research_emphasis: 0.8,     // University research and innovation emphasis
+  higher_education_quality_standards: 0.8, // Higher education quality standards and accreditation
+  
+  // Teacher Quality & Professional Development
+  teacher_training_standards: 0.8,       // Teacher training and certification standards
+  teacher_professional_development: 0.8, // Teacher professional development and support
+  teacher_compensation_competitiveness: 0.6, // Teacher compensation and career attractiveness
+  
+  // Educational Technology & Innovation
+  education_technology_integration: 0.7, // Educational technology integration and digital literacy
+  online_learning_infrastructure: 0.6,   // Online and distance learning infrastructure
+  digital_divide_mitigation: 0.7,        // Digital divide mitigation and equal access
+  
+  // Special Education & Inclusion
+  special_education_support: 0.8,        // Special education services and inclusion support
+  learning_disability_accommodation: 0.8, // Learning disability accommodation and support
+  gifted_education_programs: 0.6,        // Gifted and talented education programs
+  
+  // Educational Equity & Access
+  education_socioeconomic_equity: 0.8,   // Educational equity across socioeconomic groups
+  rural_education_support: 0.7,          // Rural and remote area education support
+  minority_education_programs: 0.7,      // Minority and disadvantaged group education programs
+  
+  // Curriculum & Standards
+  curriculum_relevance_modernization: 0.7, // Curriculum relevance and modernization
+  critical_thinking_emphasis: 0.8,       // Critical thinking and problem-solving emphasis
+  stem_education_priority: 0.8,          // STEM education priority and investment
+  
+  // International Education & Cooperation
+  international_education_exchange: 0.6, // International education exchange and cooperation
+  global_competency_development: 0.7,    // Global competency and cultural awareness development
+  foreign_language_education: 0.6,       // Foreign language education and multilingual support
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Education
+const educationKnobSystem = new EnhancedKnobSystem(educationKnobsData);
+
+// Apply education knobs to game state
+function applyEducationKnobsToGameState() {
+  const knobs = educationKnobSystem.knobs;
+  
+  // Apply education system structure settings
+  const educationSystemStructure = (knobs.education_system_centralization + knobs.public_private_education_balance + 
+    knobs.education_funding_adequacy) / 3;
+  
+  // Apply early childhood and primary education settings
+  const earlyPrimaryEducation = (knobs.early_childhood_education_access + knobs.primary_education_universality + 
+    knobs.primary_curriculum_standards) / 3;
+  
+  // Apply higher education settings
+  const higherEducation = (knobs.higher_education_accessibility + knobs.university_research_emphasis + 
+    knobs.higher_education_quality_standards) / 3;
+  
+  // Apply teacher quality settings
+  const teacherQuality = (knobs.teacher_training_standards + knobs.teacher_professional_development + 
+    knobs.teacher_compensation_competitiveness) / 3;
+  
+  // Apply educational equity settings
+  const educationalEquity = (knobs.education_socioeconomic_equity + knobs.rural_education_support + 
+    knobs.minority_education_programs) / 3;
+  
+  // Apply curriculum and standards settings
+  const curriculumStandards = (knobs.curriculum_relevance_modernization + knobs.critical_thinking_emphasis + 
+    knobs.stem_education_priority) / 3;
+  
+  console.log('Applied education knobs to game state:', {
+    educationSystemStructure,
+    earlyPrimaryEducation,
+    higherEducation,
+    teacherQuality,
+    educationalEquity,
+    curriculumStandards
+  });
+}
 
 /**
  * GET /api/education/universities - Get all universities
@@ -363,5 +460,8 @@ export async function initializeEducationRoutes(pool: Pool): Promise<void> {
   // Service initialization is handled in EducationService.ts
   console.log('✅ Education routes initialized');
 }
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'education', educationKnobSystem, applyEducationKnobsToGameState);
 
 export default router;

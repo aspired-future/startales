@@ -2,8 +2,105 @@ import express from 'express';
 import { getPool } from '../storage/db.js';
 import { CommerceSecretaryService } from './CommerceSecretaryService.js';
 import { TradeEngine } from '../trade/tradeEngine.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Commerce System
+const commerceKnobsData = {
+  // Trade Policy & International Commerce
+  trade_liberalization_level: 0.7,       // Trade liberalization and market openness level
+  tariff_policy_protectionism: 0.4,      // Tariff policy and protectionist measures
+  free_trade_agreement_pursuit: 0.8,     // Free trade agreement negotiation and pursuit
+  
+  // Export Promotion & Competitiveness
+  export_promotion_investment: 0.8,      // Export promotion and market development investment
+  export_credit_support: 0.7,            // Export credit and financing support programs
+  trade_mission_frequency: 0.6,          // Trade mission and international promotion frequency
+  
+  // Import Regulation & Standards
+  import_safety_standards: 0.9,          // Import safety and quality standards enforcement
+  customs_efficiency: 0.8,               // Customs processing efficiency and modernization
+  anti_dumping_enforcement: 0.7,         // Anti-dumping and unfair trade practice enforcement
+  
+  // Domestic Commerce & Market Regulation
+  domestic_market_competition: 0.8,      // Domestic market competition and antitrust enforcement
+  consumer_protection_strength: 0.8,     // Consumer protection and rights enforcement
+  commercial_dispute_resolution: 0.7,    // Commercial dispute resolution and arbitration
+  
+  // Small Business & Entrepreneurship
+  small_business_export_support: 0.7,    // Small business export assistance and support
+  minority_business_development: 0.7,    // Minority and disadvantaged business development
+  entrepreneurship_promotion: 0.8,       // Entrepreneurship promotion and startup support
+  
+  // Industry Development & Innovation
+  strategic_industry_support: 0.6,       // Strategic industry development and support
+  manufacturing_competitiveness: 0.7,    // Manufacturing competitiveness and modernization
+  innovation_commercialization: 0.8,     // Innovation commercialization and technology transfer
+  
+  // Economic Data & Analysis
+  economic_intelligence_gathering: 0.8,  // Economic intelligence and market analysis
+  trade_data_transparency: 0.8,          // Trade data transparency and public reporting
+  market_research_investment: 0.7,       // Market research and analysis investment
+  
+  // Regional & Sectoral Development
+  regional_economic_development: 0.6,    // Regional economic development and balance
+  sectoral_diversification_support: 0.7, // Economic sectoral diversification support
+  rural_commerce_development: 0.6,       // Rural and remote area commerce development
+  
+  // Digital Commerce & Technology
+  e_commerce_regulation: 0.7,            // E-commerce regulation and digital trade policy
+  digital_trade_facilitation: 0.8,       // Digital trade facilitation and infrastructure
+  cybersecurity_commerce_protection: 0.8, // Cybersecurity protection for commerce
+  
+  // International Economic Cooperation
+  multilateral_trade_engagement: 0.7,    // Multilateral trade organization engagement
+  economic_diplomacy_priority: 0.7,      // Economic diplomacy and international relations
+  development_aid_trade_linkage: 0.6,    // Development aid and trade linkage programs
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Commerce
+const commerceKnobSystem = new EnhancedKnobSystem(commerceKnobsData);
+
+// Apply commerce knobs to game state
+function applyCommerceKnobsToGameState() {
+  const knobs = commerceKnobSystem.knobs;
+  
+  // Apply trade policy settings
+  const tradePolicy = (knobs.trade_liberalization_level + knobs.tariff_policy_protectionism + 
+    knobs.free_trade_agreement_pursuit) / 3;
+  
+  // Apply export promotion settings
+  const exportPromotion = (knobs.export_promotion_investment + knobs.export_credit_support + 
+    knobs.trade_mission_frequency) / 3;
+  
+  // Apply domestic commerce settings
+  const domesticCommerce = (knobs.domestic_market_competition + knobs.consumer_protection_strength + 
+    knobs.commercial_dispute_resolution) / 3;
+  
+  // Apply small business support settings
+  const smallBusinessSupport = (knobs.small_business_export_support + knobs.minority_business_development + 
+    knobs.entrepreneurship_promotion) / 3;
+  
+  // Apply industry development settings
+  const industryDevelopment = (knobs.strategic_industry_support + knobs.manufacturing_competitiveness + 
+    knobs.innovation_commercialization) / 3;
+  
+  // Apply digital commerce settings
+  const digitalCommerce = (knobs.e_commerce_regulation + knobs.digital_trade_facilitation + 
+    knobs.cybersecurity_commerce_protection) / 3;
+  
+  console.log('Applied commerce knobs to game state:', {
+    tradePolicy,
+    exportPromotion,
+    domesticCommerce,
+    smallBusinessSupport,
+    industryDevelopment,
+    digitalCommerce
+  });
+}
 
 // Initialize service
 const getCommerceService = () => new CommerceSecretaryService(getPool());
@@ -707,5 +804,8 @@ router.get('/trade-pacts/dashboard/:campaignId/:civilizationId', async (req, res
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'commerce', commerceKnobSystem, applyCommerceKnobsToGameState);
 
 export default router;

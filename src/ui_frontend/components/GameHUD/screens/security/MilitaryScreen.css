@@ -1,0 +1,664 @@
+.military-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* View Tabs - Compact */
+.view-tabs {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.view-tabs .tab {
+  background: none;
+  border: none;
+  color: #b8bcc8;
+  padding: 8px 15px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.view-tabs .tab:hover {
+  color: #4ecdc4;
+}
+
+.view-tabs .tab.active {
+  color: #4ecdc4;
+  border-bottom-color: #4ecdc4;
+}
+
+/* Tab Content */
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Overview - Compact */
+.military-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.metric-card {
+  background: rgba(26, 26, 46, 0.8);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 20px rgba(78, 205, 196, 0.2);
+}
+
+.metric-icon {
+  font-size: 24px;
+  opacity: 0.8;
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #4ecdc4;
+  line-height: 1;
+}
+
+.metric-label {
+  color: #b8bcc8;
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+/* Status Panels - Compact */
+.status-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.panel {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.panel h3 {
+  color: #4ecdc4;
+  margin: 0 0 10px 0;
+  font-size: 14px;
+}
+
+/* Fleet Summary */
+.fleet-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.fleet-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: rgba(15, 15, 35, 0.5);
+  border-radius: 6px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.fleet-info {
+  flex: 1;
+}
+
+.fleet-name {
+  color: #4ecdc4;
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.fleet-details {
+  color: #b8bcc8;
+  font-size: 13px;
+}
+
+.fleet-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  color: white;
+}
+
+.readiness-bar {
+  width: 80px;
+  height: 6px;
+  background: rgba(78, 205, 196, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.readiness-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4, #45b7aa);
+  transition: width 0.3s ease;
+}
+
+/* Threats Summary */
+.threats-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.threat-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(15, 15, 35, 0.5);
+  border-radius: 6px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.threat-level {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  color: white;
+  min-width: 60px;
+  text-align: center;
+}
+
+.threat-info {
+  flex: 1;
+}
+
+.threat-type {
+  color: #4ecdc4;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.threat-location {
+  color: #b8bcc8;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.threat-description {
+  color: #e0e6ed;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Fleets View */
+.fleets-view {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}
+
+.fleets-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+  align-content: start;
+  overflow-y: auto;
+}
+
+.fleet-card {
+  background: rgba(26, 26, 46, 0.8);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.fleet-card:hover,
+.fleet-card.selected {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 20px rgba(78, 205, 196, 0.2);
+}
+
+.fleet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.fleet-name {
+  color: #4ecdc4;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.fleet-status {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.fleet-commander,
+.fleet-location,
+.fleet-mission,
+.fleet-eta {
+  color: #b8bcc8;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.fleet-metrics {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+  padding: 10px;
+  background: rgba(15, 15, 35, 0.5);
+  border-radius: 6px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.metric span:first-child {
+  color: #b8bcc8;
+  font-size: 12px;
+}
+
+.metric span:last-child {
+  color: #4ecdc4;
+  font-weight: 600;
+}
+
+.fleet-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+/* Fleet Detail Panel */
+.fleet-detail-panel {
+  width: 300px;
+  background: rgba(26, 26, 46, 0.9);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  height: fit-content;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.detail-header h3 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 18px;
+}
+
+.detail-header button {
+  background: none;
+  border: none;
+  color: #b8bcc8;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+}
+
+.fleet-details {
+  margin-bottom: 20px;
+}
+
+.detail-section {
+  margin-bottom: 20px;
+}
+
+.detail-section h4 {
+  color: #4ecdc4;
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+  padding-bottom: 5px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.detail-item span:first-child {
+  color: #b8bcc8;
+}
+
+.detail-item span:last-child {
+  color: #4ecdc4;
+  font-weight: 500;
+}
+
+.mission-info {
+  color: #e0e6ed;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.eta {
+  color: #b8bcc8;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.fleet-commands {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Bases View */
+.bases-view {
+  overflow-y: auto;
+}
+
+.bases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.base-card {
+  background: rgba(26, 26, 46, 0.8);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.base-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 20px rgba(78, 205, 196, 0.2);
+}
+
+.base-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.base-name {
+  color: #4ecdc4;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.base-status {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.base-type,
+.base-location {
+  color: #b8bcc8;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.base-metrics {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+  padding: 10px;
+  background: rgba(15, 15, 35, 0.5);
+  border-radius: 6px;
+}
+
+.base-facilities {
+  margin: 15px 0;
+}
+
+.facilities-label {
+  color: #4ecdc4;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.facilities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.facility-tag {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.base-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+/* Threats View */
+.threats-view {
+  overflow-y: auto;
+}
+
+.threats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.threats-header h3 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 18px;
+}
+
+.threat-summary {
+  display: flex;
+  gap: 15px;
+}
+
+.threat-count {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+}
+
+.threat-count.critical {
+  background: #dc2626;
+}
+
+.threat-count.high {
+  background: #ea580c;
+}
+
+.threat-count.medium {
+  background: #ca8a04;
+}
+
+.threat-count.low {
+  background: #16a34a;
+}
+
+.threats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.threat-card {
+  background: rgba(26, 26, 46, 0.8);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.threat-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 20px rgba(78, 205, 196, 0.2);
+}
+
+.threat-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.threat-level-badge {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  color: white;
+  min-width: 70px;
+  text-align: center;
+}
+
+.threat-type {
+  color: #4ecdc4;
+  font-weight: 600;
+  font-size: 16px;
+  flex: 1;
+}
+
+.threat-status {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.threat-location {
+  color: #b8bcc8;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.threat-description {
+  color: #e0e6ed;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.threat-timestamp {
+  color: #b8bcc8;
+  font-size: 12px;
+  margin-bottom: 15px;
+}
+
+.threat-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Action Buttons */
+.action-btn {
+  background: rgba(78, 205, 196, 0.2);
+  border: 1px solid rgba(78, 205, 196, 0.5);
+  color: #4ecdc4;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background: rgba(78, 205, 196, 0.3);
+  border-color: #4ecdc4;
+}
+
+.action-btn.primary {
+  background: rgba(78, 205, 196, 0.3);
+  border-color: #4ecdc4;
+}
+
+.action-btn.secondary {
+  background: rgba(78, 205, 196, 0.1);
+}
+
+.action-btn.small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .fleets-view {
+    flex-direction: column;
+  }
+  
+  .fleet-detail-panel {
+    width: 100%;
+  }
+  
+  .status-panels {
+    grid-template-columns: 1fr;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .fleets-grid,
+  .bases-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .threat-summary {
+    flex-wrap: wrap;
+  }
+}

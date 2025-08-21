@@ -2,6 +2,8 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { ProvidersPage } from './components/ProvidersPage'
 import SimpleGameHUD from './components/GameHUD/SimpleGameHUD'
+import { GameHUD } from './components/GameHUD/GameHUD'
+import { ComprehensiveHUD } from './components/GameHUD/ComprehensiveHUD'
 import ModernWitterFeed from './components/Witter/ModernWitterFeed'
 import ApprovalDashboard from './components/ApprovalRating/ApprovalDashboard'
 
@@ -37,7 +39,7 @@ interface ProvidersResponse {
 // The ProvidersPage component is now imported from ./components/ProvidersPage
 
 function App() {
-  const [currentPage, setCurrentPage] = React.useState<'witter'|'providers'|'approval'>('witter')
+  const [currentPage, setCurrentPage] = React.useState<'witter'|'providers'|'approval'|'gamehud'|'comprehensive'>('comprehensive')
   const [mode, setMode] = React.useState<'outcome'|'classic'>('outcome')
   const [clock, setClock] = React.useState(0)
   const [success, setSuccess] = React.useState(0)
@@ -82,6 +84,99 @@ function App() {
     return <ProvidersPage onBack={() => setCurrentPage('witter')} />
   }
 
+    if (currentPage === 'comprehensive') {
+    return (
+      <ComprehensiveHUD
+        playerId="Commander_Alpha"
+        gameContext={{
+          currentLocation: 'Sol System',
+          currentActivity: 'Managing Galactic Civilization',
+          recentEvents: ['Ancient artifact discovered', 'Economic boom in manufacturing', 'Diplomatic tension with Vega Federation']
+        }}
+      />
+    )
+  }
+
+  if (currentPage === 'gamehud') {
+    return (
+      <div style={{ height: '100vh', background: '#0f0f23' }}>
+        <div style={{ padding: '20px', background: '#1a1a2e', borderBottom: '1px solid #4ecdc4', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <span style={{ color: '#4ecdc4', fontSize: '24px', fontWeight: 'bold' }}>
+              🌌 StarTales Game HUD
+            </span>
+            <div style={{ color: '#888', fontSize: '14px', marginTop: '4px' }}>
+              Complete galactic civilization management interface with Trade & Economics
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => setCurrentPage('comprehensive')}
+              style={{
+                padding: '8px 16px',
+                background: '#4ecdc4',
+                color: '#0f0f23',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer',
+                fontWeight: 'bold'
+              }}
+            >
+              🌌 Comprehensive HUD
+            </button>
+            <button
+              onClick={() => setCurrentPage('witter')}
+              style={{
+                padding: '8px 16px',
+                background: '#9c27b0',
+                color: 'white',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer'
+              }}
+            >
+              📱 Witter
+            </button>
+            <button
+              onClick={() => setCurrentPage('approval')}
+              style={{
+                padding: '8px 16px',
+                background: '#ff9800',
+                color: 'white',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer'
+              }}
+            >
+              📊 Approval
+            </button>
+            <button
+              onClick={() => setCurrentPage('providers')}
+              style={{
+                padding: '8px 16px',
+                background: '#2196f3',
+                color: 'white',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer'
+              }}
+            >
+              ⚙️ Settings
+            </button>
+          </div>
+        </div>
+        <GameHUD
+          playerId="Commander_Alpha"
+          gameContext={{
+            currentLocation: 'Sol System',
+            currentActivity: 'Managing Trade Routes',
+            recentEvents: ['New trade agreement signed', 'Market volatility detected', 'Resource shortage alert']
+          }}
+        />
+      </div>
+    )
+  }
+
   if (currentPage === 'approval') {
     return (
       <div style={{ height: '100vh', background: '#0f0f23' }}>
@@ -95,6 +190,19 @@ function App() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              onClick={() => setCurrentPage('gamehud')}
+              style={{ 
+                padding: '8px 16px', 
+                background: '#4ecdc4', 
+                color: 'black', 
+                border: 'none', 
+                borderRadius: 4, 
+                cursor: 'pointer'
+              }}
+            >
+              🌌 Game HUD
+            </button>
             <button 
               onClick={() => setCurrentPage('witter')}
               style={{ 
@@ -141,6 +249,19 @@ function App() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              onClick={() => setCurrentPage('gamehud')}
+              style={{ 
+                padding: '8px 16px', 
+                background: '#4ecdc4', 
+                color: 'black', 
+                border: 'none', 
+                borderRadius: 4, 
+                cursor: 'pointer'
+              }}
+            >
+              🌌 Game HUD
+            </button>
             <button 
               onClick={() => setCurrentPage('approval')}
               style={{ 
@@ -211,7 +332,8 @@ function App() {
 
 const rootElement = document.getElementById('root')!;
 if (!rootElement.hasChildNodes()) {
-  createRoot(rootElement).render(<App />);
+  const root = createRoot(rootElement);
+  root.render(<App />);
 }
 
 

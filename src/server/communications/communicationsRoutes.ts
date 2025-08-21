@@ -1,8 +1,95 @@
 import express from 'express';
 import { getPool } from '../storage/db.js';
 import { CommunicationsSecretaryService } from './CommunicationsSecretaryService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Communications System
+const communicationsKnobsData = {
+  // Public Communication & Messaging
+  public_messaging_effectiveness: 0.8,       // Public messaging effectiveness and communication clarity
+  media_engagement_quality: 0.8,             // Media engagement quality and press relations
+  crisis_communication_readiness: 0.9,       // Crisis communication readiness and rapid response
+  
+  // Digital Communication & Technology
+  digital_platform_utilization: 0.8,         // Digital platform utilization and online presence
+  social_media_strategy_sophistication: 0.7, // Social media strategy sophistication and engagement
+  multimedia_content_quality: 0.7,           // Multimedia content quality and production value
+  
+  // Internal Communication & Coordination
+  internal_communication_efficiency: 0.8,    // Internal communication efficiency and information flow
+  inter_agency_coordination: 0.8,            // Inter-agency coordination and collaborative messaging
+  staff_communication_training: 0.7,         // Staff communication training and skill development
+  
+  // Public Relations & Reputation Management
+  public_relations_expertise: 0.8,           // Public relations expertise and relationship building
+  reputation_management_proactivity: 0.8,    // Reputation management proactivity and brand protection
+  stakeholder_engagement_depth: 0.7,         // Stakeholder engagement depth and relationship quality
+  
+  // Information Transparency & Accessibility
+  information_transparency_commitment: 0.8,  // Information transparency commitment and open government
+  public_information_accessibility: 0.8,     // Public information accessibility and citizen engagement
+  freedom_of_information_compliance: 0.9,    // Freedom of information compliance and legal adherence
+  
+  // Strategic Communication Planning
+  communication_strategy_alignment: 0.8,     // Communication strategy alignment with policy objectives
+  message_consistency_maintenance: 0.8,      // Message consistency maintenance across channels
+  long_term_narrative_development: 0.7,      // Long-term narrative development and story building
+  
+  // International Communication & Diplomacy
+  international_communication_capability: 0.7, // International communication capability and global outreach
+  diplomatic_messaging_sophistication: 0.7,  // Diplomatic messaging sophistication and cultural sensitivity
+  multilingual_communication_support: 0.6,   // Multilingual communication support and translation quality
+  
+  // Performance Measurement & Analytics
+  communication_impact_measurement: 0.7,     // Communication impact measurement and effectiveness analysis
+  audience_feedback_integration: 0.7,        // Audience feedback integration and responsive adaptation
+  communication_roi_optimization: 0.7,       // Communication ROI optimization and resource efficiency
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Communications
+const communicationsKnobSystem = new EnhancedKnobSystem(communicationsKnobsData);
+
+// Apply communications knobs to game state
+function applyCommunicationsKnobsToGameState() {
+  const knobs = communicationsKnobSystem.knobs;
+  
+  // Apply public communication settings
+  const publicCommunication = (knobs.public_messaging_effectiveness + knobs.media_engagement_quality + 
+    knobs.crisis_communication_readiness) / 3;
+  
+  // Apply digital communication settings
+  const digitalCommunication = (knobs.digital_platform_utilization + knobs.social_media_strategy_sophistication + 
+    knobs.multimedia_content_quality) / 3;
+  
+  // Apply internal communication settings
+  const internalCommunication = (knobs.internal_communication_efficiency + knobs.inter_agency_coordination + 
+    knobs.staff_communication_training) / 3;
+  
+  // Apply public relations settings
+  const publicRelations = (knobs.public_relations_expertise + knobs.reputation_management_proactivity + 
+    knobs.stakeholder_engagement_depth) / 3;
+  
+  // Apply transparency settings
+  const transparency = (knobs.information_transparency_commitment + knobs.public_information_accessibility + 
+    knobs.freedom_of_information_compliance) / 3;
+  
+  // Apply strategic communication settings
+  const strategicCommunication = (knobs.communication_strategy_alignment + knobs.message_consistency_maintenance + 
+    knobs.long_term_narrative_development) / 3;
+  
+  console.log('Applied communications knobs to game state:', {
+    publicCommunication,
+    digitalCommunication,
+    internalCommunication,
+    publicRelations,
+    transparency,
+    strategicCommunication
+  });
+}
 
 // Initialize service
 const getCommunicationsService = () => new CommunicationsSecretaryService(getPool());
@@ -826,5 +913,8 @@ router.get('/dashboard', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'communications', communicationsKnobSystem, applyCommunicationsKnobsToGameState);
 
 export default router;

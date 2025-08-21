@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('../../../src/demo/apis/enhanced-knob-system.cjs');
 
 const app = express();
 const server = http.createServer(app);
@@ -15,6 +16,102 @@ const PORT = process.env.PORT || 4004;
 
 app.use(cors());
 app.use(express.json());
+
+// Enhanced AI Knobs for Policy Advisor System
+const policyAdvisorKnobsData = {
+  // AI Analysis Parameters
+  analysis_depth: 0.7,                  // Depth of policy analysis
+  recommendation_confidence: 0.6,       // Confidence threshold for recommendations
+  risk_assessment_sensitivity: 0.8,     // Sensitivity to policy risks
+  
+  // Policy Evaluation Factors
+  economic_impact_weight: 0.9,          // Weight of economic considerations
+  social_impact_weight: 0.7,            // Weight of social considerations
+  environmental_impact_weight: 0.6,     // Weight of environmental considerations
+  political_feasibility_weight: 0.8,    // Weight of political feasibility
+  
+  // Recommendation Generation
+  innovation_bias: 0.5,                 // Bias toward innovative solutions
+  conservative_safety_margin: 0.4,      // Conservative approach to safety
+  stakeholder_consideration: 0.8,       // Consideration of stakeholder interests
+  
+  // Communication Style
+  technical_detail_level: 0.6,          // Level of technical detail in advice
+  urgency_sensitivity: 0.7,             // Sensitivity to urgent policy needs
+  historical_precedent_weight: 0.5,     // Weight given to historical precedents
+  
+  // Advisory Process
+  consultation_thoroughness: 0.8,       // Thoroughness of consultation process
+  alternative_exploration: 0.7,         // Exploration of alternative approaches
+  implementation_focus: 0.6,            // Focus on implementation practicality
+  
+  // Quality Control
+  fact_checking_rigor: 0.9,             // Rigor of fact-checking process
+  bias_detection_sensitivity: 0.8,      // Sensitivity to detecting biases
+  peer_review_weight: 0.6,              // Weight of peer review in recommendations
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System
+const policyAdvisorKnobSystem = new EnhancedKnobSystem(policyAdvisorKnobsData);
+
+// Apply knobs to game state
+function applyPolicyAdvisorKnobsToGameState() {
+  const knobs = policyAdvisorKnobSystem.knobs;
+  
+  // Apply analysis parameters to AI generation
+  const analysisConfig = {
+    depth: knobs.analysis_depth,
+    confidence: knobs.recommendation_confidence,
+    riskSensitivity: knobs.risk_assessment_sensitivity
+  };
+  
+  // Apply impact weights to policy evaluation
+  const impactWeights = {
+    economic: knobs.economic_impact_weight,
+    social: knobs.social_impact_weight,
+    environmental: knobs.environmental_impact_weight,
+    political: knobs.political_feasibility_weight
+  };
+  
+  // Apply recommendation parameters
+  const recommendationConfig = {
+    innovation: knobs.innovation_bias,
+    safety: knobs.conservative_safety_margin,
+    stakeholders: knobs.stakeholder_consideration
+  };
+  
+  // Apply communication style
+  const communicationStyle = {
+    technical: knobs.technical_detail_level,
+    urgency: knobs.urgency_sensitivity,
+    historical: knobs.historical_precedent_weight
+  };
+  
+  // Apply process parameters
+  const processConfig = {
+    consultation: knobs.consultation_thoroughness,
+    alternatives: knobs.alternative_exploration,
+    implementation: knobs.implementation_focus
+  };
+  
+  // Apply quality control
+  const qualityControl = {
+    factCheck: knobs.fact_checking_rigor,
+    biasDetection: knobs.bias_detection_sensitivity,
+    peerReview: knobs.peer_review_weight
+  };
+  
+  console.log('Applied policy advisor knobs to game state:', {
+    analysisConfig,
+    impactWeights,
+    recommendationConfig,
+    communicationStyle,
+    processConfig,
+    qualityControl
+  });
+}
 
 // Mock AI generation function
 const mockAIGenerate = async (prompt) => {
@@ -449,7 +546,12 @@ io.on('connection', (socket) => {
   });
 });
 
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(app, 'policy-advisor', policyAdvisorKnobSystem, applyPolicyAdvisorKnobsToGameState);
+
 server.listen(PORT, () => {
   console.log(`Policy Advisor API listening on port ${PORT}`);
+  console.log(`🎛️ AI Knobs: http://localhost:${PORT}/api/policy-advisor/knobs`);
+  console.log(`📚 Knob Help: http://localhost:${PORT}/api/policy-advisor/knobs/help`);
 });
 

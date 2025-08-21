@@ -36,8 +36,104 @@ import {
   PolicyPsychologyResponse,
   PERSONALITY_ARCHETYPES
 } from './types.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
+
+// Enhanced AI Knobs for Psychology System
+const psychologyKnobsData = {
+  // Personality & Individual Behavior
+  personality_variation_level: 0.3,       // Individual personality variation and uniqueness
+  behavioral_consistency: 0.7,            // Behavioral consistency vs spontaneity
+  emotional_stability: 0.6,               // Emotional stability and regulation
+  
+  // Cognitive & Decision Making
+  cognitive_bias_influence: 0.5,          // Cognitive bias impact on decision making
+  rational_decision_making: 0.6,          // Rational vs emotional decision making
+  risk_tolerance_variation: 0.4,          // Risk tolerance variation across population
+  
+  // Social Psychology & Group Dynamics
+  social_influence_strength: 0.4,         // Social influence and peer pressure strength
+  conformity_pressure: 0.5,               // Social conformity and group think pressure
+  leadership_emergence: 0.6,              // Natural leadership emergence in groups
+  
+  // Learning & Adaptation
+  learning_rate: 0.05,                    // Individual and collective learning rate
+  adaptation_speed: 0.15,                 // Adaptation speed to new circumstances
+  memory_retention: 0.8,                  // Memory retention and experience impact
+  
+  // Motivation & Incentives
+  intrinsic_motivation_strength: 0.7,     // Intrinsic vs extrinsic motivation balance
+  reward_sensitivity: 0.6,                // Sensitivity to rewards and incentives
+  punishment_avoidance: 0.8,              // Punishment avoidance and fear responses
+  
+  // Cultural & Social Values
+  cultural_value_adherence: 0.6,          // Adherence to cultural values and norms
+  tradition_vs_innovation: 0.5,           // Traditional vs innovative mindset
+  authority_respect: 0.6,                 // Respect for authority and hierarchy
+  
+  // Stress & Resilience
+  stress_response_intensity: 0.5,         // Stress response intensity and duration
+  resilience_level: 0.7,                  // Psychological resilience and recovery
+  crisis_adaptation: 0.6,                 // Adaptation capability during crises
+  
+  // Communication & Expression
+  communication_openness: 0.6,            // Openness in communication and expression
+  conflict_avoidance: 0.5,                // Conflict avoidance vs confrontation
+  empathy_level: 0.7,                     // Empathy and emotional understanding
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Psychology
+const psychologyKnobSystem = new EnhancedKnobSystem(psychologyKnobsData);
+
+// Apply psychology knobs to game state
+function applyPsychologyKnobsToGameState() {
+  const knobs = psychologyKnobSystem.knobs;
+  
+  // Apply personality and behavior settings
+  const personalityBehavior = (knobs.personality_variation_level + knobs.behavioral_consistency + 
+    knobs.emotional_stability) / 3;
+  
+  // Apply cognitive and decision making settings
+  const cognitiveDecisionMaking = (knobs.cognitive_bias_influence + knobs.rational_decision_making + 
+    knobs.risk_tolerance_variation) / 3;
+  
+  // Apply social psychology settings
+  const socialPsychology = (knobs.social_influence_strength + knobs.conformity_pressure + 
+    knobs.leadership_emergence) / 3;
+  
+  // Apply learning and adaptation settings
+  const learningAdaptation = (knobs.learning_rate + knobs.adaptation_speed + 
+    knobs.memory_retention) / 3;
+  
+  // Apply motivation and incentives settings
+  const motivationIncentives = (knobs.intrinsic_motivation_strength + knobs.reward_sensitivity + 
+    knobs.punishment_avoidance) / 3;
+  
+  // Apply stress and resilience settings
+  const stressResilience = (knobs.stress_response_intensity + knobs.resilience_level + 
+    knobs.crisis_adaptation) / 3;
+  
+  // Update psychology engine parameters
+  psychologyEngine.updateParameters({
+    personalityVariation: knobs.personality_variation_level,
+    responseVolatility: 1 - knobs.behavioral_consistency,
+    adaptationSpeed: knobs.adaptation_speed,
+    socialInfluenceStrength: knobs.social_influence_strength,
+    learningRate: knobs.learning_rate
+  });
+  
+  console.log('Applied psychology knobs to game state:', {
+    personalityBehavior,
+    cognitiveDecisionMaking,
+    socialPsychology,
+    learningAdaptation,
+    motivationIncentives,
+    stressResilience
+  });
+}
 
 // Initialize psychology engine and analytics
 const psychologyEngine = new PsychologyEngine({
@@ -1393,5 +1489,8 @@ router.post('/integration/witter-comprehensive', (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'psychology', psychologyKnobSystem, applyPsychologyKnobsToGameState);
 
 export default router;

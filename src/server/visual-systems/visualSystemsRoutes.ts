@@ -17,8 +17,96 @@ import {
   ConsistencyProfile,
   StyleGuide
 } from './types.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Visual Systems
+const visualSystemsKnobsData = {
+  // Visual Quality & Fidelity
+  visual_quality_standard: 0.8,           // Overall visual quality and fidelity standard
+  detail_level_emphasis: 0.7,             // Detail level and visual complexity emphasis
+  artistic_style_consistency: 0.9,        // Artistic style consistency across assets
+  
+  // AI Generation Parameters
+  ai_creativity_level: 0.7,               // AI creativity and artistic freedom level
+  prompt_interpretation_flexibility: 0.6, // Prompt interpretation flexibility and variation
+  generation_speed_vs_quality: 0.7,       // Generation speed vs quality optimization balance
+  
+  // Asset Type Specialization
+  character_design_sophistication: 0.8,   // Character design sophistication and uniqueness
+  environment_detail_richness: 0.8,       // Environment and landscape detail richness
+  ui_element_polish_level: 0.7,           // UI element polish and professional appearance
+  
+  // Visual Consistency & Branding
+  brand_consistency_enforcement: 0.9,     // Brand consistency and visual identity enforcement
+  color_palette_adherence: 0.8,           // Color palette adherence and harmony
+  visual_theme_coherence: 0.9,            // Visual theme coherence across all assets
+  
+  // Technical Specifications
+  resolution_optimization: 0.8,           // Resolution optimization for different use cases
+  file_format_efficiency: 0.8,            // File format efficiency and compression optimization
+  cross_platform_compatibility: 0.8,      // Cross-platform compatibility and standards
+  
+  // Content Appropriateness & Safety
+  content_safety_filtering: 0.9,          // Content safety filtering and appropriateness
+  cultural_sensitivity_awareness: 0.8,    // Cultural sensitivity and inclusive representation
+  age_appropriate_content: 0.9,           // Age-appropriate content generation and filtering
+  
+  // Performance & Resource Management
+  generation_resource_allocation: 0.7,    // Generation resource allocation and efficiency
+  batch_processing_optimization: 0.7,     // Batch processing optimization and throughput
+  storage_efficiency_priority: 0.7,       // Storage efficiency and asset management priority
+  
+  // Innovation & Experimentation
+  experimental_feature_adoption: 0.6,     // Experimental feature adoption and innovation
+  artistic_trend_incorporation: 0.6,      // Artistic trend incorporation and modernization
+  visual_technology_advancement: 0.7,     // Visual technology advancement and cutting-edge features
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Visual Systems
+const visualSystemsKnobSystem = new EnhancedKnobSystem(visualSystemsKnobsData);
+
+// Apply visual systems knobs to game state
+function applyVisualSystemsKnobsToGameState() {
+  const knobs = visualSystemsKnobSystem.knobs;
+  
+  // Apply visual quality settings
+  const visualQuality = (knobs.visual_quality_standard + knobs.detail_level_emphasis + 
+    knobs.artistic_style_consistency) / 3;
+  
+  // Apply AI generation settings
+  const aiGeneration = (knobs.ai_creativity_level + knobs.prompt_interpretation_flexibility + 
+    knobs.generation_speed_vs_quality) / 3;
+  
+  // Apply asset specialization settings
+  const assetSpecialization = (knobs.character_design_sophistication + knobs.environment_detail_richness + 
+    knobs.ui_element_polish_level) / 3;
+  
+  // Apply consistency and branding settings
+  const consistencyBranding = (knobs.brand_consistency_enforcement + knobs.color_palette_adherence + 
+    knobs.visual_theme_coherence) / 3;
+  
+  // Apply technical specifications settings
+  const technicalSpecs = (knobs.resolution_optimization + knobs.file_format_efficiency + 
+    knobs.cross_platform_compatibility) / 3;
+  
+  // Apply content safety settings
+  const contentSafety = (knobs.content_safety_filtering + knobs.cultural_sensitivity_awareness + 
+    knobs.age_appropriate_content) / 3;
+  
+  console.log('Applied visual systems knobs to game state:', {
+    visualQuality,
+    aiGeneration,
+    assetSpecialization,
+    consistencyBranding,
+    technicalSpecs,
+    contentSafety
+  });
+}
+
 const visualEngine = new VisualSystemsEngine();
 
 // ===== ASSET GENERATION =====
@@ -1075,5 +1163,8 @@ router.get('/health', (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'visual-systems', visualSystemsKnobSystem, applyVisualSystemsKnobsToGameState);
 
 export default router;

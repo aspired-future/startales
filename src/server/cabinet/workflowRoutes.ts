@@ -1,8 +1,95 @@
 import express from 'express';
 import { getPool } from '../storage/db.js';
 import { WorkflowAutomationService } from './WorkflowAutomationService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Cabinet Workflow System
+const workflowKnobsData = {
+  // Workflow Automation & Efficiency
+  workflow_automation_level: 0.7,         // Overall workflow automation and digitization level
+  process_standardization: 0.8,           // Process standardization and consistency enforcement
+  workflow_optimization_frequency: 0.6,   // Frequency of workflow optimization and improvement
+  
+  // Approval & Decision Processes
+  approval_hierarchy_strictness: 0.7,     // Approval hierarchy strictness and bypass flexibility
+  decision_delegation_level: 0.6,         // Decision delegation and empowerment level
+  emergency_bypass_threshold: 0.8,        // Emergency bypass threshold and criteria
+  
+  // Inter-Department Coordination
+  cross_department_collaboration: 0.7,    // Cross-department collaboration and coordination
+  information_sharing_openness: 0.8,      // Information sharing openness between departments
+  workflow_integration_priority: 0.7,     // Workflow integration and seamless handoffs
+  
+  // Quality Control & Compliance
+  quality_assurance_rigor: 0.8,           // Quality assurance and review rigor
+  compliance_monitoring_strictness: 0.9,  // Compliance monitoring and enforcement strictness
+  audit_trail_completeness: 0.9,          // Audit trail completeness and documentation
+  
+  // Performance & Efficiency Metrics
+  workflow_performance_tracking: 0.8,     // Workflow performance tracking and analytics
+  bottleneck_identification_speed: 0.7,   // Bottleneck identification and resolution speed
+  efficiency_improvement_priority: 0.7,   // Efficiency improvement and optimization priority
+  
+  // Technology & Digital Integration
+  digital_transformation_pace: 0.6,       // Digital transformation and modernization pace
+  system_integration_level: 0.7,          // System integration and interoperability level
+  automation_tool_adoption: 0.6,          // Automation tool adoption and implementation
+  
+  // Change Management & Adaptability
+  workflow_change_agility: 0.6,           // Workflow change management and adaptability
+  process_innovation_encouragement: 0.7,  // Process innovation and creative improvement
+  change_resistance_management: 0.7,      // Change resistance management and training
+  
+  // Risk Management & Contingency
+  workflow_risk_assessment: 0.8,          // Workflow risk assessment and mitigation
+  contingency_planning_thoroughness: 0.8, // Contingency planning and backup procedures
+  failure_recovery_speed: 0.7,            // Failure recovery and business continuity speed
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Cabinet Workflow
+const workflowKnobSystem = new EnhancedKnobSystem(workflowKnobsData);
+
+// Apply workflow knobs to game state
+function applyWorkflowKnobsToGameState() {
+  const knobs = workflowKnobSystem.knobs;
+  
+  // Apply automation and efficiency settings
+  const automationEfficiency = (knobs.workflow_automation_level + knobs.process_standardization + 
+    knobs.workflow_optimization_frequency) / 3;
+  
+  // Apply approval processes settings
+  const approvalProcesses = (knobs.approval_hierarchy_strictness + knobs.decision_delegation_level + 
+    knobs.emergency_bypass_threshold) / 3;
+  
+  // Apply coordination settings
+  const departmentCoordination = (knobs.cross_department_collaboration + knobs.information_sharing_openness + 
+    knobs.workflow_integration_priority) / 3;
+  
+  // Apply quality control settings
+  const qualityControl = (knobs.quality_assurance_rigor + knobs.compliance_monitoring_strictness + 
+    knobs.audit_trail_completeness) / 3;
+  
+  // Apply performance tracking settings
+  const performanceTracking = (knobs.workflow_performance_tracking + knobs.bottleneck_identification_speed + 
+    knobs.efficiency_improvement_priority) / 3;
+  
+  // Apply risk management settings
+  const riskManagement = (knobs.workflow_risk_assessment + knobs.contingency_planning_thoroughness + 
+    knobs.failure_recovery_speed) / 3;
+  
+  console.log('Applied workflow knobs to game state:', {
+    automationEfficiency,
+    approvalProcesses,
+    departmentCoordination,
+    qualityControl,
+    performanceTracking,
+    riskManagement
+  });
+}
 
 // Initialize service
 const getWorkflowService = () => new WorkflowAutomationService(getPool());
@@ -764,5 +851,8 @@ router.post('/workflows/templates/budget-coordination', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'cabinet-workflow', workflowKnobSystem, applyWorkflowKnobsToGameState);
 
 export default router;

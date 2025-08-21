@@ -1,7 +1,94 @@
 import express from 'express';
 import { getFiscalSimulationService } from './FiscalSimulationService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Fiscal Simulation System
+const fiscalSimulationKnobsData = {
+  // Fiscal Policy Modeling & Analysis
+  fiscal_policy_complexity: 0.8,          // Fiscal policy modeling complexity and sophistication
+  economic_multiplier_sensitivity: 0.7,   // Economic multiplier effect sensitivity and accuracy
+  policy_interaction_modeling: 0.8,       // Policy interaction and cross-effect modeling
+  
+  // Tax System Simulation
+  tax_system_granularity: 0.7,            // Tax system modeling granularity and detail
+  tax_compliance_modeling: 0.7,           // Tax compliance and evasion modeling accuracy
+  progressive_taxation_effects: 0.8,      // Progressive taxation effect simulation accuracy
+  
+  // Government Spending Analysis
+  spending_efficiency_modeling: 0.7,      // Government spending efficiency modeling
+  public_investment_impact: 0.8,          // Public investment impact analysis accuracy
+  spending_multiplier_effects: 0.7,       // Government spending multiplier effect modeling
+  
+  // Budget & Deficit Analysis
+  budget_constraint_realism: 0.9,         // Budget constraint and fiscal limit realism
+  deficit_sustainability_analysis: 0.8,   // Deficit sustainability analysis accuracy
+  debt_dynamics_modeling: 0.8,            // Public debt dynamics and sustainability modeling
+  
+  // Economic Impact Simulation
+  gdp_impact_sensitivity: 0.8,            // GDP impact simulation sensitivity and accuracy
+  employment_effect_modeling: 0.7,        // Employment effect modeling and labor market impact
+  inflation_pressure_analysis: 0.7,       // Inflation pressure analysis from fiscal policy
+  
+  // Temporal & Dynamic Effects
+  short_term_impact_emphasis: 0.6,        // Short-term vs long-term impact analysis balance
+  policy_lag_modeling: 0.8,               // Policy implementation lag and delay modeling
+  dynamic_adjustment_speed: 0.7,          // Dynamic economic adjustment speed modeling
+  
+  // Sectoral & Distributional Analysis
+  sectoral_impact_granularity: 0.7,       // Sectoral economic impact analysis granularity
+  income_distribution_effects: 0.8,       // Income distribution and inequality effect modeling
+  regional_variation_modeling: 0.6,       // Regional fiscal impact variation modeling
+  
+  // Uncertainty & Risk Analysis
+  policy_uncertainty_quantification: 0.8, // Policy uncertainty and risk quantification
+  scenario_analysis_breadth: 0.7,         // Scenario analysis breadth and alternative modeling
+  confidence_interval_accuracy: 0.8,      // Statistical confidence interval accuracy
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Fiscal Simulation
+const fiscalSimulationKnobSystem = new EnhancedKnobSystem(fiscalSimulationKnobsData);
+
+// Apply fiscal simulation knobs to game state
+function applyFiscalSimulationKnobsToGameState() {
+  const knobs = fiscalSimulationKnobSystem.knobs;
+  
+  // Apply fiscal policy modeling settings
+  const fiscalPolicyModeling = (knobs.fiscal_policy_complexity + knobs.economic_multiplier_sensitivity + 
+    knobs.policy_interaction_modeling) / 3;
+  
+  // Apply tax system settings
+  const taxSystemModeling = (knobs.tax_system_granularity + knobs.tax_compliance_modeling + 
+    knobs.progressive_taxation_effects) / 3;
+  
+  // Apply spending analysis settings
+  const spendingAnalysis = (knobs.spending_efficiency_modeling + knobs.public_investment_impact + 
+    knobs.spending_multiplier_effects) / 3;
+  
+  // Apply budget analysis settings
+  const budgetAnalysis = (knobs.budget_constraint_realism + knobs.deficit_sustainability_analysis + 
+    knobs.debt_dynamics_modeling) / 3;
+  
+  // Apply economic impact settings
+  const economicImpact = (knobs.gdp_impact_sensitivity + knobs.employment_effect_modeling + 
+    knobs.inflation_pressure_analysis) / 3;
+  
+  // Apply uncertainty analysis settings
+  const uncertaintyAnalysis = (knobs.policy_uncertainty_quantification + knobs.scenario_analysis_breadth + 
+    knobs.confidence_interval_accuracy) / 3;
+  
+  console.log('Applied fiscal simulation knobs to game state:', {
+    fiscalPolicyModeling,
+    taxSystemModeling,
+    spendingAnalysis,
+    budgetAnalysis,
+    economicImpact,
+    uncertaintyAnalysis
+  });
+}
 
 /**
  * GET /api/fiscal-simulation/effects/:civilization - Get fiscal policy effects
@@ -484,5 +571,8 @@ router.post('/scenario/analyze', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'fiscal-simulation', fiscalSimulationKnobSystem, applyFiscalSimulationKnobsToGameState);
 
 export default router;

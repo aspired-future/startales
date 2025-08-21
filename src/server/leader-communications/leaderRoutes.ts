@@ -19,8 +19,95 @@ import {
   PendingDecision
 } from './types.js';
 import { db } from '../storage/db.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
+
+// Enhanced AI Knobs for Leader Communications System
+const leaderCommunicationsKnobsData = {
+  // Briefing Quality & Depth
+  briefing_detail_comprehensiveness: 0.8,    // Briefing detail comprehensiveness and thoroughness
+  information_synthesis_quality: 0.8,        // Information synthesis quality and insight generation
+  strategic_context_emphasis: 0.7,           // Strategic context emphasis and big-picture perspective
+  
+  // Decision Support & Analysis
+  decision_support_sophistication: 0.8,      // Decision support sophistication and analytical depth
+  recommendation_confidence_level: 0.7,      // Recommendation confidence level and certainty
+  risk_assessment_thoroughness: 0.8,         // Risk assessment thoroughness and scenario analysis
+  
+  // Communication Style & Tone
+  communication_formality_level: 0.7,        // Communication formality level and professional tone
+  leadership_voice_authenticity: 0.8,        // Leadership voice authenticity and personal style
+  message_clarity_optimization: 0.9,         // Message clarity optimization and comprehensibility
+  
+  // Speech Generation & Rhetoric
+  speech_persuasiveness_factor: 0.7,         // Speech persuasiveness factor and rhetorical effectiveness
+  audience_adaptation_sensitivity: 0.8,      // Audience adaptation sensitivity and targeting
+  emotional_resonance_calibration: 0.7,      // Emotional resonance calibration and impact
+  
+  // Information Processing & Filtering
+  information_prioritization_accuracy: 0.8,  // Information prioritization accuracy and relevance
+  noise_filtering_effectiveness: 0.8,        // Noise filtering effectiveness and signal clarity
+  real_time_update_responsiveness: 0.7,      // Real-time update responsiveness and agility
+  
+  // Crisis Communication & Emergency Response
+  crisis_communication_urgency: 0.8,         // Crisis communication urgency and rapid response
+  emergency_briefing_prioritization: 0.9,    // Emergency briefing prioritization and focus
+  stakeholder_notification_efficiency: 0.8,  // Stakeholder notification efficiency and coverage
+  
+  // Natural Language Integration
+  natural_language_understanding: 0.8,       // Natural language understanding and interpretation
+  conversational_interface_fluency: 0.7,     // Conversational interface fluency and naturalness
+  context_awareness_sophistication: 0.8,     // Context awareness sophistication and memory
+  
+  // Performance & Efficiency
+  response_generation_speed: 0.7,            // Response generation speed and timeliness
+  computational_resource_optimization: 0.7,  // Computational resource optimization and efficiency
+  multi_task_processing_capability: 0.7,     // Multi-task processing capability and parallelization
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Leader Communications
+const leaderCommunicationsKnobSystem = new EnhancedKnobSystem(leaderCommunicationsKnobsData);
+
+// Apply leader communications knobs to game state
+function applyLeaderCommunicationsKnobsToGameState() {
+  const knobs = leaderCommunicationsKnobSystem.knobs;
+  
+  // Apply briefing quality settings
+  const briefingQuality = (knobs.briefing_detail_comprehensiveness + knobs.information_synthesis_quality + 
+    knobs.strategic_context_emphasis) / 3;
+  
+  // Apply decision support settings
+  const decisionSupport = (knobs.decision_support_sophistication + knobs.recommendation_confidence_level + 
+    knobs.risk_assessment_thoroughness) / 3;
+  
+  // Apply communication style settings
+  const communicationStyle = (knobs.communication_formality_level + knobs.leadership_voice_authenticity + 
+    knobs.message_clarity_optimization) / 3;
+  
+  // Apply speech generation settings
+  const speechGeneration = (knobs.speech_persuasiveness_factor + knobs.audience_adaptation_sensitivity + 
+    knobs.emotional_resonance_calibration) / 3;
+  
+  // Apply information processing settings
+  const informationProcessing = (knobs.information_prioritization_accuracy + knobs.noise_filtering_effectiveness + 
+    knobs.real_time_update_responsiveness) / 3;
+  
+  // Apply crisis communication settings
+  const crisisCommunication = (knobs.crisis_communication_urgency + knobs.emergency_briefing_prioritization + 
+    knobs.stakeholder_notification_efficiency) / 3;
+  
+  console.log('Applied leader communications knobs to game state:', {
+    briefingQuality,
+    decisionSupport,
+    communicationStyle,
+    speechGeneration,
+    informationProcessing,
+    crisisCommunication
+  });
+}
 
 /**
  * Generate leader briefing
@@ -1003,5 +1090,8 @@ async function getLeaderCommunicationAnalytics(campaignId: number, timeframe: st
     };
   }
 }
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'leader-communications', leaderCommunicationsKnobSystem, applyLeaderCommunicationsKnobsToGameState);
 
 export default router;

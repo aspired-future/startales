@@ -1,7 +1,94 @@
 import express from 'express';
 import { getJointChiefsService } from './JointChiefsService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Joint Chiefs of Staff System
+const jointChiefsKnobsData = {
+  // Military Strategy & Planning
+  strategic_planning_sophistication: 0.8,    // Strategic planning sophistication and long-term military vision
+  operational_coordination_efficiency: 0.8,  // Operational coordination efficiency across military branches
+  threat_assessment_accuracy: 0.8,           // Threat assessment accuracy and intelligence integration
+  
+  // Inter-Service Coordination
+  joint_operations_integration: 0.8,         // Joint operations integration and multi-branch cooperation
+  resource_sharing_optimization: 0.7,        // Resource sharing optimization between military branches
+  command_structure_clarity: 0.9,            // Command structure clarity and chain of command definition
+  
+  // Defense Policy & Doctrine
+  defense_doctrine_modernization: 0.7,       // Defense doctrine modernization and tactical evolution
+  military_innovation_adoption: 0.7,         // Military innovation adoption and technology integration
+  force_structure_optimization: 0.7,         // Force structure optimization and capability balance
+  
+  // Crisis Management & Response
+  crisis_response_readiness: 0.9,            // Crisis response readiness and rapid deployment capability
+  emergency_command_authority: 0.8,          // Emergency command authority and decision-making speed
+  multi_theater_coordination: 0.8,           // Multi-theater coordination and global operations management
+  
+  // Intelligence & Information Warfare
+  intelligence_integration_depth: 0.8,       // Intelligence integration depth and information synthesis
+  cyber_warfare_preparedness: 0.7,           // Cyber warfare preparedness and digital defense capability
+  information_security_protocols: 0.9,       // Information security protocols and classified data protection
+  
+  // Training & Readiness
+  joint_training_program_quality: 0.8,       // Joint training program quality and inter-service exercises
+  combat_readiness_maintenance: 0.8,         // Combat readiness maintenance and operational preparedness
+  leadership_development_emphasis: 0.8,       // Leadership development emphasis and officer training quality
+  
+  // International Military Relations
+  alliance_coordination_strength: 0.7,       // Alliance coordination strength and coalition operations
+  military_diplomacy_engagement: 0.6,        // Military diplomacy engagement and defense partnerships
+  peacekeeping_mission_capability: 0.6,      // Peacekeeping mission capability and humanitarian operations
+  
+  // Innovation & Future Warfare
+  emerging_threat_adaptation: 0.7,           // Emerging threat adaptation and future warfare preparation
+  military_technology_research: 0.7,         // Military technology research and development investment
+  asymmetric_warfare_preparedness: 0.7,      // Asymmetric warfare preparedness and unconventional threats
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Joint Chiefs
+const jointChiefsKnobSystem = new EnhancedKnobSystem(jointChiefsKnobsData);
+
+// Apply joint chiefs knobs to game state
+function applyJointChiefsKnobsToGameState() {
+  const knobs = jointChiefsKnobSystem.knobs;
+  
+  // Apply military strategy settings
+  const militaryStrategy = (knobs.strategic_planning_sophistication + knobs.operational_coordination_efficiency + 
+    knobs.threat_assessment_accuracy) / 3;
+  
+  // Apply inter-service coordination settings
+  const interServiceCoordination = (knobs.joint_operations_integration + knobs.resource_sharing_optimization + 
+    knobs.command_structure_clarity) / 3;
+  
+  // Apply defense policy settings
+  const defensePolicy = (knobs.defense_doctrine_modernization + knobs.military_innovation_adoption + 
+    knobs.force_structure_optimization) / 3;
+  
+  // Apply crisis management settings
+  const crisisManagement = (knobs.crisis_response_readiness + knobs.emergency_command_authority + 
+    knobs.multi_theater_coordination) / 3;
+  
+  // Apply intelligence settings
+  const intelligence = (knobs.intelligence_integration_depth + knobs.cyber_warfare_preparedness + 
+    knobs.information_security_protocols) / 3;
+  
+  // Apply training settings
+  const training = (knobs.joint_training_program_quality + knobs.combat_readiness_maintenance + 
+    knobs.leadership_development_emphasis) / 3;
+  
+  console.log('Applied joint chiefs knobs to game state:', {
+    militaryStrategy,
+    interServiceCoordination,
+    defensePolicy,
+    crisisManagement,
+    intelligence,
+    training
+  });
+}
 
 /**
  * GET /api/joint-chiefs/ - List all joint chiefs for a civilization
@@ -766,5 +853,8 @@ router.get('/analytics/inter-service-coordination', async (req, res) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'joint-chiefs', jointChiefsKnobSystem, applyJointChiefsKnobsToGameState);
 
 export default router;

@@ -12,6 +12,7 @@ import {
   Citizen, PopulationMetrics, IncentiveType, IncentiveResponse, 
   PopulationConfig, DecisionType 
 } from './types.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
 
@@ -42,6 +43,91 @@ const sampleCities = ['city_alpha', 'city_beta', 'city_gamma'];
 for (let i = 0; i < 100; i++) {
   const cityId = sampleCities[i % sampleCities.length];
   citizenEngine.generateCitizen(cityId);
+}
+
+// Enhanced AI Knobs for Population System
+const populationKnobsData = {
+  // Healthcare & Wellness
+  healthcare_investment: 0.6,           // Government healthcare investment level
+  public_health_programs: 0.7,          // Public health program effectiveness
+  mental_health_support: 0.5,           // Mental health service availability
+  
+  // Education & Development
+  education_investment: 0.7,            // Government education investment level
+  skill_development_programs: 0.6,      // Vocational and skill training programs
+  research_education_integration: 0.5,  // Integration of research with education
+  
+  // Immigration & Migration
+  immigration_openness: 0.5,            // Immigration policy openness
+  refugee_acceptance_rate: 0.4,         // Rate of refugee acceptance
+  skilled_worker_attraction: 0.8,       // Programs to attract skilled workers
+  
+  // Family & Social Support
+  family_support_level: 0.6,            // Family support policy level
+  childcare_accessibility: 0.7,         // Accessibility of childcare services
+  elderly_care_quality: 0.6,            // Quality of elderly care services
+  
+  // Urban & Rural Development
+  urban_development_focus: 0.7,         // Focus on urban vs rural development
+  infrastructure_investment: 0.6,       // Infrastructure development investment
+  affordable_housing_investment: 0.5,   // Affordable housing programs
+  
+  // Employment & Economy
+  employment_program_intensity: 0.6,    // Employment program intensity
+  minimum_wage_policy: 0.5,             // Minimum wage policy level
+  worker_protection_strength: 0.7,      // Worker rights and protection strength
+  
+  // Demographics & Lifecycle
+  retirement_age: 0.5,                  // Retirement age policy flexibility
+  population_growth_target: 0.6,        // Target population growth rate
+  demographic_balance_priority: 0.7,    // Priority on demographic balance
+  
+  // Quality of Life
+  environmental_health_priority: 0.8,   // Environmental health priority
+  cultural_preservation_support: 0.6,   // Cultural heritage preservation
+  community_engagement_programs: 0.5,   // Community engagement initiatives
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Population
+const populationKnobSystem = new EnhancedKnobSystem(populationKnobsData);
+
+// Apply population knobs to game state
+function applyPopulationKnobsToGameState() {
+  const knobs = populationKnobSystem.knobs;
+  
+  // Apply healthcare and wellness settings
+  const healthcareImpact = knobs.healthcare_investment * knobs.public_health_programs;
+  
+  // Apply education settings
+  const educationImpact = knobs.education_investment * knobs.skill_development_programs;
+  
+  // Apply immigration settings
+  const immigrationImpact = knobs.immigration_openness * knobs.skilled_worker_attraction;
+  
+  // Apply family support settings
+  const familySupportImpact = knobs.family_support_level * knobs.childcare_accessibility;
+  
+  // Apply urban development settings
+  const urbanDevelopmentImpact = knobs.urban_development_focus * knobs.infrastructure_investment;
+  
+  // Apply employment settings
+  const employmentImpact = knobs.employment_program_intensity * knobs.worker_protection_strength;
+  
+  // Apply quality of life settings
+  const qualityOfLifeImpact = (knobs.environmental_health_priority + 
+    knobs.cultural_preservation_support + knobs.community_engagement_programs) / 3;
+  
+  console.log('Applied population knobs to game state:', {
+    healthcareImpact,
+    educationImpact,
+    immigrationImpact,
+    familySupportImpact,
+    urbanDevelopmentImpact,
+    employmentImpact,
+    qualityOfLifeImpact
+  });
 }
 
 /**
@@ -446,5 +532,8 @@ router.get('/health', (req, res) => {
     res.status(500).json({ error: 'System health check failed', details: error.message });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'population', populationKnobSystem, applyPopulationKnobsToGameState);
 
 export default router;

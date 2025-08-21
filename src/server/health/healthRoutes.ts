@@ -1,7 +1,104 @@
 import { Router } from 'express';
 import { getHealthService } from './HealthService.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
+
+// Enhanced AI Knobs for Health System
+const healthKnobsData = {
+  // Healthcare System Organization
+  healthcare_system_centralization: 0.6,  // Healthcare system centralization vs decentralization
+  public_private_healthcare_balance: 0.7, // Public vs private healthcare provision balance
+  healthcare_universal_coverage: 0.8,     // Universal healthcare coverage and accessibility
+  
+  // Healthcare Funding & Resources
+  healthcare_budget_allocation: 0.8,      // Healthcare budget allocation and spending priority
+  medical_research_investment: 0.7,       // Medical research and development investment
+  healthcare_infrastructure_investment: 0.8, // Healthcare infrastructure and facility investment
+  
+  // Public Health & Prevention
+  preventive_care_emphasis: 0.8,          // Preventive care and health promotion emphasis
+  public_health_surveillance: 0.9,       // Public health monitoring and disease surveillance
+  health_education_programs: 0.8,        // Health education and awareness programs
+  
+  // Healthcare Quality & Standards
+  medical_quality_standards: 0.9,        // Medical care quality standards and regulation
+  healthcare_professional_standards: 0.9, // Healthcare professional licensing and standards
+  patient_safety_protocols: 0.9,         // Patient safety protocols and error prevention
+  
+  // Healthcare Access & Equity
+  healthcare_geographic_equity: 0.7,     // Healthcare access equity across geographic regions
+  healthcare_socioeconomic_equity: 0.8,  // Healthcare access equity across socioeconomic groups
+  minority_health_programs: 0.7,         // Minority and vulnerable population health programs
+  
+  // Mental Health & Behavioral Health
+  mental_health_service_integration: 0.7, // Mental health service integration and accessibility
+  substance_abuse_treatment: 0.7,        // Substance abuse treatment and prevention programs
+  behavioral_health_support: 0.8,        // Behavioral health support and community programs
+  
+  // Emergency Preparedness & Response
+  health_emergency_preparedness: 0.9,    // Health emergency preparedness and response capability
+  pandemic_response_capability: 0.8,     // Pandemic and epidemic response capability
+  medical_emergency_coordination: 0.8,   // Medical emergency coordination and disaster response
+  
+  // Healthcare Technology & Innovation
+  health_technology_adoption: 0.7,       // Healthcare technology adoption and digitization
+  telemedicine_infrastructure: 0.6,      // Telemedicine and remote healthcare infrastructure
+  health_data_management: 0.8,           // Health data management and electronic health records
+  
+  // Pharmaceutical & Medical Devices
+  pharmaceutical_regulation: 0.9,        // Pharmaceutical safety and efficacy regulation
+  drug_pricing_control: 0.6,             // Drug pricing regulation and affordability measures
+  medical_device_oversight: 0.8,         // Medical device safety and approval oversight
+  
+  // International Health Cooperation
+  global_health_engagement: 0.6,         // Global health cooperation and international engagement
+  health_diplomacy_participation: 0.5,   // Health diplomacy and multilateral health initiatives
+  medical_humanitarian_assistance: 0.7,  // Medical humanitarian assistance and aid programs
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Health
+const healthKnobSystem = new EnhancedKnobSystem(healthKnobsData);
+
+// Apply health knobs to game state
+function applyHealthKnobsToGameState() {
+  const knobs = healthKnobSystem.knobs;
+  
+  // Apply healthcare system organization settings
+  const healthcareSystemOrganization = (knobs.healthcare_system_centralization + knobs.public_private_healthcare_balance + 
+    knobs.healthcare_universal_coverage) / 3;
+  
+  // Apply healthcare funding settings
+  const healthcareFunding = (knobs.healthcare_budget_allocation + knobs.medical_research_investment + 
+    knobs.healthcare_infrastructure_investment) / 3;
+  
+  // Apply public health settings
+  const publicHealth = (knobs.preventive_care_emphasis + knobs.public_health_surveillance + 
+    knobs.health_education_programs) / 3;
+  
+  // Apply healthcare quality settings
+  const healthcareQuality = (knobs.medical_quality_standards + knobs.healthcare_professional_standards + 
+    knobs.patient_safety_protocols) / 3;
+  
+  // Apply healthcare access settings
+  const healthcareAccess = (knobs.healthcare_geographic_equity + knobs.healthcare_socioeconomic_equity + 
+    knobs.minority_health_programs) / 3;
+  
+  // Apply emergency preparedness settings
+  const emergencyPreparedness = (knobs.health_emergency_preparedness + knobs.pandemic_response_capability + 
+    knobs.medical_emergency_coordination) / 3;
+  
+  console.log('Applied health knobs to game state:', {
+    healthcareSystemOrganization,
+    healthcareFunding,
+    publicHealth,
+    healthcareQuality,
+    healthcareAccess,
+    emergencyPreparedness
+  });
+}
 
 // Health Secretary Management Routes
 router.post('/secretary/hire', async (req, res) => {
@@ -597,5 +694,8 @@ router.post('/generate/surgeon-general', async (req, res) => {
     res.status(500).json({ error: 'Failed to generate Surgeon General profile' });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'health', healthKnobSystem, applyHealthKnobsToGameState);
 
 export default router;

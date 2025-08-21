@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('./src/demo/apis/enhanced-knob-system.cjs');
 
 const app = express();
 app.use(cors());
@@ -1523,6 +1524,91 @@ app.post('/api/advisors/:domain/propose', (req, res) => {
   const id = nextId('adv');
   res.json({ id });
 });
+
+// Enhanced AI Knobs for Population System
+const populationKnobsData = {
+  // Healthcare & Wellness
+  healthcare_investment: 0.6,           // Government healthcare investment level
+  public_health_programs: 0.7,          // Public health program effectiveness
+  mental_health_support: 0.5,           // Mental health service availability
+  
+  // Education & Development
+  education_investment: 0.7,            // Government education investment level
+  skill_development_programs: 0.6,      // Vocational and skill training programs
+  research_education_integration: 0.5,  // Integration of research with education
+  
+  // Immigration & Migration
+  immigration_openness: 0.5,            // Immigration policy openness
+  refugee_acceptance_rate: 0.4,         // Rate of refugee acceptance
+  skilled_worker_attraction: 0.8,       // Programs to attract skilled workers
+  
+  // Family & Social Support
+  family_support_level: 0.6,            // Family support policy level
+  childcare_accessibility: 0.7,         // Accessibility of childcare services
+  elderly_care_quality: 0.6,            // Quality of elderly care services
+  
+  // Urban & Rural Development
+  urban_development_focus: 0.7,         // Focus on urban vs rural development
+  infrastructure_investment: 0.6,       // Infrastructure development investment
+  affordable_housing_investment: 0.5,   // Affordable housing programs
+  
+  // Employment & Economy
+  employment_program_intensity: 0.6,    // Employment program intensity
+  minimum_wage_policy: 0.5,             // Minimum wage policy level
+  worker_protection_strength: 0.7,      // Worker rights and protection strength
+  
+  // Demographics & Lifecycle
+  retirement_age: 0.5,                  // Retirement age policy flexibility
+  population_growth_target: 0.6,        // Target population growth rate
+  demographic_balance_priority: 0.7,    // Priority on demographic balance
+  
+  // Quality of Life
+  environmental_health_priority: 0.8,   // Environmental health priority
+  cultural_preservation_support: 0.6,   // Cultural heritage preservation
+  community_engagement_programs: 0.5,   // Community engagement initiatives
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Population
+const populationKnobSystem = new EnhancedKnobSystem(populationKnobsData);
+
+// Apply population knobs to game state
+function applyPopulationKnobsToGameState() {
+  const knobs = populationKnobSystem.knobs;
+  
+  // Apply healthcare and wellness settings
+  const healthcareImpact = knobs.healthcare_investment * knobs.public_health_programs;
+  
+  // Apply education settings
+  const educationImpact = knobs.education_investment * knobs.skill_development_programs;
+  
+  // Apply immigration settings
+  const immigrationImpact = knobs.immigration_openness * knobs.skilled_worker_attraction;
+  
+  // Apply family support settings
+  const familySupportImpact = knobs.family_support_level * knobs.childcare_accessibility;
+  
+  // Apply urban development settings
+  const urbanDevelopmentImpact = knobs.urban_development_focus * knobs.infrastructure_investment;
+  
+  // Apply employment settings
+  const employmentImpact = knobs.employment_program_intensity * knobs.worker_protection_strength;
+  
+  // Apply quality of life settings
+  const qualityOfLifeImpact = (knobs.environmental_health_priority + 
+    knobs.cultural_preservation_support + knobs.community_engagement_programs) / 3;
+  
+  console.log('Applied population knobs to game state:', {
+    healthcareImpact,
+    educationImpact,
+    immigrationImpact,
+    familySupportImpact,
+    urbanDevelopmentImpact,
+    employmentImpact,
+    qualityOfLifeImpact
+  });
+}
 
 // Placeholder API endpoints for other systems
 app.get('/api/population/stats', (req, res) => {
@@ -3378,6 +3464,89 @@ app.get('/api/news/headlines', (req, res) => {
     lastUpdate: new Date().toISOString()
   });
 });
+
+// Enhanced AI Knobs for Technology System
+const technologyKnobsData = {
+  // Research & Development Investment
+  research_investment_level: 0.6,       // Overall R&D investment level
+  basic_research_priority: 0.5,         // Priority on basic vs applied research
+  private_sector_collaboration: 0.7,    // Collaboration with private sector
+  
+  // Innovation Focus Areas
+  ai_research_priority: 0.8,            // Artificial intelligence research priority
+  biotechnology_priority: 0.6,          // Biotechnology research priority
+  space_technology_priority: 0.5,       // Space technology research priority
+  quantum_computing_priority: 0.4,      // Quantum computing research priority
+  renewable_energy_priority: 0.7,       // Renewable energy research priority
+  
+  // Technology Transfer & Commercialization
+  technology_transfer_rate: 0.6,        // Rate of tech transfer from research to application
+  startup_ecosystem_support: 0.6,       // Support for technology startups
+  intellectual_property_protection: 0.8, // IP protection strength
+  
+  // International Cooperation
+  international_research_cooperation: 0.4, // Level of international research collaboration
+  technology_sharing_openness: 0.3,     // Openness to technology sharing
+  foreign_researcher_attraction: 0.6,   // Programs to attract foreign researchers
+  
+  // Education & Workforce
+  education_technology_integration: 0.5, // Integration of technology in education
+  stem_education_priority: 0.8,         // STEM education priority
+  researcher_training_programs: 0.7,    // Researcher training and development
+  
+  // Ethics & Oversight
+  technology_ethics_oversight: 0.5,     // Level of ethical oversight for emerging tech
+  safety_testing_rigor: 0.8,           // Rigor of safety testing for new technologies
+  public_engagement_in_tech: 0.4,      // Public engagement in technology decisions
+  
+  // Infrastructure & Resources
+  research_infrastructure_investment: 0.6, // Investment in research infrastructure
+  data_sharing_platforms: 0.5,         // Development of data sharing platforms
+  computing_resources_allocation: 0.7,  // Allocation of computing resources for research
+  
+  // Strategic Technology Areas
+  defense_technology_priority: 0.6,     // Defense technology research priority
+  healthcare_technology_priority: 0.8,  // Healthcare technology research priority
+  environmental_technology_priority: 0.7, // Environmental technology research priority
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Technology
+const technologyKnobSystem = new EnhancedKnobSystem(technologyKnobsData);
+
+// Apply technology knobs to game state
+function applyTechnologyKnobsToGameState() {
+  const knobs = technologyKnobSystem.knobs;
+  
+  // Apply research investment settings
+  const researchInvestmentImpact = knobs.research_investment_level * knobs.private_sector_collaboration;
+  
+  // Apply innovation focus areas
+  const innovationFocusImpact = (knobs.ai_research_priority + knobs.biotechnology_priority + 
+    knobs.space_technology_priority + knobs.quantum_computing_priority + knobs.renewable_energy_priority) / 5;
+  
+  // Apply technology transfer settings
+  const transferEffectiveness = knobs.technology_transfer_rate * knobs.startup_ecosystem_support;
+  
+  // Apply international cooperation settings
+  const internationalCooperation = knobs.international_research_cooperation * knobs.foreign_researcher_attraction;
+  
+  // Apply education and workforce settings
+  const educationImpact = knobs.education_technology_integration * knobs.stem_education_priority;
+  
+  // Apply ethics and oversight settings
+  const ethicsOversight = knobs.technology_ethics_oversight * knobs.safety_testing_rigor;
+  
+  console.log('Applied technology knobs to game state:', {
+    researchInvestmentImpact,
+    innovationFocusImpact,
+    transferEffectiveness,
+    internationalCooperation,
+    educationImpact,
+    ethicsOversight
+  });
+}
 
 app.get('/api/technology/tree', (req, res) => {
   res.json({
@@ -11035,6 +11204,10 @@ app.get('/demo/api-health', (req, res) => {
 </html>`);
 });
 
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(app, 'population', populationKnobSystem, applyPopulationKnobsToGameState);
+createEnhancedKnobEndpoints(app, 'technology', technologyKnobSystem, applyTechnologyKnobsToGameState);
+
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 app.listen(PORT, () => {
   console.log(`Comprehensive demo server listening on http://localhost:${PORT}`);
@@ -11042,6 +11215,9 @@ app.listen(PORT, () => {
   console.log(`  HUD:         http://localhost:${PORT}/demo/hud`);
   console.log(`  Witter UI:   http://localhost:5173`);
   console.log(`  Policies:    http://localhost:${PORT}/demo/policies`);
+  console.log(`Enhanced AI Knobs:`);
+  console.log(`  Population:  http://localhost:${PORT}/api/population/knobs`);
+  console.log(`  Technology:  http://localhost:${PORT}/api/technology/knobs`);
   console.log(`  Speech:      http://localhost:${PORT}/demo/speech`);
   console.log(`  Cabinet:     http://localhost:${PORT}/demo/cabinet`);
   console.log(`  Trade:       http://localhost:${PORT}/demo/trade`);

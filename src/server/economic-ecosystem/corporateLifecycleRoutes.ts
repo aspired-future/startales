@@ -8,8 +8,96 @@ import express from 'express';
 import { Pool } from 'pg';
 import { CorporateLifecycleEngine } from './CorporateLifecycleEngine.js';
 import { CorporateLifecycleService, initializeCorporateLifecycleSchema } from './corporateLifecycleSchema.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Enhanced AI Knobs for Corporate Lifecycle System
+const corporateLifecycleKnobsData = {
+  // Corporate Formation & Startup
+  startup_formation_ease: 0.7,               // Startup formation ease and regulatory simplification
+  entrepreneurial_ecosystem_support: 0.8,    // Entrepreneurial ecosystem support and incubation
+  venture_capital_accessibility: 0.7,        // Venture capital accessibility and funding availability
+  
+  // Corporate Growth & Scaling
+  business_scaling_facilitation: 0.7,        // Business scaling facilitation and growth support
+  market_expansion_assistance: 0.7,          // Market expansion assistance and geographic growth
+  operational_efficiency_optimization: 0.8,  // Operational efficiency optimization and process improvement
+  
+  // Corporate Governance & Management
+  corporate_governance_excellence: 0.8,      // Corporate governance excellence and leadership quality
+  stakeholder_engagement_quality: 0.7,       // Stakeholder engagement quality and relationship management
+  strategic_planning_sophistication: 0.8,    // Strategic planning sophistication and long-term vision
+  
+  // Innovation & Adaptation
+  corporate_innovation_culture: 0.8,         // Corporate innovation culture and R&D investment
+  technology_adoption_agility: 0.7,          // Technology adoption agility and digital transformation
+  market_adaptation_responsiveness: 0.7,     // Market adaptation responsiveness and competitive agility
+  
+  // Financial Management & Sustainability
+  financial_health_monitoring: 0.8,          // Financial health monitoring and fiscal responsibility
+  capital_structure_optimization: 0.7,       // Capital structure optimization and funding strategy
+  profitability_sustainability: 0.8,         // Profitability sustainability and long-term viability
+  
+  // Corporate Social Responsibility
+  social_impact_commitment: 0.7,             // Social impact commitment and community engagement
+  environmental_responsibility: 0.7,         // Environmental responsibility and sustainability practices
+  ethical_business_conduct: 0.8,             // Ethical business conduct and integrity standards
+  
+  // Market Position & Competition
+  competitive_advantage_development: 0.8,    // Competitive advantage development and differentiation
+  market_leadership_pursuit: 0.7,            // Market leadership pursuit and industry influence
+  brand_reputation_management: 0.8,          // Brand reputation management and public perception
+  
+  // Corporate Lifecycle Management
+  lifecycle_transition_smoothness: 0.7,      // Lifecycle transition smoothness and change management
+  corporate_restructuring_efficiency: 0.6,   // Corporate restructuring efficiency and organizational agility
+  succession_planning_quality: 0.7,          // Succession planning quality and leadership continuity
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Corporate Lifecycle
+const corporateLifecycleKnobSystem = new EnhancedKnobSystem(corporateLifecycleKnobsData);
+
+// Apply corporate lifecycle knobs to game state
+function applyCorporateLifecycleKnobsToGameState() {
+  const knobs = corporateLifecycleKnobSystem.knobs;
+  
+  // Apply corporate formation settings
+  const corporateFormation = (knobs.startup_formation_ease + knobs.entrepreneurial_ecosystem_support + 
+    knobs.venture_capital_accessibility) / 3;
+  
+  // Apply growth and scaling settings
+  const growthScaling = (knobs.business_scaling_facilitation + knobs.market_expansion_assistance + 
+    knobs.operational_efficiency_optimization) / 3;
+  
+  // Apply governance settings
+  const governance = (knobs.corporate_governance_excellence + knobs.stakeholder_engagement_quality + 
+    knobs.strategic_planning_sophistication) / 3;
+  
+  // Apply innovation settings
+  const innovation = (knobs.corporate_innovation_culture + knobs.technology_adoption_agility + 
+    knobs.market_adaptation_responsiveness) / 3;
+  
+  // Apply financial management settings
+  const financialManagement = (knobs.financial_health_monitoring + knobs.capital_structure_optimization + 
+    knobs.profitability_sustainability) / 3;
+  
+  // Apply social responsibility settings
+  const socialResponsibility = (knobs.social_impact_commitment + knobs.environmental_responsibility + 
+    knobs.ethical_business_conduct) / 3;
+  
+  console.log('Applied corporate lifecycle knobs to game state:', {
+    corporateFormation,
+    growthScaling,
+    governance,
+    innovation,
+    financialManagement,
+    socialResponsibility
+  });
+}
+
 let lifecycleEngine: CorporateLifecycleEngine;
 let lifecycleService: CorporateLifecycleService;
 
@@ -496,5 +584,8 @@ function generateEcosystemRecommendations(healthSummary: any, ecosystem: any): s
   
   return recommendations;
 }
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'corporate-lifecycle', corporateLifecycleKnobSystem, applyCorporateLifecycleKnobsToGameState);
 
 export default router;

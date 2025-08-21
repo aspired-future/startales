@@ -8,6 +8,7 @@ import { BusinessEngine } from './BusinessEngine.js';
 import { MarketDynamics } from './MarketDynamics.js';
 import { CitizenEngine } from '../population/CitizenEngine.js';
 import { ProfessionEngine } from '../professions/ProfessionEngine.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = Router();
 
@@ -16,6 +17,102 @@ const businessEngine = new BusinessEngine();
 const marketDynamics = new MarketDynamics();
 const citizenEngine = new CitizenEngine();
 const professionEngine = new ProfessionEngine();
+
+// Enhanced AI Knobs for Businesses System
+const businessesKnobsData = {
+  // Business Formation & Entrepreneurship
+  business_formation_ease: 0.7,         // Business formation and registration ease
+  entrepreneurship_support_level: 0.6,  // Entrepreneurship support and incentives
+  startup_funding_accessibility: 0.5,   // Startup funding and capital accessibility
+  
+  // Market Competition & Regulation
+  market_competition_intensity: 0.7,    // Market competition intensity and fairness
+  business_regulation_strictness: 0.6,  // Business regulation and compliance requirements
+  anti_monopoly_enforcement: 0.8,       // Anti-monopoly and competition enforcement
+  
+  // Small Business Support
+  small_business_incentives: 0.7,       // Small business incentives and support programs
+  local_business_preference: 0.6,       // Local business preference in procurement
+  small_business_lending_access: 0.6,   // Small business lending and credit access
+  
+  // Industry Development
+  industry_diversification_support: 0.6, // Industry diversification and development
+  innovation_sector_priority: 0.8,      // Innovation and technology sector priority
+  traditional_industry_preservation: 0.5, // Traditional industry preservation and support
+  
+  // Business Environment & Infrastructure
+  business_infrastructure_quality: 0.8, // Business infrastructure and facilities quality
+  digital_business_infrastructure: 0.7, // Digital business infrastructure and connectivity
+  logistics_and_supply_chain: 0.7,      // Logistics and supply chain efficiency
+  
+  // Labor & Employment
+  labor_market_flexibility: 0.6,        // Labor market flexibility and employment laws
+  workforce_skill_development: 0.8,     // Workforce skill development and training
+  employment_protection_balance: 0.7,   // Employment protection and business flexibility balance
+  
+  // Taxation & Financial Policy
+  business_tax_competitiveness: 0.6,    // Business taxation competitiveness and fairness
+  tax_incentive_effectiveness: 0.7,     // Tax incentive effectiveness and targeting
+  financial_reporting_requirements: 0.8, // Financial reporting and transparency requirements
+  
+  // International Trade & Export
+  export_promotion_support: 0.6,        // Export promotion and international trade support
+  foreign_investment_openness: 0.7,     // Foreign investment openness and facilitation
+  trade_facilitation_efficiency: 0.8,   // Trade facilitation and customs efficiency
+  
+  // Innovation & Technology Adoption
+  business_innovation_incentives: 0.7,  // Business innovation incentives and R&D support
+  technology_adoption_support: 0.8,     // Technology adoption and digitization support
+  intellectual_property_protection: 0.8, // Intellectual property protection and enforcement
+  
+  // Sustainability & Social Responsibility
+  environmental_business_standards: 0.7, // Environmental business standards and compliance
+  corporate_social_responsibility: 0.6, // Corporate social responsibility expectations
+  sustainable_business_incentives: 0.6, // Sustainable business practice incentives
+  
+  lastUpdated: Date.now()
+};
+
+// Initialize Enhanced Knob System for Businesses
+const businessesKnobSystem = new EnhancedKnobSystem(businessesKnobsData);
+
+// Apply businesses knobs to game state
+function applyBusinessesKnobsToGameState() {
+  const knobs = businessesKnobSystem.knobs;
+  
+  // Apply business formation settings
+  const businessFormation = (knobs.business_formation_ease + knobs.entrepreneurship_support_level + 
+    knobs.startup_funding_accessibility) / 3;
+  
+  // Apply market competition settings
+  const marketCompetition = (knobs.market_competition_intensity + knobs.business_regulation_strictness + 
+    knobs.anti_monopoly_enforcement) / 3;
+  
+  // Apply small business support settings
+  const smallBusinessSupport = (knobs.small_business_incentives + knobs.local_business_preference + 
+    knobs.small_business_lending_access) / 3;
+  
+  // Apply business environment settings
+  const businessEnvironment = (knobs.business_infrastructure_quality + knobs.digital_business_infrastructure + 
+    knobs.logistics_and_supply_chain) / 3;
+  
+  // Apply innovation and technology settings
+  const innovationTechnology = (knobs.business_innovation_incentives + knobs.technology_adoption_support + 
+    knobs.intellectual_property_protection) / 3;
+  
+  // Apply sustainability settings
+  const sustainability = (knobs.environmental_business_standards + knobs.corporate_social_responsibility + 
+    knobs.sustainable_business_incentives) / 3;
+  
+  console.log('Applied businesses knobs to game state:', {
+    businessFormation,
+    marketCompetition,
+    smallBusinessSupport,
+    businessEnvironment,
+    innovationTechnology,
+    sustainability
+  });
+}
 
 /**
  * Health check endpoint
@@ -604,5 +701,8 @@ router.get('/market-segments', (req: Request, res: Response) => {
     });
   }
 });
+
+// Enhanced Knob System Endpoints
+createEnhancedKnobEndpoints(router, 'businesses', businessesKnobSystem, applyBusinessesKnobsToGameState);
 
 export default router;

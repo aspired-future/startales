@@ -6,8 +6,8 @@
 import { EventEmitter } from 'events';
 import { llmService } from '../ai/llmService.js';
 import { civilizationVectorMemory } from '../memory/civilizationVectorMemory.js';
-import { psychologyVectorMemory } from '../hybrid-simulation/PsychologyVectorMemory.js';
-import { aiAnalysisVectorMemory } from '../hybrid-simulation/AIAnalysisVectorMemory.js';
+import { psychologyVectorMemory } from '../memory/PsychologyVectorMemory.js';
+import { aiAnalysisVectorMemory } from '../memory/AIAnalysisVectorMemory.js';
 import { witterStorage } from '../memory/witterStorage.js';
 import {
   IntelligenceReport,
