@@ -24,7 +24,7 @@ export async function initializeSupremeCourtSchema(pool: Pool): Promise<void> {
         rights_impact_assessment TEXT NOT NULL,
         recommendation_summary TEXT NOT NULL,
         detailed_opinion TEXT NOT NULL,
-        constitutional_compliance VARCHAR(20) CHECK (constitutional_compliance IN ('compliant', 'questionable', 'non_compliant', 'requires_modification')),
+        constitutional_compliance VARCHAR(30) CHECK (constitutional_compliance IN ('compliant', 'questionable', 'non_compliant', 'requires_modification')),
         confidence_level INTEGER CHECK (confidence_level BETWEEN 1 AND 10),
         urgency_level VARCHAR(20) CHECK (urgency_level IN ('routine', 'important', 'urgent', 'emergency')),
         alternative_approaches JSONB NOT NULL DEFAULT '[]',

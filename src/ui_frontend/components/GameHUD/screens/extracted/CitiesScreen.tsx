@@ -162,12 +162,23 @@ interface CitiesData {
 
 const CitiesScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext }) => {
   const [citiesData, setCitiesData] = useState<CitiesData | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'specializations' | 'infrastructure' | 'analytics' | 'comparison'>('overview');
+  const [planetaryData, setPlanetaryData] = useState<any[]>([]);
+  const [selectedPlanet, setSelectedPlanet] = useState<string>('earth');
+  const [activeTab, setActiveTab] = useState<'planets' | 'cities' | 'specializations' | 'infrastructure' | 'analytics' | 'comparison'>('planets');
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const apiEndpoints: APIEndpoint[] = [
+    // Planetary Government APIs
+    { method: 'GET', path: '/api/planetary-government/civilization/:civilizationId', description: 'Get all planetary governments' },
+    { method: 'GET', path: '/api/planetary-government/:planetId/dashboard', description: 'Get planetary government dashboard' },
+    { method: 'GET', path: '/api/planetary-government/:planetId', description: 'Get planetary government details' },
+    { method: 'GET', path: '/api/planetary-government/:planetId/cities', description: 'Get cities managed by planetary government' },
+    { method: 'GET', path: '/api/planetary-government/:planetId/knobs', description: 'Get planetary government AI knobs' },
+    { method: 'POST', path: '/api/planetary-government/:planetId/knobs', description: 'Update planetary government AI knobs' },
+    
+    // City Management APIs
     { method: 'GET', path: '/api/cities', description: 'Get all cities' },
     { method: 'GET', path: '/api/cities/:id', description: 'Get city details' },
     { method: 'GET', path: '/api/cities/:id/specializations', description: 'Get city specializations' },
@@ -595,10 +606,16 @@ const CitiesScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
       <div className="cities-screen">
         <div className="view-tabs">
           <button 
-            className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
+            className={`tab ${activeTab === 'planets' ? 'active' : ''}`}
+            onClick={() => setActiveTab('planets')}
           >
-            🏙️ Overview
+            🌍 Planets
+          </button>
+          <button 
+            className={`tab ${activeTab === 'cities' ? 'active' : ''}`}
+            onClick={() => setActiveTab('cities')}
+          >
+            🏙️ Cities
           </button>
           <button 
             className={`tab ${activeTab === 'specializations' ? 'active' : ''}`}
@@ -631,8 +648,106 @@ const CitiesScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
           {error && <div className="error">Error: {error}</div>}
           {!loading && !error && citiesData && (
             <>
-              {/* City Selector - shown on all tabs except analytics */}
-              {activeTab !== 'analytics' && (
+              {/* Planets Tab */}
+              {activeTab === 'planets' && (
+                <div className="planets-tab">
+                  <div className="planets-overview">
+                    <div className="section-header">
+                      <h3>🌍 Planetary Governments</h3>
+                      <p>Manage autonomous planetary administrations across your civilization</p>
+                    </div>
+                    
+                    <div className="planets-grid">
+                      <div className="planet-card">
+                        <div className="planet-header">
+                          <h4>🌍 Earth</h4>
+                          <span className="government-type">Federal</span>
+                        </div>
+                        <div className="planet-stats">
+                          <div className="stat">
+                            <span className="label">Population:</span>
+                            <span className="value">8.5B</span>
+                          </div>
+                          <div className="stat">
+                            <span className="label">Cities:</span>
+                            <span className="value">4</span>
+                          </div>
+                          <div className="stat">
+                            <span className="label">Approval:</span>
+                            <span className="value">72%</span>
+                          </div>
+                          <div className="stat">
+                            <span className="label">Budget:</span>
+                            <span className="value">$2.5T</span>
+                          </div>
+                        </div>
+                        <div className="planet-actions">
+                          <button className="action-btn small">Manage Government</button>
+                          <button className="action-btn small secondary">View Cities</button>
+                          <button className="action-btn small">AI Settings</button>
+                        </div>
+                      </div>
+
+                      <div className="planet-card">
+                        <div className="planet-header">
+                          <h4>🔴 Mars</h4>
+                          <span className="government-type">Colonial</span>
+                        </div>
+                        <div className="planet-stats">
+                          <div className="stat">
+                            <span className="label">Population:</span>
+                            <span className="value">2.5M</span>
+                          </div>
+                          <div className="stat">
+                            <span className="label">Cities:</span>
+                            <span className="value">2</span>
+                          </div>
+                          <div className="stat">
+                            <span className="label">Approval:</span>
+                            <span className="value">68%</span>
+                          </div>
+                          <div className="stat">
+                            <span className="label">Budget:</span>
+                            <span className="value">$85B</span>
+                          </div>
+                        </div>
+                        <div className="planet-actions">
+                          <button className="action-btn small">Manage Government</button>
+                          <button className="action-btn small secondary">View Cities</button>
+                          <button className="action-btn small">AI Settings</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="planetary-summary">
+                      <div className="summary-card">
+                        <h4>🏛️ Governance Summary</h4>
+                        <div className="summary-stats">
+                          <div className="summary-stat">
+                            <span className="label">Total Planets:</span>
+                            <span className="value">2</span>
+                          </div>
+                          <div className="summary-stat">
+                            <span className="label">Average Approval:</span>
+                            <span className="value">70%</span>
+                          </div>
+                          <div className="summary-stat">
+                            <span className="label">Total Budget:</span>
+                            <span className="value">$2.6T</span>
+                          </div>
+                          <div className="summary-stat">
+                            <span className="label">Government Types:</span>
+                            <span className="value">Federal, Colonial</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* City Selector - shown on city tabs except analytics */}
+              {activeTab !== 'analytics' && activeTab !== 'planets' && (
                 <div className="city-selector">
                   <label htmlFor="citySelect">Select City:</label>
                   <select 
@@ -646,7 +761,7 @@ const CitiesScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
                       <option key={city.id} value={city.id}>{city.name}</option>
                     ))}
                   </select>
-                  {activeTab === 'overview' && (
+                  {activeTab === 'cities' && (
                     <div className="city-actions">
                       <button className="action-btn" onClick={handleSimulateCity}>Simulate Month</button>
                       <button className="action-btn secondary">Create New City</button>
@@ -655,7 +770,7 @@ const CitiesScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
                 </div>
               )}
 
-              {activeTab === 'overview' && currentCity && (
+              {activeTab === 'cities' && currentCity && (
                 <div className="overview-tab">
                   <div className="city-header">
                     <div className="city-title">

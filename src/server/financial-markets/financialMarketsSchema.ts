@@ -604,7 +604,7 @@ async function insertCompaniesData(client: any): Promise<void> {
      'Premier interplanetary banking institution providing financial services across multiple star systems.',
      '["Quantum-encrypted transactions", "Multi-currency expertise", "Interplanetary banking network"]',
      'Launched quantum-secured cryptocurrency and expanded banking services to three new star systems.')
-  `);
+  ON CONFLICT (exchange_id, company_symbol) DO NOTHING`);
 
   // Insert corporate leaders with personalities and backstories
   await client.query(`
@@ -705,7 +705,7 @@ async function insertCompaniesData(client: any): Promise<void> {
 }
 
 async function insertFinancialMarketsSeedData(client: any): Promise<void> {
-  // Insert stock exchanges for each civilization
+  // Insert stock exchanges for each civilization (with ON CONFLICT to prevent duplicates)
   await client.query(`
     INSERT INTO stock_exchanges (civilization_id, exchange_name, exchange_code, currency_code, market_cap, daily_volume, trading_hours) 
     VALUES 
@@ -714,6 +714,7 @@ async function insertFinancialMarketsSeedData(client: any): Promise<void> {
     (3, 'Vega Prime Markets', 'VPM', 'VEG', 2100000000000, 38000000000, '{"open_time": "09:30", "close_time": "16:30", "timezone": "UTC"}'),
     (4, 'Sirius Financial Center', 'SFC', 'SIR', 1950000000000, 35000000000, '{"open_time": "09:00", "close_time": "16:00", "timezone": "UTC"}'),
     (5, 'Proxima Exchange', 'PEX', 'PRX', 1650000000000, 28000000000, '{"open_time": "08:00", "close_time": "15:00", "timezone": "UTC"}')
+    ON CONFLICT (civilization_id, exchange_code) DO NOTHING
   `);
 
   // Insert major companies with detailed information and realistic sectors
@@ -739,7 +740,7 @@ async function insertFinancialMarketsSeedData(client: any): Promise<void> {
     ('corporate', 1, 'TTECH5Y', 'Terran Technologies 5-Year Bond', 'TER', 1000, 0.045, '2029-06-01', '2024-06-01', 97.50, 0.0485, 'A+', 25000000000, 24500000000),
     ('corporate', 4, 'TDEF7Y', 'Terran Defense 7-Year Bond', 'TER', 1000, 0.052, '2031-07-15', '2024-07-15', 96.80, 0.0565, 'A', 18000000000, 17800000000),
     ('corporate', 7, 'ACSP6Y', 'Alpha Spacelines 6-Year Bond', 'ALC', 1000, 0.055, '2030-08-01', '2024-08-01', 95.25, 0.0595, 'A-', 15000000000, 14800000000)
-  `);
+  ON CONFLICT (issuer_type, issuer_id, bond_symbol) DO NOTHING`);
 
   // Insert market indices
   await client.query(`
@@ -752,7 +753,7 @@ async function insertFinancialMarketsSeedData(client: any): Promise<void> {
     (3, 'Vega Prime Index', 'VPI', 'broad_market', 1000, 1298.78, 1.12, true, 40),
     (4, 'Sirius Market Index', 'SMI', 'broad_market', 1000, 1167.89, -0.25, true, 30),
     (5, 'Proxima Composite', 'PCI', 'broad_market', 1000, 1134.56, 0.78, true, 25)
-  `);
+  ON CONFLICT (civilization_id, index_symbol) DO NOTHING`);
 
   // Insert market sentiment data
   await client.query(`
@@ -763,7 +764,7 @@ async function insertFinancialMarketsSeedData(client: any): Promise<void> {
     (3, CURRENT_DATE, 0.35, 68.2, 16.8, 0.42, 0.12, 0.08, '{"gdp_growth_impact": 0.4, "inflation_impact": -0.05, "interest_rate_impact": -0.02, "fiscal_policy_impact": 0.18, "political_stability_impact": 0.08}'),
     (4, CURRENT_DATE, 0.05, 52.3, 25.1, 0.18, 0.28, 0.20, '{"gdp_growth_impact": 0.1, "inflation_impact": -0.2, "interest_rate_impact": -0.12, "fiscal_policy_impact": 0.08, "political_stability_impact": 0.02}'),
     (5, CURRENT_DATE, 0.20, 59.7, 20.5, 0.32, 0.18, 0.12, '{"gdp_growth_impact": 0.25, "inflation_impact": -0.12, "interest_rate_impact": -0.06, "fiscal_policy_impact": 0.14, "political_stability_impact": 0.04}')
-  `);
+  ON CONFLICT (civilization_id, sentiment_date) DO NOTHING`);
 
   // Insert economic factors
   await client.query(`

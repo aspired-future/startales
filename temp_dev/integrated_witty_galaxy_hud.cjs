@@ -821,7 +821,7 @@ function getIntegratedWittyGalaxyHUD() {
                         <span class="system-icon">⚖️</span>
                         <span>Supreme Court</span>
                     </div>
-                    <div class="system-item" data-system="political">
+                    <div class="system-item" data-system="political-parties">
                         <span class="system-icon">🎭</span>
                         <span>Political Parties</span>
                     </div>
@@ -859,9 +859,9 @@ function getIntegratedWittyGalaxyHUD() {
                         <span class="system-icon">👥</span>
                         <span>Demographics</span>
                     </div>
-                    <div class="system-item live" data-system="cities">
-                        <span class="system-icon">🏙️</span>
-                        <span>Cities</span>
+                    <div class="system-item live" data-system="planets-cities">
+                        <span class="system-icon">🌍</span>
+                        <span>Planets & Cities</span>
                     </div>
                     <div class="system-item live" data-system="migration">
                         <span class="system-icon">🚶</span>
@@ -894,9 +894,9 @@ function getIntegratedWittyGalaxyHUD() {
                     </div>
                 </div>
                 
-                <!-- Science Systems -->
+                <!-- Science & Tech Systems -->
                 <div class="system-category">
-                    <div class="category-header">🔬 Science</div>
+                    <div class="category-header">🔬 Science & Tech</div>
                     <div class="system-item live" data-system="technology">
                         <span class="system-icon">🔬</span>
                         <span>Technology</span>
@@ -909,15 +909,37 @@ function getIntegratedWittyGalaxyHUD() {
                         <span class="system-icon">🎓</span>
                         <span>Education</span>
                     </div>
-                    <div class="system-item live" data-system="visual-systems">
+
+                </div>
+                
+                <!-- Galaxy Systems -->
+                <div class="system-category">
+                    <div class="category-header">🌌 Galaxy</div>
+                    <div class="system-item" data-system="galaxy-stats">
+                        <span class="system-icon">📊</span>
+                        <span>Statistics</span>
+                    </div>
+                    <div class="system-item live" data-system="galaxy-map">
+                        <span class="system-icon">🌌</span>
+                        <span>Galaxy Map</span>
+                    </div>
+                    <div class="system-item" data-system="visuals">
                         <span class="system-icon">🎨</span>
-                        <span>Visual Systems</span>
+                        <span>Visuals</span>
+                    </div>
+                    <div class="system-item live" data-system="conquest">
+                        <span class="system-icon">🚀</span>
+                        <span>Conquest</span>
                     </div>
                 </div>
                 
                 <!-- Communications Systems -->
                 <div class="system-category">
                     <div class="category-header">📡 Communications</div>
+                    <div class="system-item" data-system="whoseapp">
+                        <span class="system-icon">💬</span>
+                        <span>WhoseApp</span>
+                    </div>
                     <div class="system-item live" data-system="witter">
                         <span class="system-icon">🐦</span>
                         <span>Witter Network</span>
@@ -930,14 +952,7 @@ function getIntegratedWittyGalaxyHUD() {
                         <span class="system-icon">📰</span>
                         <span>News</span>
                     </div>
-                    <div class="system-item live" data-system="galaxy-map">
-                        <span class="system-icon">🌌</span>
-                        <span>Galaxy Map</span>
-                    </div>
-                    <div class="system-item live" data-system="conquest">
-                        <span class="system-icon">🚀</span>
-                        <span>Conquest</span>
-                    </div>
+
                 </div>
                 
                 <!-- Administration Systems -->

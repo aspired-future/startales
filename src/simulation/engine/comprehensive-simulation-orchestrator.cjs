@@ -34,6 +34,7 @@ const { FinancialMarketsSystem } = require('../deterministic/systems/financial-m
 const { MigrationSystem } = require('../deterministic/systems/migration-system.cjs');
 const { DiplomacySystem } = require('../deterministic/systems/diplomacy-system.cjs');
 const { NewsGenerationSystem } = require('../deterministic/systems/news-generation-system.cjs');
+const { MediaControlSystem } = require('../deterministic/systems/media-control-system.cjs');
 
 class ComprehensiveSimulationOrchestrator extends EventEmitter {
     constructor(config = {}) {
@@ -165,6 +166,18 @@ class ComprehensiveSimulationOrchestrator extends EventEmitter {
         });
         
         this.galacticSystems.set('galactic-news-system', newsSystem);
+        
+        // Galactic Media Control System (enhanced press conference and media oversight)
+        const mediaControlSystem = new MediaControlSystem({
+            systemId: 'galactic-media-control-system'
+        });
+        
+        this.systemRegistry.registerDeterministicSystem('galactic-media-control-system', mediaControlSystem, {
+            category: 'galactic',
+            updateFrequency: 3000
+        });
+        
+        this.galacticSystems.set('galactic-media-control-system', mediaControlSystem);
         
         console.log('✅ Shared systems initialized');
     }

@@ -733,7 +733,7 @@ function getMainHUD() {
                         <span class="system-icon">⚖️</span>
                         <span>Supreme Court</span>
                     </div>
-                    <div class="system-item" data-system="political">
+                    <div class="system-item" data-system="political-parties">
                         <span class="system-icon">🎭</span>
                         <span>Political Parties</span>
                     </div>
@@ -779,9 +779,9 @@ function getMainHUD() {
                         <span class="system-icon">👥</span>
                         <span>Demographics</span>
                     </div>
-                    <div class="system-item" data-system="cities">
-                        <span class="system-icon">🏙️</span>
-                        <span>Cities</span>
+                    <div class="system-item" data-system="planets-cities">
+                        <span class="system-icon">🌍</span>
+                        <span>Planets & Cities</span>
                     </div>
                     <div class="system-item" data-system="migration">
                         <span class="system-icon">🚶</span>
@@ -818,9 +818,9 @@ function getMainHUD() {
                     </div>
                 </div>
                 
-                <!-- Science Systems -->
+                <!-- Science & Tech Systems -->
                 <div class="system-category">
-                    <div class="category-header">🔬 Science</div>
+                    <div class="category-header">🔬 Science & Tech</div>
                     <div class="system-item" data-system="technology">
                         <span class="system-icon">🔬</span>
                         <span>Technology</span>
@@ -833,15 +833,37 @@ function getMainHUD() {
                         <span class="system-icon">🎮</span>
                         <span>Simulation</span>
                     </div>
-                    <div class="system-item" data-system="visual">
+
+                </div>
+                
+                <!-- Galaxy Systems -->
+                <div class="system-category">
+                    <div class="category-header">🌌 Galaxy</div>
+                    <div class="system-item" data-system="galaxy-stats">
+                        <span class="system-icon">📊</span>
+                        <span>Statistics</span>
+                    </div>
+                    <div class="system-item" data-system="galaxy-map">
+                        <span class="system-icon">🌌</span>
+                        <span>Galaxy Map</span>
+                    </div>
+                    <div class="system-item" data-system="visuals">
                         <span class="system-icon">🎨</span>
-                        <span>Visual</span>
+                        <span>Visuals</span>
+                    </div>
+                    <div class="system-item" data-system="conquest">
+                        <span class="system-icon">🚀</span>
+                        <span>Conquest</span>
                     </div>
                 </div>
                 
                 <!-- Communications Systems -->
                 <div class="system-category">
                     <div class="category-header">📡 Communications</div>
+                    <div class="system-item" data-system="whoseapp">
+                        <span class="system-icon">💬</span>
+                        <span>WhoseApp</span>
+                    </div>
                     <div class="system-item" data-system="comm-hub">
                         <span class="system-icon">📡</span>
                         <span>Comm Hub</span>
@@ -857,14 +879,6 @@ function getMainHUD() {
                     <div class="system-item" data-system="approval">
                         <span class="system-icon">📊</span>
                         <span>Approval</span>
-                    </div>
-                    <div class="system-item" data-system="galaxy-map">
-                        <span class="system-icon">🌌</span>
-                        <span>Galaxy Map</span>
-                    </div>
-                    <div class="system-item" data-system="conquest">
-                        <span class="system-icon">🚀</span>
-                        <span>Conquest</span>
                     </div>
                     <div class="system-item" data-system="policy-advisor">
                         <span class="system-icon">🎯</span>
@@ -1163,7 +1177,7 @@ function getMainHUD() {
                     <span>Tick: 1,247</span>
                 </div>
                 <div class="status-item">
-                    <span>Speed: 2min/tick</span>
+                    <span>Tick Rate: 2min</span>
                 </div>
                 <div class="status-item">
                     <span>Next: 00:47</span>
@@ -2050,13 +2064,15 @@ function getMainHUD() {
             getSystemDisplayName(systemName) {
                 const displayNames = {
                     'demographics': 'Demographics',
-                    'cities': 'Cities Management',
+                    'planets-cities': 'Planets & Cities Management',
                     'migration': 'Migration System',
                     'trade': 'Trade System',
                     'policies': 'Policy Management',
+                    'whoseapp': 'WhoseApp Communication',
                     'comm-hub': 'Communication Hub',
                     'news': 'Witter Social Network',
                     'approval': 'Approval Rating',
+                    'galaxy-stats': 'Galaxy-Wide Statistics',
                     'galaxy-map': 'Galaxy Map',
                     'conquest': 'Conquest & Merge System',
                     'cabinet': 'Cabinet Workflow',
@@ -2073,10 +2089,10 @@ function getMainHUD() {
                     'technology': 'Technology Research',
                     'research': 'Science Department',
                     'simulation': 'Simulation Engine',
-                    'visual': 'Visual Systems',
+                    'visuals': 'Visual Systems',
                     'legislature': 'Legislature',
                     'supreme-court': 'Supreme Court',
-                    'political': 'Political Parties',
+                    'political-parties': 'Political Parties',
                     'delegation': 'Delegation Systems',
                     'professions': 'Professions System',
                     'campaign': 'Campaign Management',
@@ -2124,31 +2140,159 @@ function getMainHUD() {
                 });
             }
             
-            startRealTimeUpdates() {
-                // Simulate real-time data updates
+            async startRealTimeUpdates() {
+                // Initialize WebSocket connection for real-time updates
+                this.initializeWebSocket();
+                
+                // Fallback polling every 30 seconds if WebSocket fails
                 setInterval(() => {
-                    this.updateMetrics();
-                }, 30000); // Update every 30 seconds
+                    if (!this.wsConnected) {
+                        this.updateMetricsFromAPI();
+                    }
+                }, 30000);
+                
+                // Initial data load
+                await this.updateMetricsFromAPI();
             }
             
-            updateMetrics() {
-                // Simulate metric updates
-                const metrics = {
-                    population: Math.floor(Math.random() * 5) + 338,
-                    gdpGrowth: (Math.random() * 0.5 + 1.8).toFixed(1),
-                    security: Math.floor(Math.random() * 5) + 85,
-                    approval: Math.floor(Math.random() * 10) + 62
-                };
+            initializeWebSocket() {
+                try {
+                    const wsUrl = \`ws://\${window.location.host}/ws\`;
+                    this.ws = new WebSocket(wsUrl);
+                    this.wsConnected = false;
+
+                    this.ws.onopen = () => {
+                        console.log('🔗 WebSocket connected - Real-time data streaming active');
+                        this.wsConnected = true;
+                        this.updateConnectionStatus('ONLINE');
+                    };
+
+                    this.ws.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            this.handleRealTimeEvent(data);
+                        } catch (error) {
+                            console.error('Error parsing WebSocket message:', error);
+                        }
+                    };
+
+                    this.ws.onclose = () => {
+                        console.log('🔌 WebSocket disconnected');
+                        this.wsConnected = false;
+                        this.updateConnectionStatus('POLLING');
+                    };
+
+                    this.ws.onerror = (error) => {
+                        console.error('WebSocket error:', error);
+                        this.wsConnected = false;
+                        this.updateConnectionStatus('ERROR');
+                    };
+                } catch (error) {
+                    console.error('Failed to initialize WebSocket:', error);
+                    this.updateConnectionStatus('OFFLINE');
+                }
+            }
+            
+            async updateMetricsFromAPI() {
+                try {
+                    // Fetch real data from APIs
+                    const [analyticsResponse, alertsResponse, witterResponse] = await Promise.all([
+                        fetch('/api/analytics/empire?scope=campaign&id=1'),
+                        fetch('/api/alerts/active'),
+                        fetch('/api/witter/feed?limit=5')
+                    ]);
+                    
+                    const analytics = await analyticsResponse.json();
+                    const alerts = await alertsResponse.json();
+                    const witter = await witterResponse.json();
+                    
+                    this.updateMetricsFromData(analytics, alerts, witter);
+                    
+                } catch (error) {
+                    console.error('Error fetching live data:', error);
+                    // Use safe defaults instead of random mock data
+                    this.updateMetricsFromData({
+                        metrics: {
+                            population: { population: 0, morale: 0.5 },
+                            economy: { gdpProxy: 0, budgetBalance: 0 },
+                            population: { stability: 0.5 }
+                        }
+                    }, { alerts: [] }, { posts: [] });
+                }
+            }
+            
+            updateMetricsFromData(analytics, alerts, witter) {
+                const metrics = analytics.metrics || {};
                 
-                // Update header metrics
-                document.getElementById('approvalRating').textContent = metrics.approval + '%';
-                document.getElementById('gdpGrowth').textContent = '+' + metrics.gdpGrowth + '%';
+                // Update header metrics with real data
+                const approval = Math.round((metrics.population?.morale || 0.5) * 100);
+                const gdpGrowth = (metrics.economy?.gdpProxy || 0) / 1000000;
+                const treasury = this.formatCurrency(metrics.economy?.budgetBalance || 0);
+                const population = this.formatNumber(metrics.population?.population || 0);
+                const security = Math.round((metrics.population?.stability || 0.5) * 100);
                 
-                // Update planet stats
-                document.getElementById('planetPopulation').textContent = metrics.population + 'M';
-                document.getElementById('planetSecurity').textContent = metrics.security + '%';
+                // Update DOM elements
+                document.getElementById('approvalRating').textContent = approval + '%';
+                document.getElementById('gdpGrowth').textContent = '+' + gdpGrowth.toFixed(1) + '%';
+                document.getElementById('treasuryBalance').textContent = treasury;
+                document.getElementById('planetPopulation').textContent = population;
+                document.getElementById('planetSecurity').textContent = security + '%';
                 
-                console.log('Metrics updated:', metrics);
+                // Update alerts
+                const alertCount = alerts.alerts?.length || 0;
+                document.getElementById('alertCount').textContent = \`🔔 \${alertCount} Alert\${alertCount !== 1 ? 's' : ''}\`;
+                
+                console.log('✅ Live metrics updated from APIs');
+            }
+            
+            handleRealTimeEvent(data) {
+                console.log('📡 Real-time event received:', data.type, data);
+                
+                switch (data.type) {
+                    case 'simulation_tick':
+                        if (data.metrics) {
+                            this.updateMetricsFromData(data.metrics, { alerts: data.alerts || [] }, { posts: [] });
+                        }
+                        break;
+                    case 'alert_new':
+                        this.addNewAlert(data.alert);
+                        break;
+                    case 'population_change':
+                        this.updatePopulationDisplay(data.population);
+                        break;
+                    case 'economic_update':
+                        this.updateEconomicDisplay(data.economics);
+                        break;
+                }
+            }
+            
+            formatNumber(num) {
+                if (num >= 1e12) return \`\${(num / 1e12).toFixed(1)}T\`;
+                if (num >= 1e9) return \`\${(num / 1e9).toFixed(1)}B\`;
+                if (num >= 1e6) return \`\${(num / 1e6).toFixed(1)}M\`;
+                if (num >= 1e3) return \`\${(num / 1e3).toFixed(1)}K\`;
+                return num.toString();
+            }
+            
+            formatCurrency(amount) {
+                return \`\${this.formatNumber(amount)} ₵\`;
+            }
+            
+            updateConnectionStatus(status) {
+                const statusElements = document.querySelectorAll('.status-item');
+                statusElements.forEach(element => {
+                    if (element.textContent.includes('Network:')) {
+                        element.innerHTML = \`<span class="status-indicator"></span><span>Network: \${status}</span>\`;
+                        const indicator = element.querySelector('.status-indicator');
+                        if (status === 'ONLINE') {
+                            indicator.style.background = 'var(--success-glow)';
+                        } else if (status === 'POLLING') {
+                            indicator.style.background = 'var(--warning-glow)';
+                        } else {
+                            indicator.style.background = 'var(--danger-glow)';
+                        }
+                    }
+                });
             }
         }
         

@@ -482,11 +482,11 @@ export async function initializeEconomicEcosystemSchema(pool: Pool): Promise<voi
 
     // Create city_markets table
     await client.query(`
-      CREATE TABLE IF NOT EXISTS city_markets (
+      CREATE TABLE IF NOT EXISTS economic_city_markets (
         id SERIAL PRIMARY KEY,
         city_id INTEGER NOT NULL,
         planet_id INTEGER NOT NULL,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         city_name VARCHAR(200) NOT NULL,
         
         population INTEGER NOT NULL CHECK (population > 0),
@@ -503,7 +503,7 @@ export async function initializeEconomicEcosystemSchema(pool: Pool): Promise<voi
     await client.query(`
       CREATE TABLE IF NOT EXISTS market_demand (
         id SERIAL PRIMARY KEY,
-        market_id INTEGER REFERENCES city_markets(id),
+        market_id INTEGER REFERENCES economic_city_markets(id),
         product_id INTEGER REFERENCES products(id),
         
         base_demand INTEGER NOT NULL CHECK (base_demand >= 0),
@@ -523,7 +523,7 @@ export async function initializeEconomicEcosystemSchema(pool: Pool): Promise<voi
     await client.query(`
       CREATE TABLE IF NOT EXISTS market_supply (
         id SERIAL PRIMARY KEY,
-        market_id INTEGER REFERENCES city_markets(id),
+        market_id INTEGER REFERENCES economic_city_markets(id),
         product_id INTEGER REFERENCES products(id),
         
         domestic_production INTEGER DEFAULT 0 CHECK (domestic_production >= 0),
@@ -543,8 +543,8 @@ export async function initializeEconomicEcosystemSchema(pool: Pool): Promise<voi
     await client.query(`
       CREATE TABLE IF NOT EXISTS trade_policies (
         id SERIAL PRIMARY KEY,
-        source_civilization_id INTEGER NOT NULL,
-        target_civilization_id INTEGER NOT NULL,
+        source_civilization_id TEXT NOT NULL,
+        target_civilization_id TEXT NOT NULL,
         
         general_tariff_rate DECIMAL(6,4) DEFAULT 0.0 CHECK (general_tariff_rate >= 0),
         diplomatic_modifier DECIMAL(4,2) DEFAULT 1.0 CHECK (diplomatic_modifier > 0),
@@ -635,7 +635,7 @@ export async function initializeEconomicEcosystemSchema(pool: Pool): Promise<voi
     await client.query(`
       CREATE TABLE IF NOT EXISTS government_contracts (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         issuing_department VARCHAR(100) NOT NULL,
         contract_type VARCHAR(50) NOT NULL CHECK (contract_type IN ('weapons', 'infrastructure', 'services', 'research')),
         
@@ -659,7 +659,7 @@ export async function initializeEconomicEcosystemSchema(pool: Pool): Promise<voi
     await client.query(`
       CREATE TABLE IF NOT EXISTS industry_statistics (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         sector VARCHAR(50) NOT NULL,
         reporting_period DATE NOT NULL,
         
@@ -730,7 +730,7 @@ export async function initializeEconomicEcosystemSchema(pool: Pool): Promise<voi
       CREATE TABLE IF NOT EXISTS trade_pact_compliance (
         id SERIAL PRIMARY KEY,
         pact_id INTEGER REFERENCES trade_pacts(id),
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         compliance_period DATE NOT NULL,
         
         overall_compliance_score DECIMAL(4,2) DEFAULT 0.0 CHECK (overall_compliance_score >= 0.0 AND overall_compliance_score <= 10.0),
@@ -772,53 +772,97 @@ export async function initializeEconomicEcosystemSchema(pool: Pool): Promise<voi
       )
     `);
 
-    // Create indexes for performance
-    await client.query(`
-      CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
-      CREATE INDEX IF NOT EXISTS idx_production_chains_product ON production_chains(product_id);
-      CREATE INDEX IF NOT EXISTS idx_production_chains_corporation ON production_chains(corporation_id);
-      CREATE INDEX IF NOT EXISTS idx_production_chains_location ON production_chains(location_id);
-      
-      CREATE INDEX IF NOT EXISTS idx_city_markets_civilization ON city_markets(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_city_markets_planet ON city_markets(planet_id);
-      CREATE INDEX IF NOT EXISTS idx_market_demand_market ON market_demand(market_id);
-      CREATE INDEX IF NOT EXISTS idx_market_demand_product ON market_demand(product_id);
-      CREATE INDEX IF NOT EXISTS idx_market_supply_market ON market_supply(market_id);
-      CREATE INDEX IF NOT EXISTS idx_market_supply_product ON market_supply(product_id);
-      
-      CREATE INDEX IF NOT EXISTS idx_trade_policies_source ON trade_policies(source_civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_trade_policies_target ON trade_policies(target_civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_product_trade_policies_policy ON product_trade_policies(trade_policy_id);
-      CREATE INDEX IF NOT EXISTS idx_product_trade_policies_category ON product_trade_policies(product_category_id);
-      
-      CREATE INDEX IF NOT EXISTS idx_location_skills_city ON location_skills(city_id);
-      CREATE INDEX IF NOT EXISTS idx_location_skills_category ON location_skills(skill_category);
-      
-      CREATE INDEX IF NOT EXISTS idx_government_contracts_civilization ON government_contracts(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_government_contracts_status ON government_contracts(contract_status);
-      CREATE INDEX IF NOT EXISTS idx_government_contracts_type ON government_contracts(contract_type);
-      
-      CREATE INDEX IF NOT EXISTS idx_industry_statistics_civilization ON industry_statistics(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_industry_statistics_sector ON industry_statistics(sector);
-      CREATE INDEX IF NOT EXISTS idx_industry_statistics_period ON industry_statistics(reporting_period);
-      
-      CREATE INDEX IF NOT EXISTS idx_trade_pacts_status ON trade_pacts(status);
-      CREATE INDEX IF NOT EXISTS idx_trade_pacts_type ON trade_pacts(pact_type);
-      CREATE INDEX IF NOT EXISTS idx_trade_pacts_lead_negotiator ON trade_pacts(lead_negotiator_civilization);
-      CREATE INDEX IF NOT EXISTS idx_trade_pacts_effective_date ON trade_pacts(effective_date);
-      
-      CREATE INDEX IF NOT EXISTS idx_trade_pact_negotiations_pact ON trade_pact_negotiations(pact_id);
-      CREATE INDEX IF NOT EXISTS idx_trade_pact_negotiations_status ON trade_pact_negotiations(negotiation_status);
-      
-      CREATE INDEX IF NOT EXISTS idx_trade_pact_compliance_pact ON trade_pact_compliance(pact_id);
-      CREATE INDEX IF NOT EXISTS idx_trade_pact_compliance_civilization ON trade_pact_compliance(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_trade_pact_compliance_period ON trade_pact_compliance(compliance_period);
-      
-      CREATE INDEX IF NOT EXISTS idx_trade_pact_disputes_pact ON trade_pact_disputes(pact_id);
-      CREATE INDEX IF NOT EXISTS idx_trade_pact_disputes_complainant ON trade_pact_disputes(complainant_civilization);
-      CREATE INDEX IF NOT EXISTS idx_trade_pact_disputes_respondent ON trade_pact_disputes(respondent_civilization);
-      CREATE INDEX IF NOT EXISTS idx_trade_pact_disputes_status ON trade_pact_disputes(dispute_status);
-    `);
+    // Create indexes for performance - split into smaller chunks to identify failures
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
+        CREATE INDEX IF NOT EXISTS idx_production_chains_product ON production_chains(product_id);
+        CREATE INDEX IF NOT EXISTS idx_production_chains_corporation ON production_chains(corporation_id);
+        CREATE INDEX IF NOT EXISTS idx_production_chains_location ON production_chains(location_id);
+      `);
+    } catch (error) {
+      console.warn('Failed to create product/production chain indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_economic_city_markets_civilization ON economic_city_markets(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_economic_city_markets_planet ON economic_city_markets(planet_id);
+        CREATE INDEX IF NOT EXISTS idx_market_demand_market ON market_demand(market_id);
+        CREATE INDEX IF NOT EXISTS idx_market_demand_product ON market_demand(product_id);
+        CREATE INDEX IF NOT EXISTS idx_market_supply_market ON market_supply(market_id);
+        CREATE INDEX IF NOT EXISTS idx_market_supply_product ON market_supply(product_id);
+      `);
+    } catch (error) {
+      console.warn('Failed to create market indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_trade_policies_source ON trade_policies(source_civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_trade_policies_target ON trade_policies(target_civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_product_trade_policies_policy ON product_trade_policies(trade_policy_id);
+        CREATE INDEX IF NOT EXISTS idx_product_trade_policies_category ON product_trade_policies(product_category_id);
+      `);
+    } catch (error) {
+      console.warn('Failed to create trade policy indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_location_skills_city ON location_skills(city_id);
+        CREATE INDEX IF NOT EXISTS idx_location_skills_category ON location_skills(skill_category);
+      `);
+    } catch (error) {
+      console.warn('Failed to create location skills indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_government_contracts_civilization ON government_contracts(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_government_contracts_status ON government_contracts(contract_status);
+        CREATE INDEX IF NOT EXISTS idx_government_contracts_type ON government_contracts(contract_type);
+      `);
+    } catch (error) {
+      console.warn('Failed to create government contracts indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_industry_statistics_civilization ON industry_statistics(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_industry_statistics_sector ON industry_statistics(sector);
+        CREATE INDEX IF NOT EXISTS idx_industry_statistics_period ON industry_statistics(reporting_period);
+      `);
+    } catch (error) {
+      console.warn('Failed to create industry statistics indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_trade_pacts_status ON trade_pacts(status);
+        CREATE INDEX IF NOT EXISTS idx_trade_pacts_type ON trade_pacts(pact_type);
+        CREATE INDEX IF NOT EXISTS idx_trade_pacts_lead_negotiator ON trade_pacts(lead_negotiator_civilization);
+        CREATE INDEX IF NOT EXISTS idx_trade_pacts_effective_date ON trade_pacts(effective_date);
+      `);
+    } catch (error) {
+      console.warn('Failed to create trade pacts indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_trade_pact_negotiations_pact ON trade_pact_negotiations(pact_id);
+        CREATE INDEX IF NOT EXISTS idx_trade_pact_negotiations_status ON trade_pact_negotiations(negotiation_status);
+        CREATE INDEX IF NOT EXISTS idx_trade_pact_compliance_pact ON trade_pact_compliance(pact_id);
+        CREATE INDEX IF NOT EXISTS idx_trade_pact_compliance_civilization ON trade_pact_compliance(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_trade_pact_compliance_period ON trade_pact_compliance(compliance_period);
+        CREATE INDEX IF NOT EXISTS idx_trade_pact_disputes_pact ON trade_pact_disputes(pact_id);
+        CREATE INDEX IF NOT EXISTS idx_trade_pact_disputes_complainant ON trade_pact_disputes(complainant_civilization);
+        CREATE INDEX IF NOT EXISTS idx_trade_pact_disputes_respondent ON trade_pact_disputes(respondent_civilization);
+        CREATE INDEX IF NOT EXISTS idx_trade_pact_disputes_status ON trade_pact_disputes(dispute_status);
+      `);
+    } catch (error) {
+      console.warn('Failed to create trade pact negotiation/compliance/dispute indexes:', error.message);
+    }
 
     // Insert seed data for demonstration
     await insertEconomicEcosystemSeedData(client);

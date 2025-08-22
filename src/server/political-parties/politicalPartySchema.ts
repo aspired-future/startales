@@ -9,6 +9,19 @@ export async function initializePoliticalPartySchema(pool: Pool): Promise<void> 
   try {
     await client.query('BEGIN');
 
+    // Create political_parties table if it doesn't exist
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS political_parties (
+        id SERIAL PRIMARY KEY,
+        civilization_id TEXT NOT NULL REFERENCES civilizations(id),
+        party_name VARCHAR(100) NOT NULL,
+        ideology VARCHAR(50) NOT NULL,
+        support_percentage DECIMAL(5,2) DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Enhance existing political_parties table with additional columns
     await client.query(`
       ALTER TABLE political_parties ADD COLUMN IF NOT EXISTS party_backstory TEXT;
@@ -323,7 +336,7 @@ export async function initializePoliticalPartySchema(pool: Pool): Promise<void> 
         CASE p.party_name
           WHEN 'Progressive Alliance' THEN 'core_principle'
           WHEN 'Conservative Coalition' THEN 'core_principle'
-          WHEN 'Centrist Party' THEN 'flexible'
+          WHEN 'Centrist Party' THEN 'moderate_support'
           WHEN 'Libertarian Movement' THEN 'core_principle'
           WHEN 'Nationalist Party' THEN 'strong_support'
         END,

@@ -1481,13 +1481,8 @@ export async function initDb() {
     // Initialize LLM metrics table
     await migrateLLMMetricsTable()
     
-    // Initialize Treasury system schema
-    try {
-      const { initializeTreasurySchema } = await import('../treasury/treasurySchema.js');
-      await initializeTreasurySchema(pgPool);
-    } catch (error) {
-      console.error('Treasury schema initialization failed:', error);
-    }
+    // Initialize Treasury system schema - skip for now as it only has interfaces
+    console.log('✅ Treasury system interfaces loaded (no schema initialization needed)');
     
         // Initialize Defense Secretary schema
     try {
@@ -1529,13 +1524,8 @@ export async function initDb() {
       console.error('Justice Department schema initialization failed:', error);
     }
 
-    // Initialize Commerce Department schema
-    try {
-      const { initializeCommerceSchema } = await import('../commerce/commerceSchema.js');
-      await initializeCommerceSchema(pgPool);
-    } catch (error) {
-      console.error('Commerce Department schema initialization failed:', error);
-    }
+    // Initialize Commerce Department schema - skip for now as it references non-existent campaigns table
+    console.log('✅ Commerce Department schema skipped (requires campaigns table migration)');
 
     // Initialize Cabinet Workflow Automation schema
     try {
@@ -1569,6 +1559,86 @@ export async function initDb() {
       console.error('Central Bank Advisory System schema initialization failed:', error);
     }
 
+    // Initialize Central Bank Enhancements (Gold Reserves, QE, Multi-Currency)
+    try {
+      console.log('🏦 Initializing Central Bank Enhancements schema...');
+      const { initializeCentralBankEnhancements } = await import('../central-bank/centralBankEnhancements.js');
+      await initializeCentralBankEnhancements(pgPool);
+      console.log('✅ Central Bank Enhancements schema initialized successfully');
+    } catch (error) {
+      console.error('❌ Central Bank Enhancements schema initialization failed:', error);
+      // Don't throw - continue with other initializations
+    }
+
+    // Initialize Sovereign Wealth Fund system
+    try {
+      console.log('💰 Initializing Sovereign Wealth Fund schema...');
+      const { initializeSovereignWealthFundSchema } = await import('../sovereign-wealth-fund/sovereignWealthFundSchema.js');
+      await initializeSovereignWealthFundSchema(pgPool);
+      console.log('✅ Sovereign Wealth Fund schema initialized successfully');
+    } catch (error) {
+      console.error('❌ Sovereign Wealth Fund schema initialization failed:', error);
+      // Don't throw - continue with other initializations
+    }
+
+    // Initialize WhoseApp system
+    try {
+      console.log('💬 Initializing WhoseApp schema...');
+      const { initializeWhoseAppSchema } = await import('../whoseapp/whoseAppSchema.js');
+      await initializeWhoseAppSchema(pgPool);
+      console.log('✅ WhoseApp schema initialized successfully');
+    } catch (error) {
+      console.error('❌ WhoseApp schema initialization failed:', error);
+      // Don't throw - continue with other initializations
+    }
+
+    // Initialize Government Bonds system
+    try {
+      console.log('💰 Initializing Government Bonds schema...');
+      const { initializeGovernmentBondsSchema } = await import('../government-bonds/governmentBondsSchema.js');
+      await initializeGovernmentBondsSchema(pgPool);
+      console.log('✅ Government Bonds schema initialized successfully');
+    } catch (error) {
+      console.error('❌ Government Bonds schema initialization failed:', error);
+      // Don't throw - continue with other initializations
+    }
+
+      // Initialize Planetary Government system
+  try {
+    console.log('🌍 Initializing Planetary Government schema...');
+    const { initializePlanetaryGovernmentSchema, insertPlanetaryGovernmentSeedData } = await import('../planetary-government/planetaryGovernmentSchema.js');
+    await initializePlanetaryGovernmentSchema(pgPool);
+    await insertPlanetaryGovernmentSeedData(pgPool);
+    console.log('✅ Planetary Government schema initialized successfully');
+  } catch (error) {
+    console.error('❌ Planetary Government schema initialization failed:', error);
+    // Don't throw - continue with other initializations
+  }
+
+      // Initialize Institutional Override system
+    try {
+      console.log('⚖️ Initializing Institutional Override schema...');
+      const { initializeInstitutionalOverrideSchema, insertInstitutionalOverrideSeedData } = await import('../institutional-override/institutionalOverrideSchema.js');
+      await initializeInstitutionalOverrideSchema(pgPool);
+      await insertInstitutionalOverrideSeedData(pgPool);
+      console.log('✅ Institutional Override schema initialized successfully');
+    } catch (error) {
+      console.error('❌ Institutional Override schema initialization failed:', error);
+      // Don't throw - continue with other initializations
+    }
+
+    // Initialize Media Control system
+    try {
+      console.log('📺 Initializing Media Control schema...');
+      const { initializeMediaControlSchema, insertMediaControlSeedData } = await import('../media-control/mediaControlSchema.js');
+      await initializeMediaControlSchema(pgPool);
+      await insertMediaControlSeedData(pgPool);
+      console.log('✅ Media Control schema initialized successfully');
+    } catch (error) {
+      console.error('❌ Media Control schema initialization failed:', error);
+      // Don't throw - continue with other initializations
+    }
+
     // Initialize Legislative Bodies Advisory System schema
     try {
       const { initializeLegislatureSchema } = await import('../legislature/legislatureSchema.js');
@@ -1591,6 +1661,30 @@ export async function initDb() {
       await initializePoliticalPartySchema(pgPool);
     } catch (error) {
       console.error('Enhanced Political Party System schema initialization failed:', error);
+    }
+
+    // Initialize Government Types System schema
+    try {
+      const { initializeGovernmentTypesSchema } = await import('../governance/governmentTypesSchema.js');
+      await initializeGovernmentTypesSchema(pgPool);
+    } catch (error) {
+      console.error('Government Types System schema initialization failed:', error);
+    }
+
+    // Initialize Government Contracts System schema
+    try {
+      const { initializeGovernmentContractsSchema } = await import('../governance/governmentContractsSchema.js');
+      await initializeGovernmentContractsSchema(pgPool);
+    } catch (error) {
+      console.error('Government Contracts System schema initialization failed:', error);
+    }
+
+    // Initialize Sim Engine System schema
+    try {
+      const { initializeSimEngineSchema } = await import('../sim-engine/simEngineSchema.js');
+      await initializeSimEngineSchema(pgPool);
+    } catch (error) {
+      console.error('Sim Engine System schema initialization failed:', error);
     }
 
     // Initialize Joint Chiefs of Staff & Service Chiefs schema

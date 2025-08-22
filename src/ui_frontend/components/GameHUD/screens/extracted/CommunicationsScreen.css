@@ -678,3 +678,479 @@
     flex: none;
   }
 }
+
+/* Media Management Styles */
+.press-freedom-overview {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.freedom-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.metric-label {
+  color: #b0b0b0;
+  font-size: 0.9em;
+}
+
+.metric-value {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.metric-value.freedom-good { color: #4CAF50; }
+.metric-value.freedom-fair { color: #FF9800; }
+.metric-value.control-moderate { color: #2196F3; }
+.metric-value.trust-good { color: #4CAF50; }
+
+.freedom-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.media-outlets {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.outlet-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.outlet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.outlet-info .outlet-name {
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+
+.outlet-info .outlet-type {
+  color: #b0b0b0;
+  font-size: 0.9em;
+  text-transform: capitalize;
+}
+
+.outlet-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.status-badge.active {
+  background: #4CAF50;
+  color: white;
+}
+
+.control-level {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.control-level.low {
+  background: #4CAF50;
+  color: white;
+}
+
+.control-level.moderate {
+  background: #FF9800;
+  color: white;
+}
+
+.control-level.high {
+  background: #F44336;
+  color: white;
+}
+
+.outlet-metrics {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.outlet-metrics .metric {
+  color: #b0b0b0;
+  font-size: 0.9em;
+}
+
+.media-actions, .policy-actions, .press-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.media-policies {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.policy-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.policy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.policy-name {
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.policy-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.policy-status.active {
+  background: #4CAF50;
+  color: white;
+}
+
+.policy-details {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.policy-details span {
+  color: #b0b0b0;
+  font-size: 0.9em;
+}
+
+.policy-type {
+  text-transform: capitalize;
+}
+
+.press-summary {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  color: #b0b0b0;
+  font-size: 0.9em;
+}
+
+.press-date {
+  color: white;
+}
+
+/* Enhanced Press Conference Styles */
+.press-secretary-info {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.secretary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.secretary-details .secretary-name {
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+
+.secretary-details .secretary-title {
+  color: #b0b0b0;
+  font-size: 0.9em;
+}
+
+.secretary-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-end;
+}
+
+.secretary-stats .stat {
+  color: #4CAF50;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.secretary-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skill-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.skill-label {
+  color: #b0b0b0;
+  font-size: 0.9em;
+  min-width: 120px;
+}
+
+.skill-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.skill-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.skill-value {
+  color: #4CAF50;
+  font-size: 0.9em;
+  font-weight: bold;
+  min-width: 35px;
+  text-align: right;
+}
+
+/* Enhanced Press Conference Items */
+.press-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.press-item.scheduled {
+  border-left: 4px solid #2196F3;
+}
+
+.press-item.leader {
+  border-left: 4px solid #FF9800;
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.press-item.completed {
+  border-left: 4px solid #4CAF50;
+  background: rgba(76, 175, 80, 0.05);
+}
+
+.press-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.press-info .press-title {
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 8px;
+}
+
+.press-presenter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.presenter-type {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.presenter-type.leader {
+  background: #FF9800;
+  color: white;
+}
+
+.presenter-type.secretary {
+  background: #2196F3;
+  color: white;
+}
+
+.presenter-name {
+  color: #b0b0b0;
+  font-size: 0.9em;
+}
+
+.press-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.press-status.scheduled {
+  background: #2196F3;
+  color: white;
+}
+
+.press-status.completed {
+  background: #4CAF50;
+  color: white;
+}
+
+.press-details {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+}
+
+.press-details span {
+  color: #b0b0b0;
+}
+
+.press-risk.low {
+  color: #4CAF50;
+}
+
+.press-risk.high {
+  color: #FF9800;
+}
+
+.press-impact.moderate {
+  color: #2196F3;
+}
+
+.press-impact.high {
+  color: #FF9800;
+}
+
+.press-topics {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.topic-tag {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffd700;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.press-results {
+  margin-top: 10px;
+}
+
+.result-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.result-metrics .metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric-label {
+  color: #b0b0b0;
+  font-size: 0.9em;
+}
+
+.metric-value {
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.metric-value.success {
+  color: #4CAF50;
+}
+
+.metric-value.warning {
+  color: #FF9800;
+}
+
+.metric-value.error {
+  color: #F44336;
+}
+
+/* Media Management Responsive */
+@media (max-width: 768px) {
+  .freedom-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .outlet-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .outlet-status {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .policy-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

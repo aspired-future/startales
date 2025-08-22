@@ -1,0 +1,262 @@
+{
+  "new-features": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Implement Popup Interface System for All Menu Items",
+        "description": "Convert all left panel menu items, Witter Feed, and Map to open in large popup screens similar to Quick Actions",
+        "details": "- Modify all left panel menu items to use popup system instead of inline display\n- Update Witter Feed to open in full popup overlay\n- Convert Map interface to popup system\n- Ensure consistent styling and behavior across all popups\n- Implement proper z-index management for multiple popups\n- Add keyboard navigation and accessibility support\n- Test on different screen sizes for responsive behavior",
+        "testStrategy": "Test each menu item opens in popup, verify popup layering works correctly, test keyboard navigation, validate accessibility compliance, test responsive behavior on mobile/tablet/desktop",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending"
+      },
+      {
+        "id": 2,
+        "title": "Implement Different Government Types System",
+        "description": "Add support for different government types (Monarchy, Democracy, Communist) with unique pros/cons and mechanics",
+        "details": "- Create government type selection during civilization setup\n- Implement Monarchy: faster decisions, less public approval needed, succession issues\n- Implement Democracy: slower decisions, requires public approval, stable transitions\n- Implement Communist: centralized planning, resource control, ideological compliance\n- Add government-specific UI elements and decision trees\n- Integrate with existing political and economic systems\n- Add transition mechanics between government types",
+        "testStrategy": "Test each government type creation, verify unique mechanics work correctly, test transitions between types, validate impact on existing systems",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending"
+      },
+      {
+        "id": 3,
+        "title": "Create Government Contracts System",
+        "description": "Implement government contracts for defense, infrastructure, and custom projects with funding levels and priorities",
+        "details": "- Create contract management API and UI\n- Implement contract types: defense, infrastructure, research, social programs\n- Add funding level controls and budget allocation\n- Create priority system for contract execution\n- Add bidding system for private contractors\n- Implement contract performance tracking\n- Add contract renewal and cancellation mechanics\n- Integrate with treasury and budget systems",
+        "testStrategy": "Test contract creation and management, verify funding allocation works, test bidding system, validate performance tracking, test integration with budget systems",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending"
+      },
+      {
+        "id": 4,
+        "title": "Add Coast Guard to Security System",
+        "description": "Integrate Coast Guard functionality into the Security screen and API",
+        "details": "- Add Coast Guard section to Security API\n- Create Coast Guard management interface\n- Implement maritime patrol and rescue operations\n- Add coastal defense capabilities\n- Integrate with existing military and security systems\n- Add Coast Guard personnel and equipment management\n- Implement maritime law enforcement features",
+        "testStrategy": "Test Coast Guard interface integration, verify maritime operations work, test integration with security systems, validate personnel management",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending"
+      },
+      {
+        "id": 5,
+        "title": "Create AI-Driven Missions System",
+        "description": "Implement Missions API integrated with Game Master AI and story progression",
+        "details": "- Create Missions API with CRUD operations\n- Integrate with Game Master AI for dynamic mission generation\n- Implement story-driven mission progression\n- Add mission types: exploration, diplomacy, military, economic, scientific\n- Create mission briefing and debriefing systems\n- Add mission success/failure consequences\n- Implement mission chain and dependency systems\n- Add character assignment to missions",
+        "testStrategy": "Test mission generation by AI, verify story integration works, test different mission types, validate character assignment system, test mission consequences",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending"
+      },
+      {
+        "id": 6,
+        "title": "Implement Export Controls System",
+        "description": "Create system for export controls with policies per civilization and technology approvals",
+        "details": "- Create export controls API and management interface\n- Implement per-civilization export policies\n- Add technology-specific export restrictions\n- Create approval workflow for export requests\n- Add embargo and sanctions management\n- Implement trade route impact from export controls\n- Add diplomatic consequences for export decisions\n- Create monitoring and enforcement systems",
+        "testStrategy": "Test export policy creation, verify approval workflows, test trade route impacts, validate diplomatic consequences, test enforcement mechanisms",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending"
+      },
+      {
+        "id": 7,
+        "title": "Create Galactic Data Screen and API",
+        "description": "Build comprehensive Galactic Data screen/API for information on all civilizations and independent planets",
+        "details": "- Create Galactic Data API with comprehensive civilization data\n- Build new Galactic Data screen interface\n- Implement data visualization for galactic overview\n- Add filtering and search capabilities\n- Include economic, military, diplomatic, and technological data\n- Add historical data tracking and trends\n- Implement intelligence-based data accuracy (fog of war)\n- Add data export and reporting features",
+        "testStrategy": "Test data collection and display, verify filtering works, test intelligence-based accuracy, validate data visualization, test export functionality",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending"
+      },
+      {
+        "id": 8,
+        "title": "Enhance Central Bank with Advanced Features",
+        "description": "Add Gold reserves, multiple currency support, and Quantitative Easing to Central Bank system",
+        "details": "- Add Gold and precious metal reserves to Central Bank\n- Implement multiple currency reserve management\n- Create Quantitative Easing mechanics to control money supply\n- Add interest rate manipulation tools\n- Implement currency intervention capabilities\n- Add reserve requirement controls for banks\n- Create monetary policy dashboard\n- Integrate with inflation and economic systems",
+        "testStrategy": "Test reserve management, verify QE mechanics work, test interest rate controls, validate currency interventions, test integration with economic systems",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending"
+      },
+      {
+        "id": 9,
+        "title": "Implement Sovereign Wealth Fund System",
+        "description": "Create Sovereign Wealth Fund with multiple financing sources and investment capabilities",
+        "details": "- Create Sovereign Wealth Fund API and management interface\n- Implement funding sources: taxes, Central Bank, resource extraction, trade surplus\n- Add investment portfolio management\n- Create risk management and diversification tools\n- Implement returns tracking and performance metrics\n- Add strategic investment capabilities (infrastructure, technology)\n- Create withdrawal and spending rules\n- Integrate with government budget and economic planning",
+        "testStrategy": "Test fund creation and management, verify funding sources work, test investment capabilities, validate performance tracking, test integration with budget systems",
+        "priority": "medium",
+        "dependencies": [8],
+        "status": "pending"
+      },
+      {
+        "id": 10,
+        "title": "Create Government Bond System",
+        "description": "Implement government bond issuance in own and foreign currencies to finance deficits",
+        "details": "- Create government bond issuance API\n- Implement bond types: short-term, long-term, inflation-linked\n- Add currency selection for bond issuance\n- Create bond auction and pricing mechanisms\n- Implement bond market and secondary trading\n- Add credit rating system affecting bond prices\n- Create bond maturity and payment systems\n- Integrate with Central Bank bond purchasing",
+        "testStrategy": "Test bond issuance process, verify currency options work, test auction mechanisms, validate secondary market, test Central Bank integration",
+        "priority": "medium",
+        "dependencies": [8],
+        "status": "pending"
+      },
+      {
+        "id": 11,
+        "title": "Implement Automated Planetary Government",
+        "description": "Create automated planetary-level government system similar to city management",
+        "details": "- Extend city management system to planetary scale\n- Create planetary governor AI system\n- Implement planetary resource management\n- Add inter-city coordination on planets\n- Create planetary policy implementation\n- Add planetary budget and taxation systems\n- Implement planetary infrastructure projects\n- Add planetary emergency response systems",
+        "testStrategy": "Test planetary government creation, verify AI governor functionality, test resource management, validate inter-city coordination, test policy implementation",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending"
+      },
+      {
+        "id": 12,
+        "title": "Implement Legislative Override System",
+        "description": "Allow leader to override advisory votes from Legislature while maintaining political consequences",
+        "details": "- Modify legislature voting system to be advisory\n- Add leader override functionality\n- Implement political cost system for overrides\n- Add public approval impact from overrides\n- Create opposition party response mechanics\n- Add media coverage of override decisions\n- Implement long-term consequences for frequent overrides\n- Add constitutional crisis mechanics for extreme cases",
+        "testStrategy": "Test override functionality, verify political costs apply, test public approval impacts, validate opposition responses, test constitutional crisis triggers",
+        "priority": "medium",
+        "dependencies": [2],
+        "status": "pending"
+      },
+      {
+        "id": 13,
+        "title": "Implement Media Control System",
+        "description": "Create system for government-controlled vs independent media based on leader preferences",
+        "details": "- Add media control settings to government configuration\n- Implement state-controlled media mechanics\n- Create independent media system with editorial freedom\n- Add media influence on public opinion\n- Implement censorship and propaganda tools\n- Create press freedom metrics and consequences\n- Add international media coverage and reputation effects\n- Implement media bias and credibility systems",
+        "testStrategy": "Test media control settings, verify state vs independent media differences, test public opinion impacts, validate censorship tools, test international reputation effects",
+        "priority": "medium",
+        "dependencies": [2],
+        "status": "pending"
+      },
+      {
+        "id": 14,
+        "title": "Implement Constitutional Systems",
+        "description": "Add options for multiparty vs single party systems in civilization constitution",
+        "details": "- Create constitutional framework system\n- Add party system configuration options\n- Implement multiparty democracy mechanics\n- Create single-party state mechanics\n- Add constitutional amendment processes\n- Implement judicial review of constitutional issues\n- Create constitutional crisis resolution systems\n- Add international recognition of constitutional legitimacy",
+        "testStrategy": "Test constitutional creation, verify party system options work, test amendment processes, validate judicial review, test crisis resolution",
+        "priority": "medium",
+        "dependencies": [2],
+        "status": "pending"
+      },
+      {
+        "id": 15,
+        "title": "Implement Business Cycle System",
+        "description": "Create realistic business cycle system with growth and recession phases",
+        "details": "- Create economic cycle modeling system\n- Implement growth phase mechanics and indicators\n- Add recession triggers and mechanics\n- Create economic indicator tracking (GDP, unemployment, inflation)\n- Implement government policy responses to cycles\n- Add business and consumer confidence metrics\n- Create cycle prediction and early warning systems\n- Integrate with existing economic systems",
+        "testStrategy": "Test cycle transitions, verify economic indicators work, test government policy responses, validate prediction systems, test integration with economic systems",
+        "priority": "medium",
+        "dependencies": [8],
+        "status": "pending"
+      },
+      {
+        "id": 16,
+        "title": "Build Entertainment and Tourism Industry",
+        "description": "Create comprehensive entertainment and tourism industry systems",
+        "details": "- Create entertainment industry API and management\n- Implement tourism infrastructure and attractions\n- Add entertainment venues and events system\n- Create tourism marketing and promotion tools\n- Implement visitor management and capacity systems\n- Add cultural and natural attraction development\n- Create tourism revenue and economic impact tracking\n- Integrate with transportation and hospitality systems",
+        "testStrategy": "Test entertainment industry creation, verify tourism systems work, test attraction development, validate revenue tracking, test system integrations",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending"
+      },
+      {
+        "id": 17,
+        "title": "Implement Visual Content Generation System",
+        "description": "Generate images for planets, cities, characters, species, and logos using the visual system",
+        "details": "- Integrate with existing visual systems API\n- Create planet surface and atmosphere image generation\n- Implement city skyline and architecture visualization\n- Add character portrait and appearance generation\n- Create species appearance and characteristic visualization\n- Implement civilization and organization logo generation\n- Add image caching and optimization systems\n- Create image variation and customization tools",
+        "testStrategy": "Test image generation for all content types, verify visual system integration, test caching systems, validate customization tools, test performance under load",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending"
+      },
+      {
+        "id": 18,
+        "title": "Implement Game Master Video System",
+        "description": "Create Game Master video generation at critical junctures with full-screen popup display",
+        "details": "- Integrate with Game Master AI for video trigger detection\n- Create video generation system for critical events\n- Implement full-screen popup video player\n- Add video content scripting and narrative integration\n- Create video caching and streaming systems\n- Implement video customization based on player choices\n- Add video interaction and decision points\n- Create video archive and replay systems",
+        "testStrategy": "Test video generation triggers, verify full-screen popup works, test narrative integration, validate streaming performance, test interaction systems",
+        "priority": "high",
+        "dependencies": [1],
+        "status": "pending"
+      },
+      {
+        "id": 19,
+        "title": "Create Character Profile System",
+        "description": "Implement shared WhoseApp and Witter profiles for characters with images and bios",
+        "details": "- Create character profile API and database schema\n- Implement WhoseApp profile integration\n- Add Witter profile system for characters\n- Create character bio generation and editing\n- Implement profile image generation and management\n- Add character relationship and connection systems\n- Create profile privacy and visibility controls\n- Integrate with existing character management systems",
+        "testStrategy": "Test profile creation and management, verify WhoseApp integration, test Witter integration, validate image generation, test relationship systems",
+        "priority": "high",
+        "dependencies": [17],
+        "status": "pending"
+      },
+      {
+        "id": 20,
+        "title": "Implement WhoseApp Action Item System",
+        "description": "Create comprehensive action item tracking system in WhoseApp with character communication",
+        "details": "- Create action item API and management system\n- Implement action assignment and tracking\n- Add status update and progress reporting\n- Create character communication for clarifying questions\n- Implement action completion notifications\n- Add action item bubbles and visual indicators\n- Create action priority and deadline systems\n- Integrate with Game State and Simulation Engines",
+        "testStrategy": "Test action item creation and assignment, verify status tracking works, test character communication, validate visual indicators, test simulation integration",
+        "priority": "high",
+        "dependencies": [19],
+        "status": "pending"
+      },
+      {
+        "id": 21,
+        "title": "Enhance Witter Feed with AI-Generated Content",
+        "description": "Improve Witter feed with diverse, entertaining, AI-generated content relevant to game activities",
+        "details": "- Enhance AI content generation with higher temperature settings\n- Create diverse content types: news, sports, business, entertainment, politics\n- Implement story-relevant content generation\n- Add content variety and anti-repetition systems\n- Create witty and entertaining content generation\n- Implement content length optimization for engagement\n- Add content personalization based on player interests\n- Create content moderation and quality control",
+        "testStrategy": "Test content generation diversity, verify story relevance, test anti-repetition systems, validate entertainment value, test personalization features",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending"
+      },
+      {
+        "id": 22,
+        "title": "Implement Distance-Aware Systems",
+        "description": "Make characters, migration, tourism, and sensors aware of galactic distances and positioning",
+        "details": "- Create galactic positioning and distance calculation system\n- Implement distance-aware character decision making\n- Add distance factors to migration patterns\n- Create distance-based tourism appeal and logistics\n- Implement distance-aware sensor and detection systems\n- Add travel time calculations for all activities\n- Create supply line and logistics distance modeling\n- Integrate with existing military and trade systems",
+        "testStrategy": "Test distance calculations, verify character decision impacts, test migration patterns, validate tourism logistics, test sensor systems, verify military integration",
+        "priority": "medium",
+        "dependencies": [7],
+        "status": "pending"
+      },
+      {
+        "id": 23,
+        "title": "Implement Electoral System with Dynamic Adjustments",
+        "description": "Create electoral system with political party count adjustments every 4 years and Witter coverage",
+        "details": "- Create electoral cycle system with 4-year intervals\n- Implement dynamic political party seat adjustments\n- Add election campaign and promise systems\n- Create polling and public opinion tracking\n- Implement election coverage in Witter feed\n- Add election result analysis and consequences\n- Create coalition and government formation mechanics\n- Integrate with existing political party systems",
+        "testStrategy": "Test electoral cycles, verify party adjustments work, test campaign systems, validate polling accuracy, test Witter integration, verify government formation",
+        "priority": "medium",
+        "dependencies": [2, 21],
+        "status": "pending"
+      },
+      {
+        "id": 24,
+        "title": "Restore World Wonders System",
+        "description": "Recover and integrate world wonders system from temp_dev/test-world-wonders.ts",
+        "details": "- Analyze existing world wonders code in temp_dev/test-world-wonders.ts\n- Integrate world wonders system into main codebase\n- Create world wonder construction and management\n- Implement wonder effects and bonuses\n- Add wonder maintenance and upgrade systems\n- Create wonder competition between civilizations\n- Implement wonder tourism and cultural impact\n- Add wonder destruction and reconstruction mechanics",
+        "testStrategy": "Test world wonder construction, verify effects and bonuses work, test maintenance systems, validate competition mechanics, test tourism integration",
+        "priority": "low",
+        "dependencies": [16],
+        "status": "pending"
+      },
+      {
+        "id": 25,
+        "title": "Restore Household Economics System",
+        "description": "Recover and integrate household economics system from temp_dev/test-household-economics.ts",
+        "details": "- Analyze existing household economics code in temp_dev/test-household-economics.ts\n- Integrate household economics into main economic systems\n- Create household income and expenditure tracking\n- Implement household savings and investment behavior\n- Add household consumption patterns and preferences\n- Create household debt and credit systems\n- Implement household economic decision making\n- Integrate with population and demographic systems",
+        "testStrategy": "Test household economic modeling, verify income/expenditure tracking, test savings behavior, validate consumption patterns, test integration with demographics",
+        "priority": "low",
+        "dependencies": [15],
+        "status": "pending"
+      }
+    ],
+    "metadata": {
+      "created": "2024-12-29T00:00:00.000Z",
+      "updated": "2024-12-29T00:00:00.000Z",
+      "description": "New UI/API/AI Sim enhancements and features from latest requirements - organized by priority"
+    }
+  }
+}
+

@@ -13,7 +13,7 @@ export async function initializeIntelligenceSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS intelligence_directors (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL REFERENCES civilizations(id),
+        civilization_id TEXT NOT NULL REFERENCES civilizations(id),
         director_type VARCHAR(50) NOT NULL, -- 'foreign', 'domestic', 'coordination'
         name VARCHAR(200) NOT NULL,
         title VARCHAR(100) NOT NULL,
@@ -34,7 +34,7 @@ export async function initializeIntelligenceSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS intelligence_agencies (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL REFERENCES civilizations(id),
+        civilization_id TEXT NOT NULL REFERENCES civilizations(id),
         agency_name VARCHAR(100) NOT NULL,
         agency_code VARCHAR(10) NOT NULL, -- 'CIA', 'FBI', 'NSA', 'DIA', etc.
         director_id INTEGER REFERENCES intelligence_directors(id),
@@ -54,7 +54,7 @@ export async function initializeIntelligenceSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS intelligence_operations (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL REFERENCES civilizations(id),
+        civilization_id TEXT NOT NULL REFERENCES civilizations(id),
         operation_name VARCHAR(200) NOT NULL,
         operation_type VARCHAR(50) NOT NULL, -- 'surveillance', 'counterintelligence', 'covert', 'analysis'
         classification_level VARCHAR(20) DEFAULT 'classified', -- 'unclassified', 'classified', 'secret', 'top_secret'
@@ -83,7 +83,7 @@ export async function initializeIntelligenceSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS threat_assessments (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL REFERENCES civilizations(id),
+        civilization_id TEXT NOT NULL REFERENCES civilizations(id),
         threat_name VARCHAR(200) NOT NULL,
         threat_type VARCHAR(50) NOT NULL, -- 'foreign_military', 'terrorism', 'cyber', 'economic', 'internal'
         threat_level VARCHAR(20) DEFAULT 'medium', -- 'low', 'medium', 'high', 'critical', 'imminent'
@@ -108,7 +108,7 @@ export async function initializeIntelligenceSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS intelligence_reports (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL REFERENCES civilizations(id),
+        civilization_id TEXT NOT NULL REFERENCES civilizations(id),
         report_title VARCHAR(200) NOT NULL,
         report_type VARCHAR(50) NOT NULL, -- 'daily_brief', 'threat_assessment', 'situation_report', 'analysis'
         classification_level VARCHAR(20) DEFAULT 'classified',
@@ -133,7 +133,7 @@ export async function initializeIntelligenceSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS intelligence_oversight (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL REFERENCES civilizations(id),
+        civilization_id TEXT NOT NULL REFERENCES civilizations(id),
         oversight_type VARCHAR(50) NOT NULL, -- 'congressional', 'judicial', 'executive', 'inspector_general'
         oversight_body VARCHAR(100) NOT NULL, -- Name of oversight committee/court
         review_subject VARCHAR(100) NOT NULL, -- What is being reviewed
@@ -151,27 +151,66 @@ export async function initializeIntelligenceSchema(pool: Pool): Promise<void> {
       );
     `);
 
-    // Create indexes for better performance
-    await client.query(`
-      CREATE INDEX IF NOT EXISTS idx_intelligence_directors_civilization ON intelligence_directors(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_intelligence_directors_type ON intelligence_directors(director_type);
-      CREATE INDEX IF NOT EXISTS idx_intelligence_agencies_civilization ON intelligence_agencies(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_intelligence_agencies_code ON intelligence_agencies(agency_code);
-      CREATE INDEX IF NOT EXISTS idx_intelligence_operations_civilization ON intelligence_operations(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_intelligence_operations_status ON intelligence_operations(status);
-      CREATE INDEX IF NOT EXISTS idx_threat_assessments_civilization ON threat_assessments(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_threat_assessments_level ON threat_assessments(threat_level);
-      CREATE INDEX IF NOT EXISTS idx_intelligence_reports_civilization ON intelligence_reports(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_intelligence_reports_type ON intelligence_reports(report_type);
-      CREATE INDEX IF NOT EXISTS idx_intelligence_oversight_civilization ON intelligence_oversight(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_intelligence_oversight_status ON intelligence_oversight(status);
-    `);
+    // Create indexes for better performance - split into smaller chunks to identify failures
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_intelligence_directors_civilization ON intelligence_directors(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_intelligence_directors_type ON intelligence_directors(director_type);
+      `);
+    } catch (error) {
+      console.warn('Failed to create intelligence directors indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_intelligence_agencies_civilization ON intelligence_agencies(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_intelligence_agencies_code ON intelligence_agencies(agency_code);
+      `);
+    } catch (error) {
+      console.warn('Failed to create intelligence agencies indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_intelligence_operations_civilization ON intelligence_operations(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_intelligence_operations_status ON intelligence_operations(status);
+      `);
+    } catch (error) {
+      console.warn('Failed to create intelligence operations indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_threat_assessments_civilization ON threat_assessments(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_threat_assessments_level ON threat_assessments(threat_level);
+      `);
+    } catch (error) {
+      console.warn('Failed to create threat assessments indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_intelligence_reports_civilization ON intelligence_reports(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_intelligence_reports_type ON intelligence_reports(report_type);
+      `);
+    } catch (error) {
+      console.warn('Failed to create intelligence reports indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_intelligence_oversight_civilization ON intelligence_oversight(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_intelligence_oversight_status ON intelligence_oversight(status);
+      `);
+    } catch (error) {
+      console.warn('Failed to create intelligence oversight indexes:', error.message);
+    }
+
+    // Seed initial data within the transaction
+    await seedIntelligenceData(client);
 
     await client.query('COMMIT');
     console.log('Intelligence Directors System schema initialized successfully');
-
-    // Seed initial data
-    await seedIntelligenceData(pool);
 
   } catch (error) {
     await client.query('ROLLBACK');
@@ -185,9 +224,7 @@ export async function initializeIntelligenceSchema(pool: Pool): Promise<void> {
 /**
  * Seed initial Intelligence data
  */
-async function seedIntelligenceData(pool: Pool): Promise<void> {
-  const client = await pool.connect();
-  
+async function seedIntelligenceData(client: any): Promise<void> {
   try {
     // Check if data already exists
     const existingData = await client.query('SELECT COUNT(*) FROM intelligence_directors');
@@ -525,8 +562,6 @@ async function seedIntelligenceData(pool: Pool): Promise<void> {
   } catch (error) {
     console.error('Error seeding Intelligence data:', error);
     throw error;
-  } finally {
-    client.release();
   }
 }
 

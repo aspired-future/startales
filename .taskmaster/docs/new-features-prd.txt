@@ -1,0 +1,119 @@
+# LivelyGalaxy.ai New Features & Enhancements PRD
+
+## Project Overview
+This PRD outlines comprehensive new features and enhancements for the LivelyGalaxy.ai galactic civilization management system, focusing on UI improvements, new APIs, enhanced simulation systems, and improved user experience.
+
+## Core Requirements
+
+### 1. UI/UX Enhancements (HIGH PRIORITY)
+- **Popup Interface System**: All menu items in left panel, Witter Feed, and Map should open in large popup screens similar to Quick Actions
+- **Visual Content Generation**: Generate images for planets, cities, characters, species, civilization logos using the visual system
+- **Full-Screen Video System**: Game Master should generate videos at critical junctures displayed as full-screen popups
+- **Character Profiles**: Each character needs shared WhoseApp and Witter profiles with details, bio, and profile images
+- **Action Item Bubbles**: Characters in WhoseApp should have message bubbles indicating number of active actions
+
+### 2. Government & Political Systems (HIGH PRIORITY)
+- **Government Types**: Implement different government types (Monarchy, Democracy, Communist) with pros/cons
+- **Government Contracts**: Defense, infrastructure, and custom contracts with funding levels and priorities
+- **Export Controls**: System for export controls, policies per civilization and technology with approvals
+- **Planetary Government**: Automated planetary-level government similar to city management
+- **Legislative Override**: Leader can override advisory votes from Legislature
+- **Constitutional Systems**: Option for multiparty vs single party systems in civilization constitution
+- **Media Control**: Government-controlled vs independent media based on leader preferences
+
+### 3. Economic & Financial Systems (HIGH PRIORITY)
+- **Central Bank Enhancements**: 
+  - Reserves of Gold and other currencies
+  - Quantitative Easing capabilities to manage interest rates and money supply
+- **Sovereign Wealth Fund**: Financed through taxes, Central Bank, resource extraction
+- **Government Bonds**: Issue bonds in own or foreign currency to finance deficits
+- **Central Bank Bond Purchases**: Buy government bonds to control interest rates
+- **Business Cycles**: Implement growth and recession cycles
+- **Entertainment & Tourism Industry**: Build comprehensive entertainment and tourism sectors
+
+### 4. Military & Security Enhancements (MEDIUM PRIORITY)
+- **Coast Guard**: Add Coast Guard to Security screen and API
+- **Missions System**: AI-driven missions integrated into story via Game Master AI
+- **Galactic Awareness**: Military, intelligence, and trade characters should understand:
+  - Distances between planets
+  - Relative positioning
+  - Planetary terrain
+  - Fleet movements (friendly and hostile)
+  - Military unit positioning
+  - Resource deposit locations
+  - Travel times and logistics
+- **Distance-Aware Sensors**: Sensors should account for distance when locating enemy fleets
+
+### 5. Social & Population Systems (MEDIUM PRIORITY)
+- **Distance-Aware Migration**: Account for distance, economic opportunity, and safety in migration patterns
+- **Distance-Aware Tourism**: Tourism should consider distance, attractions, and safety
+- **Galactic Data Screen**: New screen/API for data on all civilizations and independent planets
+
+### 6. Communication & Social Media (HIGH PRIORITY)
+- **WhoseApp Action System**: 
+  - Track all character actions with status updates
+  - Characters report back when actions complete
+  - Can ask clarifying questions
+  - Actions feed Game State, API, and Simulation Engines
+- **Enhanced Witter Feed**: 
+  - AI-generated content relevant to story and game activities
+  - High temperature, diverse, non-repetitive content
+  - Longer, more interesting posts
+  - Maximally witty, funny, and entertaining
+  - Business and Sports News integration
+  - Political coverage including elections every 4 years
+- **Electoral System**: Political party counts adjust with elections, covered in Witter Feed
+
+### 7. Missing Features Recovery (MEDIUM PRIORITY)
+- **World Wonders**: Restore world wonders system (reference: temp_dev/test-world-wonders.ts)
+- **Household Economics**: Restore household economics system (reference: temp_dev/test-household-economics.ts)
+
+## Technical Requirements
+
+### API Integration
+- All new features must integrate with existing 55 APIs
+- Maintain 24 AI-controllable knobs per API
+- Ensure compatibility with AI, Deterministic, and Orchestrator simulation engines
+
+### UI Framework
+- Use existing popup system architecture from Quick Actions
+- Maintain responsive design principles
+- Integrate with existing visual systems for image generation
+
+### Database Schema
+- Extend existing PostgreSQL schema for new features
+- Maintain data consistency across all systems
+- Support real-time updates via WebSocket
+
+### Performance Requirements
+- All new features must support concurrent users
+- Maintain sub-second response times for UI interactions
+- Efficient handling of AI-generated content
+
+## Success Criteria
+1. All menu items open in popup interfaces
+2. Characters have full profiles with generated images
+3. Government systems support multiple types with different mechanics
+4. Economic systems include advanced central banking and sovereign wealth
+5. Military systems are distance and terrain aware
+6. Social systems account for realistic migration and tourism patterns
+7. Witter feed provides engaging, non-repetitive AI content
+8. WhoseApp action system tracks and manages character activities
+9. All systems integrate seamlessly with existing simulation engines
+
+## Priority Order
+1. UI/UX Enhancements (popup system, visual generation)
+2. Government & Political Systems (types, contracts, controls)
+3. Economic & Financial Systems (central bank, bonds, cycles)
+4. Communication & Social Media (WhoseApp actions, Witter enhancement)
+5. Military & Security Enhancements (Coast Guard, missions, awareness)
+6. Social & Population Systems (distance-aware systems)
+7. Missing Features Recovery (world wonders, household economics)
+
+## Dependencies
+- Existing visual systems API for image generation
+- Game Master AI for video generation and missions
+- Enhanced knob system for all new APIs
+- WebSocket system for real-time updates
+- PostgreSQL database for data persistence
+

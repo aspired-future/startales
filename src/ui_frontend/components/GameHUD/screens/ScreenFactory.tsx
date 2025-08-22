@@ -39,9 +39,11 @@ import PlanetaryConquestScreen from './extracted/PlanetaryConquestScreen';
 import JointChiefsScreen from './extracted/JointChiefsScreen';
 import WitterScreen from './extracted/WitterScreen';
 import GalaxyMapScreen from './extracted/GalaxyMapScreen';
+import GalaxyDataScreen from './extracted/GalaxyDataScreen';
 import ExplorationScreen from './extracted/ExplorationScreen';
 import GovernmentScreen from './extracted/GovernmentScreen';
 import SpeechesScreen from './extracted/SpeechesScreen';
+
 
 // Economy Screens (placeholders for now)
 // import TreasuryScreen from './economy/TreasuryScreen';
@@ -301,6 +303,7 @@ const screenRegistry: Record<string, ScreenConfig> = {
     category: 'communications'
   },
 
+
   // Galaxy & Space
   'conquest': {
     component: PlanetaryConquestScreen,
@@ -332,6 +335,12 @@ const screenRegistry: Record<string, ScreenConfig> = {
     component: GalaxyMapScreen,
     title: 'Galaxy Map',
     icon: '🗺️',
+    category: 'galaxy'
+  },
+  'galaxy-data': {
+    component: GalaxyDataScreen,
+    title: 'Galaxy Data',
+    icon: '🌌',
     category: 'galaxy'
   },
   'exploration': {

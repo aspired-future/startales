@@ -1,0 +1,328 @@
+# StarTales UI Reorganization & Live Data Integration PRD
+
+## Executive Summary
+
+This PRD outlines a comprehensive reorganization of the StarTales user interface to eliminate mock data, improve navigation, standardize design, and create a more immersive galactic civilization management experience. The project involves integration across UI components, API endpoints, AI simulations, and deterministic simulation systems.
+
+## Problem Statement
+
+The current StarTales UI has several critical issues:
+- Extensive use of mock data instead of live API connections
+- Inconsistent navigation and menu organization
+- Poor space utilization in critical screen areas
+- Lack of standardized design patterns across screens
+- Missing key functionality like WhoseApp integration and proper communication systems
+- Overlapping and confusing military/defense/security screens
+- Inadequate real-time data streaming and event-driven updates
+
+## Goals & Success Metrics
+
+### Primary Goals
+1. **Eliminate Mock Data**: Replace all hardcoded values with live API connections
+2. **Improve Navigation**: Create logical, intuitive menu structure
+3. **Optimize Space Usage**: Better utilize critical screen real estate
+4. **Standardize Design**: Consistent look, feel, and interaction patterns
+5. **Enhance Communication**: Integrate WhoseApp and improve messaging systems
+
+### Success Metrics
+- 100% of UI data sourced from live APIs
+- 95% reduction in user navigation clicks to reach common functions
+- Consistent design patterns across all 35+ screens
+- Real-time data updates with <2 second latency
+- User satisfaction score improvement of 40%
+
+## Target Users
+
+- **Primary**: Single-player galactic civilization managers
+- **Secondary**: Multiplayer campaign participants
+- **Tertiary**: Demo users and system administrators
+
+## Functional Requirements
+
+### 1. Data Integration & Real-Time Systems
+
+#### 1.1 Live API Integration
+- Replace all mock data with connections to existing APIs:
+  - `/api/analytics/empire` - Civilization statistics
+  - `/api/witter/feed` - Social network content
+  - `/api/alerts/active` - System alerts and notifications
+  - `/api/empire/planets` - Galaxy and planet data
+  - `/api/demographics/population` - Population metrics
+  - `/api/trade/*` - Economic data
+  - `/api/security/*` - Security and military data
+  - `/api/intelligence/*` - Intelligence operations
+  - `/api/narrative/messages` - Game Master communications
+
+#### 1.2 Real-Time Event System
+- WebSocket connections for immediate updates
+- Event-driven architecture with specific event types:
+  - `simulation_tick` - Core game updates
+  - `witter_post_new` - Social network activity
+  - `alert_new/resolved` - System notifications
+  - `population_change` - Demographics updates
+  - `economic_update` - Financial data changes
+  - `security_event` - Threat level changes
+  - `character_message` - Game Master communications
+- Polling fallback when WebSocket unavailable
+- Exponential backoff reconnection strategy
+
+### 2. Navigation & Menu Reorganization
+
+#### 2.1 Menu Structure Changes
+- **Government Menu**:
+  - Rename "Politics" to "Political Parties"
+  - Integrate delegation system into Cabinet screen
+  - Add Auto buttons that integrate with delegation system
+- **Galaxy Menu**:
+  - Add new "Statistics" menu item with galaxy-wide stats
+  - Move "Visual Systems" to Galaxy menu, rename to "Visuals"
+  - Merge Galaxy Map from homepage tab with Galaxy Menu
+- **Science Menu**:
+  - Rename "Science" to "Science & Tech"
+- **Communications Menu**:
+  - Add WhoseApp to Communications menu
+  - Link Witter screen to homepage Witter tab (remove full-screen version)
+- **Population Menu**:
+  - Update "Cities" to "Planets & Cities"
+
+#### 2.2 Screen Differentiation
+- **Military Screen**: Focus on fleet operations, unit management, combat readiness
+- **Defense Screen**: Focus on planetary defenses, fortifications, shield systems
+- **Joint Chiefs Screen**: Focus on strategic planning, inter-service coordination, high-level military policy
+
+### 3. Layout & Space Optimization
+
+#### 3.1 Header Reorganization
+- **Remove**: Live Metrics from top right, tick count from top bar, Speed 2x controls
+- **Add**: Civilization-level stats (Treasury, Population, GDP, Approval, Points, Alerts)
+- **Add**: Home button for navigation back to main screen
+- **Relocate**: Map and Witter links from center to top of right section
+
+#### 3.2 Center Section Changes
+- **Permanent WhoseApp**: Center section always displays WhoseApp interface
+- **Tab System**: WhoseApp, Story, and Witter tabs with unread message bubbles
+- **Remove Events Tab**: Integrate Game Master messages into WhoseApp
+
+#### 3.3 Right Panel Optimization
+- **Move Analytics**: All analytics (renamed to "Stats") directly in right pane
+- **Top 5 Civilizations**: Show only leading civilizations, not all
+- **Game Master Comments**: Add Story tab in right panel for GM communications
+
+#### 3.4 Bottom Bar Enhancement
+- **Add**: Tick count (moved from top bar)
+- **Add**: Key galaxy-level stats (total civilizations, planets, population, conflicts)
+- **Remove**: Speed controls (single speed only)
+
+### 4. Communication System Enhancement
+
+#### 4.1 WhoseApp Integration
+- **Universal Access**: WhoseApp button on all screens
+- **Direct Lines**: Connect to responsible government officials
+- **Channel System**: Debug and populate with groups, auto-create new groups
+- **Message Rename**: Change "Incoming" tab to "Messages"
+
+#### 4.2 Leader Speech System
+- **Issue Lists**: Accept list of issues to address in speeches
+- **Key Points**: Allow specification of key points to make
+- **Teleprompter**: Provide teleprompter functionality for live speeches
+- **Live Impact**: Greater simulation impact for off-the-cuff speeches
+- **Player Choice**: Option for live delivery or pre-recorded
+
+#### 4.3 Notification System
+- **Communication Alerts**: Notify when receiving messages or calls
+- **Unread Counts**: Bubble indicators on WhoseApp, Story, and Witter tabs
+- **Priority Levels**: Urgent, important, and info-level notifications
+
+### 5. Visual & Design Standardization
+
+#### 5.1 Design System
+- **Transparent Cards**: Implement gradient/shadow cards with futuristic colors
+- **Color Scheme**: Consistent yellow, purple, cyan futuristic palette
+- **Typography**: Standardized and increased text sizes across all screens
+- **Interactive Elements**: Hover effects for all active buttons
+- **Scroll Consistency**: Matching scroll bars across all panels
+
+#### 5.2 Screen Standardization
+- **Format Consistency**: Same layout patterns, sectioning, tabs
+- **Color Themes**: Screen-specific themes for quick identification
+- **Navigation Elements**: Home button, WhoseApp button, refresh button, auto button on all screens
+- **Loading States**: Consistent spinner design, no delays where possible
+- **Text Contrast**: Ensure readability against all backgrounds
+
+### 6. Enhanced Data Visualization
+
+#### 6.1 Charts & Analytics
+- **Time-Series Charts**: Show changes over time for key metrics
+- **Pie Charts**: Breakdowns for demographics, resources, etc.
+- **Progress Bars**: Visual indicators for objectives and projects
+- **Trend Indicators**: Up/down arrows with percentage changes
+
+#### 6.2 Infinite Scroll Implementation
+- **Witter Feed**: Convert from pagination to infinite scroll
+- **Message Lists**: Smooth scrolling for all communication interfaces
+- **Performance**: Efficient rendering for large data sets
+
+### 7. Enhanced API Knobs Integration
+
+#### 7.1 Input Knobs
+- **Parameter Controls**: Real-time adjustment of simulation parameters
+- **Policy Sliders**: Interactive controls for policy implementation
+- **Resource Allocation**: Drag-and-drop resource management
+
+#### 7.2 Output Knobs
+- **Live Metrics**: Real-time display of simulation outputs
+- **Performance Monitoring**: System health and response time indicators
+- **Data Export**: Ability to export metrics and reports
+
+## Technical Requirements
+
+### 8. Architecture & Integration
+
+#### 8.1 Frontend Architecture
+- **React Components**: Modular, reusable component library
+- **TypeScript**: Full type safety across all components
+- **Real-Time Service**: WebSocket management with fallback polling
+- **State Management**: Efficient state handling for live data
+- **Performance**: <3 second initial load, <100ms interaction response
+
+#### 8.2 API Integration
+- **Live Data Service**: Centralized service for all API connections
+- **Error Handling**: Graceful degradation when APIs unavailable
+- **Caching Strategy**: Intelligent caching for performance
+- **Rate Limiting**: Respect API limits and implement backoff
+
+#### 8.3 Simulation Integration
+- **AI Simulation**: Connect to AI-powered content generation
+- **Deterministic Simulation**: Interface with game logic systems
+- **Event Processing**: Handle real-time simulation events
+- **Data Synchronization**: Ensure consistency across all systems
+
+### 9. Performance & Scalability
+
+#### 9.1 Performance Targets
+- **Load Time**: <3 seconds initial load
+- **Update Frequency**: Real-time (2-minute simulation ticks)
+- **Memory Usage**: <512MB browser memory
+- **Network**: Efficient data transfer, minimal bandwidth usage
+
+#### 9.2 Scalability Requirements
+- **Concurrent Users**: Support 100+ simultaneous connections
+- **Data Volume**: Handle large datasets efficiently
+- **Real-Time Events**: Process 1000+ events per minute
+- **Browser Compatibility**: Support modern browsers (Chrome, Firefox, Safari, Edge)
+
+## Non-Functional Requirements
+
+### 10. Usability & Accessibility
+
+#### 10.1 User Experience
+- **Intuitive Navigation**: All functions reachable within 2 clicks
+- **Visual Clarity**: Clear hierarchy and readable metrics
+- **Responsive Design**: PC-first with tablet/mobile support
+- **Keyboard Navigation**: Full keyboard accessibility
+
+#### 10.2 Accessibility
+- **Screen Readers**: ARIA labels and semantic HTML
+- **Color Contrast**: WCAG 2.1 AA compliance
+- **Font Scaling**: Support for browser zoom up to 200%
+- **Motion Sensitivity**: Respect prefers-reduced-motion
+
+### 11. Reliability & Monitoring
+
+#### 11.1 System Reliability
+- **Uptime**: 99.9% availability target
+- **Error Recovery**: Graceful handling of API failures
+- **Data Integrity**: Consistent state across all components
+- **Backup Systems**: Fallback mechanisms for critical functions
+
+#### 11.2 Monitoring & Analytics
+- **Performance Monitoring**: Real-time system health tracking
+- **User Analytics**: Usage patterns and interaction metrics
+- **Error Tracking**: Comprehensive error logging and reporting
+- **A/B Testing**: Framework for testing UI improvements
+
+## Implementation Phases
+
+### Phase 1: Foundation (Week 1)
+- Implement LiveDataService with real API connections
+- Create base LiveGameHUD component structure
+- Establish WebSocket real-time connection system
+- Replace core mock data with live data
+
+### Phase 2: Navigation & Layout (Week 2)
+- Reorganize menu structure and navigation
+- Implement new header, center, and right panel layouts
+- Add WhoseApp integration and communication systems
+- Differentiate Military/Defense/Joint Chiefs screens
+
+### Phase 3: Visual Enhancement (Week 3)
+- Implement design system and standardized components
+- Add charts and data visualization
+- Create consistent styling across all screens
+- Implement infinite scroll and enhanced interactions
+
+### Phase 4: Advanced Features (Week 4)
+- Integrate Enhanced API Knobs system
+- Implement leader speech system with teleprompter
+- Add advanced notification and alert systems
+- Performance optimization and testing
+
+### Phase 5: Testing & Deployment (Week 5)
+- Comprehensive testing across all browsers and devices
+- Performance testing and optimization
+- User acceptance testing
+- Production deployment and monitoring setup
+
+## Risk Assessment
+
+### High Risk
+- **API Dependencies**: Reliance on existing API stability
+- **Real-Time Performance**: WebSocket connection reliability
+- **Data Migration**: Ensuring smooth transition from mock to live data
+
+### Medium Risk
+- **Browser Compatibility**: Ensuring consistent experience across browsers
+- **Performance**: Meeting response time targets with live data
+- **User Adoption**: Training users on new interface
+
+### Low Risk
+- **Design Implementation**: Well-defined design system
+- **Component Development**: Modular architecture reduces complexity
+
+## Success Criteria
+
+### Technical Success
+- [ ] 100% mock data replaced with live API connections
+- [ ] Real-time updates functioning with <2 second latency
+- [ ] All 35+ screens following consistent design patterns
+- [ ] Performance targets met (load time, memory usage, responsiveness)
+- [ ] Cross-browser compatibility verified
+
+### User Experience Success
+- [ ] Navigation efficiency improved (fewer clicks to common functions)
+- [ ] WhoseApp integration fully functional
+- [ ] Communication system notifications working
+- [ ] Leader speech system with teleprompter operational
+- [ ] Infinite scroll Witter feed implemented
+
+### Business Success
+- [ ] User satisfaction scores improved by 40%
+- [ ] System reliability at 99.9% uptime
+- [ ] Performance monitoring showing stable metrics
+- [ ] Successful deployment to production environment
+
+## Appendices
+
+### A. API Endpoint Reference
+Complete list of all API endpoints to be integrated with expected data formats and response structures.
+
+### B. Design System Specification
+Detailed color palettes, typography scales, component specifications, and interaction patterns.
+
+### C. WebSocket Event Schema
+Complete specification of all real-time events, their data structures, and handling requirements.
+
+### D. Testing Strategy
+Comprehensive testing approach including unit tests, integration tests, performance tests, and user acceptance criteria.
+
+This PRD serves as the complete specification for transforming the StarTales UI from a mock-data prototype into a fully integrated, real-time galactic civilization management interface.

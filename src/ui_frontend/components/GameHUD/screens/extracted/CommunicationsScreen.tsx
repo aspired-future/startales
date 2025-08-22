@@ -511,7 +511,7 @@ const CommunicationsScreen: React.FC<ScreenProps> = ({ screenId, title, icon, ga
             className={`tab ${activeTab === 'media' ? 'active' : ''}`}
             onClick={() => setActiveTab('media')}
           >
-            🎤 Media & Press
+            📺 Media
           </button>
           <button 
             className={`tab ${activeTab === 'platforms' ? 'active' : ''}`}
@@ -644,116 +644,259 @@ const CommunicationsScreen: React.FC<ScreenProps> = ({ screenId, title, icon, ga
 
               {activeTab === 'media' && (
                 <div className="media-tab">
+                  {/* Press Freedom Overview */}
+                  <div className="media-section">
+                    <h4>📊 Press Freedom & Media Control</h4>
+                    <div className="press-freedom-overview">
+                      <div className="freedom-metrics">
+                        <div className="metric-item">
+                          <span className="metric-label">Press Freedom Level:</span>
+                          <span className="metric-value freedom-good">75/100</span>
+                        </div>
+                        <div className="metric-item">
+                          <span className="metric-label">Media Independence:</span>
+                          <span className="metric-value freedom-fair">68%</span>
+                        </div>
+                        <div className="metric-item">
+                          <span className="metric-label">Government Control:</span>
+                          <span className="metric-value control-moderate">32%</span>
+                        </div>
+                        <div className="metric-item">
+                          <span className="metric-label">Public Trust:</span>
+                          <span className="metric-value trust-good">71%</span>
+                        </div>
+                      </div>
+                      <div className="freedom-actions">
+                        <button className="action-btn primary">📈 View Detailed Report</button>
+                        <button className="action-btn secondary">⚙️ Adjust Policies</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Media Outlets Management */}
+                  <div className="media-section">
+                    <h4>📺 Media Outlets</h4>
+                    <div className="media-outlets">
+                      <div className="outlet-item">
+                        <div className="outlet-header">
+                          <div className="outlet-info">
+                            <div className="outlet-name">Galactic News Network</div>
+                            <div className="outlet-type">Public Broadcaster</div>
+                          </div>
+                          <div className="outlet-status">
+                            <span className="status-badge active">ACTIVE</span>
+                            <span className="control-level moderate">25% Gov Control</span>
+                          </div>
+                        </div>
+                        <div className="outlet-metrics">
+                          <span className="metric">👥 50M reach</span>
+                          <span className="metric">⭐ 85% credibility</span>
+                          <span className="metric">📊 Center bias</span>
+                        </div>
+                      </div>
+
+                      <div className="outlet-item">
+                        <div className="outlet-header">
+                          <div className="outlet-info">
+                            <div className="outlet-name">Independent News Service</div>
+                            <div className="outlet-type">Private Independent</div>
+                          </div>
+                          <div className="outlet-status">
+                            <span className="status-badge active">ACTIVE</span>
+                            <span className="control-level low">0% Gov Control</span>
+                          </div>
+                        </div>
+                        <div className="outlet-metrics">
+                          <span className="metric">👥 25M reach</span>
+                          <span className="metric">⭐ 78% credibility</span>
+                          <span className="metric">📊 Left bias</span>
+                        </div>
+                      </div>
+
+                      <div className="outlet-item">
+                        <div className="outlet-header">
+                          <div className="outlet-info">
+                            <div className="outlet-name">National Information Service</div>
+                            <div className="outlet-type">State Owned</div>
+                          </div>
+                          <div className="outlet-status">
+                            <span className="status-badge active">ACTIVE</span>
+                            <span className="control-level high">100% Gov Control</span>
+                          </div>
+                        </div>
+                        <div className="outlet-metrics">
+                          <span className="metric">👥 40M reach</span>
+                          <span className="metric">⭐ 65% credibility</span>
+                          <span className="metric">📊 Right bias</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="media-actions">
+                      <button className="action-btn primary">📋 Manage Licenses</button>
+                      <button className="action-btn secondary">📊 Outlet Analytics</button>
+                    </div>
+                  </div>
+
+                  {/* Media Policies & Regulations */}
+                  <div className="media-section">
+                    <h4>📋 Media Policies & Regulations</h4>
+                    <div className="media-policies">
+                      <div className="policy-item">
+                        <div className="policy-header">
+                          <div className="policy-name">Broadcasting Licensing Act</div>
+                          <div className="policy-status active">ACTIVE</div>
+                        </div>
+                        <div className="policy-details">
+                          <span className="policy-type">Licensing</span>
+                          <span className="policy-intensity">60% Control Intensity</span>
+                          <span className="policy-compliance">95% Compliance</span>
+                        </div>
+                      </div>
+
+                      <div className="policy-item">
+                        <div className="policy-header">
+                          <div className="policy-name">National Security Information Guidelines</div>
+                          <div className="policy-status active">ACTIVE</div>
+                        </div>
+                        <div className="policy-details">
+                          <span className="policy-type">Content Regulation</span>
+                          <span className="policy-intensity">75% Control Intensity</span>
+                          <span className="policy-compliance">88% Compliance</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="policy-actions">
+                      <button className="action-btn primary">📝 New Policy</button>
+                      <button className="action-btn secondary">📊 Policy Impact</button>
+                    </div>
+                  </div>
+
+                  {/* Enhanced Press Conferences with Leader vs Press Secretary */}
                   <div className="media-section">
                     <h4>🎤 Press Conferences</h4>
+                    
+                    {/* Press Secretary Information */}
+                    <div className="press-secretary-info">
+                      <div className="secretary-header">
+                        <div className="secretary-details">
+                          <div className="secretary-name">Sarah Mitchell</div>
+                          <div className="secretary-title">White House Press Secretary</div>
+                        </div>
+                        <div className="secretary-stats">
+                          <span className="stat">📊 85% Effectiveness</span>
+                          <span className="stat">🎯 75% vs Leader Impact</span>
+                        </div>
+                      </div>
+                      <div className="secretary-skills">
+                        <div className="skill-item">
+                          <span className="skill-label">Communication:</span>
+                          <div className="skill-bar">
+                            <div className="skill-fill" style={{ width: '85%' }}></div>
+                          </div>
+                          <span className="skill-value">85%</span>
+                        </div>
+                        <div className="skill-item">
+                          <span className="skill-label">Media Relations:</span>
+                          <div className="skill-bar">
+                            <div className="skill-fill" style={{ width: '80%' }}></div>
+                          </div>
+                          <span className="skill-value">80%</span>
+                        </div>
+                        <div className="skill-item">
+                          <span className="skill-label">Crisis Management:</span>
+                          <div className="skill-bar">
+                            <div className="skill-fill" style={{ width: '75%' }}></div>
+                          </div>
+                          <span className="skill-value">75%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Upcoming and Recent Press Conferences */}
                     <div className="press-conferences">
-                      {communicationsData.pressConferences.map((press) => (
-                        <div key={press.id} className="press-item">
-                          <div className="press-header">
-                            <div className="press-title">{press.title}</div>
-                            <div className="press-status" style={{ color: getStatusColor(press.status) }}>
-                              {press.status.toUpperCase()}
+                      <div className="press-item scheduled">
+                        <div className="press-header">
+                          <div className="press-info">
+                            <div className="press-title">Economic Policy Briefing</div>
+                            <div className="press-presenter">
+                              <span className="presenter-type secretary">📝 Press Secretary</span>
+                              <span className="presenter-name">Sarah Mitchell</span>
                             </div>
                           </div>
-                          <div className="press-details">
-                            <div className="press-date">{new Date(press.date).toLocaleString()}</div>
-                            <div className="press-location">📍 {press.location}</div>
-                            <div className="press-attendees">👥 {press.attendees} attendees</div>
-                            <div className="press-duration">⏱️ {press.duration} minutes</div>
-                            <div className="press-questions">❓ {press.questions} questions</div>
-                          </div>
-                          <div className="press-topics">
-                            <strong>Topics:</strong>
-                            <div className="topics-list">
-                              {press.topics.map((topic, i) => (
-                                <span key={i} className="topic-tag">{topic}</span>
-                              ))}
+                          <div className="press-status scheduled">SCHEDULED</div>
+                        </div>
+                        <div className="press-details">
+                          <span className="press-date">📅 Tomorrow, 2:00 PM</span>
+                          <span className="press-duration">⏱️ 45 min</span>
+                          <span className="press-risk low">🔒 Low Risk</span>
+                          <span className="press-impact moderate">📊 Moderate Impact</span>
+                        </div>
+                        <div className="press-topics">
+                          <span className="topic-tag">Economy</span>
+                          <span className="topic-tag">Policy</span>
+                          <span className="topic-tag">Markets</span>
+                        </div>
+                      </div>
+
+                      <div className="press-item scheduled leader">
+                        <div className="press-header">
+                          <div className="press-info">
+                            <div className="press-title">Foreign Policy Address</div>
+                            <div className="press-presenter">
+                              <span className="presenter-type leader">👑 Leader Personal</span>
+                              <span className="presenter-name">President</span>
                             </div>
                           </div>
-                          <div className="press-outlets">
-                            <strong>Media Outlets:</strong>
-                            <div className="outlets-list">
-                              {press.mediaOutlets.map((outlet, i) => (
-                                <span key={i} className="outlet-tag">{outlet}</span>
-                              ))}
+                          <div className="press-status scheduled">SCHEDULED</div>
+                        </div>
+                        <div className="press-details">
+                          <span className="press-date">📅 Next Week</span>
+                          <span className="press-duration">⏱️ 30 min</span>
+                          <span className="press-risk high">⚠️ High Risk</span>
+                          <span className="press-impact high">🚀 High Impact (+25% bonus)</span>
+                        </div>
+                        <div className="press-topics">
+                          <span className="topic-tag">Foreign Policy</span>
+                          <span className="topic-tag">Diplomacy</span>
+                          <span className="topic-tag">Security</span>
+                        </div>
+                      </div>
+
+                      <div className="press-item completed">
+                        <div className="press-header">
+                          <div className="press-info">
+                            <div className="press-title">Infrastructure Update</div>
+                            <div className="press-presenter">
+                              <span className="presenter-type secretary">📝 Press Secretary</span>
+                              <span className="presenter-name">Sarah Mitchell</span>
+                            </div>
+                          </div>
+                          <div className="press-status completed">COMPLETED</div>
+                        </div>
+                        <div className="press-results">
+                          <div className="result-metrics">
+                            <div className="metric">
+                              <span className="metric-label">Questions:</span>
+                              <span className="metric-value">12/15 answered</span>
+                            </div>
+                            <div className="metric">
+                              <span className="metric-label">Coverage:</span>
+                              <span className="metric-value success">72% positive</span>
+                            </div>
+                            <div className="metric">
+                              <span className="metric-label">Approval Impact:</span>
+                              <span className="metric-value success">+2.1%</span>
                             </div>
                           </div>
                         </div>
-                      ))}
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="media-section">
-                    <h4>📢 Public Messages</h4>
-                    <div className="public-messages">
-                      {communicationsData.publicMessages.map((msg) => (
-                        <div key={msg.id} className="message-item">
-                          <div className="msg-header">
-                            <div className="msg-title">{msg.title}</div>
-                            <div className="msg-sentiment" style={{ color: getSentimentColor(msg.sentiment) }}>
-                              {msg.sentiment.toUpperCase()}
-                            </div>
-                          </div>
-                          <div className="msg-content">{msg.content}</div>
-                          <div className="msg-metrics">
-                            <div className="msg-reach">Reach: {formatNumber(msg.reach)}</div>
-                            <div className="msg-engagement">Engagement: {msg.engagement}%</div>
-                            <div className="msg-date">{new Date(msg.publishDate).toLocaleDateString()}</div>
-                            <div className="msg-author">By: {msg.author}</div>
-                          </div>
-                          <div className="msg-platforms">
-                            {msg.platforms.map((platform, i) => (
-                              <span key={i} className="platform-tag">{platform}</span>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
+                    
+                    <div className="press-actions">
+                      <button className="action-btn primary">📅 Schedule Leader Conference</button>
+                      <button className="action-btn secondary">📝 Schedule Secretary Briefing</button>
+                      <button className="action-btn">📊 Conference Analytics</button>
                     </div>
-                  </div>
-
-                  <div className="media-section">
-                    <h4>🤝 Media Relations</h4>
-                    <div className="media-relations">
-                      {communicationsData.mediaRelations.map((media) => (
-                        <div key={media.id} className="media-item">
-                          <div className="media-header">
-                            <div className="media-outlet">{media.outlet}</div>
-                            <div className="media-relationship" style={{ color: getRelationshipColor(media.relationship) }}>
-                              {media.relationship.toUpperCase()}
-                            </div>
-                          </div>
-                          <div className="media-details">
-                            <div className="media-type">{media.type.toUpperCase()}</div>
-                            <div className="media-reach">Reach: {formatNumber(media.reach)}</div>
-                            <div className="media-influence">Influence: {media.influence}%</div>
-                            <div className="media-contact">Last Contact: {media.lastContact}</div>
-                          </div>
-                          <div className="media-contacts">
-                            <strong>Key Contacts:</strong>
-                            <div className="contacts-list">
-                              {media.keyContacts.map((contact, i) => (
-                                <div key={i} className="contact-item">{contact}</div>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="media-coverage">
-                            <strong>Recent Coverage:</strong>
-                            <div className="coverage-list">
-                              {media.recentCoverage.map((coverage, i) => (
-                                <span key={i} className="coverage-tag">{coverage}</span>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="tab-actions">
-                    <button className="action-btn">Schedule Conference</button>
-                    <button className="action-btn secondary">Media Advisory</button>
-                    <button className="action-btn">Draft Message</button>
-                    <button className="action-btn secondary">Contact Media</button>
                   </div>
                 </div>
               )}

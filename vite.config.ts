@@ -8,6 +8,16 @@ export default defineConfig({
     port: 5174,
     hmr: {
       overlay: false // Disable error overlay to prevent blocking
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4000',
+        changeOrigin: true
+      },
+      '/ws': {
+        target: 'ws://localhost:4000',
+        ws: true
+      }
     }
   },
   build: { outDir: '../../dist/ui', emptyOutDir: true },

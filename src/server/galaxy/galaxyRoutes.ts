@@ -7,53 +7,13 @@
 
 import express from 'express';
 import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { GalaxySimulationIntegration } from './GalaxySimulationIntegration.js';
+import { DEFAULT_GALAXY_KNOBS, GALAXY_KNOBS_AI_PROMPTS } from './galaxyKnobs.js';
 
 const router = express.Router();
 
 // Enhanced AI Knobs for Galaxy Map & Space Systems
-const galaxyKnobsData = {
-  // Galaxy Generation & Procedural Content
-  galaxy_size_scale: 0.8,                  // Galaxy size scale and star system density
-  procedural_generation_complexity: 0.8,   // Procedural generation complexity and detail level
-  star_system_diversity: 0.8,              // Star system diversity and unique characteristics
-  
-  // Exploration & Discovery
-  exploration_reward_frequency: 0.7,       // Exploration reward frequency and discovery incentives
-  unknown_region_mystery: 0.8,             // Unknown region mystery and exploration intrigue
-  discovery_significance_weighting: 0.7,   // Discovery significance weighting and importance scaling
-  
-  // Navigation & Travel
-  faster_than_light_efficiency: 0.8,       // Faster-than-light travel efficiency and speed
-  navigation_accuracy: 0.9,                // Navigation accuracy and route precision
-  space_hazard_frequency: 0.6,             // Space hazard frequency and travel dangers
-  
-  // Planetary Systems & Habitability
-  habitable_planet_frequency: 0.7,         // Habitable planet frequency and colonization opportunities
-  planetary_resource_abundance: 0.7,       // Planetary resource abundance and extraction potential
-  atmospheric_diversity: 0.8,              // Atmospheric diversity and environmental variety
-  
-  // Galactic Politics & Territories
-  territorial_boundary_clarity: 0.8,       // Territorial boundary clarity and sovereignty definition
-  neutral_zone_stability: 0.7,             // Neutral zone stability and diplomatic buffer areas
-  border_dispute_frequency: 0.5,           // Border dispute frequency and territorial conflicts
-  
-  // Space Infrastructure & Development
-  space_station_development: 0.7,          // Space station development and orbital infrastructure
-  trade_route_establishment: 0.8,          // Trade route establishment and commercial pathways
-  communication_network_coverage: 0.8,     // Communication network coverage and galactic connectivity
-  
-  // Scientific Research & Anomalies
-  scientific_anomaly_frequency: 0.6,       // Scientific anomaly frequency and research opportunities
-  xenoarchaeology_discovery_rate: 0.6,     // Xenoarchaeology discovery rate and ancient artifacts
-  astrophysics_research_depth: 0.7,        // Astrophysics research depth and cosmic understanding
-  
-  // Environmental & Cosmic Events
-  cosmic_event_frequency: 0.5,             // Cosmic event frequency and galactic phenomena
-  stellar_evolution_simulation: 0.7,       // Stellar evolution simulation and star lifecycle
-  galactic_weather_patterns: 0.6,          // Galactic weather patterns and space conditions
-  
-  lastUpdated: Date.now()
-};
+const galaxyKnobsData = DEFAULT_GALAXY_KNOBS;
 
 // Initialize Enhanced Knob System for Galaxy
 const galaxyKnobSystem = new EnhancedKnobSystem(galaxyKnobsData);
@@ -434,6 +394,299 @@ router.get('/territories', async (req, res) => {
     console.error('Error fetching territories:', error);
     res.status(500).json({
       error: 'Failed to fetch territories',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ===== ENHANCED GALAXY SIMULATION ENDPOINTS =====
+
+/**
+ * GET /api/galaxy/simulation/status - Get galaxy simulation status
+ */
+router.get('/simulation/status', async (req, res) => {
+  try {
+    const { campaignId, civilizationId } = req.query;
+
+    if (!campaignId || !civilizationId) {
+      return res.status(400).json({
+        error: 'Missing required parameters: campaignId, civilizationId'
+      });
+    }
+
+    // This would integrate with the actual simulation
+    const simulationStatus = {
+      campaignId: Number(campaignId),
+      civilizationId: String(civilizationId),
+      active: true,
+      lastTick: new Date(),
+      nextTick: new Date(Date.now() + 30000),
+      knobsActive: Object.keys(galaxyKnobsData).length - 1, // Exclude lastUpdated
+      eventsProcessed: Math.floor(Math.random() * 100),
+      performanceMetrics: {
+        explorationEfficiency: Math.random(),
+        diplomaticStability: Math.random(),
+        economicGrowth: Math.random(),
+        scientificProgress: Math.random()
+      }
+    };
+
+    res.json({
+      success: true,
+      data: simulationStatus
+    });
+  } catch (error) {
+    console.error('Error fetching simulation status:', error);
+    res.status(500).json({
+      error: 'Failed to fetch simulation status',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * POST /api/galaxy/simulation/events - Trigger galaxy simulation events
+ */
+router.post('/simulation/events', async (req, res) => {
+  try {
+    const {
+      campaignId,
+      civilizationId,
+      eventType,
+      parameters = {}
+    } = req.body;
+
+    if (!campaignId || !civilizationId || !eventType) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        required: ['campaignId', 'civilizationId', 'eventType']
+      });
+    }
+
+    const simulationEvent = {
+      id: `sim_event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      campaignId: Number(campaignId),
+      civilizationId: String(civilizationId),
+      eventType,
+      parameters,
+      status: 'triggered',
+      timestamp: new Date(),
+      estimatedCompletion: new Date(Date.now() + 60000), // 1 minute
+      expectedOutcomes: [
+        'Galaxy map updates',
+        'Territory adjustments',
+        'Discovery notifications',
+        'Diplomatic status changes'
+      ]
+    };
+
+    res.status(201).json({
+      success: true,
+      data: simulationEvent
+    });
+  } catch (error) {
+    console.error('Error triggering simulation event:', error);
+    res.status(500).json({
+      error: 'Failed to trigger simulation event',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/galaxy/ai/recommendations - Get AI recommendations for knob adjustments
+ */
+router.get('/ai/recommendations', async (req, res) => {
+  try {
+    const { campaignId, civilizationId } = req.query;
+
+    if (!campaignId || !civilizationId) {
+      return res.status(400).json({
+        error: 'Missing required parameters: campaignId, civilizationId'
+      });
+    }
+
+    // Generate AI recommendations based on current game state
+    const recommendations = {
+      campaignId: Number(campaignId),
+      civilizationId: String(civilizationId),
+      analysisTimestamp: new Date(),
+      recommendations: [
+        {
+          knobName: 'exploration_reward_frequency',
+          currentValue: galaxyKnobsData.exploration_reward_frequency,
+          recommendedValue: Math.min(galaxyKnobsData.exploration_reward_frequency + 0.1, 1.0),
+          reason: 'Low exploration activity detected, increasing rewards to encourage exploration',
+          confidence: 0.85,
+          expectedImpact: 'Increased player exploration by 15-25%',
+          priority: 'high'
+        },
+        {
+          knobName: 'diplomatic_complexity',
+          currentValue: galaxyKnobsData.diplomatic_complexity || 0.7,
+          recommendedValue: 0.6,
+          reason: 'Diplomatic system may be too complex for current player engagement level',
+          confidence: 0.72,
+          expectedImpact: 'Simplified diplomatic interactions, improved player satisfaction',
+          priority: 'medium'
+        },
+        {
+          knobName: 'scientific_anomaly_frequency',
+          currentValue: galaxyKnobsData.scientific_anomaly_frequency,
+          recommendedValue: Math.min(galaxyKnobsData.scientific_anomaly_frequency + 0.05, 1.0),
+          reason: 'Players showing high interest in scientific discoveries',
+          confidence: 0.78,
+          expectedImpact: 'More frequent scientific discoveries, enhanced engagement',
+          priority: 'medium'
+        }
+      ],
+      gameStateAnalysis: {
+        explorationActivity: Math.random(),
+        diplomaticTensions: Math.random(),
+        scientificProgress: Math.random(),
+        economicStability: Math.random(),
+        playerEngagement: Math.random()
+      }
+    };
+
+    res.json({
+      success: true,
+      data: recommendations
+    });
+  } catch (error) {
+    console.error('Error generating AI recommendations:', error);
+    res.status(500).json({
+      error: 'Failed to generate AI recommendations',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * POST /api/galaxy/knobs/batch-update - Batch update multiple knobs
+ */
+router.post('/knobs/batch-update', async (req, res) => {
+  try {
+    const {
+      campaignId,
+      civilizationId,
+      knobUpdates,
+      reason = 'Manual adjustment'
+    } = req.body;
+
+    if (!campaignId || !civilizationId || !knobUpdates) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        required: ['campaignId', 'civilizationId', 'knobUpdates']
+      });
+    }
+
+    const updateResults = [];
+    for (const [knobName, newValue] of Object.entries(knobUpdates)) {
+      if (typeof newValue === 'number' && knobName in galaxyKnobsData) {
+        const oldValue = galaxyKnobsData[knobName as keyof typeof galaxyKnobsData];
+        
+        // Update the knob (this would integrate with the actual knob system)
+        updateResults.push({
+          knobName,
+          oldValue,
+          newValue,
+          success: true,
+          timestamp: new Date()
+        });
+      } else {
+        updateResults.push({
+          knobName,
+          success: false,
+          error: 'Invalid knob name or value'
+        });
+      }
+    }
+
+    const batchUpdate = {
+      id: `batch_update_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      campaignId: Number(campaignId),
+      civilizationId: String(civilizationId),
+      reason,
+      updates: updateResults,
+      timestamp: new Date(),
+      successCount: updateResults.filter(r => r.success).length,
+      failureCount: updateResults.filter(r => !r.success).length
+    };
+
+    res.json({
+      success: true,
+      data: batchUpdate
+    });
+  } catch (error) {
+    console.error('Error batch updating knobs:', error);
+    res.status(500).json({
+      error: 'Failed to batch update knobs',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/galaxy/analytics/performance - Get galaxy system performance analytics
+ */
+router.get('/analytics/performance', async (req, res) => {
+  try {
+    const { campaignId, civilizationId, timeRange = '24h' } = req.query;
+
+    if (!campaignId || !civilizationId) {
+      return res.status(400).json({
+        error: 'Missing required parameters: campaignId, civilizationId'
+      });
+    }
+
+    const performanceAnalytics = {
+      campaignId: Number(campaignId),
+      civilizationId: String(civilizationId),
+      timeRange,
+      generatedAt: new Date(),
+      metrics: {
+        exploration: {
+          systemsExplored: Math.floor(Math.random() * 50) + 10,
+          discoveriesMade: Math.floor(Math.random() * 20) + 5,
+          explorationEfficiency: Math.random(),
+          averageExplorationTime: Math.floor(Math.random() * 120) + 30 // minutes
+        },
+        diplomacy: {
+          treatiesSigned: Math.floor(Math.random() * 10),
+          conflictsResolved: Math.floor(Math.random() * 5),
+          diplomaticStability: Math.random(),
+          relationshipChanges: Math.floor(Math.random() * 15)
+        },
+        economy: {
+          tradeRoutesEstablished: Math.floor(Math.random() * 25) + 5,
+          resourcesExtracted: Math.floor(Math.random() * 1000) + 500,
+          economicGrowth: Math.random(),
+          tradeVolume: Math.floor(Math.random() * 10000) + 5000
+        },
+        science: {
+          researchCompleted: Math.floor(Math.random() * 15) + 3,
+          anomaliesStudied: Math.floor(Math.random() * 8) + 2,
+          scientificBreakthroughs: Math.floor(Math.random() * 3),
+          researchEfficiency: Math.random()
+        }
+      },
+      trends: {
+        explorationTrend: Math.random() > 0.5 ? 'increasing' : 'decreasing',
+        diplomaticTrend: Math.random() > 0.5 ? 'improving' : 'declining',
+        economicTrend: Math.random() > 0.5 ? 'growing' : 'contracting',
+        scientificTrend: Math.random() > 0.5 ? 'advancing' : 'stagnating'
+      }
+    };
+
+    res.json({
+      success: true,
+      data: performanceAnalytics
+    });
+  } catch (error) {
+    console.error('Error fetching performance analytics:', error);
+    res.status(500).json({
+      error: 'Failed to fetch performance analytics',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }

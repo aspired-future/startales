@@ -1,6 +1,7 @@
 import express from 'express';
 import { getPool } from '../storage/db.js';
 import { LegislativeBodiesAdvisoryService } from './LegislativeBodiesAdvisoryService.js';
+import { createLegislativeOverrideRoutes } from './legislativeOverrideRoutes.js';
 import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
@@ -743,6 +744,9 @@ router.get('/dashboard', async (req, res) => {
     });
   }
 });
+
+// Legislative Override Routes
+router.use('/override', createLegislativeOverrideRoutes(getPool()));
 
 // Enhanced Knob System Endpoints
 createEnhancedKnobEndpoints(router, 'legislature', legislatureKnobSystem, applyLegislatureKnobsToGameState);

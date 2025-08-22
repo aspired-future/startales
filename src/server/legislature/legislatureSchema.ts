@@ -25,7 +25,7 @@ export async function initializeLegislatureSchema(pool: Pool): Promise<void> {
         constitutional_analysis TEXT,
         impact_assessment TEXT NOT NULL,
         fiscal_impact JSONB NOT NULL DEFAULT '{}',
-        implementation_timeline VARCHAR(100),
+        implementation_timeline VARCHAR(200),
         public_support_estimate INTEGER CHECK (public_support_estimate BETWEEN 0 AND 100),
         status VARCHAR(30) DEFAULT 'drafted' CHECK (status IN ('drafted', 'committee_review', 'floor_debate', 'voting', 'passed', 'failed', 'leader_review', 'approved', 'vetoed', 'implemented')),
         urgency_level VARCHAR(20) CHECK (urgency_level IN ('routine', 'important', 'urgent', 'emergency')),
@@ -169,6 +169,48 @@ export async function initializeLegislatureSchema(pool: Pool): Promise<void> {
       )
     `);
 
+    // Legislative Overrides - Leader's ability to override legislative votes
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS legislative_overrides (
+        id SERIAL PRIMARY KEY,
+        proposal_id INTEGER REFERENCES legislative_proposals(id),
+        campaign_id INTEGER NOT NULL,
+        leader_character_id VARCHAR(50) NOT NULL,
+        original_vote_result VARCHAR(20) NOT NULL CHECK (original_vote_result IN ('passed', 'failed', 'tied')),
+        override_decision VARCHAR(20) NOT NULL CHECK (override_decision IN ('approve', 'veto', 'modify')),
+        override_reason TEXT NOT NULL,
+        override_justification TEXT NOT NULL,
+        political_cost DECIMAL(5,2) NOT NULL DEFAULT 0.0,
+        public_approval_impact DECIMAL(5,2) NOT NULL DEFAULT 0.0,
+        party_relations_impact JSONB NOT NULL DEFAULT '{}',
+        constitutional_basis TEXT NOT NULL,
+        legal_precedent TEXT,
+        modifications TEXT,
+        implementation_notes TEXT,
+        effective_date TIMESTAMP NOT NULL DEFAULT NOW(),
+        status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('pending', 'active', 'challenged', 'upheld', 'reversed')),
+        challenge_details JSONB,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    // Leader Action Log - Track all leader actions for historical analysis
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS leader_action_log (
+        id SERIAL PRIMARY KEY,
+        leader_character_id VARCHAR(50) NOT NULL,
+        campaign_id INTEGER NOT NULL,
+        action_type VARCHAR(50) NOT NULL, -- 'legislative_override', 'executive_order', 'veto', etc.
+        action_description TEXT NOT NULL,
+        target_id VARCHAR(50), -- ID of the target (proposal, bill, etc.)
+        political_cost DECIMAL(5,2) DEFAULT 0.0,
+        approval_impact DECIMAL(5,2) DEFAULT 0.0,
+        additional_data JSONB DEFAULT '{}',
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
     // Create indexes for better performance
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_legislative_proposals_campaign_status 
@@ -198,6 +240,26 @@ export async function initializeLegislatureSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_leader_legislative_interactions_campaign_date 
       ON leader_legislative_interactions(campaign_id, interaction_date DESC);
+    `);
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_legislative_overrides_proposal 
+      ON legislative_overrides(proposal_id);
+    `);
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_legislative_overrides_leader 
+      ON legislative_overrides(leader_character_id, campaign_id);
+    `);
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_leader_action_log_leader 
+      ON leader_action_log(leader_character_id, campaign_id);
+    `);
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_leader_action_log_type 
+      ON leader_action_log(action_type, created_at DESC);
     `);
 
     // Insert default political parties

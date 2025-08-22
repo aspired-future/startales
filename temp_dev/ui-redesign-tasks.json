@@ -1,0 +1,211 @@
+{
+  "ui-redesign": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Implement Live Data Service Foundation",
+        "description": "Create comprehensive LiveDataService to replace all mock data with real API connections across UI/API/AI Sims/Deterministic sims",
+        "details": "- Create LiveDataService.ts with WebSocket real-time connections\n- Implement API integration for /api/analytics/empire, /api/witter/feed, /api/alerts/active\n- Add event-driven architecture with specific event types (simulation_tick, witter_post_new, alert_new, etc.)\n- Implement polling fallback when WebSocket unavailable\n- Add exponential backoff reconnection strategy\n- Create data transformation methods for API responses\n- Add error handling and graceful degradation",
+        "testStrategy": "Test WebSocket connections, API integrations, event handling, reconnection logic, and data transformation accuracy",
+        "priority": "high",
+        "dependencies": [],
+        "status": "in-progress"
+      },
+      {
+        "id": 2,
+        "title": "Create Live Game HUD Component",
+        "description": "Build comprehensive LiveGameHUD React component with real-time data integration",
+        "details": "- Create LiveGameHUD.tsx with TypeScript interfaces\n- Implement real-time state management for civilization stats, galaxy stats, alerts, Witter feed\n- Add event listeners for WebSocket events\n- Create tab management system for left/center/right panels\n- Implement unread message counters\n- Add connection status indicators\n- Create responsive layout structure",
+        "testStrategy": "Test component rendering, state updates, event handling, tab switching, and real-time data display",
+        "priority": "high",
+        "dependencies": [1],
+        "status": "pending"
+      },
+      {
+        "id": 3,
+        "title": "Reorganize Menu Structure and Navigation",
+        "description": "Implement comprehensive menu reorganization according to PRD specifications",
+        "details": "- Rename 'Politics' to 'Political Parties' in Government menu\n- Add 'Statistics' menu item under Galaxy with galaxy-wide stats\n- Move 'Visual Systems' to Galaxy menu, rename to 'Visuals'\n- Rename 'Science' to 'Science & Tech'\n- Add WhoseApp to Communications menu\n- Update 'Cities' to 'Planets & Cities'\n- Differentiate Military/Defense/Joint Chiefs screens with unique purposes\n- Implement proper navigation hierarchy",
+        "testStrategy": "Verify all menu items are correctly labeled, positioned, and functional with proper navigation flow",
+        "priority": "high",
+        "dependencies": [2],
+        "status": "pending"
+      },
+      {
+        "id": 4,
+        "title": "Implement Header and Top Bar Reorganization",
+        "description": "Redesign header layout with civilization stats and remove unnecessary elements",
+        "details": "- Remove Live Metrics from top right corner\n- Add civilization-level stats: Treasury, Population, GDP, Approval, Points, Alerts\n- Add Home button for navigation back to main screen\n- Remove tick count from top bar (move to bottom)\n- Remove Speed 2x controls (single speed only)\n- Implement responsive header design\n- Add game time display with proper formatting",
+        "testStrategy": "Test header responsiveness, stat accuracy, navigation functionality, and visual consistency",
+        "priority": "medium",
+        "dependencies": [1],
+        "status": "pending"
+      },
+      {
+        "id": 5,
+        "title": "Implement WhoseApp Integration System",
+        "description": "Create comprehensive WhoseApp communication system with universal access",
+        "details": "- Make center section permanently display WhoseApp\n- Add WhoseApp button to all screens with direct line to responsible officials\n- Implement channel system with prefilled groups and auto-creation\n- Rename 'Incoming' tab to 'Messages'\n- Remove Events tab and integrate Game Master messages into WhoseApp\n- Add unread message bubble counts\n- Implement notification system for messages and calls",
+        "testStrategy": "Test WhoseApp functionality, message delivery, channel creation, notifications, and cross-screen access",
+        "priority": "high",
+        "dependencies": [2],
+        "status": "pending"
+      },
+      {
+        "id": 6,
+        "title": "Implement Right Panel Analytics Reorganization",
+        "description": "Move all analytics to right pane and show only top 5 civilizations",
+        "details": "- Move all Analytics (renamed to 'Stats') to right pane\n- Show only Top 5 Leading Civilizations instead of all\n- Add Game Master comments to right panel Story tab\n- Implement tabbed interface for Stats and Leading Civilizations\n- Add real-time metric updates with progress bars\n- Create alert display system with priority indicators",
+        "testStrategy": "Verify analytics accuracy, civilization ranking, Game Master integration, and real-time updates",
+        "priority": "medium",
+        "dependencies": [1, 2],
+        "status": "pending"
+      },
+      {
+        "id": 7,
+        "title": "Implement Bottom Bar Enhancement",
+        "description": "Add galaxy-level stats and reorganize bottom bar information",
+        "details": "- Move tick count from top bar to bottom bar\n- Add key galaxy-level stats: total civilizations, planets, population, conflicts\n- Remove Speed 2x controls (single speed only)\n- Add connection status indicator (WebSocket/Polling/Offline)\n- Add performance monitoring display\n- Implement responsive bottom bar layout",
+        "testStrategy": "Test galaxy stats accuracy, connection status updates, performance monitoring, and layout responsiveness",
+        "priority": "low",
+        "dependencies": [1],
+        "status": "pending"
+      },
+      {
+        "id": 8,
+        "title": "Implement Enhanced Leader Speech System",
+        "description": "Create advanced speech system with issue lists, teleprompter, and live delivery options",
+        "details": "- Accept list of issues to address in speeches\n- Allow specification of key points to make\n- Implement teleprompter functionality for live speeches\n- Add option for live delivery vs pre-recorded\n- Integrate with simulation for greater impact on off-the-cuff speeches\n- Create speech composition interface\n- Add speech history and analytics",
+        "testStrategy": "Test speech composition, teleprompter functionality, live delivery, simulation impact, and user interface",
+        "priority": "medium",
+        "dependencies": [5],
+        "status": "pending"
+      },
+      {
+        "id": 9,
+        "title": "Implement Infinite Scroll Witter Feed",
+        "description": "Convert Witter feed from pagination to infinite scroll with real-time updates",
+        "details": "- Remove pagination from Witter feed\n- Implement infinite scroll with efficient rendering\n- Add real-time post insertion at top of feed\n- Implement smooth scrolling and performance optimization\n- Add loading indicators and error handling\n- Integrate with real-time WebSocket updates\n- Add post interaction features (likes, shares)",
+        "testStrategy": "Test infinite scroll performance, real-time updates, memory usage, and user interaction responsiveness",
+        "priority": "medium",
+        "dependencies": [1, 5],
+        "status": "pending"
+      },
+      {
+        "id": 10,
+        "title": "Implement 3D Galaxy Map Integration",
+        "description": "Create 3D galaxy map and merge with homepage tab functionality",
+        "details": "- Develop 3D galaxy map visualization\n- Connect to real game data instead of mock data\n- Merge Galaxy Map from homepage tab with Galaxy Menu\n- Implement zoom levels: Galaxy → Sector → System → Planet → City\n- Add interactive elements for navigation and management\n- Integrate real-time updates for fleet movements and events\n- Add strategic overlay options (military, economic, diplomatic)",
+        "testStrategy": "Test 3D rendering performance, data accuracy, navigation functionality, and real-time updates",
+        "priority": "medium",
+        "dependencies": [1, 3],
+        "status": "pending"
+      },
+      {
+        "id": 11,
+        "title": "Implement Enhanced API Knobs Integration",
+        "description": "Integrate Enhanced API Knobs with HUD for both input and output controls",
+        "details": "- Create input knobs for real-time parameter adjustment\n- Implement output knobs for live metrics display\n- Add policy sliders for interactive controls\n- Create resource allocation drag-and-drop interface\n- Implement performance monitoring indicators\n- Add data export capabilities\n- Integrate with simulation systems",
+        "testStrategy": "Test knob responsiveness, parameter accuracy, simulation integration, and user interface functionality",
+        "priority": "low",
+        "dependencies": [1, 2],
+        "status": "pending"
+      },
+      {
+        "id": 12,
+        "title": "Implement Design System and Visual Standardization",
+        "description": "Create consistent design system with transparent cards, futuristic colors, and standardized components",
+        "details": "- Implement transparent cards with gradients and shadows\n- Apply futuristic color scheme (yellow, purple, cyan)\n- Standardize and increase text sizes across all screens\n- Create consistent hover effects for interactive elements\n- Implement matching scroll bars across all panels\n- Ensure text contrast for readability\n- Create screen-specific themes for quick identification",
+        "testStrategy": "Test visual consistency, accessibility compliance, color contrast, and responsive design across all screens",
+        "priority": "medium",
+        "dependencies": [2],
+        "status": "pending"
+      },
+      {
+        "id": 13,
+        "title": "Implement Charts and Data Visualization",
+        "description": "Add comprehensive charts and data visualization across all screens",
+        "details": "- Add time-series charts for historical data and trends\n- Implement pie charts for demographic and resource breakdowns\n- Create progress bars for objectives and projects\n- Add trend indicators with up/down arrows and percentages\n- Implement interactive chart features\n- Optimize chart performance for real-time updates\n- Add chart export and sharing capabilities",
+        "testStrategy": "Test chart accuracy, performance, interactivity, and integration with real-time data streams",
+        "priority": "medium",
+        "dependencies": [1, 12],
+        "status": "pending"
+      },
+      {
+        "id": 14,
+        "title": "Differentiate Military, Defense, and Joint Chiefs Screens",
+        "description": "Create distinct purposes and interfaces for military-related screens to eliminate overlap",
+        "details": "- Military Screen: Focus on fleet operations, unit management, combat readiness\n- Defense Screen: Focus on planetary defenses, fortifications, shield systems\n- Joint Chiefs Screen: Focus on strategic planning, inter-service coordination, high-level military policy\n- Remove overlapping functionality between screens\n- Create unique interfaces and data displays for each\n- Implement proper navigation between related screens",
+        "testStrategy": "Verify distinct functionality, eliminate overlap, test navigation flow, and validate data accuracy for each screen",
+        "priority": "medium",
+        "dependencies": [3],
+        "status": "pending"
+      },
+      {
+        "id": 15,
+        "title": "Implement Communication System Notifications",
+        "description": "Add comprehensive notification system for messages, calls, and system events",
+        "details": "- Implement notification system for incoming messages and calls\n- Add unread message bubble counts on WhoseApp, Story, and Witter tabs\n- Create priority-based notification levels (urgent, important, info)\n- Add sound notifications and visual indicators\n- Implement notification history and management\n- Add do-not-disturb and notification preferences\n- Integrate with real-time event system",
+        "testStrategy": "Test notification delivery, priority handling, user preferences, and integration with communication systems",
+        "priority": "medium",
+        "dependencies": [5],
+        "status": "pending"
+      },
+      {
+        "id": 16,
+        "title": "Implement CSS Styling and Responsive Design",
+        "description": "Create comprehensive CSS styling system for LiveGameHUD with responsive design",
+        "details": "- Create LiveGameHUD.css with complete styling system\n- Implement CSS Grid and Flexbox layouts\n- Add responsive breakpoints for different screen sizes\n- Create animation and transition effects\n- Implement dark theme with futuristic aesthetics\n- Add loading states and skeleton screens\n- Ensure cross-browser compatibility",
+        "testStrategy": "Test responsive design, cross-browser compatibility, animations, and visual consistency",
+        "priority": "high",
+        "dependencies": [2, 12],
+        "status": "pending"
+      },
+      {
+        "id": 17,
+        "title": "Implement Performance Optimization",
+        "description": "Optimize performance for real-time data handling and smooth user experience",
+        "details": "- Implement efficient state management for large datasets\n- Add virtualization for long lists and feeds\n- Optimize WebSocket event handling and batching\n- Implement lazy loading for non-critical components\n- Add memory management and cleanup procedures\n- Optimize rendering performance with React.memo and useMemo\n- Add performance monitoring and metrics",
+        "testStrategy": "Test performance under load, memory usage, rendering efficiency, and real-time update responsiveness",
+        "priority": "medium",
+        "dependencies": [1, 2, 9],
+        "status": "pending"
+      },
+      {
+        "id": 18,
+        "title": "Implement Testing and Quality Assurance",
+        "description": "Create comprehensive testing suite for all UI reorganization features",
+        "details": "- Write unit tests for LiveDataService and LiveGameHUD components\n- Create integration tests for API connections and real-time features\n- Implement end-to-end tests with Playwright for user workflows\n- Add accessibility testing and WCAG compliance verification\n- Create performance tests for real-time data handling\n- Implement visual regression testing\n- Add error handling and edge case testing",
+        "testStrategy": "Achieve 90%+ test coverage, verify all user workflows, test error scenarios, and validate accessibility compliance",
+        "priority": "high",
+        "dependencies": [1, 2, 16],
+        "status": "pending"
+      },
+      {
+        "id": 19,
+        "title": "Implement Documentation and User Guide",
+        "description": "Create comprehensive documentation for the new UI system",
+        "details": "- Document LiveDataService API and usage patterns\n- Create component documentation for LiveGameHUD\n- Write user guide for new navigation and features\n- Document real-time event system and WebSocket integration\n- Create troubleshooting guide for common issues\n- Add developer documentation for extending the system\n- Create video tutorials for key features",
+        "testStrategy": "Verify documentation accuracy, completeness, and usability through user testing",
+        "priority": "low",
+        "dependencies": [18],
+        "status": "pending"
+      },
+      {
+        "id": 20,
+        "title": "Implement Production Deployment and Monitoring",
+        "description": "Deploy new UI system to production with comprehensive monitoring",
+        "details": "- Set up production build pipeline with optimization\n- Implement feature flags for gradual rollout\n- Add comprehensive error tracking and logging\n- Set up performance monitoring and alerting\n- Implement user analytics and usage tracking\n- Create rollback procedures for emergency situations\n- Add health checks and system status monitoring",
+        "testStrategy": "Test production deployment, monitoring accuracy, rollback procedures, and system reliability",
+        "priority": "low",
+        "dependencies": [18, 19],
+        "status": "pending"
+      }
+    ],
+    "metadata": {
+      "created": "2025-01-27T12:00:00.000Z",
+      "updated": "2025-01-27T12:00:00.000Z",
+      "description": "Comprehensive UI reorganization and live data integration project to eliminate mock data and create immersive galactic civilization management interface"
+    }
+  }
+}

@@ -65,7 +65,7 @@ export async function initializeCityEmergenceSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS city_emergence_history (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         city_name VARCHAR(255) NOT NULL,
         city_id VARCHAR(255) NOT NULL,
         emergence_condition_id VARCHAR(100) NOT NULL,
@@ -86,7 +86,7 @@ export async function initializeCityEmergenceSchema(pool: Pool): Promise<void> {
       CREATE TABLE IF NOT EXISTS emergence_condition_config (
         id SERIAL PRIMARY KEY,
         condition_id VARCHAR(100) NOT NULL,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         is_enabled BOOLEAN NOT NULL DEFAULT true,
         priority_modifier DECIMAL(3,2) NOT NULL DEFAULT 1.00,
         custom_requirements JSONB DEFAULT '{}',
@@ -102,7 +102,7 @@ export async function initializeCityEmergenceSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS civilization_expansion_metrics (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         evaluation_date TIMESTAMP NOT NULL DEFAULT NOW(),
         current_cities INTEGER NOT NULL DEFAULT 0,
         total_population BIGINT NOT NULL DEFAULT 0,
@@ -121,7 +121,7 @@ export async function initializeCityEmergenceSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS potential_emergence_locations (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         location_x DECIMAL(10,2) NOT NULL,
         location_y DECIMAL(10,2) NOT NULL,
         terrain VARCHAR(50) NOT NULL,
@@ -142,7 +142,7 @@ export async function initializeCityEmergenceSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS city_development_triggers (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         trigger_type VARCHAR(100) NOT NULL,
         trigger_description TEXT NOT NULL,
         trigger_data JSONB NOT NULL DEFAULT '{}',
@@ -196,10 +196,10 @@ export async function initializeCityEmergenceSchema(pool: Pool): Promise<void> {
         ('strategic_expansion')
       ) AS conditions(condition_id)
       CROSS JOIN (
-        SELECT DISTINCT civilization_id 
-        FROM city_markets 
-        WHERE civilization_id IS NOT NULL
-        UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5
+        SELECT DISTINCT id as civilization_id 
+        FROM civilizations 
+        WHERE id IS NOT NULL
+        UNION SELECT '1' UNION SELECT '2' UNION SELECT '3' UNION SELECT '4' UNION SELECT '5'
       ) AS civs(civilization_id)
       ON CONFLICT (condition_id, civilization_id) DO NOTHING;
     `);

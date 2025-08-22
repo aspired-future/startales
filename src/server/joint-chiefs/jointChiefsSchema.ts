@@ -13,7 +13,7 @@ export async function initializeJointChiefsSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS joint_chiefs (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL REFERENCES civilizations(id),
+        civilization_id TEXT NOT NULL REFERENCES civilizations(id),
         position VARCHAR(100) NOT NULL, -- 'chairman', 'vice_chairman', 'service_chief'
         service_branch VARCHAR(50), -- 'army', 'navy', 'air_force', 'space_force', 'marines', null for chairman/vice
         name VARCHAR(200) NOT NULL,
@@ -32,7 +32,7 @@ export async function initializeJointChiefsSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS military_services (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL REFERENCES civilizations(id),
+        civilization_id TEXT NOT NULL REFERENCES civilizations(id),
         service_name VARCHAR(100) NOT NULL, -- 'Army', 'Navy', 'Air Force', 'Space Force', 'Marines'
         service_code VARCHAR(10) NOT NULL, -- 'USA', 'USN', 'USAF', 'USSF', 'USMC'
         chief_id INTEGER REFERENCES joint_chiefs(id),
@@ -51,7 +51,7 @@ export async function initializeJointChiefsSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS strategic_plans (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL REFERENCES civilizations(id),
+        civilization_id TEXT NOT NULL REFERENCES civilizations(id),
         plan_name VARCHAR(200) NOT NULL,
         plan_type VARCHAR(50) NOT NULL, -- 'defense', 'offensive', 'peacekeeping', 'training', 'joint_exercise'
         status VARCHAR(20) DEFAULT 'draft', -- 'draft', 'under_review', 'approved', 'active', 'completed', 'cancelled'
@@ -74,7 +74,7 @@ export async function initializeJointChiefsSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS joint_operations (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL REFERENCES civilizations(id),
+        civilization_id TEXT NOT NULL REFERENCES civilizations(id),
         operation_name VARCHAR(200) NOT NULL,
         operation_type VARCHAR(50) NOT NULL, -- 'training', 'deployment', 'exercise', 'combat', 'humanitarian'
         status VARCHAR(20) DEFAULT 'planning', -- 'planning', 'approved', 'active', 'completed', 'cancelled'
@@ -98,7 +98,7 @@ export async function initializeJointChiefsSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS command_recommendations (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL REFERENCES civilizations(id),
+        civilization_id TEXT NOT NULL REFERENCES civilizations(id),
         recommending_officer INTEGER NOT NULL REFERENCES joint_chiefs(id),
         recommendation_type VARCHAR(50) NOT NULL, -- 'strategic', 'operational', 'personnel', 'budget', 'policy'
         title VARCHAR(200) NOT NULL,

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './ComprehensiveHUD.css';
+import { useWhoseAppWebSocket } from '../../hooks/useWhoseAppWebSocket';
 
 // Import all the specialized components
 import { SimpleWitterFeed } from '../Witter/SimpleWitterFeed';
@@ -16,6 +17,12 @@ import {
   SystemStatusScreen,
   QuickActionScreenType
 } from './screens/quickactions';
+
+// Import Popup components
+import { PanelPopup } from './screens/PanelPopup';
+import { WitterPopup } from './screens/WitterPopup';
+import { MapPopup } from './screens/MapPopup';
+import { GovernmentBondsScreen } from './screens/GovernmentBondsScreen';
 
 interface ComprehensiveHUDProps {
   playerId: string;
@@ -99,6 +106,17 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
   const [activeTab, setActiveTab] = useState<'whoseapp' | 'events' | 'map' | 'witter' | 'analytics'>('whoseapp');
   const [expandedAccordion, setExpandedAccordion] = useState<string>('quick-actions');
   const [activeQuickAction, setActiveQuickAction] = useState<QuickActionScreenType | null>(null);
+  
+  // Popup state management
+  const [activePanelPopup, setActivePanelPopup] = useState<string | null>(null);
+  const [isWitterPopupOpen, setIsWitterPopupOpen] = useState(false);
+  const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
+
+  // WhoseApp WebSocket integration for real-time updates
+  const whoseAppData = useWhoseAppWebSocket({
+    civilizationId: playerId,
+    autoConnect: true
+  });
   const [communicationMessages, setCommunicationMessages] = useState<CommunicationMessage[]>([]);
   const [communicationLoading, setCommunicationLoading] = useState(false);
   const [communicationError, setCommunicationError] = useState<string | null>(null);
@@ -844,6 +862,8 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     { id: 'policies', name: 'Policies', icon: '⚖️', category: 'government' },
     { id: 'legislature', name: 'Legislature', icon: '🏛️', category: 'government' },
     { id: 'supreme-court', name: 'Supreme Court', icon: '⚖️', category: 'government' },
+    { id: 'institutional-override', name: 'Override System', icon: '⚖️', category: 'government' },
+
     { id: 'political-parties', name: 'Politics', icon: '🎭', category: 'government' },
     
     // Economy & Trade
@@ -851,8 +871,11 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     { id: 'trade', name: 'Trade', icon: '📈', category: 'economy' },
     { id: 'businesses', name: 'Business', icon: '🏢', category: 'economy' },
     { id: 'central-bank', name: 'Central Bank', icon: '🏦', category: 'economy' },
+    { id: 'sovereign-wealth-fund', name: 'Sovereign Fund', icon: '💰', category: 'economy' },
+    { id: 'government-bonds', name: 'Gov Bonds', icon: '💎', category: 'economy' },
     { id: 'financial-markets', name: 'Markets', icon: '📊', category: 'economy' },
     { id: 'economic-ecosystem', name: 'Economy', icon: '🌐', category: 'economy' },
+    { id: 'government-contracts', name: 'Gov Contracts', icon: '📜', category: 'economy' },
     
     // Military & Security
     { id: 'military', name: 'Military', icon: '🛡️', category: 'security' },
@@ -863,7 +886,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     
     // Population & Society
     { id: 'demographics', name: 'Demographics', icon: '👥', category: 'population' },
-    { id: 'cities', name: 'Cities', icon: '🏙️', category: 'population' },
+    { id: 'cities', name: 'Planets & Cities', icon: '🌍', category: 'population' },
     { id: 'migration', name: 'Migration', icon: '🚶', category: 'population' },
     { id: 'professions', name: 'Professions', icon: '💼', category: 'population' },
     { id: 'education', name: 'Education', icon: '🎓', category: 'population' },
@@ -885,6 +908,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     
     // Galaxy & Space
     { id: 'galaxy-map', name: 'Galaxy Map', icon: '🗺️', category: 'galaxy' },
+    { id: 'galaxy-data', name: 'Galaxy Data', icon: '🌌', category: 'galaxy' },
     { id: 'conquest', name: 'Conquest', icon: '⚔️', category: 'galaxy' },
     { id: 'exploration', name: 'Exploration', icon: '🚀', category: 'galaxy' }
   ];
@@ -1000,8 +1024,18 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
                   {panels.filter(p => p.category === category).map(panel => (
                     <button
                       key={panel.id}
-                      className={`nav-item ${activePanel === panel.id ? 'active' : ''}`}
-                      onClick={() => setActivePanel(panel.id)}
+                      className={`nav-item ${activePanelPopup === panel.id ? 'active' : ''}`}
+                      onClick={() => {
+                        if (panel.id === 'galaxy-map') {
+                          // Open the same map popup as the center tab
+                          setIsMapPopupOpen(true);
+                        } else if (panel.id === 'galaxy-data') {
+                          // Open Galaxy Data as a proper screen, not a popup
+                          setActivePanel('galaxy-data');
+                        } else {
+                          setActivePanelPopup(panel.id);
+                        }
+                      }}
                     >
                       {panel.icon} {panel.name}
                     </button>
@@ -1031,14 +1065,20 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
                   🌟 Events
                 </button>
                 <button 
-                  className={`tab-button ${activeTab === 'map' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('map')}
+                  className={`tab-button ${isMapPopupOpen ? 'active' : ''}`}
+                  onClick={() => setIsMapPopupOpen(true)}
                 >
                   🗺️ Map
                 </button>
                 <button 
-                  className={`tab-button ${activeTab === 'witter' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('witter')}
+                  className={`tab-button ${activePanel === 'galaxy-data' ? 'active' : ''}`}
+                  onClick={() => setActivePanel('galaxy-data')}
+                >
+                  🌌 Galaxy Data
+                </button>
+                <button 
+                  className={`tab-button ${isWitterPopupOpen ? 'active' : ''}`}
+                  onClick={() => setIsWitterPopupOpen(true)}
                 >
                   🐦 Witter
                 </button>
@@ -1593,14 +1633,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
                   </div>
                 )}
 
-                {activeTab === 'map' && (
-                  <div className="map-tab">
-                    <h2>🗺️ GALAXY MAP</h2>
-                    <div className="embedded-galaxy-map">
-                      <GalaxyMapComponent gameContext={gameContext} />
-                    </div>
-                  </div>
-                )}
+                {/* Map content moved to popup */}
 
                 {/* Keep the old map as backup - remove this section */}
                 {false && (
@@ -1700,16 +1733,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
                   </div>
                 )}
 
-                {activeTab === 'witter' && (
-                  <div className="witter-tab">
-                    <h2>🐦 LIVELYGALAXY.COM SOCIAL NETWORK</h2>
-                    <SimpleWitterFeed 
-                      playerId={playerId}
-                      gameContext={gameContext}
-                      className="embedded-witter"
-                    />
-                  </div>
-                )}
+                {/* Witter content moved to popup */}
 
                 {activeTab === 'analytics' && (
                   <div className="analytics-tab">
@@ -2012,7 +2036,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
           {activePanel === 'trade' && <TradeEconomics playerId={playerId} gameContext={gameContext} onClose={() => setActivePanel('command-center')} />}
           
           {/* Dynamic Screen Content */}
-          {activePanel !== 'command-center' && activePanel !== 'trade' && (
+          {activePanel !== 'command-center' && activePanel !== 'trade' && activePanel !== 'galaxy-map' && (
             <div className="panel-screen">
               {createScreen(activePanel, gameContext)}
             </div>
@@ -2055,14 +2079,66 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
                 <div className="metric-fill" style={{width: '92%'}}></div>
               </div>
             </div>
+
+            {/* Active Missions Section */}
+            <div className="missions-section">
+              <h4>🎯 ACTIVE MISSIONS</h4>
+              <div className="missions-list">
+                <div className="mission-item">
+                  <div className="mission-header">
+                    <span className="mission-icon">🔍</span>
+                    <span className="mission-title">Explore Kepler System</span>
+                  </div>
+                  <div className="mission-progress">
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{width: '65%'}}></div>
+                    </div>
+                    <span className="progress-text">65%</span>
+                  </div>
+                  <div className="mission-status">
+                    <span className="status-badge active">Active</span>
+                    <span className="mission-time">12 days left</span>
+                  </div>
+                </div>
+
+                <div className="mission-item">
+                  <div className="mission-header">
+                    <span className="mission-icon">🤝</span>
+                    <span className="mission-title">Diplomatic Contact</span>
+                  </div>
+                  <div className="mission-progress">
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{width: '30%'}}></div>
+                    </div>
+                    <span className="progress-text">30%</span>
+                  </div>
+                  <div className="mission-status">
+                    <span className="status-badge active">Active</span>
+                    <span className="mission-time">8 days left</span>
+                  </div>
+                </div>
+
+                <div className="mission-item">
+                  <div className="mission-header">
+                    <span className="mission-icon">⚔️</span>
+                    <span className="mission-title">Border Defense</span>
+                  </div>
+                  <div className="mission-progress">
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{width: '85%'}}></div>
+                    </div>
+                    <span className="progress-text">85%</span>
+                  </div>
+                  <div className="mission-status">
+                    <span className="status-badge critical">Critical</span>
+                    <span className="mission-time">3 days left</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="active-missions">
-            <h3>🎯 ACTIVE MISSIONS</h3>
-            <div className="mission">📡 Establish Kepler Outpost</div>
-            <div className="mission">🔬 Quantum Research Initiative</div>
-            <div className="mission">🤝 Centauri Trade Agreement</div>
-          </div>
+
 
           <div className="live-alerts">
             <h3>🔔 LIVE ALERTS</h3>
@@ -2140,6 +2216,30 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
       <SystemStatusScreen
         isVisible={activeQuickAction === 'system-status'}
         onClose={() => setActiveQuickAction(null)}
+      />
+
+      {/* Panel Popups */}
+      {activePanelPopup && (
+        <PanelPopup
+          panel={panels.find(p => p.id === activePanelPopup)!}
+          playerId={playerId}
+          isVisible={!!activePanelPopup}
+          onClose={() => setActivePanelPopup(null)}
+        />
+      )}
+
+      {/* Witter Popup */}
+      <WitterPopup
+        playerId={playerId}
+        isVisible={isWitterPopupOpen}
+        onClose={() => setIsWitterPopupOpen(false)}
+      />
+
+      {/* Map Popup */}
+      <MapPopup
+        playerId={playerId}
+        isVisible={isMapPopupOpen}
+        onClose={() => setIsMapPopupOpen(false)}
       />
     </div>
   );

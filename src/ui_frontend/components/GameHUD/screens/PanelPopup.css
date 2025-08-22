@@ -1,0 +1,272 @@
+/* Panel Popup Styles */
+.panel-section {
+  padding: 20px;
+  background: rgba(15, 25, 35, 0.95);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.panel-section h3 {
+  color: #4CAF50;
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-section h4 {
+  color: #81C784;
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.panel-section p {
+  color: #B0BEC5;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+/* Panel Grid Layout */
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.panel-card {
+  background: rgba(25, 35, 45, 0.8);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 6px;
+  padding: 16px;
+  transition: all 0.3s ease;
+}
+
+.panel-card:hover {
+  border-color: rgba(76, 175, 80, 0.4);
+  background: rgba(25, 35, 45, 0.9);
+}
+
+.panel-card h4 {
+  color: #4CAF50;
+  font-size: 14px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.panel-card .value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+}
+
+.panel-card .change {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.panel-card .change.positive {
+  color: #4CAF50;
+}
+
+.panel-card .change.negative {
+  color: #F44336;
+}
+
+.panel-card .change.neutral {
+  color: #FFC107;
+}
+
+/* Panel Actions */
+.panel-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.panel-btn {
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 120px;
+}
+
+.panel-btn:hover {
+  background: linear-gradient(135deg, #44a08d 0%, #4ecdc4 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.panel-btn.secondary {
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+}
+
+.panel-btn.secondary:hover {
+  background: rgba(76, 175, 80, 0.3);
+  border-color: rgba(76, 175, 80, 0.6);
+}
+
+/* Loading States */
+.panel-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #B0BEC5;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(76, 175, 80, 0.3);
+  border-top: 3px solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Government Type Specific Styles */
+.government-info {
+  margin-bottom: 20px;
+}
+
+.gov-type-card {
+  background: rgba(25, 35, 45, 0.8);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.gov-type-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4CAF50;
+  margin-bottom: 8px;
+}
+
+.gov-type-description {
+  color: #B0BEC5;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.gov-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.gov-stats .stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+
+.gov-stats .stat-label {
+  font-size: 12px;
+  color: #81C784;
+  margin-bottom: 4px;
+}
+
+.gov-stats .stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* Contracts Overview */
+.contracts-overview {
+  margin-top: 20px;
+}
+
+.contracts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.contract-stat {
+  background: rgba(25, 35, 45, 0.8);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 6px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.contract-stat:hover {
+  border-color: rgba(76, 175, 80, 0.4);
+  background: rgba(25, 35, 45, 0.9);
+}
+
+.contract-stat .stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+}
+
+.contract-stat .stat-label {
+  font-size: 12px;
+  color: #81C784;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .panel-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .contracts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .panel-actions {
+    flex-direction: column;
+  }
+  
+  .panel-btn {
+    min-width: auto;
+  }
+  
+  .gov-stats {
+    justify-content: space-around;
+  }
+}
+
+@media (max-width: 480px) {
+  .contracts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .panel-section {
+    padding: 16px;
+  }
+  
+  .panel-card {
+    padding: 12px;
+  }
+}
+

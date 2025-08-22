@@ -10,7 +10,7 @@ export async function initializeEducationSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS universities (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         name VARCHAR(200) NOT NULL,
         location VARCHAR(200) NOT NULL,
         founded_year INTEGER NOT NULL,
@@ -156,7 +156,7 @@ export async function initializeEducationSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS research_grants (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         grant_program VARCHAR(200) NOT NULL,
         funding_agency VARCHAR(200) NOT NULL,
         research_area VARCHAR(50) NOT NULL,
@@ -180,7 +180,7 @@ export async function initializeEducationSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS research_priorities (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         research_area VARCHAR(50) NOT NULL,
         priority_level INTEGER DEFAULT 5 CHECK (priority_level >= 1 AND priority_level <= 10),
         funding_percentage DECIMAL(5,2) DEFAULT 10.0,
@@ -196,9 +196,9 @@ export async function initializeEducationSchema(pool: Pool): Promise<void> {
 
     // Create research_budgets table
     await client.query(`
-      CREATE TABLE IF NOT EXISTS research_budgets (
+      CREATE TABLE IF NOT EXISTS education_research_budgets (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         fiscal_year INTEGER NOT NULL,
         total_research_budget BIGINT DEFAULT 0,
         allocated_budget BIGINT DEFAULT 0,
@@ -217,7 +217,7 @@ export async function initializeEducationSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS research_budget_categories (
         id SERIAL PRIMARY KEY,
-        budget_id INTEGER REFERENCES research_budgets(id) ON DELETE CASCADE,
+        budget_id INTEGER REFERENCES education_research_budgets(id) ON DELETE CASCADE,
         research_area VARCHAR(50) NOT NULL,
         allocated_amount BIGINT DEFAULT 0,
         spent_amount BIGINT DEFAULT 0,
@@ -299,7 +299,7 @@ export async function initializeEducationSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS education_metrics (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         metric_date DATE NOT NULL,
         total_universities INTEGER DEFAULT 0,
         total_students INTEGER DEFAULT 0,
@@ -322,7 +322,7 @@ export async function initializeEducationSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS education_policies (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         policy_name VARCHAR(200) NOT NULL,
         policy_type VARCHAR(100) NOT NULL,
         description TEXT NOT NULL,
@@ -342,7 +342,7 @@ export async function initializeEducationSchema(pool: Pool): Promise<void> {
       CREATE TABLE IF NOT EXISTS international_collaborations (
         id SERIAL PRIMARY KEY,
         university_id INTEGER REFERENCES universities(id) ON DELETE CASCADE,
-        partner_civilization_id INTEGER NOT NULL,
+        partner_civilization_id TEXT NOT NULL,
         partner_institution VARCHAR(200) NOT NULL,
         collaboration_type VARCHAR(100) NOT NULL,
         research_areas JSONB DEFAULT '[]',
@@ -364,7 +364,7 @@ export async function initializeEducationSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS skills_development (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         skill_category VARCHAR(100) NOT NULL,
         current_supply INTEGER DEFAULT 0,
         projected_demand INTEGER DEFAULT 0,
@@ -383,7 +383,7 @@ export async function initializeEducationSchema(pool: Pool): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS education_secretaries (
         id SERIAL PRIMARY KEY,
-        civilization_id INTEGER NOT NULL,
+        civilization_id TEXT NOT NULL,
         secretary_name VARCHAR(200) NOT NULL,
         appointment_date DATE NOT NULL,
         background TEXT,
@@ -401,45 +401,109 @@ export async function initializeEducationSchema(pool: Pool): Promise<void> {
       )
     `);
 
-    // Create indexes for better performance
-    await client.query(`
-      CREATE INDEX IF NOT EXISTS idx_universities_civilization ON universities(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_universities_type ON universities(university_type);
-      CREATE INDEX IF NOT EXISTS idx_universities_reputation ON universities(reputation_score);
-      
-      CREATE INDEX IF NOT EXISTS idx_departments_university ON academic_departments(university_id);
-      CREATE INDEX IF NOT EXISTS idx_departments_field ON academic_departments(field_of_study);
-      
-      CREATE INDEX IF NOT EXISTS idx_students_university ON students(university_id);
-      CREATE INDEX IF NOT EXISTS idx_students_status ON students(enrollment_status);
-      
-      CREATE INDEX IF NOT EXISTS idx_faculty_university ON faculty(university_id);
-      CREATE INDEX IF NOT EXISTS idx_faculty_position ON faculty(position);
-      
-      CREATE INDEX IF NOT EXISTS idx_research_projects_university ON research_projects(university_id);
-      CREATE INDEX IF NOT EXISTS idx_research_projects_area ON research_projects(research_area);
-      CREATE INDEX IF NOT EXISTS idx_research_projects_status ON research_projects(project_status);
-      
-      CREATE INDEX IF NOT EXISTS idx_research_grants_civilization ON research_grants(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_research_grants_area ON research_grants(research_area);
-      CREATE INDEX IF NOT EXISTS idx_research_grants_priority ON research_grants(priority_level);
-      
-      CREATE INDEX IF NOT EXISTS idx_research_priorities_civilization ON research_priorities(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_research_budgets_civilization ON research_budgets(civilization_id, fiscal_year);
-      
-      CREATE INDEX IF NOT EXISTS idx_research_outputs_university ON research_outputs(university_id);
-      CREATE INDEX IF NOT EXISTS idx_research_outputs_date ON research_outputs(publication_date);
-      
-      CREATE INDEX IF NOT EXISTS idx_grant_applications_grant ON grant_applications(grant_id);
-      CREATE INDEX IF NOT EXISTS idx_grant_applications_university ON grant_applications(university_id);
-      
-      CREATE INDEX IF NOT EXISTS idx_education_metrics_civilization ON education_metrics(civilization_id, metric_date);
-      CREATE INDEX IF NOT EXISTS idx_education_policies_civilization ON education_policies(civilization_id);
-      
-      CREATE INDEX IF NOT EXISTS idx_collaborations_university ON international_collaborations(university_id);
-      CREATE INDEX IF NOT EXISTS idx_skills_development_civilization ON skills_development(civilization_id);
-      CREATE INDEX IF NOT EXISTS idx_education_secretaries_civilization ON education_secretaries(civilization_id);
-    `);
+    // Create indexes for better performance - split into smaller chunks to identify failures
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_universities_civilization ON universities(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_universities_type ON universities(university_type);
+        CREATE INDEX IF NOT EXISTS idx_universities_reputation ON universities(reputation_score);
+      `);
+    } catch (error) {
+      console.warn('Failed to create universities indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_departments_university ON academic_departments(university_id);
+        CREATE INDEX IF NOT EXISTS idx_departments_field ON academic_departments(field_of_study);
+      `);
+    } catch (error) {
+      console.warn('Failed to create departments indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_students_university ON students(university_id);
+        CREATE INDEX IF NOT EXISTS idx_students_status ON students(enrollment_status);
+      `);
+    } catch (error) {
+      console.warn('Failed to create students indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_faculty_university ON faculty(university_id);
+        CREATE INDEX IF NOT EXISTS idx_faculty_position ON faculty(position);
+      `);
+    } catch (error) {
+      console.warn('Failed to create faculty indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_research_projects_university ON research_projects(university_id);
+        CREATE INDEX IF NOT EXISTS idx_research_projects_area ON research_projects(research_area);
+        CREATE INDEX IF NOT EXISTS idx_research_projects_status ON research_projects(project_status);
+      `);
+    } catch (error) {
+      console.warn('Failed to create research projects indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_research_grants_civilization ON research_grants(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_research_grants_area ON research_grants(research_area);
+        CREATE INDEX IF NOT EXISTS idx_research_grants_priority ON research_grants(priority_level);
+      `);
+    } catch (error) {
+      console.warn('Failed to create research grants indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_research_priorities_civilization ON research_priorities(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_research_budgets_civilization ON education_research_budgets(civilization_id, fiscal_year);
+      `);
+    } catch (error) {
+      console.warn('Failed to create research priorities/budgets indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_research_outputs_university ON research_outputs(university_id);
+        CREATE INDEX IF NOT EXISTS idx_research_outputs_date ON research_outputs(publication_date);
+      `);
+    } catch (error) {
+      console.warn('Failed to create research outputs indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_grant_applications_grant ON grant_applications(grant_id);
+        CREATE INDEX IF NOT EXISTS idx_grant_applications_university ON grant_applications(university_id);
+      `);
+    } catch (error) {
+      console.warn('Failed to create grant applications indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_education_metrics_civilization ON education_metrics(civilization_id, metric_date);
+        CREATE INDEX IF NOT EXISTS idx_education_policies_civilization ON education_policies(civilization_id);
+      `);
+    } catch (error) {
+      console.warn('Failed to create education metrics/policies indexes:', error.message);
+    }
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_collaborations_university ON international_collaborations(university_id);
+        CREATE INDEX IF NOT EXISTS idx_skills_development_civilization ON skills_development(civilization_id);
+        CREATE INDEX IF NOT EXISTS idx_education_secretaries_civilization ON education_secretaries(civilization_id);
+      `);
+    } catch (error) {
+      console.warn('Failed to create collaborations/skills/secretaries indexes:', error.message);
+    }
 
     await client.query('COMMIT');
     console.log('✅ Education System schema initialized successfully');
