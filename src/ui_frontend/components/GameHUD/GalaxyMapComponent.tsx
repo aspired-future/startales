@@ -479,7 +479,7 @@ export const GalaxyMapComponent: React.FC<GalaxyMapComponentProps> = ({ gameCont
 
       {/* Galaxy Info */}
       <div className="galaxy-info">
-        <h4>🌌 Startales Galaxy</h4>
+        <h4>🌌 LivelyGalaxy.ai</h4>
         <p>Systems: {galaxyData?.systems.length || 0}</p>
         <p>Active Layer: {activeLayer}</p>
         <p>Current Location: {gameContext.currentLocation || 'Sol System'}</p>

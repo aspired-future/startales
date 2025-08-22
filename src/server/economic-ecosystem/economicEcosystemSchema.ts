@@ -929,5 +929,3 @@ async function insertEconomicEcosystemSeedData(client: any): Promise<void> {
 
   console.log('✅ Economic Ecosystem seed data inserted successfully');
 }
-
-export { initializeEconomicEcosystemSchema };

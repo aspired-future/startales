@@ -1,8 +1,8 @@
-# Integrated HUD Design Plan - Witty Galaxy Command Center
+# Integrated HUD Design Plan - LivelyGalaxy.com Command Center
 
 ## 🎯 Executive Summary
 
-This plan outlines the integration of all existing APIs and demos into a unified, live HUD system for **Witty Galaxy** (WittyGalaxy.com). The design prioritizes real-time data streaming, visual immersion with AI-generated content, and seamless integration with the simulation engine.
+This plan outlines the integration of all existing APIs and demos into a unified, live HUD system for **LivelyGalaxy.com**. The design prioritizes real-time data streaming, visual immersion with AI-generated content, and seamless integration with the simulation engine.
 
 ## 📊 Current System Inventory
 
@@ -96,7 +96,7 @@ This plan outlines the integration of all existing APIs and demos into a unified
 ### 🎮 **Complete Demo Routes Available**
 
 #### **Main HUD Systems**
-- `/demo/witty-galaxy-hud` - **NEW! Integrated Witty Galaxy HUD**
+- `/demo/witty-galaxy-hud` - **NEW! Integrated LivelyGalaxy.com HUD**
 - `/demo/command-center` - Original command center
 - `/demo/hud` - Demo hub page
 - `/hud` - Main HUD route (redirects to integrated version)
@@ -181,7 +181,7 @@ This plan outlines the integration of all existing APIs and demos into a unified
 
 ```
 ┌─────────────────────── Command Header (120px) ──────────────────────────┐
-│ 🌌 WITTY GALAXY COMMAND CENTER    🎯 [Civilization Name]    ⏰ [Game Time] │
+│ 🌌 LIVELYGALAXY.COM COMMAND CENTER    🎯 [Civilization Name]    ⏰ [Game Time] │
 │ 👤 [Leader Name] | 📊 Approval: [%] | 💰 Treasury: [Amount] | 🔔 [Alerts] │
 │ 🎯 Active Mission | 📈 GDP Growth | 🛡️ Threat Level | ⚡ System Status    │
 └─────────────────────────────────────────────────────────────────────────┘

@@ -1,7 +1,7 @@
-# Startales API Reference
+# LivelyGalaxy.ai API Reference
 
 ## Overview
-Comprehensive documentation of all 55 production APIs in the Startales galactic civilization management system. Each API includes 24 AI-controllable knobs for dynamic game behavior adjustment.
+Comprehensive documentation of all 55 production APIs in the LivelyGalaxy.ai galactic civilization management system. Each API includes 24 AI-controllable knobs for dynamic game behavior adjustment.
 
 **Total APIs**: 55  
 **Total AI Knobs**: 1,320 (55 × 24)  

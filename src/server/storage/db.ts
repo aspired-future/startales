@@ -127,6 +127,41 @@ export async function initDb() {
       x numeric,
       y numeric
     );
+    
+    -- Civilizations table for AI systems
+    create table if not exists civilizations (
+      id text primary key,
+      name text not null,
+      species text not null,
+      government_type text not null default 'democracy',
+      population bigint not null default 1000000,
+      territory_systems text[] not null default '{}',
+      capital_system_id int references systems(id),
+      diplomatic_status jsonb not null default '{}',
+      technology_level int not null default 1,
+      culture_values jsonb not null default '{}',
+      economic_strength numeric not null default 1.0,
+      military_strength numeric not null default 1.0,
+      research_focus text[] not null default '{}',
+      trade_relations jsonb not null default '{}',
+      created_at timestamp not null default now(),
+      updated_at timestamp not null default now()
+    );
+    
+    -- City markets table for city emergence system
+    create table if not exists city_markets (
+      id text primary key,
+      city_id text not null,
+      system_id int references systems(id),
+      market_type text not null,
+      goods_traded text[] not null default '{}',
+      market_size text not null default 'small',
+      trade_volume numeric not null default 0,
+      price_indices jsonb not null default '{}',
+      supply_demand jsonb not null default '{}',
+      created_at timestamp not null default now(),
+      updated_at timestamp not null default now()
+    );
     do $$ begin
       begin
         alter table planets add column system_id int references systems(id) on delete set null;

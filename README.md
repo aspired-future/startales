@@ -1,4 +1,4 @@
-# Startales — Local-First RPG Platform
+# LivelyGalaxy.ai — AI-Powered Galactic Civilization Management
 
 ## Quick Start (Demo)
 

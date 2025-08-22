@@ -1702,7 +1702,7 @@ app.get('/demo/hud', (req, res) => {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Startales Comprehensive Demo HUD</title>
+    <title>LivelyGalaxy.ai Comprehensive Demo HUD</title>
     <style>
       body { font-family: system-ui, sans-serif; padding: 16px; background: #0a0a0a; color: #e0e0e0; margin: 0; }
       .container { max-width: 1400px; margin: 0 auto; }
@@ -1725,7 +1725,7 @@ app.get('/demo/hud', (req, res) => {
   <body>
     <div class="container">
       <div class="header">
-        <h1>🚀 Startales Comprehensive Demo HUD</h1>
+        <h1>🚀 LivelyGalaxy.ai Comprehensive Demo HUD</h1>
         <p style="color: #ccc;">Explore all available game systems and demos</p>
       </div>
 
@@ -1902,7 +1902,7 @@ app.get('/demo/hud', (req, res) => {
 
       <div style="margin-top: 40px; padding: 20px; background: #2a2a2a; border-radius: 8px; text-align: center;">
         <h3 style="color: #4ecdc4;">🎮 Ready to Start Playing?</h3>
-        <p style="color: #ccc;">All systems are operational. Choose a demo above to explore different aspects of the Startales universe!</p>
+        <p style="color: #ccc;">All systems are operational. Choose a demo above to explore different aspects of the LivelyGalaxy.ai universe!</p>
         <div style="margin-top: 15px;">
           <span style="color: #4ecdc4;">●</span> Active &nbsp;&nbsp;
           <span style="color: #fbbf24;">●</span> Beta &nbsp;&nbsp;

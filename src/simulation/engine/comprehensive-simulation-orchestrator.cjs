@@ -18,6 +18,12 @@ const { EnvironmentalAI } = require('../ai/environmental-ai.cjs');
 const { GalacticAI } = require('../ai/galactic-ai.cjs');
 const { MarketAI } = require('../ai/market-ai.cjs');
 
+// Enhanced AI Systems with Knob Integration
+const { HouseholdAI } = require('../ai/household-ai.cjs');
+const { BusinessAI } = require('../ai/business-ai.cjs');
+const { EnhancedCharacterAI } = require('../ai/enhanced-character-ai.cjs');
+const { DiplomacyAI } = require('../ai/diplomacy-ai.cjs');
+
 // Deterministic Systems
 const { PopulationSystem } = require('../deterministic/systems/population-system.cjs');
 const { EconomicSystem } = require('../deterministic/systems/economic-system.cjs');
@@ -269,7 +275,88 @@ class ComprehensiveSimulationOrchestrator extends EventEmitter {
         
         civilization.aiSystems.set('psychology-ai', psychologyAI);
         
-        console.log(`🧠 AI systems initialized for ${civilization.id}`);
+        // Enhanced AI Systems with Knob Integration
+        
+        // Household AI
+        const householdAI = new HouseholdAI({
+            systemId: `household-ai-${civId}`,
+            civilizationId: civId,
+            processingInterval: 30000,
+            maxHouseholdsPerTick: 100
+        });
+        
+        this.systemRegistry.registerAISystem(`household-ai-${civId}`, householdAI, {
+            category: 'playerSpecific',
+            civilizationId: civId,
+            capabilities: ['household_behavior', 'consumer_decisions', 'community_engagement'],
+            inputRequirements: ['demographics', 'economic_indicators', 'social_metrics'],
+            priority: 'medium',
+            costProfile: { tokensPerCall: 800, maxCallsPerMinute: 2 }
+        });
+        
+        civilization.aiSystems.set('household-ai', householdAI);
+        
+        // Business AI
+        const businessAI = new BusinessAI({
+            systemId: `business-ai-${civId}`,
+            civilizationId: civId,
+            processingInterval: 45000,
+            maxBusinessesPerTick: 50
+        });
+        
+        this.systemRegistry.registerAISystem(`business-ai-${civId}`, businessAI, {
+            category: 'playerSpecific',
+            civilizationId: civId,
+            capabilities: ['business_strategy', 'market_dynamics', 'economic_decisions'],
+            inputRequirements: ['economic_indicators', 'market_conditions', 'policy_environment'],
+            priority: 'high',
+            costProfile: { tokensPerCall: 1200, maxCallsPerMinute: 3 }
+        });
+        
+        civilization.aiSystems.set('business-ai', businessAI);
+        
+        // Enhanced Character AI (replaces basic Character AI for real consequences)
+        const enhancedCharacterAI = new EnhancedCharacterAI({
+            systemId: `enhanced-character-ai-${civId}`,
+            civilizationId: civId,
+            processingInterval: 20000,
+            maxCharactersPerTick: 30,
+            autonomyLevel: 0.8,
+            consequenceWeight: 0.9
+        });
+        
+        this.systemRegistry.registerAISystem(`enhanced-character-ai-${civId}`, enhancedCharacterAI, {
+            category: 'playerSpecific',
+            civilizationId: civId,
+            capabilities: ['character_actions', 'real_consequences', 'relationship_management'],
+            inputRequirements: ['character_data', 'game_state', 'system_status'],
+            priority: 'very_high',
+            costProfile: { tokensPerCall: 2000, maxCallsPerMinute: 5 }
+        });
+        
+        civilization.aiSystems.set('enhanced-character-ai', enhancedCharacterAI);
+        
+        // Diplomacy AI (Inter-civilization)
+        const diplomacyAI = new DiplomacyAI({
+            systemId: `diplomacy-ai-${civId}`,
+            civilizationId: civId,
+            processingInterval: 60000,
+            maxNegotiationsPerTick: 10,
+            negotiationComplexity: 0.8
+        });
+        
+        this.systemRegistry.registerAISystem(`diplomacy-ai-${civId}`, diplomacyAI, {
+            category: 'interCivilization',
+            civilizationId: civId,
+            capabilities: ['diplomatic_relations', 'negotiations', 'treaty_management'],
+            inputRequirements: ['diplomatic_status', 'civilization_data', 'conflict_indicators'],
+            priority: 'very_high',
+            costProfile: { tokensPerCall: 2500, maxCallsPerMinute: 4 }
+        });
+        
+        civilization.aiSystems.set('diplomacy-ai', diplomacyAI);
+        
+        console.log(`🧠 Enhanced AI systems initialized for ${civilization.id} (15 total AI systems)`);
     }
 
     async initializeCivilizationDeterministicSystems(civilization) {

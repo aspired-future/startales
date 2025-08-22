@@ -18,7 +18,7 @@ function setupDemoPages(app) {
     res.type('html').send(getMainHUD());
   });
 
-  // Integrated Witty Galaxy HUD (New Enhanced Version)
+  // Integrated LivelyGalaxy.com HUD (New Enhanced Version)
   app.get('/demo/witty-galaxy-hud', (req, res) => {
     res.type('html').send(getIntegratedWittyGalaxyHUD());
   });
@@ -35,7 +35,7 @@ function setupDemoPages(app) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Startales Demo Hub</title>
+    <title>LivelyGalaxy.ai Demo Hub</title>
     <style>
       body { font-family: system-ui, sans-serif; padding: 20px; background: #0a0a0a; color: #e0e0e0; margin: 0; }
       .container { max-width: 1200px; margin: 0 auto; }
@@ -57,7 +57,7 @@ function setupDemoPages(app) {
   <body>
     <div class="container">
       <div class="header">
-        <h1>🌌 Startales Demo Hub</h1>
+        <h1>🌌 LivelyGalaxy.ai Demo Hub</h1>
         <p>Comprehensive galactic civilization builder demos and systems</p>
       </div>
 

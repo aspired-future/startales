@@ -1,5 +1,5 @@
 {
-  "name": "@app/content",
+  "name": "@lively-galaxy/content",
   "version": "0.1.0",
   "private": true,
   "type": "module",

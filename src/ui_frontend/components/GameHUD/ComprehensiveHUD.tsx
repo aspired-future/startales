@@ -7,6 +7,16 @@ import { GalaxyMapComponent } from './GalaxyMapComponent';
 import { TradeEconomics } from './TradeEconomics';
 import { createScreen } from './screens/ScreenFactory';
 
+// Import Quick Action screens
+import {
+  CrisisResponseScreen,
+  DailyBriefingScreen,
+  AddressNationScreen,
+  EmergencyPowersScreen,
+  SystemStatusScreen,
+  QuickActionScreenType
+} from './screens/quickactions';
+
 interface ComprehensiveHUDProps {
   playerId: string;
   gameContext: {
@@ -88,6 +98,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
   const [activePanel, setActivePanel] = useState<string>('command-center');
   const [activeTab, setActiveTab] = useState<'whoseapp' | 'events' | 'map' | 'witter' | 'analytics'>('whoseapp');
   const [expandedAccordion, setExpandedAccordion] = useState<string>('quick-actions');
+  const [activeQuickAction, setActiveQuickAction] = useState<QuickActionScreenType | null>(null);
   const [communicationMessages, setCommunicationMessages] = useState<CommunicationMessage[]>([]);
   const [communicationLoading, setCommunicationLoading] = useState(false);
   const [communicationError, setCommunicationError] = useState<string | null>(null);
@@ -899,7 +910,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
       {/* Command Header */}
       <div className="command-header">
         <div className="header-left">
-          <span className="game-title">🌌 WITTY GALAXY</span>
+          <span className="game-title">🌌 LIVELYGALAXY.COM</span>
           <span className="civilization-info">👑 Commander {playerId} | 🏛️ Terran Federation</span>
         </div>
         <div className="header-center">
@@ -929,11 +940,36 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
             </div>
             {expandedAccordion === 'quick-actions' && (
               <div className="accordion-content">
-                <button className="nav-item">🚨 Crisis Mode</button>
-                <button className="nav-item">📋 Daily Briefing</button>
-                <button className="nav-item">🎤 Address Nation</button>
-                <button className="nav-item">⚖️ Emergency Powers</button>
-                <button className="nav-item">🔄 System Status</button>
+                <button 
+                  className="nav-item"
+                  onClick={() => setActiveQuickAction('crisis-response')}
+                >
+                  🚨 Crisis Response
+                </button>
+                <button 
+                  className="nav-item"
+                  onClick={() => setActiveQuickAction('daily-briefing')}
+                >
+                  📋 Daily Briefing
+                </button>
+                <button 
+                  className="nav-item"
+                  onClick={() => setActiveQuickAction('address-nation')}
+                >
+                  🎤 Address Nation
+                </button>
+                <button 
+                  className="nav-item"
+                  onClick={() => setActiveQuickAction('emergency-powers')}
+                >
+                  ⚖️ Emergency Powers
+                </button>
+                <button 
+                  className="nav-item"
+                  onClick={() => setActiveQuickAction('system-status')}
+                >
+                  🔄 System Status
+                </button>
               </div>
             )}
           </div>
@@ -1653,7 +1689,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
                         
                         <div className="galaxy-info">
                           <div className="info-panel">
-                            <h4>🌌 Startales Galaxy</h4>
+                            <h4>🌌 LivelyGalaxy.ai</h4>
                             <p>Spiral Galaxy | Age: 13.8B years</p>
                             <p>Systems: 247 | Civilizations: 8</p>
                             <p>Current Location: {gameContext.currentLocation}</p>
@@ -1666,7 +1702,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
 
                 {activeTab === 'witter' && (
                   <div className="witter-tab">
-                    <h2>🐦 WITTY GALAXY SOCIAL NETWORK</h2>
+                    <h2>🐦 LIVELYGALAXY.COM SOCIAL NETWORK</h2>
                     <SimpleWitterFeed 
                       playerId={playerId}
                       gameContext={gameContext}
@@ -2077,6 +2113,34 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
         <span>📊 Performance: 94% | 💾 Auto-Save: Enabled | 🔄 Last Sync: 2s ago</span>
         <span>🌐 Online | 👥 Players: 1,247 | 🌌 Galaxy: Milky Way Sector 7</span>
       </div>
+
+      {/* Quick Action Screens */}
+      <CrisisResponseScreen
+        isVisible={activeQuickAction === 'crisis-response'}
+        onClose={() => setActiveQuickAction(null)}
+      />
+      <DailyBriefingScreen
+        isVisible={activeQuickAction === 'daily-briefing'}
+        onClose={() => setActiveQuickAction(null)}
+      />
+      <AddressNationScreen
+        isVisible={activeQuickAction === 'address-nation'}
+        onClose={() => setActiveQuickAction(null)}
+        onOpenScreen={(screenId) => {
+          // Handle opening other screens like the speeches screen
+          console.log(`Opening screen: ${screenId}`);
+          setActivePanel(screenId);
+          setActiveQuickAction(null);
+        }}
+      />
+      <EmergencyPowersScreen
+        isVisible={activeQuickAction === 'emergency-powers'}
+        onClose={() => setActiveQuickAction(null)}
+      />
+      <SystemStatusScreen
+        isVisible={activeQuickAction === 'system-status'}
+        onClose={() => setActiveQuickAction(null)}
+      />
     </div>
   );
 };
