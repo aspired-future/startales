@@ -20,6 +20,51 @@ interface Party {
   seats: number;
   voteShare: number;
   trend: 'up' | 'down' | 'stable';
+  
+  // Electoral data
+  electoralHistory?: ElectionResult[];
+  campaignPromises?: CampaignPromise[];
+  currentCampaign?: CampaignData;
+}
+
+interface ElectionResult {
+  electionId: string;
+  electionType: string;
+  date: string;
+  votes: number;
+  percentage: number;
+  seats?: number;
+  result: 'won' | 'lost' | 'coalition';
+}
+
+interface CampaignPromise {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  implemented?: boolean;
+  popularityBoost: number;
+}
+
+interface CampaignData {
+  electionId: string;
+  electionType: string;
+  daysUntilElection: number;
+  campaignStatus: 'scheduled' | 'active' | 'completed';
+  recentActivities: CampaignActivity[];
+  currentPolling: number;
+  pollingTrend: 'rising' | 'falling' | 'stable';
+}
+
+interface CampaignActivity {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  date: string;
+  location?: string;
+  mediaAttention: number;
 }
 
 interface Coalition {
@@ -60,7 +105,7 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
     };
   } | null>(null);
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'leadership' | 'coalitions' | 'electoral' | 'policy' | 'witter'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'leadership' | 'coalitions' | 'electoral' | 'campaigns' | 'policy' | 'witter'>('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,7 +138,26 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
               description: 'Technocratic Leader • Fiscal responsibility, traditional values, strong defense',
               seats: 58,
               voteShare: 31.2,
-              trend: 'up'
+              trend: 'up',
+              electoralHistory: [
+                { electionId: 'election_2023', electionType: 'legislative', date: '2023-11-15', votes: 1560000, percentage: 31.2, seats: 58, result: 'won' },
+                { electionId: 'election_2021', electionType: 'legislative', date: '2021-11-15', votes: 1420000, percentage: 28.4, seats: 52, result: 'lost' }
+              ],
+              campaignPromises: [
+                { id: 'cp1', category: 'economy', title: 'Reduce Corporate Tax Rate', description: 'Lower corporate taxes to 15% to stimulate business growth', priority: 'high', implemented: true, popularityBoost: 2.1 },
+                { id: 'cp2', category: 'security', title: 'Strengthen Border Defense', description: 'Increase military presence at territorial borders', priority: 'high', implemented: false, popularityBoost: 1.8 }
+              ],
+              currentCampaign: {
+                electionId: 'election_2025',
+                electionType: 'legislative',
+                daysUntilElection: 180,
+                campaignStatus: 'active',
+                recentActivities: [
+                  { id: 'act1', type: 'rally', title: 'Economic Growth Rally', description: 'Major rally focusing on job creation and fiscal responsibility', date: '2024-12-01', location: 'Capital Plaza', mediaAttention: 85 }
+                ],
+                currentPolling: 33.1,
+                pollingTrend: 'rising'
+              }
             },
             {
               id: 'progressive',
@@ -476,16 +540,16 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
           <span className="metric-value">847.3M</span>
         </div>
         <div className="metric">
-          <span>Voter Turnout (2156)</span>
+          <span>Voter Turnout (Last Election)</span>
           <span className="metric-value approval-good">{politicalData.metrics.voterTurnout}%</span>
+        </div>
+        <div className="metric">
+          <span>Next Election</span>
+          <span className="metric-value">180 days</span>
         </div>
         <div className="metric">
           <span>Electoral Integrity</span>
           <span className="metric-value approval-excellent">9.2/10</span>
-        </div>
-        <div className="metric">
-          <span>Competitiveness</span>
-          <span className="metric-value approval-excellent">{politicalData.metrics.competitivenessIndex}/10</span>
         </div>
         <div className="action-buttons">
           <button className="btn" onClick={() => handleAction('Electoral Oversight')}>Electoral Oversight</button>
@@ -494,28 +558,196 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
       </div>
 
       <div className="panel">
-        <h2>📊 Seat Distribution</h2>
-        <div className="metric">
-          <span>Total Seats</span>
-          <span className="metric-value">{politicalData.metrics.totalSeats}</span>
-        </div>
+        <h2>📊 Current Polling</h2>
         {politicalData.parties.map(party => (
           <div key={party.id} className={`party-item party-${party.type}`}>
             <div>
-              <strong>{party.name}</strong><br />
-              <small>{party.seats} seats ({((party.seats / politicalData.metrics.totalSeats) * 100).toFixed(1)}%)</small>
+              <strong>{party.name}</strong>
+              <span className={`trend-indicator ${party.currentCampaign?.pollingTrend || party.trend}`}>
+                {party.currentCampaign?.pollingTrend === 'rising' && '📈'}
+                {party.currentCampaign?.pollingTrend === 'falling' && '📉'}
+                {party.currentCampaign?.pollingTrend === 'stable' && '➡️'}
+                {!party.currentCampaign?.pollingTrend && (party.trend === 'up' ? '📈' : party.trend === 'down' ? '📉' : '➡️')}
+              </span>
             </div>
-            <div className="seat-bar">
-              <div 
-                className={`seat-fill party-${party.type}`} 
-                style={{ width: `${(party.seats / politicalData.metrics.totalSeats) * 100}%` }}
-              ></div>
+            <div className="polling-data">
+              <span className="polling-percentage">{party.currentCampaign?.currentPolling?.toFixed(1) || party.support.toFixed(1)}%</span>
+              <div className="polling-bar">
+                <div 
+                  className={`polling-fill party-${party.type}`} 
+                  style={{ width: `${party.currentCampaign?.currentPolling || party.support}%` }}
+                ></div>
+              </div>
             </div>
           </div>
         ))}
-        <div className="action-buttons">
-          <button className="btn" onClick={() => handleAction('Redistricting Analysis')}>Redistricting</button>
-          <button className="btn btn-secondary" onClick={() => handleAction('Representation Quality')}>Representation</button>
+        <div className="polling-info">
+          <small>📊 Latest poll • Margin of error ±3.2% • Sample: 1,247 voters</small>
+        </div>
+      </div>
+
+      <div className="panel">
+        <h2>🏆 Electoral History</h2>
+        {politicalData.parties.filter(party => party.electoralHistory && party.electoralHistory.length > 0).map(party => (
+          <div key={party.id} className="electoral-history">
+            <h4>{party.name}</h4>
+            {party.electoralHistory?.slice(0, 3).map(election => (
+              <div key={election.electionId} className="election-result">
+                <div className="election-info">
+                  <span className="election-date">{new Date(election.date).getFullYear()}</span>
+                  <span className="election-type">{election.electionType}</span>
+                  <span className={`election-result-badge ${election.result}`}>
+                    {election.result === 'won' && '🏆'}
+                    {election.result === 'lost' && '🥈'}
+                    {election.result === 'coalition' && '🤝'}
+                    {election.result}
+                  </span>
+                </div>
+                <div className="election-stats">
+                  <span>{election.percentage.toFixed(1)}%</span>
+                  {election.seats && <span>{election.seats} seats</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderCampaignsTab = () => (
+    <div className="campaigns-grid">
+      <div className="panel">
+        <h2>📢 Active Campaigns</h2>
+        <div className="campaign-status">
+          <div className="status-indicator active">
+            <span className="status-dot"></span>
+            <span>Campaign Season Active</span>
+          </div>
+          <div className="days-remaining">
+            <span className="countdown">180</span>
+            <span>days until election</span>
+          </div>
+        </div>
+        
+        {politicalData.parties.filter(party => party.currentCampaign).map(party => (
+          <div key={party.id} className={`campaign-card party-${party.type}`}>
+            <div className="campaign-header">
+              <h4>{party.name}</h4>
+              <span className={`campaign-status-badge ${party.currentCampaign?.campaignStatus}`}>
+                {party.currentCampaign?.campaignStatus}
+              </span>
+            </div>
+            
+            <div className="campaign-metrics">
+              <div className="metric-item">
+                <span className="metric-label">Current Polling</span>
+                <span className="metric-value">{party.currentCampaign?.currentPolling?.toFixed(1)}%</span>
+              </div>
+              <div className="metric-item">
+                <span className="metric-label">Trend</span>
+                <span className={`metric-value trend-${party.currentCampaign?.pollingTrend}`}>
+                  {party.currentCampaign?.pollingTrend}
+                  {party.currentCampaign?.pollingTrend === 'rising' && ' 📈'}
+                  {party.currentCampaign?.pollingTrend === 'falling' && ' 📉'}
+                  {party.currentCampaign?.pollingTrend === 'stable' && ' ➡️'}
+                </span>
+              </div>
+            </div>
+
+            {party.currentCampaign?.recentActivities && party.currentCampaign.recentActivities.length > 0 && (
+              <div className="recent-activities">
+                <h5>Recent Activities</h5>
+                {party.currentCampaign.recentActivities.slice(0, 2).map(activity => (
+                  <div key={activity.id} className="activity-item">
+                    <div className="activity-header">
+                      <span className="activity-type">{activity.type}</span>
+                      <span className="activity-date">{new Date(activity.date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="activity-title">{activity.title}</div>
+                    {activity.location && <div className="activity-location">📍 {activity.location}</div>}
+                    <div className="activity-attention">
+                      <span>Media Attention: {activity.mediaAttention}/100</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="panel">
+        <h2>🎯 Campaign Promises</h2>
+        {politicalData.parties.filter(party => party.campaignPromises && party.campaignPromises.length > 0).map(party => (
+          <div key={party.id} className="promises-section">
+            <h4>{party.name}</h4>
+            <div className="promises-list">
+              {party.campaignPromises?.slice(0, 3).map(promise => (
+                <div key={promise.id} className={`promise-item priority-${promise.priority}`}>
+                  <div className="promise-header">
+                    <span className="promise-category">{promise.category}</span>
+                    <span className={`promise-priority ${promise.priority}`}>
+                      {promise.priority === 'high' && '🔥'}
+                      {promise.priority === 'medium' && '⭐'}
+                      {promise.priority === 'low' && '💡'}
+                      {promise.priority}
+                    </span>
+                    {promise.implemented !== undefined && (
+                      <span className={`implementation-status ${promise.implemented ? 'implemented' : 'pending'}`}>
+                        {promise.implemented ? '✅ Implemented' : '⏳ Pending'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="promise-title">{promise.title}</div>
+                  <div className="promise-description">{promise.description}</div>
+                  <div className="promise-impact">
+                    Popularity Impact: {promise.popularityBoost > 0 ? '+' : ''}{promise.popularityBoost.toFixed(1)}%
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="panel">
+        <h2>📈 Campaign Analytics</h2>
+        <div className="analytics-grid">
+          <div className="analytics-card">
+            <h5>📊 Polling Trends</h5>
+            <div className="trend-summary">
+              {politicalData.parties.filter(p => p.currentCampaign).map(party => (
+                <div key={party.id} className="trend-item">
+                  <span className={`party-indicator party-${party.type}`}></span>
+                  <span>{party.name}</span>
+                  <span className={`trend-value ${party.currentCampaign?.pollingTrend}`}>
+                    {party.currentCampaign?.pollingTrend === 'rising' && '+2.1%'}
+                    {party.currentCampaign?.pollingTrend === 'falling' && '-1.3%'}
+                    {party.currentCampaign?.pollingTrend === 'stable' && '±0.2%'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div className="analytics-card">
+            <h5>🎪 Campaign Activity</h5>
+            <div className="activity-summary">
+              <div className="activity-stat">
+                <span className="stat-value">24</span>
+                <span className="stat-label">Events This Week</span>
+              </div>
+              <div className="activity-stat">
+                <span className="stat-value">89%</span>
+                <span className="stat-label">Media Coverage</span>
+              </div>
+              <div className="activity-stat">
+                <span className="stat-value">1.2M</span>
+                <span className="stat-label">Social Engagement</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -662,6 +894,12 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
           🗳️ Electoral
         </button>
         <button 
+          className={`tab-btn ${activeTab === 'campaigns' ? 'active' : ''}`}
+          onClick={() => setActiveTab('campaigns')}
+        >
+          📢 Campaigns
+        </button>
+        <button 
           className={`tab-btn ${activeTab === 'policy' ? 'active' : ''}`}
           onClick={() => setActiveTab('policy')}
         >
@@ -680,6 +918,7 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
         {activeTab === 'leadership' && renderLeadershipTab()}
         {activeTab === 'coalitions' && renderCoalitionsTab()}
         {activeTab === 'electoral' && renderElectoralTab()}
+        {activeTab === 'campaigns' && renderCampaignsTab()}
         {activeTab === 'policy' && renderPolicyTab()}
         {activeTab === 'witter' && renderWitterTab()}
       </div>

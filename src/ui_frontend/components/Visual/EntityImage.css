@@ -1,0 +1,215 @@
+/* EntityImage Component Styles */
+
+.entity-image {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.entity-image--clickable {
+  cursor: pointer;
+}
+
+.entity-image--clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Size variants */
+.entity-image--small {
+  width: 48px;
+  height: 48px;
+}
+
+.entity-image--medium {
+  width: 96px;
+  height: 96px;
+}
+
+.entity-image--large {
+  width: 192px;
+  height: 192px;
+}
+
+.entity-image--xl {
+  width: 256px;
+  height: 256px;
+}
+
+/* Shape variants */
+.entity-image--square {
+  border-radius: 4px;
+}
+
+.entity-image--rounded {
+  border-radius: 8px;
+}
+
+.entity-image--circle {
+  border-radius: 50%;
+}
+
+/* Image element */
+.entity-image__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Loading state */
+.entity-image__loading {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  gap: 8px;
+}
+
+.entity-image__spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top: 2px solid #00d4ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error state */
+.entity-image__error {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 100, 100, 0.8);
+  font-size: 12px;
+  gap: 4px;
+}
+
+.entity-image__error-icon {
+  font-size: 20px;
+}
+
+/* Placeholder state */
+.entity-image__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  gap: 4px;
+  text-align: center;
+}
+
+.entity-image__placeholder-icon {
+  font-size: 24px;
+  opacity: 0.7;
+}
+
+.entity-image__placeholder-text {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Metadata overlay */
+.entity-image__metadata {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  padding: 8px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.entity-image:hover .entity-image__metadata {
+  opacity: 1;
+}
+
+.entity-image__metadata-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.entity-image__metadata-label {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.entity-image__metadata-value {
+  color: rgba(255, 255, 255, 0.9);
+  text-align: right;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .entity-image--large {
+    width: 128px;
+    height: 128px;
+  }
+  
+  .entity-image--xl {
+    width: 192px;
+    height: 192px;
+  }
+}
+
+/* Special styling for different entity types */
+.entity-image[data-entity-type="planet"] {
+  border-color: rgba(100, 200, 255, 0.3);
+}
+
+.entity-image[data-entity-type="city"] {
+  border-color: rgba(255, 200, 100, 0.3);
+}
+
+.entity-image[data-entity-type="character"] {
+  border-color: rgba(200, 255, 100, 0.3);
+}
+
+.entity-image[data-entity-type="species"] {
+  border-color: rgba(255, 100, 200, 0.3);
+}
+
+.entity-image[data-entity-type="logo"] {
+  border-color: rgba(200, 100, 255, 0.3);
+}
+
+.entity-image[data-entity-type="civilization"] {
+  border-color: rgba(255, 255, 100, 0.3);
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+  .entity-image {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  }
+}

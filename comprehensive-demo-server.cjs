@@ -1,10 +1,19 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('./src/demo/apis/enhanced-knob-system.cjs');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from ui_frontend directory
+app.use('/ui', express.static(path.join(__dirname, 'src/ui_frontend')));
+
+// Serve the main game UI at /game
+app.get('/game', (req, res) => {
+  res.sendFile(path.join(__dirname, 'src/ui_frontend/index.html'));
+});
 
 // ===== WITTER SOCIAL NETWORK SYSTEM =====
 // (All the Witter functionality from demo-api-server.cjs)
@@ -11204,6 +11213,708 @@ app.get('/demo/api-health', (req, res) => {
 </html>`);
 });
 
+// ===== GOVERNMENT OVERVIEW API =====
+app.get('/api/government/overview', (req, res) => {
+  const mockGovernmentData = {
+    stats: {
+      approvalRating: 73.2,
+      stabilityIndex: 82.5,
+      totalBudget: '$2.4T',
+      activePrograms: 47,
+      employedOfficials: 12847,
+      pendingLegislation: 23
+    },
+    officials: [
+      {
+        id: 'official_1',
+        name: 'Dr. Elena Vasquez',
+        position: 'Prime Minister',
+        department: 'Executive Office',
+        yearsInOffice: 3,
+        approvalRating: 78.4,
+        status: 'active'
+      },
+      {
+        id: 'official_2',
+        name: 'Admiral James Morrison',
+        position: 'Defense Secretary',
+        department: 'Defense',
+        yearsInOffice: 2,
+        approvalRating: 82.1,
+        status: 'active'
+      },
+      {
+        id: 'official_3',
+        name: 'Dr. Sarah Chen',
+        position: 'Science Advisor',
+        department: 'Science & Technology',
+        yearsInOffice: 4,
+        approvalRating: 89.3,
+        status: 'active'
+      },
+      {
+        id: 'official_4',
+        name: 'Marcus Rodriguez',
+        position: 'Treasury Secretary',
+        department: 'Treasury',
+        yearsInOffice: 1,
+        approvalRating: 65.7,
+        status: 'active'
+      }
+    ],
+    programs: [
+      {
+        id: 'program_1',
+        name: 'Galactic Infrastructure Initiative',
+        department: 'Transportation',
+        budget: '$450B',
+        status: 'active',
+        progress: 67,
+        startDate: '2387-01-15',
+        expectedCompletion: '2392-12-31'
+      },
+      {
+        id: 'program_2',
+        name: 'Universal Healthcare Expansion',
+        department: 'Health',
+        budget: '$280B',
+        status: 'active',
+        progress: 89,
+        startDate: '2385-03-01',
+        expectedCompletion: '2390-06-30'
+      },
+      {
+        id: 'program_3',
+        name: 'Climate Restoration Project',
+        department: 'Environment',
+        budget: '$320B',
+        status: 'active',
+        progress: 45,
+        startDate: '2388-09-01',
+        expectedCompletion: '2395-12-31'
+      }
+    ],
+    policies: [
+      {
+        id: 'policy_1',
+        title: 'Interstellar Trade Regulation Act',
+        category: 'Economic',
+        priority: 'high',
+        status: 'approved',
+        supportLevel: 78,
+        proposedBy: 'Trade Commission'
+      },
+      {
+        id: 'policy_2',
+        title: 'AI Rights and Responsibilities Framework',
+        category: 'Technology',
+        priority: 'critical',
+        status: 'review',
+        supportLevel: 65,
+        proposedBy: 'Ethics Committee'
+      },
+      {
+        id: 'policy_3',
+        title: 'Planetary Defense Modernization',
+        category: 'Security',
+        priority: 'high',
+        status: 'implemented',
+        supportLevel: 84,
+        proposedBy: 'Defense Department'
+      }
+    ]
+  };
+
+  res.json({
+    success: true,
+    data: mockGovernmentData,
+    message: 'Government overview data retrieved successfully'
+  });
+});
+
+// ===== CONSTITUTION API =====
+app.get('/api/constitution/party-systems/options', (req, res) => {
+  const partySystemOptions = {
+    multiparty: {
+      name: 'Multi-Party System',
+      description: 'Competitive system allowing unlimited political parties',
+      advantages: [
+        'Diverse representation of political viewpoints',
+        'Competitive elections promote accountability',
+        'Coalition governments encourage compromise',
+        'Protection of minority political voices'
+      ],
+      disadvantages: [
+        'Potential for political fragmentation',
+        'Coalition instability',
+        'Increased campaign costs',
+        'Voter confusion with many choices'
+      ],
+      stabilityFactors: {
+        governmentStability: 75,
+        democraticLegitimacy: 90,
+        representationQuality: 85,
+        decisionMakingEfficiency: 70
+      },
+      recommendedFor: ['Large diverse populations', 'Established democracies', 'Pluralistic societies']
+    },
+    two_party: {
+      name: 'Two-Party System',
+      description: 'Structured system with exactly two major political parties',
+      advantages: [
+        'Political stability and predictability',
+        'Clear governing majorities',
+        'Simplified voter choices',
+        'Moderate, centrist policies'
+      ],
+      disadvantages: [
+        'Limited political diversity',
+        'Potential for polarization',
+        'Barriers to new political movements',
+        'Reduced representation of minority views'
+      ],
+      stabilityFactors: {
+        governmentStability: 85,
+        democraticLegitimacy: 75,
+        representationQuality: 65,
+        decisionMakingEfficiency: 90
+      },
+      recommendedFor: ['Stable democracies', 'Clear ideological divisions', 'Need for decisive governance']
+    },
+    single_party: {
+      name: 'Single-Party System',
+      description: 'One constitutional governing party with internal democracy',
+      advantages: [
+        'Unity and stability in governance',
+        'Rapid implementation of policies',
+        'Long-term strategic planning',
+        'Ideological consistency'
+      ],
+      disadvantages: [
+        'Limited political pluralism',
+        'Potential for authoritarianism',
+        'Reduced individual political expression',
+        'Risk of policy stagnation'
+      ],
+      stabilityFactors: {
+        governmentStability: 95,
+        democraticLegitimacy: 60,
+        representationQuality: 70,
+        decisionMakingEfficiency: 95
+      },
+      recommendedFor: ['Revolutionary periods', 'Nation-building phases', 'Crisis situations']
+    },
+    no_party: {
+      name: 'Non-Partisan System',
+      description: 'System where political parties are prohibited',
+      advantages: [
+        'No partisan politics',
+        'Individual merit focus',
+        'Reduced political polarization',
+        'Issue-based governance'
+      ],
+      disadvantages: [
+        'Lack of organized opposition',
+        'Difficulty organizing policy alternatives',
+        'Potential for elite capture',
+        'Reduced democratic competition'
+      ],
+      stabilityFactors: {
+        governmentStability: 80,
+        democraticLegitimacy: 50,
+        representationQuality: 60,
+        decisionMakingEfficiency: 85
+      },
+      recommendedFor: ['Small communities', 'Traditional societies', 'Post-conflict reconciliation']
+    }
+  };
+
+  res.json({
+    success: true,
+    data: partySystemOptions,
+    message: 'Party system options retrieved successfully'
+  });
+});
+
+// Store constitution data in memory for demo purposes
+let mockConstitution = {
+  id: 'constitution_galactic_federation',
+  name: 'Constitution of the Galactic Federation',
+  countryId: 'player_civ',
+  governmentType: 'parliamentary',
+  preamble: 'We, the people of the Galactic Federation, in order to form a more perfect union among the stars, establish justice across worlds, ensure interplanetary tranquility, provide for the common defense against cosmic threats, promote the general welfare of all sentient beings, and secure the blessings of liberty to ourselves and our posterity throughout the galaxy, do ordain and establish this Constitution.',
+  foundingPrinciples: [
+    'Democratic governance across star systems',
+    'Universal rights for all sentient beings',
+    'Peaceful coexistence among species',
+    'Sustainable development of galactic resources',
+    'Scientific advancement for the common good',
+    'Cultural diversity and preservation'
+  ],
+  politicalPartySystem: {
+    type: 'multiparty',
+    description: 'A competitive multi-party system allowing unlimited political parties to form and compete in elections across the galaxy.',
+    constraints: {
+      maxParties: null,
+      minParties: 2,
+      partyFormationRequirements: {
+        minimumMembers: 10000,
+        registrationProcess: 'Submit petition with member signatures from at least 3 star systems',
+        fundingRequirements: 500000,
+        ideologicalRestrictions: ['No parties advocating species supremacy', 'No parties promoting galactic warfare']
+      }
+    },
+    advantages: [
+      'Diverse representation across species and systems',
+      'Competitive elections promote accountability',
+      'Coalition governments encourage interspecies cooperation',
+      'Protection of minority species voices'
+    ],
+    disadvantages: [
+      'Potential for political fragmentation across systems',
+      'Coalition instability during crises',
+      'High campaign costs across multiple worlds',
+      'Voter confusion with many galactic choices'
+    ],
+    stabilityFactors: {
+      governmentStability: 78,
+      democraticLegitimacy: 92,
+      representationQuality: 88,
+      decisionMakingEfficiency: 72
+    }
+  },
+  constitutionalPoints: {
+    totalPoints: 1000,
+    allocatedPoints: {
+      executivePower: 150,
+      legislativePower: 200,
+      judicialPower: 150,
+      citizenRights: 200,
+      federalismBalance: 120,
+      emergencyPowers: 50,
+      amendmentDifficulty: 80,
+      partySystemFlexibility: 50
+    }
+  },
+  ratificationStatus: 'ratified',
+  publicSupport: 84.7,
+  adoptionDate: '2387-03-15T10:30:00Z',
+  lastAmended: '2389-11-22T14:15:00Z'
+};
+
+app.get('/api/constitution/civilization/:campaignId/:civilizationId', (req, res) => {
+  const { campaignId, civilizationId } = req.params;
+  
+  res.json({
+    success: true,
+    data: mockConstitution,
+    message: 'Constitution retrieved successfully'
+  });
+});
+
+// Update party system endpoint
+app.put('/api/constitution/:constitutionId/party-system', (req, res) => {
+  const { constitutionId } = req.params;
+  const { newPartySystemType, reason } = req.body;
+
+  if (constitutionId !== mockConstitution.id) {
+    return res.status(404).json({
+      success: false,
+      message: 'Constitution not found'
+    });
+  }
+
+  // Get the party system options
+  const partySystemOptions = {
+    multiparty: {
+      name: 'Multi-Party System',
+      description: 'A competitive multi-party system allowing unlimited political parties to form and compete in elections across the galaxy.',
+      advantages: [
+        'Diverse representation across species and systems',
+        'Competitive elections promote accountability',
+        'Coalition governments encourage interspecies cooperation',
+        'Protection of minority species voices'
+      ],
+      disadvantages: [
+        'Potential for political fragmentation across systems',
+        'Coalition instability during crises',
+        'High campaign costs across multiple worlds',
+        'Voter confusion with many galactic choices'
+      ],
+      stabilityFactors: {
+        governmentStability: 78,
+        democraticLegitimacy: 92,
+        representationQuality: 88,
+        decisionMakingEfficiency: 72
+      }
+    },
+    two_party: {
+      name: 'Two-Party System',
+      description: 'A structured system with exactly two major political parties competing for control of government.',
+      advantages: [
+        'Political stability and predictability',
+        'Clear governing majorities',
+        'Simplified voter choices',
+        'Moderate, centrist policies'
+      ],
+      disadvantages: [
+        'Limited political diversity',
+        'Potential for polarization',
+        'Barriers to new political movements',
+        'Reduced representation of minority views'
+      ],
+      stabilityFactors: {
+        governmentStability: 85,
+        democraticLegitimacy: 75,
+        representationQuality: 65,
+        decisionMakingEfficiency: 90
+      }
+    },
+    single_party: {
+      name: 'Single-Party System',
+      description: 'One constitutional governing party with internal democracy and structured governance.',
+      advantages: [
+        'Unity and stability in governance',
+        'Rapid implementation of policies',
+        'Long-term strategic planning',
+        'Ideological consistency'
+      ],
+      disadvantages: [
+        'Limited political pluralism',
+        'Potential for authoritarianism',
+        'Reduced individual political expression',
+        'Risk of policy stagnation'
+      ],
+      stabilityFactors: {
+        governmentStability: 95,
+        democraticLegitimacy: 60,
+        representationQuality: 70,
+        decisionMakingEfficiency: 95
+      }
+    },
+    no_party: {
+      name: 'Non-Partisan System',
+      description: 'A system where political parties are prohibited and candidates run as independents.',
+      advantages: [
+        'No partisan politics',
+        'Individual merit focus',
+        'Reduced political polarization',
+        'Issue-based governance'
+      ],
+      disadvantages: [
+        'Lack of organized opposition',
+        'Difficulty organizing policy alternatives',
+        'Potential for elite capture',
+        'Reduced democratic competition'
+      ],
+      stabilityFactors: {
+        governmentStability: 80,
+        democraticLegitimacy: 50,
+        representationQuality: 60,
+        decisionMakingEfficiency: 85
+      }
+    }
+  };
+
+  const newOption = partySystemOptions[newPartySystemType];
+  if (!newOption) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid party system type'
+    });
+  }
+
+  // Update the constitution
+  mockConstitution.politicalPartySystem = {
+    ...mockConstitution.politicalPartySystem,
+    type: newPartySystemType,
+    description: newOption.description,
+    advantages: newOption.advantages,
+    disadvantages: newOption.disadvantages,
+    stabilityFactors: newOption.stabilityFactors
+  };
+  mockConstitution.lastAmended = new Date().toISOString();
+
+  res.json({
+    success: true,
+    data: mockConstitution,
+    message: `Party system successfully changed to ${newOption.name}`
+  });
+});
+
+// Generate AI provisions endpoint
+app.post('/api/constitution/:constitutionId/ai-provisions/:category', (req, res) => {
+  const { constitutionId, category } = req.params;
+
+  if (constitutionId !== mockConstitution.id) {
+    return res.status(404).json({
+      success: false,
+      message: 'Constitution not found'
+    });
+  }
+
+  // Mock AI-generated provisions based on category
+  const aiProvisions = {
+    economicRights: {
+      provisions: [
+        'Right to economic opportunity and fair competition',
+        'Right to property ownership across star systems',
+        'Right to engage in interstellar commerce',
+        'Right to economic information and transparency'
+      ],
+      protections: [
+        'Protection against economic discrimination',
+        'Protection of intellectual property rights',
+        'Protection against monopolistic practices',
+        'Protection of worker rights in space industries'
+      ],
+      limitations: [
+        'Economic activities must not harm planetary ecosystems',
+        'Trade restrictions during galactic emergencies',
+        'Limits on resource extraction from protected worlds',
+        'Compliance with interstellar trade agreements'
+      ],
+      enforcementMechanisms: [
+        'Galactic Trade Commission oversight',
+        'Economic courts for dispute resolution',
+        'Regular audits of major corporations',
+        'Citizen reporting mechanisms for violations'
+      ]
+    },
+    socialRights: {
+      provisions: [
+        'Universal access to education across all worlds',
+        'Right to healthcare regardless of species',
+        'Right to social security and welfare',
+        'Right to cultural and linguistic diversity'
+      ],
+      protections: [
+        'Protection against social discrimination',
+        'Protection of family structures across species',
+        'Protection of minority group rights',
+        'Protection against social exclusion'
+      ],
+      limitations: [
+        'Social programs subject to budgetary constraints',
+        'Cultural practices must not violate universal rights',
+        'Education standards must meet galactic minimums',
+        'Healthcare rationing during resource shortages'
+      ],
+      enforcementMechanisms: [
+        'Social Rights Tribunal for violations',
+        'Regular social impact assessments',
+        'Citizen advocacy groups',
+        'Interspecies social welfare monitoring'
+      ]
+    },
+    culturalRights: {
+      provisions: [
+        'Right to preserve and practice cultural traditions',
+        'Right to use native languages in official proceedings',
+        'Right to cultural expression and artistic freedom',
+        'Right to cultural education for all species'
+      ],
+      protections: [
+        'Protection of sacred sites and cultural landmarks',
+        'Protection against cultural assimilation pressure',
+        'Protection of traditional knowledge systems',
+        'Protection of cultural artifacts and heritage'
+      ],
+      limitations: [
+        'Cultural practices must not violate individual rights',
+        'Restrictions on practices harmful to other species',
+        'Limits on cultural claims to public resources',
+        'Compliance with galactic cultural preservation standards'
+      ],
+      enforcementMechanisms: [
+        'Cultural Heritage Commission oversight',
+        'Cultural rights courts and mediation',
+        'Community-based cultural monitoring',
+        'International cultural exchange programs'
+      ]
+    },
+    environmentalRights: {
+      provisions: [
+        'Right to a clean and sustainable environment',
+        'Right to participate in environmental decisions',
+        'Right to environmental information and data',
+        'Right to environmental restoration and remediation'
+      ],
+      protections: [
+        'Protection against environmental degradation',
+        'Protection of biodiversity across worlds',
+        'Protection against toxic contamination',
+        'Protection of natural resource commons'
+      ],
+      limitations: [
+        'Environmental protection balanced with development needs',
+        'Emergency exceptions during galactic crises',
+        'Limits based on technological feasibility',
+        'Compliance with interplanetary environmental treaties'
+      ],
+      enforcementMechanisms: [
+        'Galactic Environmental Protection Agency',
+        'Environmental courts and tribunals',
+        'Citizen environmental monitoring networks',
+        'Regular environmental impact assessments'
+      ]
+    },
+    digitalRights: {
+      provisions: [
+        'Right to digital privacy and data protection',
+        'Right to digital access and connectivity',
+        'Right to digital literacy and education',
+        'Right to digital identity and authentication'
+      ],
+      protections: [
+        'Protection against digital surveillance overreach',
+        'Protection of personal data across systems',
+        'Protection against digital discrimination',
+        'Protection of digital communications privacy'
+      ],
+      limitations: [
+        'Digital rights balanced with security needs',
+        'Restrictions during cyber emergencies',
+        'Limits on anonymous digital activities',
+        'Compliance with galactic cybersecurity standards'
+      ],
+      enforcementMechanisms: [
+        'Digital Rights Commission oversight',
+        'Cybersecurity courts and arbitration',
+        'Digital rights advocacy organizations',
+        'Regular digital rights audits and assessments'
+      ]
+    },
+    governanceInnovations: {
+      provisions: [
+        'Participatory democracy through digital platforms',
+        'Citizen assemblies for complex policy issues',
+        'Transparent algorithmic decision-making',
+        'Regular constitutional review and adaptation'
+      ],
+      mechanisms: [
+        'AI-assisted policy analysis and recommendation',
+        'Blockchain-based voting and verification systems',
+        'Real-time citizen feedback and consultation',
+        'Predictive governance modeling and simulation'
+      ],
+      safeguards: [
+        'Human oversight of all AI governance systems',
+        'Regular audits of algorithmic decision-making',
+        'Protection against manipulation and bias',
+        'Fail-safe mechanisms for system failures'
+      ],
+      evaluationCriteria: [
+        'Democratic legitimacy and citizen satisfaction',
+        'Efficiency and effectiveness of governance',
+        'Transparency and accountability measures',
+        'Adaptability to changing galactic conditions'
+      ]
+    }
+  };
+
+  const categoryData = aiProvisions[category];
+  if (!categoryData) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid provision category'
+    });
+  }
+
+  // Simulate AI generation delay
+  setTimeout(() => {
+    res.json({
+      success: true,
+      data: categoryData,
+      message: `AI provisions generated for ${category}`
+    });
+  }, 1500); // 1.5 second delay to simulate AI processing
+});
+
+// Update government type endpoint
+app.put('/api/constitution/:constitutionId/government-type', (req, res) => {
+  const { constitutionId } = req.params;
+  const { governmentType } = req.body;
+
+  if (constitutionId !== mockConstitution.id) {
+    return res.status(404).json({
+      success: false,
+      message: 'Constitution not found'
+    });
+  }
+
+  const validTypes = ['presidential', 'parliamentary', 'semi_presidential', 'constitutional_monarchy'];
+  if (!validTypes.includes(governmentType)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid government type'
+    });
+  }
+
+  // Update the constitution
+  mockConstitution.governmentType = governmentType;
+  mockConstitution.lastAmended = new Date().toISOString();
+
+  res.json({
+    success: true,
+    data: mockConstitution,
+    message: `Government type successfully changed to ${governmentType}`
+  });
+});
+
+// Update preamble endpoint
+app.put('/api/constitution/:constitutionId/preamble', (req, res) => {
+  const { constitutionId } = req.params;
+  const { preamble } = req.body;
+
+  if (constitutionId !== mockConstitution.id) {
+    return res.status(404).json({
+      success: false,
+      message: 'Constitution not found'
+    });
+  }
+
+  // Update the constitution
+  mockConstitution.preamble = preamble;
+  mockConstitution.lastAmended = new Date().toISOString();
+
+  res.json({
+    success: true,
+    data: mockConstitution,
+    message: 'Preamble successfully updated'
+  });
+});
+
+// Update founding principles endpoint
+app.put('/api/constitution/:constitutionId/principles', (req, res) => {
+  const { constitutionId } = req.params;
+  const { foundingPrinciples } = req.body;
+
+  if (constitutionId !== mockConstitution.id) {
+    return res.status(404).json({
+      success: false,
+      message: 'Constitution not found'
+    });
+  }
+
+  if (!Array.isArray(foundingPrinciples)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Founding principles must be an array'
+    });
+  }
+
+  // Update the constitution
+  mockConstitution.foundingPrinciples = foundingPrinciples;
+  mockConstitution.lastAmended = new Date().toISOString();
+
+  res.json({
+    success: true,
+    data: mockConstitution,
+    message: 'Founding principles successfully updated'
+  });
+});
+
 // Enhanced Knob System Endpoints
 createEnhancedKnobEndpoints(app, 'population', populationKnobSystem, applyPopulationKnobsToGameState);
 createEnhancedKnobEndpoints(app, 'technology', technologyKnobSystem, applyTechnologyKnobsToGameState);
@@ -11222,6 +11933,11 @@ app.listen(PORT, () => {
   console.log(`  Cabinet:     http://localhost:${PORT}/demo/cabinet`);
   console.log(`  Trade:       http://localhost:${PORT}/demo/trade`);
   console.log(`  Simulation:  http://localhost:${PORT}/demo/simulation`);
+  console.log(`Government APIs:`);
+  console.log(`  Government:  http://localhost:${PORT}/api/government/overview`);
+  console.log(`  Constitution: http://localhost:${PORT}/api/constitution/party-systems/options`);
+  console.log(`Game UI:`);
+  console.log(`  Main Game:   http://localhost:${PORT}/game`);
 });
 
 module.exports = app;

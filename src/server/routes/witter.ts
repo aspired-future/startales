@@ -3,6 +3,8 @@ import WitterAIService from '../../services/WitterAIService.js';
 import DefaultGameStateProvider from '../../services/GameStateProvider.js';
 import { getBusinessNewsService } from '../witter/BusinessNewsService.js';
 import { getSportsNewsService } from '../witter/SportsNewsService.js';
+import { getEnhancedAIContentService } from '../witter/EnhancedAIContentService.js';
+import { getCharacterDrivenContentService } from '../witter/CharacterDrivenContentService.js';
 
 const router = express.Router();
 const gameStateProvider = new DefaultGameStateProvider();
@@ -23,17 +25,56 @@ router.get('/feed', async (req, res) => {
       sourceType
     } = req.query;
 
-    const limitNum = Math.min(parseInt(limit as string) || 20, 100); // Max 100 posts
+    const limitNum = Math.min(parseInt(limit as string) || 20, 50); // Max 50 posts per request for infinite scroll
     const offsetNum = parseInt(offset as string) || 0;
 
-    // Build filters
-    const filters: any = {};
-    if (civilization && civilization !== 'all') filters.civilization = civilization as string;
-    if (starSystem && starSystem !== 'all') filters.starSystem = starSystem as string;
-    if (planet && planet !== 'all') filters.planet = planet as string;
+    // Temporary mock data while fixing AI service
+    const mockPosts = [
+      {
+        id: `witt-${Date.now()}-1`,
+        author: "Dr. Elena Vasquez",
+        handle: "@DrElenaV",
+        content: "🧬 Breakthrough in quantum genetics! Our team just discovered how to enhance crop yields by 300% using quantum-entangled DNA sequences. The future of galactic agriculture is here! #QuantumScience #GalacticAgriculture",
+        timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+        likes: 1247,
+        reposts: 89,
+        replies: 34,
+        category: 'SCIENCE',
+        avatar: "🧬",
+        verified: true,
+        location: "Kepler Research Station"
+      },
+      {
+        id: `witt-${Date.now()}-2`,
+        author: "Marcus Chen",
+        handle: "@MarcusReports",
+        content: "📈 BREAKING: Galactic Trade Federation announces new interstellar commerce routes! Expected to boost GDP by 15% across all member civilizations. The Andromeda-Milky Way Express is officially operational! 🚀✨ #GalacticEconomy #Trade",
+        timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+        likes: 892,
+        reposts: 156,
+        replies: 67,
+        category: 'BUSINESS',
+        avatar: "📊",
+        verified: true,
+        location: "Central Trade Hub"
+      },
+      {
+        id: `witt-${Date.now()}-3`,
+        author: "Captain Sarah Nova",
+        handle: "@CaptainNova",
+        content: "🏆 What a match! The Centauri Comets just defeated the Vega Vipers 4-2 in the most intense zero-gravity soccer final I've ever witnessed! That last-minute goal by Rodriguez was INSANE! 🥅⚽ #ZeroGSoccer #GalacticSports",
+        timestamp: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
+        likes: 2156,
+        reposts: 234,
+        replies: 89,
+        category: 'SPORTS',
+        avatar: "⚽",
+        verified: false,
+        location: "Orbital Sports Complex"
+      }
+    ];
 
-    // Generate fresh AI content
-    const posts = await witterService.generateFeed(limitNum, filters);
+    const posts = mockPosts.slice(offsetNum, offsetNum + limitNum);
 
     // Apply source type filter if specified
     let filteredPosts = posts;
@@ -428,9 +469,93 @@ router.get('/enhanced-feed', async (req, res) => {
       includeSportsNews = 'true'
     } = req.query;
 
-    const limitNum = Math.min(parseInt(limit as string) || 20, 100);
+    const limitNum = Math.min(parseInt(limit as string) || 20, 50); // Max 50 posts per request for infinite scroll
     const offsetNum = parseInt(offset as string) || 0;
     const civilizationId = parseInt(civilization as string) || 1;
+
+    // Temporary mock enhanced data
+    const enhancedMockPosts = [
+      {
+        id: `enhanced-${Date.now()}-1`,
+        author: "Dr. Elena Vasquez",
+        handle: "@DrElenaV",
+        content: "🧬 Breakthrough in quantum genetics! Our team just discovered how to enhance crop yields by 300% using quantum-entangled DNA sequences. The future of galactic agriculture is here! #QuantumScience #GalacticAgriculture",
+        timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+        likes: 1247,
+        reposts: 89,
+        replies: 34,
+        category: 'SCIENCE',
+        avatar: "🧬",
+        verified: true,
+        location: "Kepler Research Station"
+      },
+      {
+        id: `enhanced-${Date.now()}-2`,
+        author: "Marcus Chen",
+        handle: "@MarcusReports",
+        content: "📈 BREAKING: Galactic Trade Federation announces new interstellar commerce routes! Expected to boost GDP by 15% across all member civilizations. The Andromeda-Milky Way Express is officially operational! 🚀✨ #GalacticEconomy #Trade",
+        timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+        likes: 892,
+        reposts: 156,
+        replies: 67,
+        category: 'BUSINESS',
+        avatar: "📊",
+        verified: true,
+        location: "Central Trade Hub"
+      },
+      {
+        id: `enhanced-${Date.now()}-3`,
+        author: "Captain Sarah Nova",
+        handle: "@CaptainNova",
+        content: "🏆 What a match! The Centauri Comets just defeated the Vega Vipers 4-2 in the most intense zero-gravity soccer final I've ever witnessed! That last-minute goal by Rodriguez was INSANE! 🥅⚽ #ZeroGSoccer #GalacticSports",
+        timestamp: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
+        likes: 2156,
+        reposts: 234,
+        replies: 89,
+        category: 'SPORTS',
+        avatar: "⚽",
+        verified: false,
+        location: "Orbital Sports Complex"
+      },
+      {
+        id: `enhanced-${Date.now()}-4`,
+        author: "Ambassador Zara Kim",
+        handle: "@AmbassadorZara",
+        content: "🌟 Honored to represent our civilization at the Intergalactic Peace Summit. Today we signed historic agreements on resource sharing and cultural exchange. Together, we build a brighter future among the stars! 🤝✨ #Diplomacy #Peace",
+        timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
+        likes: 3421,
+        reposts: 445,
+        replies: 123,
+        category: 'POLITICS',
+        avatar: "🌟",
+        verified: true,
+        location: "Diplomatic Quarter"
+      },
+      {
+        id: `enhanced-${Date.now()}-5`,
+        author: "Tech Innovator Alex",
+        handle: "@TechAlexInnovates",
+        content: "🤖 Just finished beta testing the new AI-powered personal assistants! These little guys can manage your entire household, optimize your daily schedule, AND they make the best synthetic coffee in the galaxy! ☕🤖 #AITech #Innovation",
+        timestamp: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
+        likes: 1876,
+        reposts: 298,
+        replies: 156,
+        category: 'TECHNOLOGY',
+        avatar: "🤖",
+        verified: false,
+        location: "Innovation District"
+      }
+    ];
+
+    // Return mock data in the expected format
+    res.json({
+      witts: enhancedMockPosts.slice(offsetNum, offsetNum + limitNum),
+      hasMore: offsetNum + limitNum < enhancedMockPosts.length,
+      total: enhancedMockPosts.length,
+      offset: offsetNum,
+      limit: limitNum
+    });
+    return;
 
     // Build filters for regular content
     const filters: any = {};
@@ -438,16 +563,194 @@ router.get('/enhanced-feed', async (req, res) => {
     if (starSystem && starSystem !== 'all') filters.starSystem = starSystem as string;
     if (planet && planet !== 'all') filters.planet = planet as string;
 
-    // Calculate content distribution (35% citizen, 20% business, 18% sports, 15% political, 7% science, 5% breaking)
-    const citizenCount = Math.floor(limitNum * 0.35);
-    const businessCount = Math.floor(limitNum * 0.20);
-    const sportsCount = Math.floor(limitNum * 0.18);
-    const remainingCount = limitNum - businessCount - sportsCount;
+    // Calculate diverse content distribution for maximum entertainment
+    const businessCount = Math.floor(limitNum * 0.15);  // 15% business
+    const sportsCount = Math.floor(limitNum * 0.15);    // 15% sports
+    const entertainmentCount = Math.floor(limitNum * 0.15); // 15% entertainment
+    const cultureCount = Math.floor(limitNum * 0.10);   // 10% culture
+    const technologyCount = Math.floor(limitNum * 0.10); // 10% technology
+    const politicsCount = Math.floor(limitNum * 0.10);  // 10% politics
+    const scienceCount = Math.floor(limitNum * 0.10);   // 10% science
+    const citizenCount = limitNum - (businessCount + sportsCount + entertainmentCount + cultureCount + technologyCount + politicsCount + scienceCount); // 15% citizen
 
-    // Generate regular Witter content (citizen, political, science, breaking)
-    const regularPosts = await witterService.generateFeed(Math.max(citizenCount, remainingCount), filters);
-
+    // Generate regular citizen content
+    const regularPosts = await witterService.generateFeed(citizenCount, filters);
     let allPosts = [...regularPosts];
+
+    // Generate enhanced AI content for diverse categories
+    try {
+      const enhancedAIService = getEnhancedAIContentService();
+      const gameContext = {
+        currentEvents: [
+          'Inter-civilization diplomatic summit scheduled',
+          'New quantum technology breakthrough announced',
+          'Galactic entertainment awards ceremony approaching'
+        ],
+        economicStatus: 'Mixed signals across galactic markets',
+        politicalClimate: 'Tensions rising between core worlds and outer rim',
+        recentNews: [
+          'Celebrity scandal rocks entertainment industry',
+          'Scientific discovery challenges existing theories',
+          'Cultural exchange program launches between civilizations'
+        ]
+      };
+
+      // Generate entertainment content
+      if (entertainmentCount > 0) {
+        const entertainmentPosts = await enhancedAIService.generateEnhancedContent({
+          contentType: 'entertainment',
+          civilizationId,
+          gameContext
+        }, entertainmentCount);
+        
+        const formattedEntertainment = entertainmentPosts.map(post => ({
+          ...post,
+          authorType: post.authorType.toLowerCase(),
+          metadata: {
+            ...post.metadata,
+            sourceType: 'entertainment_news'
+          }
+        }));
+        allPosts = [...allPosts, ...formattedEntertainment];
+      }
+
+      // Generate culture content
+      if (cultureCount > 0) {
+        const culturePosts = await enhancedAIService.generateEnhancedContent({
+          contentType: 'culture',
+          civilizationId,
+          gameContext
+        }, cultureCount);
+        
+        const formattedCulture = culturePosts.map(post => ({
+          ...post,
+          authorType: post.authorType.toLowerCase(),
+          metadata: {
+            ...post.metadata,
+            sourceType: 'culture_news'
+          }
+        }));
+        allPosts = [...allPosts, ...formattedCulture];
+      }
+
+      // Generate technology content
+      if (technologyCount > 0) {
+        const technologyPosts = await enhancedAIService.generateEnhancedContent({
+          contentType: 'technology',
+          civilizationId,
+          gameContext
+        }, technologyCount);
+        
+        const formattedTechnology = technologyPosts.map(post => ({
+          ...post,
+          authorType: post.authorType.toLowerCase(),
+          metadata: {
+            ...post.metadata,
+            sourceType: 'technology_news'
+          }
+        }));
+        allPosts = [...allPosts, ...formattedTechnology];
+      }
+
+      // Generate politics content
+      if (politicsCount > 0) {
+        const politicsPosts = await enhancedAIService.generateEnhancedContent({
+          contentType: 'politics',
+          civilizationId,
+          gameContext
+        }, politicsCount);
+        
+        const formattedPolitics = politicsPosts.map(post => ({
+          ...post,
+          authorType: post.authorType.toLowerCase(),
+          metadata: {
+            ...post.metadata,
+            sourceType: 'politics_news'
+          }
+        }));
+        allPosts = [...allPosts, ...formattedPolitics];
+      }
+
+      // Generate science content
+      if (scienceCount > 0) {
+        const sciencePosts = await enhancedAIService.generateEnhancedContent({
+          contentType: 'science',
+          civilizationId,
+          gameContext
+        }, scienceCount);
+        
+        const formattedScience = sciencePosts.map(post => ({
+          ...post,
+          authorType: post.authorType.toLowerCase(),
+          metadata: {
+            ...post.metadata,
+            sourceType: 'science_news'
+          }
+        }));
+        allPosts = [...allPosts, ...formattedScience];
+      }
+
+    } catch (enhancedError) {
+      console.error('Failed to generate enhanced AI content, continuing with regular feed:', enhancedError);
+    }
+
+    // Generate character-driven story content (20% of total content)
+    try {
+      const characterService = getCharacterDrivenContentService();
+      const characterCount = Math.floor(limitNum * 0.20); // 20% character-driven content
+      
+      if (characterCount > 0) {
+        // Create mock game events for character context
+        const mockGameEvents = [
+          {
+            id: 'event-001',
+            type: 'political' as const,
+            title: 'Inter-civilization diplomatic summit scheduled',
+            description: 'Major diplomatic negotiations between core civilizations',
+            civilizationsInvolved: ['Terran Republic', 'Alpha Centauri Alliance'],
+            charactersAffected: [],
+            timestamp: new Date(),
+            impact: 'major' as const,
+            ongoingStoryline: 'diplomatic-crisis'
+          },
+          {
+            id: 'event-002',
+            type: 'scientific' as const,
+            title: 'Quantum technology breakthrough announced',
+            description: 'Revolutionary quantum computing advancement',
+            civilizationsInvolved: ['Vega Federation'],
+            charactersAffected: [],
+            timestamp: new Date(),
+            impact: 'moderate' as const,
+            ongoingStoryline: 'tech-revolution'
+          },
+          {
+            id: 'event-003',
+            type: 'cultural' as const,
+            title: 'Galactic entertainment awards ceremony approaching',
+            description: 'Annual celebration of inter-civilization entertainment',
+            civilizationsInvolved: ['Sirius Empire', 'Kepler Union'],
+            charactersAffected: [],
+            timestamp: new Date(),
+            impact: 'minor' as const,
+            ongoingStoryline: 'celebrity-drama'
+          }
+        ];
+
+        const characterPosts = await characterService.generateCharacterDrivenContent(
+          civilizationId,
+          mockGameEvents,
+          characterCount
+        );
+        
+        // Convert character posts to Witter format
+        const formattedCharacterPosts = characterService.convertToWitterPosts(characterPosts);
+        allPosts = [...allPosts, ...formattedCharacterPosts];
+      }
+    } catch (characterError) {
+      console.error('Character-driven content generation failed:', characterError);
+      // Continue without character content
+    }
 
     // Add business news if requested
     if (includeBusinessNews === 'true') {

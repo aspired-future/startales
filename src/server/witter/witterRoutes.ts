@@ -8,6 +8,9 @@
 import express from 'express';
 import { BusinessNewsService } from './BusinessNewsService.js';
 import { SportsNewsService } from './SportsNewsService.js';
+import { initializeEnhancedAIContentService } from './EnhancedAIContentService.js';
+import { initializeCharacterDrivenContentService } from './CharacterDrivenContentService.js';
+import { initializeGameMasterStoryEngine } from './GameMasterStoryEngine.js';
 import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
@@ -106,7 +109,188 @@ let sportsNewsService: SportsNewsService;
 export function initializeWitterServices(pool: any): void {
   businessNewsService = new BusinessNewsService(pool);
   sportsNewsService = new SportsNewsService(pool);
+  initializeEnhancedAIContentService(pool);
+  initializeCharacterDrivenContentService(pool);
+  initializeGameMasterStoryEngine(pool);
 }
+
+// ===== GAME MASTER STORY ENGINE =====
+
+/**
+ * POST /api/witter/initialize-story - Initialize Game Master story for a civilization
+ */
+router.post('/initialize-story', async (req, res) => {
+  try {
+    const { 
+      civilizationId, 
+      gameTheme = 'political intrigue', 
+      storyGenre = 'space opera',
+      characterPopulationTarget = 500,
+      storyTension = 5,
+      majorStorylines = []
+    } = req.body;
+
+    if (!civilizationId) {
+      return res.status(400).json({
+        error: 'Missing required parameter: civilizationId'
+      });
+    }
+
+    const { getGameMasterStoryEngine } = await import('./GameMasterStoryEngine.js');
+    const gameMaster = getGameMasterStoryEngine();
+
+    const gameSetup = {
+      civilizationId: parseInt(civilizationId),
+      gameTheme,
+      storyGenre,
+      playerActions: [],
+      currentEvents: [],
+      majorStorylines: majorStorylines.length > 0 ? majorStorylines : [
+        'Government corruption scandal',
+        'Scientific breakthrough discovery',
+        'Inter-civilization diplomatic crisis',
+        'Economic market manipulation',
+        'Underground resistance movement'
+      ],
+      characterPopulationTarget: parseInt(characterPopulationTarget),
+      storyTension: parseInt(storyTension)
+    };
+
+    await gameMaster.initializeGameStory(gameSetup);
+
+    res.json({
+      success: true,
+      message: `Game Master story initialized for civilization ${civilizationId}`,
+      gameSetup: {
+        theme: gameTheme,
+        genre: storyGenre,
+        characterTarget: characterPopulationTarget,
+        storylines: gameSetup.majorStorylines
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error initializing Game Master story:', error);
+    res.status(500).json({
+      error: 'Failed to initialize story',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/witter/story-status/:civilizationId - Get current story status
+ */
+router.get('/story-status/:civilizationId', async (req, res) => {
+  try {
+    const { civilizationId } = req.params;
+
+    const { getGameMasterStoryEngine } = await import('./GameMasterStoryEngine.js');
+    const gameMaster = getGameMasterStoryEngine();
+
+    const storyContext = gameMaster.getStoryContextForCharacters(parseInt(civilizationId));
+
+    res.json({
+      success: true,
+      civilizationId: parseInt(civilizationId),
+      storyContext
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting story status:', error);
+    res.status(500).json({
+      error: 'Failed to get story status',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * POST /api/witter/record-activity - Record player activity for story progression
+ */
+router.post('/record-activity', async (req, res) => {
+  try {
+    const { civilizationId, activityType, details } = req.body;
+
+    if (!civilizationId || !activityType) {
+      return res.status(400).json({
+        error: 'Missing required parameters: civilizationId, activityType'
+      });
+    }
+
+    const { getGameMasterStoryEngine } = await import('./GameMasterStoryEngine.js');
+    const gameMaster = getGameMasterStoryEngine();
+
+    gameMaster.recordPlayerActivity(parseInt(civilizationId), activityType, details);
+
+    res.json({
+      success: true,
+      message: `Activity recorded: ${activityType}`,
+      civilizationId: parseInt(civilizationId)
+    });
+
+  } catch (error) {
+    console.error('❌ Error recording player activity:', error);
+    res.status(500).json({
+      error: 'Failed to record activity',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * POST /api/witter/start-story-management/:civilizationId - Start active story management
+ */
+router.post('/start-story-management/:civilizationId', async (req, res) => {
+  try {
+    const { civilizationId } = req.params;
+
+    const { getGameMasterStoryEngine } = await import('./GameMasterStoryEngine.js');
+    const gameMaster = getGameMasterStoryEngine();
+
+    gameMaster.startActiveStoryManagement(parseInt(civilizationId));
+
+    res.json({
+      success: true,
+      message: `Active story management started for civilization ${civilizationId}`,
+      civilizationId: parseInt(civilizationId)
+    });
+
+  } catch (error) {
+    console.error('❌ Error starting story management:', error);
+    res.status(500).json({
+      error: 'Failed to start story management',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * POST /api/witter/stop-story-management/:civilizationId - Stop active story management
+ */
+router.post('/stop-story-management/:civilizationId', async (req, res) => {
+  try {
+    const { civilizationId } = req.params;
+
+    const { getGameMasterStoryEngine } = await import('./GameMasterStoryEngine.js');
+    const gameMaster = getGameMasterStoryEngine();
+
+    gameMaster.stopActiveStoryManagement(parseInt(civilizationId));
+
+    res.json({
+      success: true,
+      message: `Active story management stopped for civilization ${civilizationId}`,
+      civilizationId: parseInt(civilizationId)
+    });
+
+  } catch (error) {
+    console.error('❌ Error stopping story management:', error);
+    res.status(500).json({
+      error: 'Failed to stop story management',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
 
 // ===== POSTS & CONTENT MANAGEMENT =====
 

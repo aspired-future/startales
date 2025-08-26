@@ -59,6 +59,10 @@ export class CharacterService {
 
       await client.query('COMMIT');
       console.log(`✅ Created character: ${character.name.full_display}`);
+      
+      // Generate character portrait
+      this.generateCharacterPortrait(character);
+      
       return characterResult.rows[0].id;
 
     } catch (error) {
@@ -379,5 +383,33 @@ export class CharacterService {
     }
 
     return relationships;
+  }
+
+  /**
+   * Generate portrait for a character
+   */
+  private async generateCharacterPortrait(character: any): Promise<void> {
+    try {
+      const { getCharacterVisualIntegration } = await import('../visual-systems/CharacterVisualIntegration.js');
+      const characterVisual = getCharacterVisualIntegration();
+      
+      // Queue image generation (non-blocking)
+      characterVisual.queueCharacterImageGeneration({
+        id: character.id,
+        name: character.name,
+        species: character.demographics?.species,
+        role: character.profession?.title,
+        category: character.category,
+        subcategory: character.subcategory,
+        appearance: character.appearance,
+        personality: character.personality,
+        profession: character.profession,
+        civilization_id: character.civilization_id,
+        planet_id: character.planet_id,
+        city_id: character.city_id
+      }, 'high');
+    } catch (error) {
+      console.warn(`Failed to queue character portrait generation for ${character.name?.full_display || character.id}:`, error);
+    }
   }
 }

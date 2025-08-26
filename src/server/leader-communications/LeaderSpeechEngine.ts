@@ -68,6 +68,7 @@ export class LeaderSpeechEngine {
         tone: this.determineSpeechTone(request, speechContent),
         duration: this.estimateDuration(speechContent.content),
         keyMessages: speechContent.keyMessages,
+        deliveryMode: request.deliveryMode || 'avatar',
         
         expectedImpact,
         simulationEffects,
@@ -302,6 +303,7 @@ SPEECH TITLE: ${speechContent.title}
 SPEECH TYPE: ${request.type}
 AUDIENCE: ${request.audience.primary}
 TONE: ${request.tone || 'formal'}
+DELIVERY MODE: ${request.deliveryMode || 'teleprompter'}
 
 SPEECH CONTENT:
 ${speechContent.content}
@@ -331,6 +333,10 @@ Consider:
 - Audience type and size
 - Historical context
 - Policy implications
+- Delivery mode impact:
+  * Avatar: AI avatar delivers speech automatically, leader not personally present, digital representation
+  * Teleprompter: Professional, polished, prepared delivery with leader engagement
+  * Off-the-cuff: Most authentic and relatable, shows confidence and spontaneity, highest emotional impact
 
 Format as JSON:
 {
@@ -371,6 +377,9 @@ Format as JSON:
     request: SpeechRequest
   ): Promise<SimulationEffect[]> {
     const effects: SimulationEffect[] = [];
+    
+    // Calculate delivery mode multiplier
+    const deliveryMultiplier = this.getDeliveryModeMultiplier(request.deliveryMode || 'teleprompter');
 
     // Convert impact metrics to simulation effects
     if (Math.abs(impact.morale) > 0.05) {
@@ -378,7 +387,7 @@ Format as JSON:
         system: 'population',
         parameter: 'morale',
         effect: impact.morale > 0 ? 'increase' : 'decrease',
-        value: Math.abs(impact.morale),
+        value: Math.abs(impact.morale) * deliveryMultiplier,
         duration: this.calculateEffectDuration(impact.morale, 'morale'),
         description: `Leader speech ${impact.morale > 0 ? 'boosted' : 'dampened'} public morale`,
         magnitude: this.calculateEffectMagnitude(impact.morale),
@@ -392,7 +401,7 @@ Format as JSON:
         system: 'politics',
         parameter: 'leader_approval',
         effect: impact.approval > 0 ? 'increase' : 'decrease',
-        value: Math.abs(impact.approval),
+        value: Math.abs(impact.approval) * deliveryMultiplier,
         duration: this.calculateEffectDuration(impact.approval, 'approval'),
         description: `Leader speech affected approval ratings`,
         magnitude: this.calculateEffectMagnitude(impact.approval),
@@ -736,6 +745,19 @@ Format as JSON:
     }
     
     return this.clampValue(change, -1, 1);
+  }
+
+  private getDeliveryModeMultiplier(deliveryMode: 'avatar' | 'teleprompter' | 'off-the-cuff'): number {
+    // Impact hierarchy: avatar < teleprompter < off-the-cuff
+    switch (deliveryMode) {
+      case 'off-the-cuff':
+        return 1.5; // 50% higher impact - most authentic and engaging
+      case 'teleprompter':
+        return 1.2; // 20% higher impact - professional and prepared
+      case 'avatar':
+      default:
+        return 1.0; // Baseline impact - AI avatar delivery, leader not present
+    }
   }
 
   private clampValue(value: number, min: number, max: number): number {

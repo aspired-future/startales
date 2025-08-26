@@ -184,6 +184,79 @@ router.put('/calls/:callId/status', async (req, res) => {
 // ===== TEXT MESSAGING =====
 
 /**
+ * GET /api/whoseapp/channels - Get available channels
+ */
+router.get('/channels', async (req, res) => {
+  try {
+    const { civilizationId } = req.query;
+    console.log('📋 Getting WhoseApp channels for civilization:', civilizationId);
+
+    // Mock channels for WhoseApp
+    const mockChannels = [
+      {
+        id: 'channel_cabinet',
+        name: 'Cabinet',
+        type: 'cabinet',
+        description: 'High-level government discussions',
+        participantCount: 8,
+        lastActivity: new Date().toISOString(),
+        isPrivate: true
+      },
+      {
+        id: 'channel_defense',
+        name: 'Defense & Security',
+        type: 'department',
+        description: 'Military and security coordination',
+        participantCount: 12,
+        lastActivity: new Date(Date.now() - 300000).toISOString(), // 5 min ago
+        isPrivate: true
+      },
+      {
+        id: 'channel_economy',
+        name: 'Economic Affairs',
+        type: 'department',
+        description: 'Economic policy and trade discussions',
+        participantCount: 15,
+        lastActivity: new Date(Date.now() - 600000).toISOString(), // 10 min ago
+        isPrivate: false
+      },
+      {
+        id: 'channel_science',
+        name: 'Science & Research',
+        type: 'department',
+        description: 'Research coordination and scientific advancement',
+        participantCount: 20,
+        lastActivity: new Date(Date.now() - 900000).toISOString(), // 15 min ago
+        isPrivate: false
+      },
+      {
+        id: 'channel_general',
+        name: 'General Discussion',
+        type: 'general',
+        description: 'Open forum for all government personnel',
+        participantCount: 45,
+        lastActivity: new Date(Date.now() - 120000).toISOString(), // 2 min ago
+        isPrivate: false
+      }
+    ];
+
+    console.log('✅ Returning mock WhoseApp channels:', mockChannels.length);
+    res.json({
+      success: true,
+      channels: mockChannels,
+      total: mockChannels.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting WhoseApp channels:', error);
+    res.status(500).json({
+      error: 'Failed to get channels',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
  * GET /api/whoseapp/conversations - Get user conversations
  */
 router.get('/conversations', async (req, res) => {
@@ -227,6 +300,53 @@ router.get('/conversations', async (req, res) => {
     res.status(500).json({
       error: 'Failed to fetch conversations',
       message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/whoseapp/messages - Get messages by conversationId (query param)
+ */
+router.get('/messages', async (req, res) => {
+  try {
+    const { conversationId, limit = 50, offset = 0, before } = req.query;
+    
+    if (!conversationId) {
+      return res.status(400).json({
+        error: 'Missing conversationId parameter'
+      });
+    }
+
+    console.log('📋 Getting messages for conversation:', conversationId);
+
+    // Mock message data
+    const messages = Array.from({ length: Math.min(Number(limit), 30) }, (_, i) => ({
+      id: `msg_${conversationId}_${i + Number(offset)}`,
+      conversationId,
+      senderId: `user_${Math.floor(Math.random() * 3) + 1}`,
+      content: `Message content ${i + 1}`,
+      type: Math.random() > 0.8 ? 'image' : 'text',
+      timestamp: new Date(Date.now() - (i * 60000)), // 1 minute apart
+      edited: Math.random() > 0.9,
+      reactions: Math.random() > 0.7 ? [
+        { emoji: '👍', userId: 'user_1', timestamp: new Date() }
+      ] : [],
+      replyTo: Math.random() > 0.8 ? `msg_${conversationId}_${i - 1}` : null
+    }));
+
+    console.log('✅ Returning mock messages:', messages.length);
+    res.json({
+      success: true,
+      data: messages.reverse(), // Most recent first
+      count: messages.length,
+      conversationId
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting messages:', error);
+    res.status(500).json({
+      error: 'Failed to get messages',
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

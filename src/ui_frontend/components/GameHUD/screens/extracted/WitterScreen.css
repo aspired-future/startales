@@ -48,6 +48,48 @@
   padding: 1.5rem;
 }
 
+/* Status Message Styles */
+.witter-status-message {
+  background: linear-gradient(135deg, rgba(187, 134, 252, 0.1), rgba(98, 0, 234, 0.1));
+  border: 2px solid rgba(187, 134, 252, 0.3);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(187, 134, 252, 0.2);
+}
+
+.witter-status-message h3 {
+  color: #bb86fc;
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.witter-status-message p {
+  color: #e0e0e0;
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.witter-status-message ul {
+  text-align: left;
+  margin: 1.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.witter-status-message li {
+  color: #e0e0e0;
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+.witter-status-message li:last-child {
+  color: #ffa726;
+  font-weight: 600;
+}
+
 .witter-feed-tab {
   height: 100%;
   display: flex;
@@ -96,6 +138,35 @@
   border-radius: 12px;
   border: 1px solid rgba(187, 134, 252, 0.2);
   overflow: hidden;
+}
+
+/* Override WitterFeed styles when embedded */
+.embedded-witter-feed .witter-feed {
+  position: static !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.embedded-witter-feed .witter-header {
+  background: rgba(187, 134, 252, 0.1) !important;
+  border-bottom: 1px solid rgba(187, 134, 252, 0.2) !important;
+}
+
+.embedded-witter-feed .witter-content {
+  background: transparent !important;
+}
+
+.embedded-witter-feed .witt-item {
+  border-bottom: 1px solid rgba(187, 134, 252, 0.1) !important;
+  background: rgba(15, 15, 35, 0.3) !important;
+}
+
+.embedded-witter-feed .witt-item:hover {
+  background: rgba(15, 15, 35, 0.5) !important;
 }
 
 .full-witter-feed {

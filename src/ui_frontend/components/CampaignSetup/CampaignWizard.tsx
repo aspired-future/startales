@@ -64,6 +64,10 @@ interface CampaignConfig {
   // Pricing
   estimatedCost: number;
   subscriptionTier: string;
+  
+  // Story Initialization
+  storyInitialized?: boolean;
+  gameId?: string;
 }
 
 interface DefaultScenario {
@@ -278,6 +282,8 @@ export const CampaignWizard: React.FC<{ onComplete: (config: CampaignConfig) => 
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [creatingGame, setCreatingGame] = useState(false);
+  const [storyInitializing, setStoryInitializing] = useState(false);
 
   // Update configuration
   const updateConfig = (updates: Partial<CampaignConfig>) => {
@@ -306,6 +312,200 @@ export const CampaignWizard: React.FC<{ onComplete: (config: CampaignConfig) => 
     } finally {
       setLoading(false);
     }
+  };
+
+  // Create game with story initialization
+  const createGameWithStory = async () => {
+    setCreatingGame(true);
+    setStoryInitializing(true);
+    setError(null);
+
+    try {
+      // Convert campaign config to game config format
+      const gameConfig = {
+        name: config.name,
+        description: config.description,
+        theme: mapScenarioToTheme(config.selectedScenario?.theme || config.aiGeneratedScenario?.themes?.[0] || 'Adventure'),
+        maxPlayers: config.playerCount + config.aiPlayerCount,
+        storyComplexity: mapDifficultyToComplexity(config.difficulty),
+        gameMode: mapGameModeToMode(config.gameMode.type),
+        duration: mapDurationToDuration(config.campaignDurationWeeks)
+      };
+
+      // Create the game with story initialization
+      const response = await fetch('/api/game/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          hostPlayerId: 'campaign-host-' + Date.now(), // Generate a temporary host ID
+          gameConfig
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Initialize the Game Master Story Engine with detailed campaign parameters
+        const civilizationId = parseInt(data.game.id.replace(/\D/g, '').slice(0, 8)) || 1;
+        
+        const storySetup = {
+          civilizationId,
+          gameTheme: config.selectedScenario?.theme || config.aiGeneratedScenario?.themes?.[0] || 'political intrigue',
+          storyGenre: mapScenarioToGenre(config.selectedScenario?.name || 'space opera'),
+          playerActions: [],
+          currentEvents: [],
+          majorStorylines: generateStorylines(config),
+          characterPopulationTarget: Math.max(50, config.playerCount * 20),
+          storyTension: mapDifficultyToTension(config.difficulty)
+        };
+
+        // Initialize the dynamic story system
+        const storyResponse = await fetch('/api/witter/initialize-story', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(storySetup)
+        });
+
+        if (!storyResponse.ok) {
+          console.warn('Story initialization failed, but continuing with game creation');
+        }
+        
+        // Update config with game information
+        const enhancedConfig = {
+          ...config,
+          gameId: data.game.id,
+          civilizationId,
+          storyInitialized: storyResponse.ok
+        };
+
+        // Wait a moment for story initialization to complete
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Call the original onComplete with enhanced config
+        onComplete(enhancedConfig);
+        
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create game');
+      }
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create campaign');
+      console.error('Error creating game with story:', err);
+    } finally {
+      setCreatingGame(false);
+      setStoryInitializing(false);
+    }
+  };
+
+  // Helper functions to map campaign config to game config
+  const mapScenarioToTheme = (scenarioTheme: string): string => {
+    const themeMap: { [key: string]: string } = {
+      'Political Intrigue': 'space_opera',
+      'Cosmic Horror': 'space_opera',
+      'Economic Strategy': 'modern_politics',
+      'Exploration & Discovery': 'space_opera',
+      'Science Fiction': 'cyberpunk',
+      'Adventure': 'space_opera',
+      'Strategy': 'space_opera',
+      'Diplomacy': 'modern_politics'
+    };
+    return themeMap[scenarioTheme] || 'space_opera';
+  };
+
+  const mapDifficultyToComplexity = (difficulty: string): 'simple' | 'moderate' | 'complex' | 'epic' => {
+    const complexityMap: { [key: string]: 'simple' | 'moderate' | 'complex' | 'epic' } = {
+      'beginner': 'simple',
+      'intermediate': 'moderate',
+      'advanced': 'complex',
+      'expert': 'epic'
+    };
+    return complexityMap[difficulty] || 'moderate';
+  };
+
+  const mapGameModeToMode = (gameMode: string): 'cooperative' | 'competitive' | 'mixed' => {
+    const modeMap: { [key: string]: 'cooperative' | 'competitive' | 'mixed' } = {
+      'diplomatic': 'cooperative',
+      'conquest': 'competitive',
+      'exploration': 'cooperative',
+      'survival': 'cooperative',
+      'hybrid': 'mixed'
+    };
+    return modeMap[gameMode] || 'cooperative';
+  };
+
+  const mapDurationToDuration = (weeks: number): 'short' | 'medium' | 'long' | 'campaign' => {
+    if (weeks <= 6) return 'short';
+    if (weeks <= 12) return 'medium';
+    if (weeks <= 20) return 'long';
+    return 'campaign';
+  };
+
+  // New helper functions for story initialization
+  const mapScenarioToGenre = (scenarioName: string): string => {
+    const genreMap: { [key: string]: string } = {
+      'The Galactic Uprising': 'space opera',
+      'Invasion from the Void': 'cosmic horror',
+      'The Great Trade Wars': 'economic thriller',
+      'Secrets of the Lost Civilization': 'archaeological adventure',
+      'The Quantum Crisis': 'hard science fiction'
+    };
+    return genreMap[scenarioName] || 'space opera';
+  };
+
+  const mapDifficultyToTension = (difficulty: string): number => {
+    const tensionMap: { [key: string]: number } = {
+      'beginner': 3,
+      'intermediate': 5,
+      'advanced': 7,
+      'expert': 9
+    };
+    return tensionMap[difficulty] || 5;
+  };
+
+  const generateStorylines = (config: CampaignConfig): string[] => {
+    const baseStorylines = [];
+    
+    // Add storylines based on selected scenario
+    if (config.selectedScenario) {
+      switch (config.selectedScenario.id) {
+        case 'galactic-uprising':
+          baseStorylines.push('Rebel faction gains momentum', 'Government corruption exposed', 'Military loyalty questioned');
+          break;
+        case 'void-invasion':
+          baseStorylines.push('Ancient entities awaken', 'Reality distortions increase', 'Survival alliances form');
+          break;
+        case 'trade-wars':
+          baseStorylines.push('Economic manipulation detected', 'Trade route disruptions', 'Corporate espionage revealed');
+          break;
+        case 'lost-civilization':
+          baseStorylines.push('Archaeological discoveries accelerate', 'Ancient technology activated', 'Rival expeditions compete');
+          break;
+        case 'quantum-crisis':
+          baseStorylines.push('Quantum anomalies spread', 'Scientific breakthrough needed', 'Reality becomes unstable');
+          break;
+        default:
+          baseStorylines.push('Political tensions rise', 'Technological breakthrough', 'Diplomatic crisis emerges');
+      }
+    }
+    
+    // Add storylines based on villains and threats
+    if (config.villains && config.villains.length > 0) {
+      baseStorylines.push('Villain network expands', 'Hidden agenda revealed');
+    }
+    
+    // Add storylines based on game mode
+    if (config.gameMode.type === 'competitive') {
+      baseStorylines.push('Inter-faction rivalry intensifies', 'Resource competition escalates');
+    } else if (config.gameMode.type === 'cooperative') {
+      baseStorylines.push('Unity against common threat', 'Collaborative breakthrough achieved');
+    }
+    
+    return baseStorylines.slice(0, 5); // Limit to 5 major storylines
   };
 
   // Generate graphics options
@@ -1394,9 +1594,24 @@ const ReviewCreateStep: React.FC<{
     </div>
 
     <div className="create-actions">
-      <button onClick={onComplete} className="btn-success-large">
-        🚀 Create Campaign
+      <button 
+        onClick={createGameWithStory} 
+        className="btn-success-large"
+        disabled={creatingGame}
+      >
+        {creatingGame ? (
+          storyInitializing ? '📖 Initializing Story...' : '🔄 Creating Campaign...'
+        ) : (
+          '🚀 Create Campaign & Initialize Story'
+        )}
       </button>
+      
+      {storyInitializing && (
+        <div className="story-init-status">
+          <p>🎭 Generating your epic story...</p>
+          <p>This may take a few moments as we create characters, plot arcs, and set the stage for your adventure!</p>
+        </div>
+      )}
     </div>
   </div>
 );

@@ -550,10 +550,94 @@ Every API includes the Enhanced Knob System with:
 - **Action Words**: `"increase"`, `"decrease"`, `"maximize"`, `"minimize"`
 
 ### AI Integration
-- **1,368 Total Knobs** across all APIs (updated with new Government APIs)
+- **1,752 Total Knobs** across all APIs (updated with new Enhanced Systems)
 - **Real-time Adjustment** during gameplay
 - **Structured Outputs** for AI consumption
 - **Bidirectional Control** between AI and deterministic systems
+- **Cross-System Effects** with intelligent interaction modeling
+- **AI-Powered Recommendations** based on simulation state analysis
+
+### New Enhanced API Systems (2024)
+
+#### Business Cycle Management (`/api/business-cycle`)
+- **24 AI Knobs**: Cycle dynamics (8), Growth factors (8), Recession dynamics (8)
+- **Key Features**: Economic phase tracking, volatility control, recovery optimization
+- **Integration**: Real-time business cycle simulation with AI-driven policy recommendations
+
+#### World Wonders & Household Economics (`/api/world-wonders`)
+- **24 AI Knobs**: Wonder construction (8), Income & distribution (8), Consumer behavior (8)
+- **Key Features**: Wonder construction management, household economic tracking, mobility analysis
+- **Integration**: Cultural development simulation with economic impact modeling
+
+#### Political Systems (`/api/political-systems`)
+- **24 AI Knobs**: System structure (8), Democratic participation (8), System dynamics (8)
+- **Key Features**: Multi/two/single-party system management, constitutional framework, election simulation
+- **Integration**: Political stability modeling with democratic health tracking
+
+#### Culture System (`/api/culture`)
+- **24 AI Knobs**: Cultural diversity (8), Social cohesion (8), Cultural evolution (8)
+- **Key Features**: Cultural development tracking, tradition preservation, innovation adoption
+- **Integration**: Cultural dynamics simulation with social stability impacts
+
+#### Treasury & Tax Management (`/api/treasury-enhanced`)
+- **24 AI Knobs**: Tax collection (8), Spending transparency (8), Budget management (8)
+- **Key Features**: Detailed tax line items, revenue optimization, spending accountability
+- **Integration**: Fiscal policy simulation with economic impact analysis
+
+#### Character Story/Game State Awareness (`/api/character-awareness`)
+- **24 AI Knobs**: Story awareness (8), Game state knowledge (8), Specialty expertise (8)
+- **Key Features**: Dynamic character awareness, contextual responses, specialty-based insights
+- **Integration**: Intelligent character behavior with story-driven interactions
+
+#### National Symbols System (`/api/national-symbols`)
+- **24 AI Knobs**: Symbol recognition (8), Cultural significance (8), Unity impact (8)
+- **Key Features**: National identity management, symbol evolution, cultural unity tracking
+- **Integration**: Cultural cohesion simulation with national pride modeling
+
+#### Enhanced Missions System (`/api/missions-enhanced`)
+- **24 AI Knobs**: Mission generation (8), Difficulty scaling (8), Story integration (8)
+- **Key Features**: AI-driven mission creation, dynamic difficulty, narrative integration
+- **Integration**: Game Master AI coordination with story arc advancement
+
+#### Debt-to-GDP Management (`/api/debt-to-gdp`)
+- **24 AI Knobs**: Debt sustainability (8), Borrowing capacity (8), Risk management (8)
+- **Key Features**: Sovereign debt tracking, sustainability analysis, risk assessment
+- **Integration**: Fiscal health monitoring with economic stability impacts
+
+#### Game Master Story Videos (`/api/gamemaster-videos`)
+- **24 AI Knobs**: Production frequency (8), Content quality (8), Narrative impact (8)
+- **Key Features**: AI-generated story videos, narrative progression, player engagement
+- **Integration**: Dynamic storytelling with visual content generation
+
+#### Military, Defense & Joint Chiefs (`/api/military-defense`)
+- **24 AI Knobs**: Military readiness (8), Defense coordination (8), Strategic planning (8)
+- **Key Features**: Joint chiefs coordination, defense strategy, threat assessment
+- **Integration**: Military simulation with strategic decision support
+
+#### Leader Speeches System (`/api/leader-speeches`)
+- **24 AI Knobs**: Speech generation (8), Message effectiveness (8), Audience targeting (8)
+- **Key Features**: AI-generated speeches, issue addressing, audience analysis
+- **Integration**: Political communication simulation with public opinion modeling
+
+#### Address the Nation (`/api/address-nation`)
+- **24 AI Knobs**: Broadcast reach (8), Message impact (8), Crisis communication (8)
+- **Key Features**: National address management, crisis communication, public response tracking
+- **Integration**: Emergency communication system with real-time impact analysis
+
+#### Delegation System (`/api/delegation-enhanced`)
+- **24 AI Knobs**: Authority delegation (8), Accountability tracking (8), Coordination efficiency (8)
+- **Key Features**: Advanced delegation management, responsibility tracking, performance monitoring
+- **Integration**: Organizational efficiency simulation with accountability metrics
+
+#### Witter Feed Enhancement (`/api/witter-enhanced`)
+- **24 AI Knobs**: Content generation (8), Engagement optimization (8), Influence tracking (8)
+- **Key Features**: AI-generated social content, engagement analytics, influence measurement
+- **Integration**: Social media simulation with public opinion dynamics
+
+#### WhoseApp Enhancement (`/api/whoseapp-enhanced`)
+- **24 AI Knobs**: User adoption (8), Feature satisfaction (8), Privacy management (8)
+- **Key Features**: Communication platform optimization, user experience tracking, privacy controls
+- **Integration**: Digital communication simulation with user behavior modeling
 
 ---
 

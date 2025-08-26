@@ -16,6 +16,10 @@ test-results
 .env.local
 .env.*
 
+# Google Cloud credentials
+*.json
+lively-galaxy-*.json
+
 # Editor directories and files
 .idea
 .vscode
@@ -38,3 +42,4 @@ playwright-report/
 # Task files
 # tasks.json
 # tasks/ 
+public/*

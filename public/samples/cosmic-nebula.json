@@ -1,0 +1,12 @@
+{
+  "title": "🌌 Cosmic Nebula",
+  "prompt": "a beautiful cosmic nebula with swirling purple and blue clouds, stars scattered throughout, digital art style",
+  "filename": "cosmic-nebula.png",
+  "imagePath": "samples/images/cosmic-nebula.png",
+  "fileSize": 1202601,
+  "mimeType": "image/png",
+  "generatedAt": "2025-08-26T03:24:11.898Z",
+  "provider": "Google Imagen API (Service Account)",
+  "projectId": "lively-galaxy",
+  "success": true
+}

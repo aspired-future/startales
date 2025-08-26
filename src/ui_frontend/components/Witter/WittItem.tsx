@@ -1,6 +1,20 @@
 import React, { useState, useCallback } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { Witt } from './WitterFeed';
+// Witt interface moved to SimpleWitterFeed
+interface Witt {
+  id: string;
+  author: string;
+  handle: string;
+  content: string;
+  timestamp: string;
+  likes: number;
+  reposts: number;
+  replies: number;
+  category: string;
+  avatar: string;
+  verified: boolean;
+  location: string;
+}
 import './WittItem.css';
 
 interface WittItemProps {

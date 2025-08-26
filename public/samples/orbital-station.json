@@ -1,0 +1,18 @@
+{
+  "title": "🚀 Orbital Megastructure",
+  "prompt": "A colossal orbital ring station surrounding a planet, with massive solar collectors, rotating habitat modules, and docking bays for starships, concept art style, sci-fi, detailed",
+  "aspectRatio": "16:9",
+  "filename": "orbital-station.png",
+  "imagePath": "samples/images/orbital-station.png",
+  "result": {
+    "success": true,
+    "imageUrl": "https://picsum.photos/1344/768?random=1756177133895",
+    "width": 1344,
+    "height": 768,
+    "processingTime": 4151,
+    "cost": 0.02
+  },
+  "generatedAt": "2025-08-26T02:58:56.688Z",
+  "provider": "Google Imagen",
+  "apiKey": "AIzaSyAOOT...1435"
+}

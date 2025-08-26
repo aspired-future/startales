@@ -6,6 +6,7 @@ import CabinetScreen from './government/CabinetScreen';
 
 // Security Screens  
 import MilitaryScreen from './security/MilitaryScreen';
+import DefenseScreen from './security/DefenseScreen';
 
 // Extracted Demo Screens
 import DemographicsScreen from './extracted/DemographicsScreen';
@@ -38,11 +39,23 @@ import SecurityOperationsScreen from './extracted/SecurityOperationsScreen';
 import PlanetaryConquestScreen from './extracted/PlanetaryConquestScreen';
 import JointChiefsScreen from './extracted/JointChiefsScreen';
 import WitterScreen from './extracted/WitterScreen';
+import WhoseAppScreen from './WhoseAppScreen';
 import GalaxyMapScreen from './extracted/GalaxyMapScreen';
 import GalaxyDataScreen from './extracted/GalaxyDataScreen';
+import EntertainmentTourismScreen from './extracted/EntertainmentTourismScreen';
+import GalaxyWondersScreen from './extracted/GalaxyWondersScreen';
+import HouseholdEconomicsScreen from './extracted/HouseholdEconomicsScreen';
+import BusinessCycleScreen from './BusinessCycleScreen';
+
+import EnhancedKnobsControlCenter from './EnhancedKnobsControlCenter';
+import TreasuryEnhancedScreen from './TreasuryEnhancedScreen';
+import CharacterAwarenessScreen from './CharacterAwarenessScreen';
 import ExplorationScreen from './extracted/ExplorationScreen';
 import GovernmentScreen from './extracted/GovernmentScreen';
+import ConstitutionScreen from './extracted/ConstitutionScreen';
 import SpeechesScreen from './extracted/SpeechesScreen';
+import StoryScreen from './extracted/StoryScreen';
+import CivilizationOverviewScreen from './extracted/CivilizationOverviewScreen';
 
 
 // Economy Screens (placeholders for now)
@@ -201,9 +214,9 @@ const screenRegistry: Record<string, ScreenConfig> = {
     category: 'security'
   },
   'defense': {
-    component: MilitaryDemoScreen,
-    title: 'War Simulator',
-    icon: '⚔️',
+    component: DefenseScreen,
+    title: 'Defense Policy',
+    icon: '🏰',
     category: 'security'
   },
   'security': {
@@ -331,6 +344,12 @@ const screenRegistry: Record<string, ScreenConfig> = {
     icon: '🐦',
     category: 'communications'
   },
+  'whoseapp': {
+    component: WhoseAppScreen,
+    title: 'WhoseApp',
+    icon: '📱',
+    category: 'communications'
+  },
   'galaxy-map': {
     component: GalaxyMapScreen,
     title: 'Galaxy Map',
@@ -342,6 +361,24 @@ const screenRegistry: Record<string, ScreenConfig> = {
     title: 'Galaxy Data',
     icon: '🌌',
     category: 'galaxy'
+  },
+  'entertainment-tourism': {
+    component: EntertainmentTourismScreen,
+    title: 'Culture',
+    icon: '🎭',
+    category: 'society'
+  },
+  'world-wonders': {
+    component: GalaxyWondersScreen,
+    title: 'Galaxy Wonders',
+    icon: '🏛️',
+    category: 'civilization'
+  },
+  'household-economics': {
+    component: HouseholdEconomicsScreen,
+    title: 'Household Economics',
+    icon: '🏠',
+    category: 'population'
   },
   'exploration': {
     component: ExplorationScreen,
@@ -355,11 +392,61 @@ const screenRegistry: Record<string, ScreenConfig> = {
     icon: '🏛️',
     category: 'government'
   },
+  'constitution': {
+    component: ConstitutionScreen,
+    title: 'Constitution',
+    icon: '📜',
+    category: 'government'
+  },
   'speeches': {
     component: SpeechesScreen,
     title: 'Speeches',
     icon: '🎤',
     category: 'communications'
+  },
+  'story': {
+    component: StoryScreen,
+    title: 'Story',
+    icon: '📖',
+    category: 'communications'
+  },
+  'civilization-overview': {
+    component: CivilizationOverviewScreen,
+    title: 'Civilization Overview',
+    icon: '🏛️',
+    category: 'government'
+  },
+
+  // Enhanced API Knobs Systems
+  'business-cycle': {
+    component: BusinessCycleScreen,
+    title: 'Business Cycle Management',
+    icon: '📊',
+    category: 'economy'
+  },
+  'world-wonders-enhanced': {
+    component: GalaxyWondersScreen,
+    title: 'Galaxy Wonders',
+    icon: '🏛️',
+    category: 'culture'
+  },
+  'enhanced-knobs-control': {
+    component: EnhancedKnobsControlCenter,
+    title: 'Enhanced Knobs Control Center',
+    icon: '🎛️',
+    category: 'system'
+  },
+  'treasury-enhanced': {
+    component: TreasuryEnhancedScreen,
+    title: 'Treasury & Tax Management',
+    icon: '💰',
+    category: 'economy'
+  },
+  'character-awareness': {
+    component: CharacterAwarenessScreen,
+    title: 'Character AI Control (Game Master)',
+    icon: '🧠',
+    category: 'gamemaster'
   }
 };
 

@@ -16,6 +16,51 @@ export interface Constitution {
   preamble: string;
   foundingPrinciples: string[];
   
+  // Political Party System Configuration
+  politicalPartySystem: {
+    type: 'multiparty' | 'two_party' | 'single_party' | 'no_party';
+    description: string;
+    constraints: {
+      maxParties?: number; // null for unlimited in multiparty systems
+      minParties?: number; // minimum required parties
+      partyFormationRequirements: {
+        minimumMembers: number;
+        registrationProcess: string;
+        fundingRequirements: number;
+        ideologicalRestrictions: string[];
+      };
+      electionParticipation: {
+        requiresPartyAffiliation: boolean;
+        independentCandidatesAllowed: boolean;
+        coalitionFormationAllowed: boolean;
+      };
+      partyOperations: {
+        allowedActivities: string[];
+        restrictedActivities: string[];
+        dissolutionConditions: string[];
+        stateSupervision: boolean;
+      };
+    };
+    transitionRules: {
+      canChangeTo: ('multiparty' | 'two_party' | 'single_party' | 'no_party')[];
+      transitionRequirements: {
+        constitutionalAmendment: boolean;
+        referendumRequired: boolean;
+        legislativeSupermajority: boolean;
+        transitionPeriod: number; // in months
+      };
+    };
+    historicalContext: string;
+    advantages: string[];
+    disadvantages: string[];
+    stabilityFactors: {
+      governmentStability: number; // 0-100
+      democraticLegitimacy: number; // 0-100
+      representationQuality: number; // 0-100
+      decisionMakingEfficiency: number; // 0-100
+    };
+  };
+  
   // Government Structure
   executiveBranch: {
     headOfState: 'president' | 'monarch' | 'governor_general';
@@ -104,6 +149,67 @@ export interface Constitution {
     duration: number; // in days
     legislativeOversight: boolean;
     restrictions: string[];
+  };
+  
+  // AI-Generated Constitutional Provisions
+  aiGeneratedProvisions: {
+    economicRights: {
+      provisions: string[];
+      protections: string[];
+      limitations: string[];
+      enforcementMechanisms: string[];
+    };
+    socialRights: {
+      provisions: string[];
+      protections: string[];
+      limitations: string[];
+      enforcementMechanisms: string[];
+    };
+    culturalRights: {
+      provisions: string[];
+      protections: string[];
+      limitations: string[];
+      enforcementMechanisms: string[];
+    };
+    environmentalRights: {
+      provisions: string[];
+      protections: string[];
+      limitations: string[];
+      enforcementMechanisms: string[];
+    };
+    digitalRights: {
+      provisions: string[];
+      protections: string[];
+      limitations: string[];
+      enforcementMechanisms: string[];
+    };
+    governanceInnovations: {
+      provisions: string[];
+      mechanisms: string[];
+      safeguards: string[];
+      evaluationCriteria: string[];
+    };
+  };
+  
+  // Constitutional Points System
+  constitutionalPoints: {
+    totalPoints: number;
+    allocatedPoints: {
+      executivePower: number;
+      legislativePower: number;
+      judicialPower: number;
+      citizenRights: number;
+      federalismBalance: number;
+      emergencyPowers: number;
+      amendmentDifficulty: number;
+      partySystemFlexibility: number;
+    };
+    pointsHistory: {
+      date: Date;
+      change: number;
+      reason: string;
+      category: string;
+    }[];
   };
   
   // Metadata

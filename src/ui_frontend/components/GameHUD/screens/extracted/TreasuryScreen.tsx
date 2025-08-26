@@ -21,6 +21,33 @@ interface GovernmentFinances {
   budgetUtilization: number;
 }
 
+interface TaxLineItem {
+  id: string;
+  name: string;
+  category: 'income' | 'corporate' | 'property' | 'sales' | 'excise' | 'tariff' | 'other';
+  amount: number;
+  rate: number;
+  baseAmount: number;
+  collectionEfficiency: number;
+  source: string;
+  region?: string;
+  demographic?: string;
+  trend: 'increasing' | 'decreasing' | 'stable';
+  monthlyChange: number;
+  yearOverYear: number;
+  description: string;
+}
+
+interface TaxCategory {
+  category: 'income' | 'corporate' | 'property' | 'sales' | 'excise' | 'tariff' | 'other';
+  name: string;
+  totalAmount: number;
+  lineItems: TaxLineItem[];
+  collectionEfficiency: number;
+  trend: 'increasing' | 'decreasing' | 'stable';
+  monthlyChange: number;
+}
+
 interface RevenueStreams {
   taxRevenue: number;
   collectionEfficiency: number;
@@ -28,6 +55,27 @@ interface RevenueStreams {
   individualTax: number;
   tradeTariffs: number;
   otherRevenue: number;
+  
+  // Enhanced tax revenue details
+  taxCategories: TaxCategory[];
+  totalTaxLineItems: TaxLineItem[];
+  geographicBreakdown: {
+    region: string;
+    amount: number;
+    percentage: number;
+    efficiency: number;
+  }[];
+  demographicBreakdown: {
+    demographic: string;
+    amount: number;
+    percentage: number;
+    averageRate: number;
+  }[];
+  monthlyTaxTrends: {
+    month: string;
+    totalTax: number;
+    categories: { [category: string]: number };
+  }[];
 }
 
 interface DepartmentBudget {
@@ -107,7 +155,7 @@ interface TreasuryData {
 
 const TreasuryScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext }) => {
   const [treasuryData, setTreasuryData] = useState<TreasuryData | null>(null);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'departments' | 'rollup' | 'requests' | 'analytics' | 'forecasting'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'tax-revenue' | 'departments' | 'rollup' | 'requests' | 'analytics' | 'forecasting'>('dashboard');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -215,14 +263,377 @@ const TreasuryScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameCont
     budgetUtilization: 71.1
   });
 
-  const generateMockRevenue = (): RevenueStreams => ({
-    taxRevenue: 3800000000000,
-    collectionEfficiency: 94.2,
-    corporateTax: 1200000000000,
-    individualTax: 2100000000000,
-    tradeTariffs: 350000000000,
-    otherRevenue: 150000000000
-  });
+  const generateMockRevenue = (): RevenueStreams => {
+    const taxLineItems: TaxLineItem[] = [
+      // Income Tax Line Items
+      {
+        id: 'income_federal',
+        name: 'Federal Income Tax',
+        category: 'income',
+        amount: 1800000000000,
+        rate: 22.5,
+        baseAmount: 8000000000000,
+        collectionEfficiency: 96.2,
+        source: 'Individual Taxpayers',
+        trend: 'increasing',
+        monthlyChange: 2.1,
+        yearOverYear: 8.3,
+        description: 'Primary federal income tax collected from individual taxpayers'
+      },
+      {
+        id: 'income_payroll',
+        name: 'Payroll Tax (Social Security)',
+        category: 'income',
+        amount: 300000000000,
+        rate: 6.2,
+        baseAmount: 4838709677419,
+        collectionEfficiency: 98.7,
+        source: 'Employers & Employees',
+        trend: 'stable',
+        monthlyChange: 0.3,
+        yearOverYear: 3.2,
+        description: 'Social Security payroll tax contributions'
+      },
+      
+      // Corporate Tax Line Items
+      {
+        id: 'corp_federal',
+        name: 'Federal Corporate Income Tax',
+        category: 'corporate',
+        amount: 800000000000,
+        rate: 21.0,
+        baseAmount: 3809523809524,
+        collectionEfficiency: 91.5,
+        source: 'Corporations',
+        trend: 'increasing',
+        monthlyChange: 3.7,
+        yearOverYear: 12.1,
+        description: 'Corporate income tax from domestic and foreign corporations'
+      },
+      {
+        id: 'corp_capital_gains',
+        name: 'Corporate Capital Gains Tax',
+        category: 'corporate',
+        amount: 400000000000,
+        rate: 15.0,
+        baseAmount: 2666666666667,
+        collectionEfficiency: 89.3,
+        source: 'Corporate Investments',
+        trend: 'increasing',
+        monthlyChange: 5.2,
+        yearOverYear: 18.7,
+        description: 'Tax on corporate capital gains and investment income'
+      },
+      
+      // Property Tax Line Items
+      {
+        id: 'property_residential',
+        name: 'Residential Property Tax',
+        category: 'property',
+        amount: 200000000000,
+        rate: 1.2,
+        baseAmount: 16666666666667,
+        collectionEfficiency: 94.8,
+        source: 'Homeowners',
+        region: 'All Regions',
+        trend: 'increasing',
+        monthlyChange: 1.8,
+        yearOverYear: 5.4,
+        description: 'Property tax on residential real estate'
+      },
+      {
+        id: 'property_commercial',
+        name: 'Commercial Property Tax',
+        category: 'property',
+        amount: 150000000000,
+        rate: 2.1,
+        baseAmount: 7142857142857,
+        collectionEfficiency: 92.1,
+        source: 'Commercial Property Owners',
+        region: 'Urban Centers',
+        trend: 'stable',
+        monthlyChange: 0.7,
+        yearOverYear: 2.9,
+        description: 'Property tax on commercial and industrial real estate'
+      },
+      
+      // Sales Tax Line Items
+      {
+        id: 'sales_general',
+        name: 'General Sales Tax',
+        category: 'sales',
+        amount: 180000000000,
+        rate: 7.5,
+        baseAmount: 2400000000000,
+        collectionEfficiency: 93.4,
+        source: 'Retail Transactions',
+        trend: 'increasing',
+        monthlyChange: 2.3,
+        yearOverYear: 6.8,
+        description: 'General sales tax on goods and services'
+      },
+      {
+        id: 'sales_luxury',
+        name: 'Luxury Goods Tax',
+        category: 'sales',
+        amount: 45000000000,
+        rate: 15.0,
+        baseAmount: 300000000000,
+        collectionEfficiency: 87.2,
+        source: 'Luxury Retailers',
+        demographic: 'High Income',
+        trend: 'increasing',
+        monthlyChange: 4.1,
+        yearOverYear: 15.3,
+        description: 'Additional tax on luxury goods and services'
+      },
+      
+      // Excise Tax Line Items
+      {
+        id: 'excise_fuel',
+        name: 'Fuel Excise Tax',
+        category: 'excise',
+        amount: 75000000000,
+        rate: 18.4,
+        baseAmount: 407608695652,
+        collectionEfficiency: 96.8,
+        source: 'Fuel Distributors',
+        trend: 'decreasing',
+        monthlyChange: -1.2,
+        yearOverYear: -3.8,
+        description: 'Excise tax on gasoline and diesel fuel'
+      },
+      {
+        id: 'excise_tobacco',
+        name: 'Tobacco Excise Tax',
+        category: 'excise',
+        amount: 25000000000,
+        rate: 50.0,
+        baseAmount: 50000000000,
+        collectionEfficiency: 91.7,
+        source: 'Tobacco Companies',
+        trend: 'decreasing',
+        monthlyChange: -2.8,
+        yearOverYear: -8.9,
+        description: 'Excise tax on tobacco products'
+      },
+      {
+        id: 'excise_alcohol',
+        name: 'Alcohol Excise Tax',
+        category: 'excise',
+        amount: 35000000000,
+        rate: 25.0,
+        baseAmount: 140000000000,
+        collectionEfficiency: 94.3,
+        source: 'Alcohol Producers',
+        trend: 'stable',
+        monthlyChange: 0.5,
+        yearOverYear: 1.2,
+        description: 'Excise tax on alcoholic beverages'
+      },
+      
+      // Tariff Line Items
+      {
+        id: 'tariff_imports',
+        name: 'Import Tariffs',
+        category: 'tariff',
+        amount: 280000000000,
+        rate: 12.5,
+        baseAmount: 2240000000000,
+        collectionEfficiency: 97.1,
+        source: 'Import Transactions',
+        trend: 'increasing',
+        monthlyChange: 3.2,
+        yearOverYear: 11.7,
+        description: 'Tariffs on imported goods and materials'
+      },
+      {
+        id: 'tariff_anti_dumping',
+        name: 'Anti-Dumping Duties',
+        category: 'tariff',
+        amount: 70000000000,
+        rate: 35.0,
+        baseAmount: 200000000000,
+        collectionEfficiency: 89.4,
+        source: 'Specific Import Categories',
+        trend: 'stable',
+        monthlyChange: 0.8,
+        yearOverYear: 2.1,
+        description: 'Anti-dumping duties on specific imported products'
+      },
+      
+      // Other Revenue Line Items
+      {
+        id: 'other_licenses',
+        name: 'Business Licenses & Permits',
+        category: 'other',
+        amount: 50000000000,
+        rate: 0,
+        baseAmount: 0,
+        collectionEfficiency: 95.6,
+        source: 'Business Registrations',
+        trend: 'increasing',
+        monthlyChange: 1.9,
+        yearOverYear: 7.2,
+        description: 'Revenue from business licenses and permits'
+      },
+      {
+        id: 'other_fines',
+        name: 'Fines & Penalties',
+        category: 'other',
+        amount: 60000000000,
+        rate: 0,
+        baseAmount: 0,
+        collectionEfficiency: 78.3,
+        source: 'Legal Penalties',
+        trend: 'stable',
+        monthlyChange: -0.3,
+        yearOverYear: 1.8,
+        description: 'Revenue from fines, penalties, and legal settlements'
+      },
+      {
+        id: 'other_investment',
+        name: 'Government Investment Returns',
+        category: 'other',
+        amount: 40000000000,
+        rate: 0,
+        baseAmount: 0,
+        collectionEfficiency: 100.0,
+        source: 'Investment Portfolio',
+        trend: 'increasing',
+        monthlyChange: 2.7,
+        yearOverYear: 9.4,
+        description: 'Returns on government investment portfolio'
+      }
+    ];
+
+    // Group line items by category
+    const taxCategories: TaxCategory[] = [
+      {
+        category: 'income',
+        name: 'Income Tax',
+        totalAmount: taxLineItems.filter(item => item.category === 'income').reduce((sum, item) => sum + item.amount, 0),
+        lineItems: taxLineItems.filter(item => item.category === 'income'),
+        collectionEfficiency: 97.2,
+        trend: 'increasing',
+        monthlyChange: 1.8
+      },
+      {
+        category: 'corporate',
+        name: 'Corporate Tax',
+        totalAmount: taxLineItems.filter(item => item.category === 'corporate').reduce((sum, item) => sum + item.amount, 0),
+        lineItems: taxLineItems.filter(item => item.category === 'corporate'),
+        collectionEfficiency: 90.4,
+        trend: 'increasing',
+        monthlyChange: 4.2
+      },
+      {
+        category: 'property',
+        name: 'Property Tax',
+        totalAmount: taxLineItems.filter(item => item.category === 'property').reduce((sum, item) => sum + item.amount, 0),
+        lineItems: taxLineItems.filter(item => item.category === 'property'),
+        collectionEfficiency: 93.6,
+        trend: 'increasing',
+        monthlyChange: 1.3
+      },
+      {
+        category: 'sales',
+        name: 'Sales Tax',
+        totalAmount: taxLineItems.filter(item => item.category === 'sales').reduce((sum, item) => sum + item.amount, 0),
+        lineItems: taxLineItems.filter(item => item.category === 'sales'),
+        collectionEfficiency: 91.8,
+        trend: 'increasing',
+        monthlyChange: 2.8
+      },
+      {
+        category: 'excise',
+        name: 'Excise Tax',
+        totalAmount: taxLineItems.filter(item => item.category === 'excise').reduce((sum, item) => sum + item.amount, 0),
+        lineItems: taxLineItems.filter(item => item.category === 'excise'),
+        collectionEfficiency: 94.3,
+        trend: 'decreasing',
+        monthlyChange: -1.2
+      },
+      {
+        category: 'tariff',
+        name: 'Tariffs & Duties',
+        totalAmount: taxLineItems.filter(item => item.category === 'tariff').reduce((sum, item) => sum + item.amount, 0),
+        lineItems: taxLineItems.filter(item => item.category === 'tariff'),
+        collectionEfficiency: 94.8,
+        trend: 'increasing',
+        monthlyChange: 2.5
+      },
+      {
+        category: 'other',
+        name: 'Other Revenue',
+        totalAmount: taxLineItems.filter(item => item.category === 'other').reduce((sum, item) => sum + item.amount, 0),
+        lineItems: taxLineItems.filter(item => item.category === 'other'),
+        collectionEfficiency: 89.7,
+        trend: 'stable',
+        monthlyChange: 1.1
+      }
+    ];
+
+    const totalTaxRevenue = taxLineItems.reduce((sum, item) => sum + item.amount, 0);
+
+    return {
+      taxRevenue: totalTaxRevenue,
+      collectionEfficiency: 94.2,
+      corporateTax: taxCategories.find(cat => cat.category === 'corporate')?.totalAmount || 1200000000000,
+      individualTax: taxCategories.find(cat => cat.category === 'income')?.totalAmount || 2100000000000,
+      tradeTariffs: taxCategories.find(cat => cat.category === 'tariff')?.totalAmount || 350000000000,
+      otherRevenue: taxCategories.find(cat => cat.category === 'other')?.totalAmount || 150000000000,
+      
+      // Enhanced tax revenue details
+      taxCategories,
+      totalTaxLineItems: taxLineItems,
+      geographicBreakdown: [
+        { region: 'Capital Region', amount: 1200000000000, percentage: 31.6, efficiency: 96.8 },
+        { region: 'Industrial Sector', amount: 950000000000, percentage: 25.0, efficiency: 93.2 },
+        { region: 'Agricultural Zones', amount: 480000000000, percentage: 12.6, efficiency: 89.7 },
+        { region: 'Coastal Cities', amount: 720000000000, percentage: 18.9, efficiency: 95.1 },
+        { region: 'Mining Districts', amount: 450000000000, percentage: 11.9, efficiency: 91.4 }
+      ],
+      demographicBreakdown: [
+        { demographic: 'High Income (>$200K)', amount: 1520000000000, percentage: 40.0, averageRate: 28.5 },
+        { demographic: 'Middle Income ($50K-$200K)', amount: 1596000000000, percentage: 42.0, averageRate: 18.2 },
+        { demographic: 'Lower Income (<$50K)', amount: 380000000000, percentage: 10.0, averageRate: 8.7 },
+        { demographic: 'Corporate Entities', amount: 304000000000, percentage: 8.0, averageRate: 21.0 }
+      ],
+      monthlyTaxTrends: [
+        {
+          month: 'Jan 2024',
+          totalTax: 310000000000,
+          categories: { income: 175000000000, corporate: 95000000000, property: 25000000000, sales: 15000000000 }
+        },
+        {
+          month: 'Feb 2024',
+          totalTax: 295000000000,
+          categories: { income: 165000000000, corporate: 85000000000, property: 28000000000, sales: 17000000000 }
+        },
+        {
+          month: 'Mar 2024',
+          totalTax: 325000000000,
+          categories: { income: 185000000000, corporate: 105000000000, property: 22000000000, sales: 13000000000 }
+        },
+        {
+          month: 'Apr 2024',
+          totalTax: 420000000000,
+          categories: { income: 240000000000, corporate: 140000000000, property: 25000000000, sales: 15000000000 }
+        },
+        {
+          month: 'May 2024',
+          totalTax: 335000000000,
+          categories: { income: 190000000000, corporate: 110000000000, property: 20000000000, sales: 15000000000 }
+        },
+        {
+          month: 'Jun 2024',
+          totalTax: 340000000000,
+          categories: { income: 195000000000, corporate: 115000000000, property: 18000000000, sales: 12000000000 }
+        }
+      ]
+    };
+  };
 
   const generateMockDepartments = (): DepartmentBudget[] => [
     {
@@ -491,6 +902,12 @@ const TreasuryScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameCont
             📊 Dashboard
           </button>
           <button 
+            className={`tab ${activeTab === 'tax-revenue' ? 'active' : ''}`}
+            onClick={() => setActiveTab('tax-revenue')}
+          >
+            💰 Tax Revenue
+          </button>
+          <button 
             className={`tab ${activeTab === 'departments' ? 'active' : ''}`}
             onClick={() => setActiveTab('departments')}
           >
@@ -615,11 +1032,320 @@ const TreasuryScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameCont
                         </div>
                       </div>
                     )}
+
+                    <div className="debt-overview-card">
+                      <h4>💳 Debt & Interest Overview</h4>
+                      <div className="debt-metrics">
+                        <div className="debt-metric">
+                          <span>Debt-to-GDP Ratio:</span>
+                          <span className={`metric-value ${42.0 > 90 ? 'warning' : 42.0 > 60 ? 'caution' : 'good'}`}>42.0%</span>
+                        </div>
+                        <div className="debt-metric">
+                          <span>Total Outstanding Debt:</span>
+                          <span className="metric-value">{formatCurrency(48000000000)}</span>
+                        </div>
+                        <div className="debt-metric">
+                          <span>Annual Interest Cost:</span>
+                          <span className="metric-value debt-interest">{formatCurrency(1824000000)}</span>
+                        </div>
+                        <div className="debt-metric">
+                          <span>Daily Interest Cost:</span>
+                          <span className="metric-value">{formatCurrency(4997260)}</span>
+                        </div>
+                        <div className="debt-metric">
+                          <span>Monthly Debt Service:</span>
+                          <span className="metric-value">{formatCurrency(180000000)}</span>
+                        </div>
+                        <div className="debt-metric">
+                          <span>Next Payment (12/14/2024):</span>
+                          <span className="metric-value highlight">{formatCurrency(195000000)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="expenditures-card">
+                      <h4>💸 Major Expenditures</h4>
+                      <div className="expenditure-metrics">
+                        <div className="expenditure-metric">
+                          <span>Defense Spending:</span>
+                          <span className="metric-value">{formatCurrency(580000000000)}</span>
+                        </div>
+                        <div className="expenditure-metric">
+                          <span>Health & Human Services:</span>
+                          <span className="metric-value">{formatCurrency(950000000000)}</span>
+                        </div>
+                        <div className="expenditure-metric">
+                          <span>Education:</span>
+                          <span className="metric-value">{formatCurrency(420000000000)}</span>
+                        </div>
+                        <div className="expenditure-metric">
+                          <span>Interest on Debt:</span>
+                          <span className="metric-value debt-interest">{formatCurrency(1824000000)}</span>
+                        </div>
+                        <div className="expenditure-metric">
+                          <span>Transportation:</span>
+                          <span className="metric-value">{formatCurrency(320000000000)}</span>
+                        </div>
+                        <div className="expenditure-metric">
+                          <span>Other Programs:</span>
+                          <span className="metric-value">{formatCurrency(435000000000)}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   <div className="tab-actions">
                     <button className="action-btn">Financial Report</button>
                     <button className="action-btn secondary">Budget Summary</button>
                     <button className="action-btn">Treasury Operations</button>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'tax-revenue' && (
+                <div className="tax-revenue-tab">
+                  <div className="tax-revenue-grid">
+                    {/* Tax Categories Overview */}
+                    <div className="tax-categories-panel">
+                      <h4>📊 Tax Categories Overview</h4>
+                      <div className="tax-categories-grid">
+                        {treasuryData.revenue.taxCategories.map((category) => (
+                          <div key={category.category} className={`tax-category-card category-${category.category}`}>
+                            <div className="category-header">
+                              <h5>{category.name}</h5>
+                              <span className={`trend-indicator ${category.trend}`}>
+                                {category.trend === 'increasing' && '📈'}
+                                {category.trend === 'decreasing' && '📉'}
+                                {category.trend === 'stable' && '➡️'}
+                              </span>
+                            </div>
+                            <div className="category-amount">{formatCurrency(category.totalAmount)}</div>
+                            <div className="category-metrics">
+                              <div className="metric-row">
+                                <span>Collection Efficiency:</span>
+                                <span className="metric-value">{category.collectionEfficiency.toFixed(1)}%</span>
+                              </div>
+                              <div className="metric-row">
+                                <span>Monthly Change:</span>
+                                <span className={`metric-value ${category.monthlyChange >= 0 ? 'positive' : 'negative'}`}>
+                                  {category.monthlyChange >= 0 ? '+' : ''}{category.monthlyChange.toFixed(1)}%
+                                </span>
+                              </div>
+                              <div className="metric-row">
+                                <span>Line Items:</span>
+                                <span className="metric-value">{category.lineItems.length}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Detailed Tax Line Items */}
+                    <div className="tax-line-items-panel">
+                      <h4>📋 Detailed Tax Line Items</h4>
+                      <div className="line-items-container">
+                        {treasuryData.revenue.taxCategories.map((category) => (
+                          <div key={category.category} className="category-section">
+                            <div className="category-section-header">
+                              <h5>{category.name} - {formatCurrency(category.totalAmount)}</h5>
+                              <span className="category-efficiency">Efficiency: {category.collectionEfficiency.toFixed(1)}%</span>
+                            </div>
+                            <div className="line-items-list">
+                              {category.lineItems.map((lineItem) => (
+                                <div key={lineItem.id} className="line-item">
+                                  <div className="line-item-header">
+                                    <div className="line-item-name">
+                                      <strong>{lineItem.name}</strong>
+                                      <span className="line-item-source">from {lineItem.source}</span>
+                                    </div>
+                                    <div className="line-item-amount">{formatCurrency(lineItem.amount)}</div>
+                                  </div>
+                                  <div className="line-item-details">
+                                    <div className="line-item-metrics">
+                                      {lineItem.rate > 0 && (
+                                        <span className="metric-badge">Rate: {lineItem.rate}%</span>
+                                      )}
+                                      <span className="metric-badge">Efficiency: {lineItem.collectionEfficiency.toFixed(1)}%</span>
+                                      <span className={`metric-badge trend-${lineItem.trend}`}>
+                                        {lineItem.trend === 'increasing' && '📈 '}
+                                        {lineItem.trend === 'decreasing' && '📉 '}
+                                        {lineItem.trend === 'stable' && '➡️ '}
+                                        {lineItem.trend}
+                                      </span>
+                                      <span className={`metric-badge ${lineItem.monthlyChange >= 0 ? 'positive' : 'negative'}`}>
+                                        Monthly: {lineItem.monthlyChange >= 0 ? '+' : ''}{lineItem.monthlyChange.toFixed(1)}%
+                                      </span>
+                                      <span className={`metric-badge ${lineItem.yearOverYear >= 0 ? 'positive' : 'negative'}`}>
+                                        YoY: {lineItem.yearOverYear >= 0 ? '+' : ''}{lineItem.yearOverYear.toFixed(1)}%
+                                      </span>
+                                      {lineItem.region && (
+                                        <span className="metric-badge region">📍 {lineItem.region}</span>
+                                      )}
+                                      {lineItem.demographic && (
+                                        <span className="metric-badge demographic">👥 {lineItem.demographic}</span>
+                                      )}
+                                    </div>
+                                    <div className="line-item-description">{lineItem.description}</div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Geographic Breakdown */}
+                    <div className="geographic-breakdown-panel">
+                      <h4>🗺️ Geographic Tax Distribution</h4>
+                      <div className="geographic-grid">
+                        {treasuryData.revenue.geographicBreakdown.map((region) => (
+                          <div key={region.region} className="geographic-item">
+                            <div className="region-header">
+                              <h6>{region.region}</h6>
+                              <span className="region-percentage">{region.percentage.toFixed(1)}%</span>
+                            </div>
+                            <div className="region-amount">{formatCurrency(region.amount)}</div>
+                            <div className="region-efficiency">
+                              <span>Collection Efficiency: </span>
+                              <span className={`efficiency-value ${region.efficiency >= 95 ? 'excellent' : region.efficiency >= 90 ? 'good' : 'needs-improvement'}`}>
+                                {region.efficiency.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="region-bar">
+                              <div 
+                                className="region-fill" 
+                                style={{ width: `${region.percentage}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Demographic Breakdown */}
+                    <div className="demographic-breakdown-panel">
+                      <h4>👥 Demographic Tax Distribution</h4>
+                      <div className="demographic-grid">
+                        {treasuryData.revenue.demographicBreakdown.map((demographic) => (
+                          <div key={demographic.demographic} className="demographic-item">
+                            <div className="demographic-header">
+                              <h6>{demographic.demographic}</h6>
+                              <span className="demographic-percentage">{demographic.percentage.toFixed(1)}%</span>
+                            </div>
+                            <div className="demographic-amount">{formatCurrency(demographic.amount)}</div>
+                            <div className="demographic-rate">
+                              <span>Average Tax Rate: </span>
+                              <span className="rate-value">{demographic.averageRate.toFixed(1)}%</span>
+                            </div>
+                            <div className="demographic-bar">
+                              <div 
+                                className="demographic-fill" 
+                                style={{ width: `${demographic.percentage}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Monthly Tax Trends */}
+                    <div className="tax-trends-panel">
+                      <h4>📈 Monthly Tax Collection Trends</h4>
+                      <div className="trends-container">
+                        <div className="trends-chart">
+                          {treasuryData.revenue.monthlyTaxTrends.map((trend, index) => (
+                            <div key={trend.month} className="trend-month">
+                              <div className="trend-header">
+                                <span className="trend-month-name">{trend.month}</span>
+                                <span className="trend-total">{formatCurrency(trend.totalTax)}</span>
+                              </div>
+                              <div className="trend-categories">
+                                {Object.entries(trend.categories).map(([category, amount]) => (
+                                  <div key={category} className={`trend-category category-${category}`}>
+                                    <span className="category-name">{category}:</span>
+                                    <span className="category-amount">{formatCurrency(amount as number)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="trend-bar">
+                                <div 
+                                  className="trend-fill" 
+                                  style={{ 
+                                    height: `${(trend.totalTax / Math.max(...treasuryData.revenue.monthlyTaxTrends.map(t => t.totalTax))) * 100}%` 
+                                  }}
+                                ></div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tax Collection Summary */}
+                    <div className="tax-summary-panel">
+                      <h4>💼 Tax Collection Summary</h4>
+                      <div className="summary-metrics">
+                        <div className="summary-metric">
+                          <span className="metric-label">Total Tax Revenue:</span>
+                          <span className="metric-value large">{formatCurrency(treasuryData.revenue.taxRevenue)}</span>
+                        </div>
+                        <div className="summary-metric">
+                          <span className="metric-label">Overall Collection Efficiency:</span>
+                          <span className="metric-value">{treasuryData.revenue.collectionEfficiency.toFixed(1)}%</span>
+                        </div>
+                        <div className="summary-metric">
+                          <span className="metric-label">Total Tax Line Items:</span>
+                          <span className="metric-value">{treasuryData.revenue.totalTaxLineItems.length}</span>
+                        </div>
+                        <div className="summary-metric">
+                          <span className="metric-label">Active Tax Categories:</span>
+                          <span className="metric-value">{treasuryData.revenue.taxCategories.length}</span>
+                        </div>
+                        <div className="summary-metric">
+                          <span className="metric-label">Geographic Regions:</span>
+                          <span className="metric-value">{treasuryData.revenue.geographicBreakdown.length}</span>
+                        </div>
+                        <div className="summary-metric">
+                          <span className="metric-label">Demographic Segments:</span>
+                          <span className="metric-value">{treasuryData.revenue.demographicBreakdown.length}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="collection-insights">
+                        <h5>📊 Collection Insights</h5>
+                        <div className="insights-grid">
+                          <div className="insight-item">
+                            <span className="insight-icon">🏆</span>
+                            <div className="insight-content">
+                              <strong>Top Performing Category:</strong>
+                              <span>{treasuryData.revenue.taxCategories.reduce((prev, current) => (prev.totalAmount > current.totalAmount) ? prev : current).name}</span>
+                            </div>
+                          </div>
+                          <div className="insight-item">
+                            <span className="insight-icon">📈</span>
+                            <div className="insight-content">
+                              <strong>Fastest Growing:</strong>
+                              <span>{treasuryData.revenue.taxCategories.reduce((prev, current) => (prev.monthlyChange > current.monthlyChange) ? prev : current).name}</span>
+                            </div>
+                          </div>
+                          <div className="insight-item">
+                            <span className="insight-icon">🎯</span>
+                            <div className="insight-content">
+                              <strong>Most Efficient Region:</strong>
+                              <span>{treasuryData.revenue.geographicBreakdown.reduce((prev, current) => (prev.efficiency > current.efficiency) ? prev : current).region}</span>
+                            </div>
+                          </div>
+                          <div className="insight-item">
+                            <span className="insight-icon">💰</span>
+                            <div className="insight-content">
+                              <strong>Largest Revenue Source:</strong>
+                              <span>{treasuryData.revenue.totalTaxLineItems.reduce((prev, current) => (prev.amount > current.amount) ? prev : current).name}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -685,6 +1411,28 @@ const TreasuryScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameCont
                         <div className="summary-metric">
                           <span>Average Utilization:</span>
                           <span className="metric-value">{(treasuryData.departments.reduce((sum, dept) => sum + dept.utilization, 0) / treasuryData.departments.length).toFixed(1)}%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="summary-card debt-service-card">
+                      <div className="summary-title">💳 Debt Service Obligations</div>
+                      <div className="summary-metrics">
+                        <div className="summary-metric">
+                          <span>Annual Interest Cost:</span>
+                          <span className="metric-value debt-interest">{formatCurrency(1824000000)}</span>
+                        </div>
+                        <div className="summary-metric">
+                          <span>Daily Interest Cost:</span>
+                          <span className="metric-value">{formatCurrency(4997260)}</span>
+                        </div>
+                        <div className="summary-metric">
+                          <span>Monthly Debt Service:</span>
+                          <span className="metric-value">{formatCurrency(180000000)}</span>
+                        </div>
+                        <div className="summary-metric">
+                          <span>Next Payment (12/14/2024):</span>
+                          <span className="metric-value highlight">{formatCurrency(195000000)}</span>
                         </div>
                       </div>
                     </div>

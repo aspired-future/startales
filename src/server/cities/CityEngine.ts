@@ -133,6 +133,9 @@ export class CityEngine {
     
     this.cities.set(cityId, city);
     
+    // Generate city image
+    this.generateCityImage(city);
+    
     // Log city creation event
     this.logDevelopmentEvent({
       cityId,
@@ -878,6 +881,31 @@ export class CityEngine {
     // Keep only last 1000 events
     if (this.developmentEvents.length > 1000) {
       this.developmentEvents = this.developmentEvents.slice(-1000);
+    }
+  }
+
+  /**
+   * Generate image for a city
+   */
+  private async generateCityImage(city: City): Promise<void> {
+    try {
+      const { getCityVisualIntegration } = await import('../visual-systems/CityVisualIntegration.js');
+      const cityVisual = getCityVisualIntegration();
+      
+      // Queue image generation (non-blocking)
+      cityVisual.queueCityImageGeneration({
+        id: city.id,
+        name: city.name,
+        population: city.population,
+        climate: city.climate,
+        terrain: city.terrain,
+        coordinates: city.coordinates,
+        infrastructure: city.infrastructure,
+        founded: city.founded,
+        economicOutput: city.economicOutput
+      }, 'medium');
+    } catch (error) {
+      console.warn(`Failed to queue city image generation for ${city.name}:`, error);
     }
   }
 }

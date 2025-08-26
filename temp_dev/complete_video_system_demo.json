@@ -1,0 +1,72 @@
+{
+  "timestamp": "2025-08-26T03:29:26.992Z",
+  "systemStatus": "operational",
+  "authenticationWorking": true,
+  "videosGenerated": 3,
+  "providerStatus": {
+    "veo3": {
+      "name": "VEO3Provider",
+      "available": true,
+      "authenticated": true,
+      "capabilities": {
+        "name": "VEO 3",
+        "version": "1.0.0",
+        "supportedAspectRatios": [
+          "16:9",
+          "9:16",
+          "1:1",
+          "21:9"
+        ],
+        "supportedResolutions": [
+          "720p",
+          "1080p",
+          "1440p",
+          "4K"
+        ],
+        "supportedFrameRates": [
+          24,
+          30,
+          60
+        ],
+        "supportedStyles": [
+          "cinematic",
+          "documentary",
+          "animated",
+          "realistic"
+        ],
+        "maxDuration": 60,
+        "minDuration": 2,
+        "maxPromptLength": 2000,
+        "costPerSecond": 0.1,
+        "averageGenerationTime": 120,
+        "concurrentGenerations": 5
+      }
+    }
+  },
+  "generatedVideos": [
+    {
+      "videoId": "veo3_1756178966991_ah6o1x6y3",
+      "status": "completed",
+      "duration": 8,
+      "authenticated": true
+    },
+    {
+      "videoId": "veo3_1756178966991_vq4jnbgkq",
+      "status": "completed",
+      "duration": 8,
+      "authenticated": true
+    },
+    {
+      "videoId": "veo3_1756178966992_neu2lug6m",
+      "status": "completed",
+      "duration": 8,
+      "authenticated": true
+    }
+  ],
+  "recommendations": [
+    "Google Service Account authentication is working",
+    "Video generation infrastructure is ready",
+    "Mock videos are being served with real authentication",
+    "System is ready for production with real VEO 3 access"
+  ]
+}

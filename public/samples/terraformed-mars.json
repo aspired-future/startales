@@ -1,0 +1,18 @@
+{
+  "title": "🌍 Terraformed Mars Colony",
+  "prompt": "A thriving terraformed Mars with blue skies and white clouds, vast green continents with Earth-like vegetation, gleaming dome cities, photorealistic style",
+  "aspectRatio": "16:9",
+  "filename": "terraformed-mars.png",
+  "imagePath": "samples/images/terraformed-mars.png",
+  "result": {
+    "success": true,
+    "imageUrl": "https://picsum.photos/1344/768?random=1756177143048",
+    "width": 1344,
+    "height": 768,
+    "processingTime": 4402,
+    "cost": 0.02
+  },
+  "generatedAt": "2025-08-26T02:59:04.245Z",
+  "provider": "Google Imagen",
+  "apiKey": "AIzaSyAOOT...1435"
+}

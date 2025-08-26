@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Witter Feed Demo - StarTales</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(187, 134, 252, 0.2);
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #bb86fc;
+        }
+
+        .demo-header h1 {
+            color: #bb86fc;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .demo-header p {
+            color: #e0e0e0;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .status-banner {
+            background: linear-gradient(135deg, rgba(187, 134, 252, 0.1), rgba(98, 0, 234, 0.1));
+            border: 2px solid rgba(187, 134, 252, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .status-banner h3 {
+            color: #bb86fc;
+            margin-bottom: 10px;
+        }
+
+        .witt-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(187, 134, 252, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .witt-container:hover {
+            border-color: #bb86fc;
+            box-shadow: 0 4px 15px rgba(187, 134, 252, 0.2);
+        }
+
+        .witt-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .witt-avatar {
+            font-size: 2rem;
+            margin-right: 15px;
+        }
+
+        .witt-author {
+            flex: 1;
+        }
+
+        .witt-author-name {
+            font-weight: 600;
+            color: #bb86fc;
+            margin-bottom: 2px;
+        }
+
+        .witt-handle {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .witt-verified {
+            color: #4ecdc4;
+            margin-left: 5px;
+        }
+
+        .witt-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+        }
+
+        .witt-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .witt-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .witt-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .witt-location {
+            font-style: italic;
+        }
+
+        .category-tag {
+            display: inline-block;
+            background: rgba(187, 134, 252, 0.2);
+            color: #bb86fc;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .load-more {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .load-more-btn {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .load-more-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(187, 134, 252, 0.4);
+        }
+
+        .infinite-scroll-note {
+            text-align: center;
+            color: #4ecdc4;
+            font-style: italic;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🐦 Witter Feed Demo</h1>
+            <p>Enhanced Character-Driven Social Media for StarTales</p>
+        </div>
+
+        <div class="status-banner">
+            <h3>✅ UI Integration Complete - Mock Data Active</h3>
+            <p>The Witter feed is now accessible from both the Communications menu and top center tab. Backend character system ready for deployment!</p>
+        </div>
+
+        <div id="witter-feed">
+            <!-- Witter posts will be loaded here -->
+        </div>
+
+        <div class="load-more">
+            <button class="load-more-btn" onclick="loadMorePosts()">Load More Posts</button>
+            <div class="infinite-scroll-note">
+                ✨ In the actual game, this uses infinite scroll with real-time character-driven content
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mockWitts = [
+            {
+                id: 1,
+                author: "Dr. Elena Vasquez",
+                handle: "@DrElenaV",
+                content: "🧬 Breakthrough in quantum genetics! Our team just discovered how to enhance crop yields by 300% using quantum-entangled DNA sequences. The future of galactic agriculture is here! #QuantumScience #GalacticAgriculture",
+                timestamp: "15 minutes ago",
+                likes: 1247,
+                reposts: 89,
+                replies: 34,
+                category: 'SCIENCE',
+                avatar: "🧬",
+                verified: true,
+                location: "Kepler Research Station"
+            },
+            {
+                id: 2,
+                author: "Marcus Chen",
+                handle: "@MarcusReports",
+                content: "📈 BREAKING: Galactic Trade Federation announces new interstellar commerce routes! Expected to boost GDP by 15% across all member civilizations. The Andromeda-Milky Way Express is officially operational! 🚀✨ #GalacticEconomy #Trade",
+                timestamp: "45 minutes ago",
+                likes: 892,
+                reposts: 156,
+                replies: 67,
+                category: 'BUSINESS',
+                avatar: "📊",
+                verified: true,
+                location: "Central Trade Hub"
+            },
+            {
+                id: 3,
+                author: "Captain Sarah Nova",
+                handle: "@CaptainNova",
+                content: "🏆 What a match! The Centauri Comets just defeated the Vega Vipers 4-2 in the most intense zero-gravity soccer final I've ever witnessed! That last-minute goal by Rodriguez was INSANE! 🥅⚽ #ZeroGSoccer #GalacticSports",
+                timestamp: "1 hour ago",
+                likes: 2156,
+                reposts: 234,
+                replies: 89,
+                category: 'SPORTS',
+                avatar: "⚽",
+                verified: false,
+                location: "Orbital Sports Complex"
+            },
+            {
+                id: 4,
+                author: "Ambassador Zara Kim",
+                handle: "@AmbassadorZara",
+                content: "🌟 Honored to represent our civilization at the Intergalactic Peace Summit. Today we signed historic agreements on resource sharing and cultural exchange. Together, we build a brighter future among the stars! 🤝✨ #Diplomacy #Peace",
+                timestamp: "2 hours ago",
+                likes: 3421,
+                reposts: 445,
+                replies: 123,
+                category: 'POLITICS',
+                avatar: "🌟",
+                verified: true,
+                location: "Diplomatic Quarter"
+            },
+            {
+                id: 5,
+                author: "Tech Innovator Alex",
+                handle: "@TechAlexInnovates",
+                content: "🤖 Just finished beta testing the new AI-powered personal assistants! These little guys can manage your entire household, optimize your daily schedule, AND they make the best synthetic coffee in the galaxy! ☕🤖 #AITech #Innovation",
+                timestamp: "3 hours ago",
+                likes: 1876,
+                reposts: 298,
+                replies: 156,
+                category: 'TECHNOLOGY',
+                avatar: "🤖",
+                verified: false,
+                location: "Innovation District"
+            }
+        ];
+
+        let currentPage = 0;
+
+        function renderWitt(witt) {
+            return `
+                <div class="witt-container">
+                    <div class="witt-header">
+                        <div class="witt-avatar">${witt.avatar}</div>
+                        <div class="witt-author">
+                            <div class="witt-author-name">
+                                ${witt.author}
+                                ${witt.verified ? '<span class="witt-verified">✓</span>' : ''}
+                                <span class="category-tag">${witt.category}</span>
+                            </div>
+                            <div class="witt-handle">${witt.handle} • ${witt.location}</div>
+                        </div>
+                    </div>
+                    <div class="witt-content">${witt.content}</div>
+                    <div class="witt-meta">
+                        <div class="witt-stats">
+                            <div class="witt-stat">❤️ ${witt.likes.toLocaleString()}</div>
+                            <div class="witt-stat">🔄 ${witt.reposts}</div>
+                            <div class="witt-stat">💬 ${witt.replies}</div>
+                        </div>
+                        <div class="witt-location">${witt.timestamp}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadMorePosts() {
+            const feedContainer = document.getElementById('witter-feed');
+            
+            mockWitts.forEach((witt, index) => {
+                const modifiedWitt = {
+                    ...witt,
+                    id: witt.id + (currentPage * 5),
+                    content: witt.content + (currentPage > 0 ? ` [Page ${currentPage + 1}]` : ''),
+                    timestamp: currentPage > 0 ? `${3 + currentPage}+ hours ago` : witt.timestamp
+                };
+                feedContainer.innerHTML += renderWitt(modifiedWitt);
+            });
+            
+            currentPage++;
+            
+            if (currentPage >= 3) {
+                document.querySelector('.load-more-btn').textContent = 'End of Demo Feed';
+                document.querySelector('.load-more-btn').disabled = true;
+                document.querySelector('.load-more-btn').style.opacity = '0.5';
+            }
+        }
+
+        // Load initial posts
+        loadMorePosts();
+    </script>
+</body>
+</html>

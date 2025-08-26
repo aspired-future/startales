@@ -17,100 +17,307 @@ let characterEngine: DynamicCharacterEngine;
 let characterService: CharacterService;
 let characterGenerator: ProceduralCharacterGenerator;
 
-// Enhanced AI Knobs for Characters System
-const charactersKnobsData = {
-  // Character Generation & Diversity
-  character_diversity_level: 0.8,       // Character diversity and uniqueness level
-  procedural_generation_complexity: 0.7, // Procedural character generation complexity
-  character_archetype_variety: 0.8,     // Character archetype and role variety
-  
-  // Personality & Behavior
-  personality_trait_intensity: 0.7,     // Character personality trait intensity
-  behavioral_consistency: 0.8,          // Character behavioral consistency and reliability
-  emotional_response_variability: 0.6,  // Emotional response variability and authenticity
-  
-  // Character Development & Growth
-  character_development_rate: 0.6,      // Character growth and development rate
-  skill_progression_speed: 0.7,         // Character skill and ability progression
-  relationship_evolution_rate: 0.6,     // Character relationship development rate
-  
-  // Social Dynamics & Relationships
-  social_network_complexity: 0.7,       // Character social network complexity
-  interpersonal_conflict_frequency: 0.5, // Interpersonal conflict and drama frequency
-  alliance_formation_tendency: 0.6,     // Character alliance and friendship formation
-  
-  // Character Agency & Autonomy
-  autonomous_decision_making: 0.7,      // Character autonomous decision-making capability
-  proactive_behavior_level: 0.6,        // Character proactive behavior and initiative
-  goal_pursuit_persistence: 0.8,        // Character goal pursuit and persistence
-  
-  // Communication & Interaction
-  dialogue_sophistication: 0.8,         // Character dialogue sophistication and depth
-  communication_frequency: 0.7,         // Character communication and interaction frequency
-  storytelling_contribution: 0.8,       // Character contribution to narrative and story
-  
-  // Cultural & Background Authenticity
-  cultural_background_depth: 0.8,       // Character cultural background authenticity
-  historical_context_integration: 0.7,  // Historical and contextual background integration
-  species_trait_expression: 0.8,        // Species-specific trait expression and authenticity
-  
-  // Character Specialization & Roles
-  professional_competence_level: 0.8,   // Character professional skill and competence
-  role_specialization_depth: 0.7,       // Character role specialization and expertise
-  leadership_capability_variation: 0.6, // Leadership capability variation across characters
-  
-  // Narrative Integration
-  plot_relevance_weighting: 0.7,        // Character plot relevance and story integration
-  dramatic_timing_sensitivity: 0.6,     // Character dramatic timing and narrative awareness
-  story_arc_contribution: 0.8,          // Character story arc and development contribution
-  
-  // Character Persistence & Memory
-  memory_retention_accuracy: 0.8,       // Character memory retention and recall accuracy
-  relationship_memory_depth: 0.7,       // Character relationship history memory depth
-  experience_learning_rate: 0.6,        // Character learning from experience rate
-  
-  lastUpdated: Date.now()
-};
+// Enhanced Knob System for Character Story/Game State Awareness
+const charactersKnobSystem = new EnhancedKnobSystem('characters', {
+  // Game State Awareness & Context (8 knobs)
+  'game-state-awareness-level': {
+    id: 'game-state-awareness-level',
+    name: 'Game State Awareness Level',
+    description: 'How well characters understand current game state and context',
+    category: 'game-state-awareness',
+    type: 'percentage',
+    min: 10,
+    max: 100,
+    default: 75,
+    step: 5,
+    unit: '%'
+  },
+  'political-situation-understanding': {
+    id: 'political-situation-understanding',
+    name: 'Political Situation Understanding',
+    description: 'Character awareness of political events and diplomatic situations',
+    category: 'game-state-awareness',
+    type: 'percentage',
+    min: 20,
+    max: 100,
+    default: 70,
+    step: 5,
+    unit: '%'
+  },
+  'economic-context-awareness': {
+    id: 'economic-context-awareness',
+    name: 'Economic Context Awareness',
+    description: 'Understanding of economic conditions and market dynamics',
+    category: 'game-state-awareness',
+    type: 'percentage',
+    min: 20,
+    max: 100,
+    default: 65,
+    step: 5,
+    unit: '%'
+  },
+  'military-situation-knowledge': {
+    id: 'military-situation-knowledge',
+    name: 'Military Situation Knowledge',
+    description: 'Awareness of military conflicts, threats, and defense status',
+    category: 'game-state-awareness',
+    type: 'percentage',
+    min: 10,
+    max: 100,
+    default: 60,
+    step: 5,
+    unit: '%'
+  },
+  'technological-progress-tracking': {
+    id: 'technological-progress-tracking',
+    name: 'Technological Progress Tracking',
+    description: 'Knowledge of technological developments and research progress',
+    category: 'game-state-awareness',
+    type: 'percentage',
+    min: 20,
+    max: 100,
+    default: 70,
+    step: 5,
+    unit: '%'
+  },
+  'social-cultural-awareness': {
+    id: 'social-cultural-awareness',
+    name: 'Social & Cultural Awareness',
+    description: 'Understanding of social movements and cultural changes',
+    category: 'game-state-awareness',
+    type: 'percentage',
+    min: 30,
+    max: 100,
+    default: 80,
+    step: 5,
+    unit: '%'
+  },
+  'crisis-event-recognition': {
+    id: 'crisis-event-recognition',
+    name: 'Crisis Event Recognition',
+    description: 'Ability to recognize and respond to crisis situations',
+    category: 'game-state-awareness',
+    type: 'percentage',
+    min: 40,
+    max: 100,
+    default: 85,
+    step: 5,
+    unit: '%'
+  },
+  'historical-context-integration': {
+    id: 'historical-context-integration',
+    name: 'Historical Context Integration',
+    description: 'Integration of historical events into current decision-making',
+    category: 'game-state-awareness',
+    type: 'percentage',
+    min: 20,
+    max: 100,
+    default: 60,
+    step: 5,
+    unit: '%'
+  },
 
-// Initialize Enhanced Knob System for Characters
-const charactersKnobSystem = new EnhancedKnobSystem(charactersKnobsData);
+  // Specialty Knowledge & Expertise (8 knobs)
+  'professional-expertise-depth': {
+    id: 'professional-expertise-depth',
+    name: 'Professional Expertise Depth',
+    description: 'Depth of knowledge in character\'s professional specialty',
+    category: 'specialty-knowledge',
+    type: 'percentage',
+    min: 50,
+    max: 100,
+    default: 85,
+    step: 5,
+    unit: '%'
+  },
+  'cross-domain-knowledge': {
+    id: 'cross-domain-knowledge',
+    name: 'Cross-Domain Knowledge',
+    description: 'Understanding of areas outside character\'s main specialty',
+    category: 'specialty-knowledge',
+    type: 'percentage',
+    min: 10,
+    max: 80,
+    default: 40,
+    step: 5,
+    unit: '%'
+  },
+  'strategic-thinking-capability': {
+    id: 'strategic-thinking-capability',
+    name: 'Strategic Thinking Capability',
+    description: 'Ability to think strategically and plan long-term',
+    category: 'specialty-knowledge',
+    type: 'percentage',
+    min: 20,
+    max: 100,
+    default: 70,
+    step: 5,
+    unit: '%'
+  },
+  'technical-competency-level': {
+    id: 'technical-competency-level',
+    name: 'Technical Competency Level',
+    description: 'Level of technical skills and knowledge in specialty area',
+    category: 'specialty-knowledge',
+    type: 'percentage',
+    min: 30,
+    max: 100,
+    default: 80,
+    step: 5,
+    unit: '%'
+  },
+  'advisory-quality-standard': {
+    id: 'advisory-quality-standard',
+    name: 'Advisory Quality Standard',
+    description: 'Quality and accuracy of advice provided to leadership',
+    category: 'specialty-knowledge',
+    type: 'percentage',
+    min: 40,
+    max: 100,
+    default: 85,
+    step: 5,
+    unit: '%'
+  },
+  'innovation-creativity-level': {
+    id: 'innovation-creativity-level',
+    name: 'Innovation & Creativity Level',
+    description: 'Ability to generate innovative solutions and creative ideas',
+    category: 'specialty-knowledge',
+    type: 'percentage',
+    min: 20,
+    max: 100,
+    default: 65,
+    step: 5,
+    unit: '%'
+  },
+  'risk-assessment-accuracy': {
+    id: 'risk-assessment-accuracy',
+    name: 'Risk Assessment Accuracy',
+    description: 'Accuracy in identifying and evaluating risks',
+    category: 'specialty-knowledge',
+    type: 'percentage',
+    min: 30,
+    max: 100,
+    default: 75,
+    step: 5,
+    unit: '%'
+  },
+  'decision-support-effectiveness': {
+    id: 'decision-support-effectiveness',
+    name: 'Decision Support Effectiveness',
+    description: 'Effectiveness in supporting leadership decision-making',
+    category: 'specialty-knowledge',
+    type: 'percentage',
+    min: 40,
+    max: 100,
+    default: 80,
+    step: 5,
+    unit: '%'
+  },
+
+  // Character Responsiveness & Adaptation (8 knobs)
+  'situational-adaptability': {
+    id: 'situational-adaptability',
+    name: 'Situational Adaptability',
+    description: 'Ability to adapt behavior based on changing circumstances',
+    category: 'responsiveness-adaptation',
+    type: 'percentage',
+    min: 30,
+    max: 100,
+    default: 75,
+    step: 5,
+    unit: '%'
+  },
+  'information-processing-speed': {
+    id: 'information-processing-speed',
+    name: 'Information Processing Speed',
+    description: 'Speed of processing and responding to new information',
+    category: 'responsiveness-adaptation',
+    type: 'percentage',
+    min: 40,
+    max: 100,
+    default: 70,
+    step: 5,
+    unit: '%'
+  },
+  'proactive-initiative-level': {
+    id: 'proactive-initiative-level',
+    name: 'Proactive Initiative Level',
+    description: 'Tendency to take initiative and act proactively',
+    category: 'responsiveness-adaptation',
+    type: 'percentage',
+    min: 20,
+    max: 100,
+    default: 65,
+    step: 5,
+    unit: '%'
+  },
+  'collaborative-engagement': {
+    id: 'collaborative-engagement',
+    name: 'Collaborative Engagement',
+    description: 'Level of engagement in collaborative activities and discussions',
+    category: 'responsiveness-adaptation',
+    type: 'percentage',
+    min: 30,
+    max: 100,
+    default: 80,
+    step: 5,
+    unit: '%'
+  },
+  'feedback-responsiveness': {
+    id: 'feedback-responsiveness',
+    name: 'Feedback Responsiveness',
+    description: 'Responsiveness to feedback and willingness to adjust',
+    category: 'responsiveness-adaptation',
+    type: 'percentage',
+    min: 40,
+    max: 100,
+    default: 75,
+    step: 5,
+    unit: '%'
+  },
+  'learning-adaptation-rate': {
+    id: 'learning-adaptation-rate',
+    name: 'Learning & Adaptation Rate',
+    description: 'Speed of learning from experience and adapting strategies',
+    category: 'responsiveness-adaptation',
+    type: 'percentage',
+    min: 30,
+    max: 100,
+    default: 70,
+    step: 5,
+    unit: '%'
+  },
+  'stress-performance-stability': {
+    id: 'stress-performance-stability',
+    name: 'Stress Performance Stability',
+    description: 'Maintenance of performance quality under stress',
+    category: 'responsiveness-adaptation',
+    type: 'percentage',
+    min: 40,
+    max: 100,
+    default: 75,
+    step: 5,
+    unit: '%'
+  },
+  'change-management-capability': {
+    id: 'change-management-capability',
+    name: 'Change Management Capability',
+    description: 'Ability to manage and lead through organizational changes',
+    category: 'responsiveness-adaptation',
+    type: 'percentage',
+    min: 30,
+    max: 100,
+    default: 70,
+    step: 5,
+    unit: '%'
+  }
+});
 
 // Apply characters knobs to game state
-function applyCharactersKnobsToGameState() {
-  const knobs = charactersKnobSystem.knobs;
-  
-  // Apply character generation settings
-  const characterGeneration = (knobs.character_diversity_level + knobs.procedural_generation_complexity + 
-    knobs.character_archetype_variety) / 3;
-  
-  // Apply personality and behavior settings
-  const personalityBehavior = (knobs.personality_trait_intensity + knobs.behavioral_consistency + 
-    knobs.emotional_response_variability) / 3;
-  
-  // Apply character development settings
-  const characterDevelopment = (knobs.character_development_rate + knobs.skill_progression_speed + 
-    knobs.relationship_evolution_rate) / 3;
-  
-  // Apply social dynamics settings
-  const socialDynamics = (knobs.social_network_complexity + knobs.interpersonal_conflict_frequency + 
-    knobs.alliance_formation_tendency) / 3;
-  
-  // Apply character agency settings
-  const characterAgency = (knobs.autonomous_decision_making + knobs.proactive_behavior_level + 
-    knobs.goal_pursuit_persistence) / 3;
-  
-  // Apply narrative integration settings
-  const narrativeIntegration = (knobs.plot_relevance_weighting + knobs.dramatic_timing_sensitivity + 
-    knobs.story_arc_contribution) / 3;
-  
-  console.log('Applied characters knobs to game state:', {
-    characterGeneration,
-    personalityBehavior,
-    characterDevelopment,
-    socialDynamics,
-    characterAgency,
-    narrativeIntegration
-  });
+function applyCharactersKnobsToGameState(campaignId: string, civilizationId: string) {
+  // This function will be called by the simulation engine to apply knob settings
+  console.log(`Applied character knobs to game state for campaign ${campaignId}, civilization ${civilizationId}`);
 }
 
 export function initializeCharacterService(pool: Pool): void {
@@ -246,6 +453,128 @@ router.post('/generate-population', async (req, res) => {
     console.error('❌ Error generating population:', error);
     res.status(500).json({
       error: 'Failed to generate population',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Get character profiles for WhoseApp
+router.get('/profiles', async (req, res) => {
+  try {
+    const { civilizationId } = req.query;
+    console.log('📋 Getting character profiles for civilization:', civilizationId);
+
+    // Mock character profiles for WhoseApp
+    const mockCharacters = [
+      {
+        id: 'char_diplomat_001',
+        name: 'Ambassador Elena Vasquez',
+        title: 'Chief Diplomatic Officer',
+        department: 'Foreign Affairs',
+        role: 'diplomat',
+        avatar: '/api/characters/avatars/elena_vasquez.jpg',
+        biography: 'A seasoned diplomat with over 20 years of experience in interstellar relations.',
+        specialties: ['Interstellar Diplomacy', 'Trade Negotiations', 'Cultural Relations'],
+        clearanceLevel: 'top_secret',
+        whoseAppProfile: {
+          status: 'online',
+          statusMessage: 'In negotiations with Zephyrian delegation',
+          lastSeen: new Date(),
+          activeConversations: ['conv_001', 'channel_dept_foreign']
+        },
+        witterProfile: {
+          handle: '@AmbassadorElena',
+          followerCount: 125000,
+          followingCount: 450,
+          postCount: 2340,
+          verificationStatus: 'government'
+        },
+        actionStats: {
+          totalAssigned: 47,
+          completed: 42,
+          inProgress: 3,
+          overdue: 0,
+          successRate: 89,
+          currentWorkload: 3
+        }
+      },
+      {
+        id: 'char_economist_001',
+        name: 'Dr. Marcus Chen',
+        title: 'Economic Policy Director',
+        department: 'Treasury & Economic Affairs',
+        role: 'economist',
+        avatar: '/api/characters/avatars/marcus_chen.jpg',
+        biography: 'Brilliant economist and policy strategist with a PhD in Galactic Economics.',
+        specialties: ['Macroeconomic Policy', 'Market Analysis', 'Fiscal Strategy'],
+        clearanceLevel: 'classified',
+        whoseAppProfile: {
+          status: 'busy',
+          statusMessage: 'Analyzing stimulus package models',
+          lastSeen: new Date(Date.now() - 1800000),
+          activeConversations: ['conv_002', 'channel_dept_treasury']
+        },
+        witterProfile: {
+          handle: '@DrMarcusChen',
+          followerCount: 89000,
+          followingCount: 230,
+          postCount: 1876,
+          verificationStatus: 'government'
+        },
+        actionStats: {
+          totalAssigned: 34,
+          completed: 29,
+          inProgress: 4,
+          overdue: 1,
+          successRate: 85,
+          currentWorkload: 4
+        }
+      },
+      {
+        id: 'char_commander_001',
+        name: 'General Sarah Mitchell',
+        title: 'Defense Secretary',
+        department: 'Military & Defense',
+        role: 'military',
+        avatar: '/api/characters/avatars/sarah_mitchell.jpg',
+        biography: 'Decorated military leader with extensive experience in strategic operations.',
+        specialties: ['Military Strategy', 'Defense Planning', 'Crisis Management'],
+        clearanceLevel: 'top_secret',
+        whoseAppProfile: {
+          status: 'online',
+          statusMessage: 'Reviewing defense protocols',
+          lastSeen: new Date(),
+          activeConversations: ['channel_defense', 'channel_cabinet']
+        },
+        witterProfile: {
+          handle: '@GeneralMitchell',
+          followerCount: 203000,
+          followingCount: 156,
+          postCount: 1456,
+          verificationStatus: 'government'
+        },
+        actionStats: {
+          totalAssigned: 52,
+          completed: 48,
+          inProgress: 2,
+          overdue: 0,
+          successRate: 92,
+          currentWorkload: 2
+        }
+      }
+    ];
+
+    console.log('✅ Returning mock character profiles:', mockCharacters.length);
+
+    res.json({
+      success: true,
+      characters: mockCharacters,
+      count: mockCharacters.length
+    });
+  } catch (error) {
+    console.error('❌ Error getting character profiles:', error);
+    res.status(500).json({
+      error: 'Failed to get character profiles',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
@@ -437,7 +766,187 @@ router.get('/:characterId/analytics', async (req, res) => {
   }
 });
 
+// ==================== GAME STATE AWARENESS ENDPOINTS ====================
+
+/**
+ * GET /api/characters/game-state-awareness
+ * Get character awareness levels and knowledge of current game state
+ */
+router.get('/game-state-awareness', async (req, res) => {
+  try {
+    const { campaignId, civilizationId, characterId } = req.query;
+    
+    if (!campaignId || !civilizationId) {
+      return res.status(400).json({ error: 'Campaign ID and Civilization ID are required' });
+    }
+
+    const knobValues = await charactersKnobSystem.getKnobValues(campaignId as string, civilizationId as string);
+    
+    // Get character-specific awareness based on their role and specialty
+    const characterAwareness = {
+      gameStateAwareness: {
+        level: knobValues['game-state-awareness-level'],
+        politicalSituation: knobValues['political-situation-understanding'],
+        economicContext: knobValues['economic-context-awareness'],
+        militarySituation: knobValues['military-situation-knowledge'],
+        technologicalProgress: knobValues['technological-progress-tracking'],
+        socialCultural: knobValues['social-cultural-awareness'],
+        crisisRecognition: knobValues['crisis-event-recognition'],
+        historicalContext: knobValues['historical-context-integration']
+      },
+      specialtyKnowledge: {
+        professionalExpertise: knobValues['professional-expertise-depth'],
+        crossDomainKnowledge: knobValues['cross-domain-knowledge'],
+        strategicThinking: knobValues['strategic-thinking-capability'],
+        technicalCompetency: knobValues['technical-competency-level'],
+        advisoryQuality: knobValues['advisory-quality-standard'],
+        innovationCreativity: knobValues['innovation-creativity-level'],
+        riskAssessment: knobValues['risk-assessment-accuracy'],
+        decisionSupport: knobValues['decision-support-effectiveness']
+      },
+      responsivenessAdaptation: {
+        situationalAdaptability: knobValues['situational-adaptability'],
+        informationProcessing: knobValues['information-processing-speed'],
+        proactiveInitiative: knobValues['proactive-initiative-level'],
+        collaborativeEngagement: knobValues['collaborative-engagement'],
+        feedbackResponsiveness: knobValues['feedback-responsiveness'],
+        learningAdaptation: knobValues['learning-adaptation-rate'],
+        stressPerformance: knobValues['stress-performance-stability'],
+        changeManagement: knobValues['change-management-capability']
+      }
+    };
+    
+    res.json({
+      success: true,
+      data: characterAwareness,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error getting character game state awareness:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get character game state awareness'
+    });
+  }
+});
+
+/**
+ * GET /api/characters/specialty-analysis
+ * Get analysis of character performance in their specialty areas
+ */
+router.get('/specialty-analysis', async (req, res) => {
+  try {
+    const { campaignId, civilizationId, characterId } = req.query;
+    
+    if (!campaignId || !civilizationId) {
+      return res.status(400).json({ error: 'Campaign ID and Civilization ID are required' });
+    }
+
+    const knobValues = await charactersKnobSystem.getKnobValues(campaignId as string, civilizationId as string);
+    
+    const specialtyAnalysis = {
+      expertiseMetrics: {
+        professionalDepth: knobValues['professional-expertise-depth'],
+        crossDomainBreadth: knobValues['cross-domain-knowledge'],
+        strategicCapability: knobValues['strategic-thinking-capability'],
+        technicalSkills: knobValues['technical-competency-level']
+      },
+      performanceIndicators: {
+        advisoryQuality: knobValues['advisory-quality-standard'],
+        innovationLevel: knobValues['innovation-creativity-level'],
+        riskAssessmentAccuracy: knobValues['risk-assessment-accuracy'],
+        decisionSupportValue: knobValues['decision-support-effectiveness']
+      },
+      adaptabilityFactors: {
+        situationalFlexibility: knobValues['situational-adaptability'],
+        learningSpeed: knobValues['learning-adaptation-rate'],
+        stressResilience: knobValues['stress-performance-stability'],
+        changeLeadership: knobValues['change-management-capability']
+      },
+      overallRating: calculateOverallSpecialtyRating(knobValues)
+    };
+    
+    res.json({
+      success: true,
+      data: specialtyAnalysis,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error getting character specialty analysis:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get character specialty analysis'
+    });
+  }
+});
+
+/**
+ * POST /api/characters/update-awareness
+ * Update character awareness based on new game events or information
+ */
+router.post('/update-awareness', async (req, res) => {
+  try {
+    const { campaignId, civilizationId, characterId, eventType, eventData, awarenessImpact } = req.body;
+    
+    if (!campaignId || !civilizationId || !eventType) {
+      return res.status(400).json({ error: 'Campaign ID, Civilization ID, and event type are required' });
+    }
+
+    // Simulate updating character awareness based on events
+    const awarenessUpdate = {
+      characterId: characterId || 'all',
+      eventType,
+      eventData,
+      awarenessChanges: {
+        gameStateAwareness: awarenessImpact?.gameState || 0,
+        politicalUnderstanding: awarenessImpact?.political || 0,
+        economicAwareness: awarenessImpact?.economic || 0,
+        militaryKnowledge: awarenessImpact?.military || 0,
+        technologicalTracking: awarenessImpact?.technology || 0,
+        socialCulturalAwareness: awarenessImpact?.social || 0
+      },
+      timestamp: new Date().toISOString(),
+      processed: true
+    };
+    
+    res.json({
+      success: true,
+      data: awarenessUpdate,
+      message: 'Character awareness updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating character awareness:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update character awareness'
+    });
+  }
+});
+
+// Helper function to calculate overall specialty rating
+function calculateOverallSpecialtyRating(knobValues: any): number {
+  const expertiseScore = (
+    knobValues['professional-expertise-depth'] +
+    knobValues['technical-competency-level'] +
+    knobValues['strategic-thinking-capability']
+  ) / 3;
+  
+  const performanceScore = (
+    knobValues['advisory-quality-standard'] +
+    knobValues['decision-support-effectiveness'] +
+    knobValues['risk-assessment-accuracy']
+  ) / 3;
+  
+  const adaptabilityScore = (
+    knobValues['situational-adaptability'] +
+    knobValues['learning-adaptation-rate'] +
+    knobValues['change-management-capability']
+  ) / 3;
+  
+  return (expertiseScore + performanceScore + adaptabilityScore) / 3;
+}
+
 // Enhanced Knob System Endpoints
-createEnhancedKnobEndpoints(router, 'characters', charactersKnobSystem, applyCharactersKnobsToGameState);
+createEnhancedKnobEndpoints(router, charactersKnobSystem);
 
 export default router;

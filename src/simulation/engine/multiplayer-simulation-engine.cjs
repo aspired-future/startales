@@ -159,6 +159,11 @@ class MultiplayerSimulationEngine extends EventEmitter {
 
         this.civilizations.set(civilizationId, civilization);
 
+        // Generate civilization flag for player civilizations
+        if (player.type === 'human' || player.type === 'hybrid') {
+            this.generateCivilizationFlag(civilization, player);
+        }
+
         // Initialize civilization-specific AI modules
         if (player.type === 'ai' || player.type === 'hybrid') {
             await this.initializeCivilizationAI(civilizationId, civilization);
@@ -723,6 +728,33 @@ class MultiplayerSimulationEngine extends EventEmitter {
                 galaxySize: this.sharedSystems.get('galaxy-map')?.getSize()
             }
         };
+    }
+
+    async generateCivilizationFlag(civilization, player) {
+        try {
+            const { getFlagVisualIntegration } = await import('../visual-systems/FlagVisualIntegration.js');
+            const flagVisual = getFlagVisualIntegration();
+            
+            // Queue flag generation (non-blocking)
+            await flagVisual.generateCivilizationFlag({
+                id: civilization.id,
+                name: civilization.name,
+                government: civilization.government,
+                culture: civilization.culture,
+                species: civilization.species,
+                homeworld: civilization.homeworld,
+                colors: civilization.colors,
+                symbols: civilization.symbols,
+                values: civilization.values,
+                playerId: player.id,
+                playerName: player.name,
+                playerPreferences: player.preferences || {}
+            }, 'high');
+            
+            console.log(`🏴 Flag generation queued for civilization ${civilization.name} (Player: ${player.name})`);
+        } catch (error) {
+            console.warn(`Failed to queue flag generation for civilization ${civilization.name}:`, error);
+        }
     }
 }
 

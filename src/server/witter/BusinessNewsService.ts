@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { getFinancialMarketsService } from '../financial-markets/FinancialMarketsService.js';
+import { getEnhancedAIContentService } from './EnhancedAIContentService.js';
 
 export interface BusinessNewsPost {
   id: string;
@@ -46,10 +47,8 @@ export class BusinessNewsService {
     this.financialService = getFinancialMarketsService();
   }
 
-  // Generate business news posts based on market data
+  // Generate business news posts using enhanced AI content generation
   async generateBusinessNews(civilizationId: number, count: number = 5): Promise<BusinessNewsPost[]> {
-    const posts: BusinessNewsPost[] = [];
-
     try {
       // Get market data for context
       const exchanges = await this.financialService.getStockExchanges(civilizationId);
@@ -57,36 +56,116 @@ export class BusinessNewsService {
       const topPerformers = await this.financialService.getTopPerformingCompanies(civilizationId, 5);
       const sectorPerformance = await this.financialService.getSectorPerformance(civilizationId);
 
-      // Generate different types of business news
-      const newsTypes = [
-        'market_update',
-        'earnings_report', 
-        'sector_analysis',
-        'economic_policy',
-        'company_announcement',
-        'market_sentiment'
-      ];
+      // Build rich game context
+      const gameContext = {
+        currentEvents: [
+          `${exchanges.length} active stock exchanges`,
+          `${companies.length} listed companies`,
+          `Top performer: ${topPerformers[0]?.company_name || 'Various companies'} showing strong growth`
+        ],
+        economicStatus: this.analyzeEconomicStatus(sectorPerformance),
+        politicalClimate: 'Inter-civilization trade negotiations ongoing',
+        recentNews: [
+          `Market volatility in ${sectorPerformance[0]?.sector || 'technology'} sector`,
+          'New trade agreements under discussion'
+        ]
+      };
 
-      for (let i = 0; i < count; i++) {
-        const newsType = newsTypes[Math.floor(Math.random() * newsTypes.length)];
-        const post = await this.generateNewsPost(newsType, {
-          civilizationId,
-          exchanges,
-          companies,
-          topPerformers,
-          sectorPerformance
-        });
-        
-        if (post) {
-          posts.push(post);
-        }
-      }
+      // Use enhanced AI content service
+      const enhancedAIService = getEnhancedAIContentService();
+      const aiPosts = await enhancedAIService.generateEnhancedContent({
+        contentType: 'business',
+        civilizationId,
+        gameContext
+      }, count);
 
-      return posts;
+      // Convert AI posts to BusinessNewsPost format
+      return aiPosts.map(aiPost => ({
+        id: aiPost.id,
+        authorId: aiPost.authorId,
+        authorName: aiPost.authorName,
+        authorType: aiPost.authorType as 'MEDIA' | 'ANALYST' | 'CITIZEN' | 'CORPORATE',
+        authorAvatar: aiPost.authorAvatar,
+        content: aiPost.content,
+        timestamp: aiPost.timestamp,
+        metadata: {
+          category: 'BUSINESS_NEWS' as 'BUSINESS_NEWS' | 'MARKET_ANALYSIS' | 'EARNINGS' | 'ECONOMIC_POLICY' | 'COMPANY_NEWS',
+          newsType: 'AI_GENERATED' as 'BREAKING' | 'ANALYSIS' | 'EARNINGS_REPORT' | 'MARKET_UPDATE' | 'POLICY_ANNOUNCEMENT',
+          relatedCompanies: companies.slice(0, 3).map(c => c.company_symbol),
+          relatedSectors: sectorPerformance.slice(0, 2).map(s => s.sector),
+          marketImpact: this.determineMarketImpact(sectorPerformance),
+          urgency: 'MEDIUM' as 'HIGH' | 'MEDIUM' | 'LOW',
+          sourceCredibility: 8
+        },
+        metrics: aiPost.metrics
+      }));
+
     } catch (error) {
-      console.error('Error generating business news:', error);
-      return [];
+      console.error('Error generating enhanced business news:', error);
+      // Fallback to a few simple posts
+      return this.generateFallbackBusinessNews(civilizationId, Math.min(count, 3));
     }
+  }
+
+  private analyzeEconomicStatus(sectorPerformance: any[]): string {
+    if (!sectorPerformance || sectorPerformance.length === 0) {
+      return 'Mixed economic signals across sectors';
+    }
+
+    const avgPerformance = sectorPerformance.reduce((sum, sector) => 
+      sum + (sector.avg_daily_change || 0), 0) / sectorPerformance.length;
+
+    if (avgPerformance > 2) return 'Strong economic growth with bullish market sentiment';
+    if (avgPerformance > 0) return 'Moderate economic expansion with cautious optimism';
+    if (avgPerformance > -2) return 'Economic uncertainty with mixed sector performance';
+    return 'Economic headwinds creating market volatility';
+  }
+
+  private determineMarketImpact(sectorPerformance: any[]): 'POSITIVE' | 'NEGATIVE' | 'NEUTRAL' {
+    if (!sectorPerformance || sectorPerformance.length === 0) return 'NEUTRAL';
+    
+    const avgChange = sectorPerformance.reduce((sum, sector) => 
+      sum + (sector.avg_daily_change || 0), 0) / sectorPerformance.length;
+    
+    if (avgChange > 1) return 'POSITIVE';
+    if (avgChange < -1) return 'NEGATIVE';
+    return 'NEUTRAL';
+  }
+
+  private async generateFallbackBusinessNews(civilizationId: number, count: number): Promise<BusinessNewsPost[]> {
+    const fallbackPosts: BusinessNewsPost[] = [];
+    
+    const fallbackContent = [
+      "💰 Galactic markets showing unprecedented volatility as inter-civilization trade talks heat up! Investors are watching closely as new economic partnerships could reshape the entire financial landscape. Buckle up for some wild market swings! #GalacticMarkets #TradeWars",
+      "📊 Breaking: Quantum computing stocks absolutely exploding across all major exchanges! The race for technological supremacy is driving massive investment flows into next-gen tech companies. This could be the start of a new economic era! #QuantumComputing #TechStocks",
+      "🚀 Outer rim startup ecosystem is on fire right now! Venture capital flowing like never before into frontier system innovations. The next unicorn company might just come from the galaxy's edge! #Startups #Innovation #OuterRim"
+    ];
+
+    for (let i = 0; i < Math.min(count, fallbackContent.length); i++) {
+      fallbackPosts.push({
+        id: `fallback_business_${Date.now()}_${i}`,
+        authorId: 'galactic_business_news',
+        authorName: 'Galactic Business Network',
+        authorType: 'MEDIA',
+        authorAvatar: '💼',
+        content: fallbackContent[i],
+        timestamp: new Date(),
+        metadata: {
+          category: 'BUSINESS_NEWS',
+          newsType: 'BREAKING',
+          marketImpact: 'POSITIVE',
+          urgency: 'MEDIUM',
+          sourceCredibility: 8
+        },
+        metrics: {
+          likes: Math.floor(Math.random() * 500) + 100,
+          shares: Math.floor(Math.random() * 200) + 50,
+          comments: Math.floor(Math.random() * 100) + 25
+        }
+      });
+    }
+
+    return fallbackPosts;
   }
 
   private async generateNewsPost(newsType: string, context: any): Promise<BusinessNewsPost | null> {

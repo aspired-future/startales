@@ -1,0 +1,100 @@
+{
+  "version": "1.0.0",
+  "description": "Sample Video Manifest",
+  "creationMethod": "placeholder",
+  "hasFFmpeg": false,
+  "generatedAt": "2025-08-26T03:32:46.935Z",
+  "videos": [
+    {
+      "filename": "space_discovery.mp4",
+      "title": "Space Discovery",
+      "description": "Cinematic space discovery with alien civilization",
+      "color": "cyan",
+      "duration": 8,
+      "url": "/api/videos/mock/space_discovery.mp4",
+      "thumbnailUrl": "/api/videos/mock/space_discovery_thumb.jpg",
+      "type": "placeholder",
+      "status": "available"
+    },
+    {
+      "filename": "political_crisis.mp4",
+      "title": "Political Crisis",
+      "description": "Dramatic political crisis with red alert atmosphere",
+      "color": "red",
+      "duration": 6,
+      "url": "/api/videos/mock/political_crisis.mp4",
+      "thumbnailUrl": "/api/videos/mock/political_crisis_thumb.jpg",
+      "type": "placeholder",
+      "status": "available"
+    },
+    {
+      "filename": "economic_success.mp4",
+      "title": "Economic Success",
+      "description": "Celebration of economic milestone with green prosperity",
+      "color": "green",
+      "duration": 10,
+      "url": "/api/videos/mock/economic_success.mp4",
+      "thumbnailUrl": "/api/videos/mock/economic_success_thumb.jpg",
+      "type": "placeholder",
+      "status": "available"
+    },
+    {
+      "filename": "military_alert.mp4",
+      "title": "Military Alert",
+      "description": "Military conflict with orange/amber tactical display",
+      "color": "orange",
+      "duration": 7,
+      "url": "/api/videos/mock/military_alert.mp4",
+      "thumbnailUrl": "/api/videos/mock/military_alert_thumb.jpg",
+      "type": "placeholder",
+      "status": "available"
+    },
+    {
+      "filename": "disaster_alert.mp4",
+      "title": "Disaster Alert",
+      "description": "Emergency disaster response with yellow warning",
+      "color": "yellow",
+      "duration": 9,
+      "url": "/api/videos/mock/disaster_alert.mp4",
+      "thumbnailUrl": "/api/videos/mock/disaster_alert_thumb.jpg",
+      "type": "placeholder",
+      "status": "available"
+    },
+    {
+      "filename": "tech_breakthrough.mp4",
+      "title": "Technology Breakthrough",
+      "description": "Innovation celebration with cyan/blue tech colors",
+      "color": "cyan",
+      "duration": 8,
+      "url": "/api/videos/mock/tech_breakthrough.mp4",
+      "thumbnailUrl": "/api/videos/mock/tech_breakthrough_thumb.jpg",
+      "type": "placeholder",
+      "status": "available"
+    },
+    {
+      "filename": "general_announcement.mp4",
+      "title": "General Announcement",
+      "description": "Default Game Master announcement",
+      "color": "blue",
+      "duration": 6,
+      "url": "/api/videos/mock/general_announcement.mp4",
+      "thumbnailUrl": "/api/videos/mock/general_announcement_thumb.jpg",
+      "type": "placeholder",
+      "status": "available"
+    },
+    {
+      "filename": "processing_placeholder.mp4",
+      "title": "Processing Placeholder",
+      "description": "Loading animation while video generates",
+      "color": "gray",
+      "duration": 3,
+      "url": "/api/videos/mock/processing_placeholder.mp4",
+      "thumbnailUrl": "/api/videos/mock/processing_placeholder_thumb.jpg",
+      "type": "placeholder",
+      "status": "available"
+    }
+  ],
+  "totalVideos": 8,
+  "createdVideos": 8,
+  "note": "Placeholder files created - install FFmpeg for actual videos"
+}
