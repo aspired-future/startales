@@ -1,0 +1,337 @@
+/* Twitter-like Witter Feed Styles */
+
+.witter-feed {
+  background: #000;
+  color: #e7e9ea;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.witter-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #2f3336;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.witter-header h2 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #e7e9ea;
+}
+
+.feed-status {
+  font-size: 13px;
+  color: #71767b;
+  font-weight: 400;
+}
+
+.witter-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.witt-item {
+  display: flex;
+  padding: 12px 16px;
+  border-bottom: 1px solid #2f3336;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.witt-item:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.witt-avatar-container {
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.witt-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1d9bf0, #1a8cd8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border: 2px solid #2f3336;
+}
+
+.witt-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.witt-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.witt-author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.witt-author-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.witt-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.witt-author {
+  font-weight: 700;
+  font-size: 15px;
+  color: #e7e9ea;
+  text-decoration: none;
+}
+
+.witt-author.clickable {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.witt-author.clickable:hover {
+  text-decoration: underline;
+  color: #1d9bf0;
+}
+
+.witt-title {
+  color: #71767b;
+  font-size: 14px;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.verified-badge {
+  color: #1d9bf0;
+  font-size: 16px;
+  margin-left: 2px;
+}
+
+.witt-handle {
+  color: #71767b;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.witt-separator {
+  color: #71767b;
+  font-size: 15px;
+  margin: 0 2px;
+}
+
+.witt-timestamp {
+  color: #71767b;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.category-badge {
+  background: rgba(29, 155, 240, 0.1);
+  color: #1d9bf0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-science {
+  background: rgba(0, 186, 124, 0.1);
+  color: #00ba7c;
+}
+
+.category-business {
+  background: rgba(255, 212, 0, 0.1);
+  color: #ffd400;
+}
+
+.category-sports {
+  background: rgba(249, 24, 128, 0.1);
+  color: #f91880;
+}
+
+.category-politics {
+  background: rgba(120, 86, 255, 0.1);
+  color: #7856ff;
+}
+
+.category-technology {
+  background: rgba(255, 122, 0, 0.1);
+  color: #ff7a00;
+}
+
+.witt-content {
+  font-size: 15px;
+  line-height: 1.3125;
+  color: #e7e9ea;
+  margin-bottom: 12px;
+  word-wrap: break-word;
+}
+
+.witt-actions {
+  display: flex;
+  justify-content: space-between;
+  max-width: 425px;
+  margin-top: 8px;
+}
+
+.witt-action {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: #71767b;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  min-width: 0;
+}
+
+.witt-action:hover {
+  background-color: rgba(29, 155, 240, 0.1);
+  color: #1d9bf0;
+}
+
+.witt-action.reply:hover {
+  background-color: rgba(29, 155, 240, 0.1);
+  color: #1d9bf0;
+}
+
+.witt-action.repost:hover {
+  background-color: rgba(0, 186, 124, 0.1);
+  color: #00ba7c;
+}
+
+.witt-action.like:hover {
+  background-color: rgba(249, 24, 128, 0.1);
+  color: #f91880;
+}
+
+.witt-action.share:hover {
+  background-color: rgba(29, 155, 240, 0.1);
+  color: #1d9bf0;
+}
+
+.action-icon {
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+.action-count {
+  font-size: 13px;
+  font-weight: 400;
+  min-width: 0;
+}
+
+.load-more-section {
+  padding: 16px;
+  text-align: center;
+  border-top: 1px solid #2f3336;
+}
+
+.load-more-btn {
+  background: #1d9bf0;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 auto;
+}
+
+.load-more-btn:hover:not(:disabled) {
+  background: #1a8cd8;
+}
+
+.load-more-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Scrollbar Styling */
+.witter-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.witter-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.witter-list::-webkit-scrollbar-thumb {
+  background: #2f3336;
+  border-radius: 3px;
+}
+
+.witter-list::-webkit-scrollbar-thumb:hover {
+  background: #3e4347;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .witt-item {
+    padding: 12px;
+  }
+  
+  .witt-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+  
+  .witt-author-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  
+  .witt-actions {
+    max-width: 100%;
+  }
+  
+  .witt-action {
+    padding: 6px;
+  }
+}

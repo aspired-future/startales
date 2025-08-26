@@ -1,0 +1,637 @@
+/* World Wonders & Household Economics Screen Styles */
+
+.world-wonders-screen {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #e8e8e8;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.world-wonders-screen.loading {
+  justify-content: center;
+  align-items: center;
+}
+
+.world-wonders-screen.error {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.world-wonders-screen.error h3 {
+  color: #e74c3c;
+  margin-bottom: 10px;
+}
+
+.screen-header {
+  padding: 20px;
+  border-bottom: 2px solid rgba(78, 205, 196, 0.3);
+  background: rgba(26, 26, 46, 0.8);
+}
+
+.screen-header h2 {
+  color: #4ecdc4;
+  margin: 0 0 15px 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.tab-navigation {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 8px 16px;
+  background: rgba(78, 205, 196, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
+  color: #4ecdc4;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.tab-btn:hover {
+  background: rgba(78, 205, 196, 0.2);
+  border-color: rgba(78, 205, 196, 0.5);
+}
+
+.tab-btn.active {
+  background: rgba(78, 205, 196, 0.3);
+  border-color: #4ecdc4;
+  color: #ffffff;
+}
+
+.screen-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Wonders Tab Styles */
+.wonders-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.wonders-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  background: rgba(15, 15, 35, 0.8);
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  text-align: center;
+}
+
+.summary-card h4 {
+  margin: 0 0 10px 0;
+  color: #4ecdc4;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.wonders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.wonder-card {
+  background: rgba(15, 15, 35, 0.8);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  transition: all 0.3s ease;
+}
+
+.wonder-card:hover {
+  border-color: rgba(78, 205, 196, 0.5);
+  transform: translateY(-2px);
+}
+
+.wonder-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.wonder-icon {
+  font-size: 32px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 8px;
+}
+
+.wonder-info {
+  flex: 1;
+}
+
+.wonder-info h3 {
+  margin: 0 0 5px 0;
+  color: #4ecdc4;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.wonder-type {
+  margin: 0;
+  color: #b8bcc8;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.wonder-status {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.wonder-description {
+  margin-bottom: 15px;
+  color: #b8bcc8;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.construction-progress {
+  margin-bottom: 15px;
+}
+
+.progress-label {
+  color: #4ecdc4;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(78, 205, 196, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4 0%, #45b7d1 100%);
+  transition: width 0.3s ease;
+}
+
+.wonder-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #b8bcc8;
+}
+
+.stat-row span:first-child {
+  color: #4ecdc4;
+}
+
+.stat-row span:last-child {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.wonder-location {
+  color: #b8bcc8;
+  font-size: 13px;
+  margin-bottom: 15px;
+  padding: 8px;
+  background: rgba(26, 26, 46, 0.6);
+  border-radius: 4px;
+}
+
+.wonder-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.action-btn.construct {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.action-btn.construct:hover {
+  background: rgba(78, 205, 196, 0.3);
+}
+
+.action-btn.rush {
+  background: rgba(243, 156, 18, 0.2);
+  color: #f39c12;
+  border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+.action-btn.rush:hover {
+  background: rgba(243, 156, 18, 0.3);
+}
+
+.action-btn.view {
+  background: rgba(69, 183, 209, 0.2);
+  color: #45b7d1;
+  border: 1px solid rgba(69, 183, 209, 0.3);
+}
+
+.action-btn.view:hover {
+  background: rgba(69, 183, 209, 0.3);
+}
+
+/* Household Economics Tab Styles */
+.household-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.income-section h3,
+.spending-section h3,
+.housing-section h3 {
+  margin: 0 0 15px 0;
+  color: #4ecdc4;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.income-metrics,
+.housing-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.metric-card {
+  background: rgba(15, 15, 35, 0.8);
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  text-align: center;
+}
+
+.metric-card h4 {
+  margin: 0 0 10px 0;
+  color: #4ecdc4;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 10px 0;
+}
+
+.metric-value.gini {
+  color: #f39c12;
+}
+
+.metric-value.affordability {
+  color: #45b7d1;
+}
+
+.metric-card p {
+  margin: 0;
+  color: #b8bcc8;
+  font-size: 12px;
+}
+
+.spending-breakdown {
+  background: rgba(15, 15, 35, 0.8);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.spending-chart {
+  margin-bottom: 20px;
+}
+
+.spending-category {
+  display: grid;
+  grid-template-columns: 120px 1fr 60px;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.category-label {
+  color: #4ecdc4;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.category-bar {
+  height: 20px;
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.category-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4 0%, #45b7d1 100%);
+  transition: width 0.3s ease;
+}
+
+.category-percentage {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.spending-summary {
+  border-top: 1px solid rgba(78, 205, 196, 0.2);
+  padding-top: 15px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  color: #b8bcc8;
+  font-size: 14px;
+}
+
+.summary-item span:last-child {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Economic Mobility Tab Styles */
+.mobility-tab h3 {
+  margin: 0 0 20px 0;
+  color: #4ecdc4;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.mobility-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.mobility-card {
+  background: rgba(15, 15, 35, 0.8);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  text-align: center;
+}
+
+.mobility-card h4 {
+  margin: 0 0 15px 0;
+  color: #4ecdc4;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.mobility-gauge {
+  width: 100%;
+  height: 12px;
+  background: rgba(78, 205, 196, 0.2);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 15px 0;
+}
+
+.gauge-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4 0%, #45b7d1 100%);
+  transition: width 0.3s ease;
+}
+
+.mobility-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 10px 0;
+}
+
+.mobility-card p {
+  margin: 0;
+  color: #b8bcc8;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Knobs Tab Styles */
+.knobs-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.knobs-header {
+  background: rgba(26, 26, 46, 0.6);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.knobs-header h3 {
+  margin: 0 0 10px 0;
+  color: #4ecdc4;
+  font-size: 18px;
+}
+
+.knobs-header p {
+  margin: 0;
+  color: #b8bcc8;
+  font-size: 14px;
+}
+
+.knobs-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.knobs-category {
+  background: rgba(15, 15, 35, 0.8);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.knobs-category h4 {
+  margin: 0 0 15px 0;
+  color: #4ecdc4;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.knobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.knob-control {
+  background: rgba(26, 26, 46, 0.6);
+  border-radius: 6px;
+  padding: 15px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.knob-label {
+  display: block;
+  color: #4ecdc4;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.knob-input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.knob-slider {
+  flex: 1;
+  height: 6px;
+  background: rgba(78, 205, 196, 0.2);
+  border-radius: 3px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.knob-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #4ecdc4;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.knob-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #4ecdc4;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.knob-value-display {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 60px;
+}
+
+.knob-current-value {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.knob-unit {
+  color: #b8bcc8;
+  font-size: 11px;
+}
+
+.knob-range {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #b8bcc8;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(78, 205, 196, 0.2);
+  border-left: 4px solid #4ecdc4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .wonders-grid,
+  .income-metrics,
+  .housing-metrics,
+  .mobility-metrics,
+  .knobs-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .screen-header {
+    padding: 15px;
+  }
+  
+  .screen-content {
+    padding: 15px;
+  }
+  
+  .tab-navigation {
+    flex-wrap: wrap;
+  }
+  
+  .spending-category {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  
+  .wonder-stats {
+    grid-template-columns: 1fr;
+  }
+}

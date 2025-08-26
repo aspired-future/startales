@@ -14,6 +14,27 @@ interface MigrationFlow {
     education: string;
     skillLevel: string;
   };
+  // Enhanced factors
+  distanceFactors: {
+    proximityScore: number;
+    transportationAccess: number;
+    travelTime: number;
+    borderEfficiency: number;
+  };
+  economicFactors: {
+    jobOpportunities: number;
+    wageGap: number;
+    entrepreneurshipSupport: number;
+    economicStability: number;
+    socialMobility: number;
+  };
+  safetyFactors: {
+    personalSafety: number;
+    politicalStability: number;
+    socialAcceptance: number;
+    legalProtection: number;
+    conflictRisk: number;
+  };
 }
 
 interface ImmigrationPolicy {

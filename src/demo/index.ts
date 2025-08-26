@@ -32,7 +32,7 @@ import gameModesRoutes from '../server/game-modes/gameModesRoutes.js';
 import gameModesDemo from './game-modes.js';
 import visualSystemsRoutes from '../server/visual-systems/visualSystemsRoutes.js';
 import visualSystemsDemo from './visual-systems.js';
-import hybridSimulationRoutes from '../server/hybrid-simulation/hybridSimulationRoutes.js';
+// import hybridSimulationRoutes from '../server/hybrid-simulation/hybridSimulationRoutes.js'; // TODO: Create this module
 import hybridSimulationDemo from './hybrid-simulation.js';
 import newsRoutes from '../server/news/newsRoutes.js';
 import newsDemo from './news.js';
@@ -192,7 +192,7 @@ app.use('/api/game-modes', gameModesRoutes);
 app.use('/api/visual-systems', visualSystemsRoutes);
 
 // Hybrid Simulation Engine
-app.use('/api/hybrid-simulation', hybridSimulationRoutes);
+// app.use('/api/hybrid-simulation', hybridSimulationRoutes); // TODO: Create this module
 
 // Intelligence Reporting System API
 app.use('/api/intelligence', intelligenceDirectorsRoutes);

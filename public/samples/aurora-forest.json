@@ -1,0 +1,12 @@
+{
+  "title": "🌲 Aurora Forest",
+  "prompt": "a mystical forest under northern lights, tall pine trees silhouetted against colorful aurora, night scene",
+  "filename": "aurora-forest.png",
+  "imagePath": "samples/images/aurora-forest.png",
+  "fileSize": 1255912,
+  "mimeType": "image/png",
+  "generatedAt": "2025-08-26T03:24:47.052Z",
+  "provider": "Google Imagen API (Service Account)",
+  "projectId": "lively-galaxy",
+  "success": true
+}

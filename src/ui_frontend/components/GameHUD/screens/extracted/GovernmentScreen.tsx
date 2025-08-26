@@ -82,7 +82,7 @@ const GovernmentScreen: React.FC<GovernmentScreenProps> = ({
       try {
         setLoading(true);
         // Try to fetch from API
-        const response = await fetch('/api/government/overview');
+        const response = await fetch('http://localhost:4000/api/government/overview');
         
         if (!response.ok) {
           throw new Error('API not available');

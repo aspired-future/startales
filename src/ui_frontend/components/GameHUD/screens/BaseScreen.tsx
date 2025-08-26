@@ -114,6 +114,9 @@ interface BaseScreenProps extends ScreenProps {
   apiEndpoints?: APIEndpoint[];
   refreshInterval?: number;
   onRefresh?: () => Promise<void>;
+  customAutoAction?: () => void;
+  autoActionLabel?: string;
+  autoActionActive?: boolean;
 }
 
 export const BaseScreen: React.FC<BaseScreenProps> = ({
@@ -124,7 +127,10 @@ export const BaseScreen: React.FC<BaseScreenProps> = ({
   apiEndpoints = [],
   refreshInterval = 30000, // 30 seconds default
   onRefresh,
-  gameContext
+  gameContext,
+  customAutoAction,
+  autoActionLabel,
+  autoActionActive
 }) => {
   const [screenData, setScreenData] = useState<ScreenData>({
     loading: false,
@@ -203,10 +209,13 @@ export const BaseScreen: React.FC<BaseScreenProps> = ({
           </button>
           
           <button 
-            className={`auto-refresh-btn ${autoRefresh ? 'active' : ''}`}
-            onClick={() => setAutoRefresh(!autoRefresh)}
+            className={`auto-refresh-btn ${customAutoAction ? (autoActionActive ? 'active' : '') : (autoRefresh ? 'active' : '')}`}
+            onClick={customAutoAction || (() => setAutoRefresh(!autoRefresh))}
           >
-            {autoRefresh ? '⏸️' : '▶️'} Auto
+            {customAutoAction ? 
+              (autoActionLabel || (autoActionActive ? '⏸️ Auto' : '▶️ Auto')) : 
+              (autoRefresh ? '⏸️ Auto' : '▶️ Auto')
+            }
           </button>
         </div>
       </div>

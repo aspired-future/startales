@@ -1,3 +1,17 @@
+/**
+ * Military Screen - Operational Military Forces, Fleet Management, and Base Operations
+ * 
+ * This screen focuses on operational military activities including:
+ * - Fleet deployments and ship management
+ * - Military base operations and logistics
+ * - Active military operations and missions
+ * - Tactical threat response and readiness
+ * 
+ * Distinct from:
+ * - Defense Screen: High-level policy, strategic planning, budget allocation
+ * - Joint Chiefs Screen: Command hierarchy, service leadership, strategic coordination
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
 import './MilitaryScreen.css';

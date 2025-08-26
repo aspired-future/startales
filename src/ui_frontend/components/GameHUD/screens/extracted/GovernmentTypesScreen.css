@@ -1,0 +1,557 @@
+/* Government Types Screen Styles */
+.government-types-screen {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+  color: #e8e8e8;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Loading and Error States */
+.government-types-screen.loading,
+.government-types-screen.error {
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-spinner {
+  text-align: center;
+  color: #4ecdc4;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(78, 205, 196, 0.3);
+  border-top-color: #4ecdc4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  text-align: center;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  padding: 40px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+/* Header */
+.screen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background: rgba(15, 15, 35, 0.8);
+  border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.screen-icon {
+  font-size: 32px;
+  opacity: 0.9;
+}
+
+.header-text h2 {
+  margin: 0;
+  color: #4ecdc4;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.header-text p {
+  margin: 4px 0 0 0;
+  color: #888;
+  font-size: 14px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.government-status {
+  text-align: right;
+}
+
+.current-government {
+  display: block;
+  color: #4ecdc4;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.effectiveness-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.effectiveness-bar {
+  width: 100px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.effectiveness-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  background: rgba(26, 26, 46, 0.6);
+  border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.tab-button {
+  flex: 1;
+  padding: 15px 20px;
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tab-button:hover {
+  background: rgba(78, 205, 196, 0.1);
+  color: #4ecdc4;
+}
+
+.tab-button.active {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  border-bottom: 2px solid #4ecdc4;
+}
+
+.tab-icon {
+  font-size: 16px;
+}
+
+/* Tab Content */
+.tab-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+/* Current Government Tab */
+.current-government-tab {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.government-card {
+  background: rgba(26, 26, 46, 0.6);
+  border-radius: 12px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  padding: 30px;
+}
+
+.government-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.government-header h3 {
+  color: #4ecdc4;
+  font-size: 24px;
+  margin: 0;
+}
+
+.ideology-badge {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.government-description {
+  color: #ccc;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.government-characteristics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.characteristic {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 15px;
+  background: rgba(15, 15, 35, 0.6);
+  border-radius: 6px;
+  border: 1px solid rgba(78, 205, 196, 0.1);
+}
+
+.characteristic .label {
+  color: #888;
+  font-size: 14px;
+}
+
+.characteristic .value {
+  color: #4ecdc4;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.government-metrics {
+  margin-bottom: 25px;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 12px;
+}
+
+.metric-label {
+  min-width: 140px;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.metric-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.metric-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4, #45b7d1);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.metric-value {
+  min-width: 50px;
+  color: #4ecdc4;
+  font-weight: 600;
+  text-align: right;
+}
+
+.stability-factors {
+  margin-bottom: 25px;
+}
+
+.stability-factors h4 {
+  color: #4ecdc4;
+  margin-bottom: 15px;
+}
+
+.stability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.stability-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: rgba(15, 15, 35, 0.4);
+  border-radius: 4px;
+}
+
+.stability-label {
+  color: #888;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.stability-value {
+  color: #4ecdc4;
+  font-weight: 600;
+}
+
+.advantages-disadvantages {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+.advantages h4,
+.disadvantages h4 {
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.advantages ul,
+.disadvantages ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.advantages li,
+.disadvantages li {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 14px;
+}
+
+.advantages li {
+  color: #4ecdc4;
+}
+
+.disadvantages li {
+  color: #ff9999;
+}
+
+/* Available Types Tab */
+.available-types-tab {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.type-card {
+  background: rgba(26, 26, 46, 0.6);
+  border-radius: 12px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.type-card:hover {
+  border-color: rgba(78, 205, 196, 0.4);
+  transform: translateY(-2px);
+}
+
+.type-card.current {
+  border-color: #4ecdc4;
+  background: rgba(78, 205, 196, 0.1);
+}
+
+.type-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.type-header h4 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 18px;
+}
+
+.ideology {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.type-description {
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+.type-metrics {
+  margin-bottom: 15px;
+}
+
+.mini-metric {
+  padding: 6px 0;
+  color: #888;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.type-actions {
+  text-align: center;
+}
+
+.transition-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #4ecdc4, #44b3aa);
+  color: #0f0f23;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.transition-btn:hover {
+  background: linear-gradient(135deg, #5eddd4, #54c3ba);
+  transform: translateY(-1px);
+}
+
+.current-badge {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Transition Tab */
+.transition-tab {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.transition-content h3 {
+  color: #4ecdc4;
+  margin-bottom: 10px;
+}
+
+.transition-status {
+  margin: 25px 0;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.transition-active {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.transition-ready {
+  background: rgba(40, 167, 69, 0.1);
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.transition-info {
+  background: rgba(26, 26, 46, 0.6);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.transition-info h4 {
+  color: #4ecdc4;
+  margin-bottom: 15px;
+}
+
+.transition-info ul {
+  color: #ccc;
+  padding-left: 20px;
+}
+
+.transition-info li {
+  margin-bottom: 8px;
+}
+
+/* Analysis Tab */
+.analysis-tab {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.analysis-content h3 {
+  color: #4ecdc4;
+  margin-bottom: 10px;
+}
+
+.analysis-placeholder {
+  text-align: center;
+  padding: 60px 40px;
+  background: rgba(26, 26, 46, 0.6);
+  border-radius: 12px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.analysis-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+.analysis-placeholder h4 {
+  color: #4ecdc4;
+  margin-bottom: 15px;
+}
+
+.analysis-placeholder p {
+  color: #888;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.generate-analysis-btn {
+  padding: 12px 24px;
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .screen-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .tab-content {
+    padding: 20px;
+  }
+  
+  .advantages-disadvantages {
+    grid-template-columns: 1fr;
+  }
+  
+  .types-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .government-characteristics {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1671,6 +1671,14 @@ export async function initDb() {
       console.error('Government Types System schema initialization failed:', error);
     }
 
+    // Initialize Constitution System schema
+    try {
+      const { initializeConstitutionSchema } = await import('../governance/constitutionSchema.js');
+      await initializeConstitutionSchema(pgPool);
+    } catch (error) {
+      console.error('Constitution System schema initialization failed:', error);
+    }
+
     // Initialize Government Contracts System schema
     try {
       const { initializeGovernmentContractsSchema } = await import('../governance/governmentContractsSchema.js');
@@ -1814,6 +1822,25 @@ export async function upsertPlanet(p: { name: string; biome: string; gravity: nu
   for (const d of p.deposits) {
     await getPool().query('insert into deposits(planet_id, resource, richness) values ($1,$2,$3)', [planetId, d.resource, d.richness])
   }
+  
+  // Generate planet image
+  try {
+    const { getPlanetVisualIntegration } = await import('../visual-systems/PlanetVisualIntegration.js');
+    const planetVisual = getPlanetVisualIntegration();
+    
+    // Queue image generation (non-blocking)
+    planetVisual.queuePlanetImageGeneration({
+      id: planetId,
+      name: p.name,
+      biome: p.biome,
+      gravity: p.gravity,
+      systemId: p.systemId,
+      deposits: p.deposits
+    }, 'medium');
+  } catch (error) {
+    console.warn('Failed to queue planet image generation:', error);
+  }
+  
   return planetId
 }
 

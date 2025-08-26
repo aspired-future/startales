@@ -1,0 +1,717 @@
+/* Defense Screen Styles */
+
+.defense-screen {
+  padding: 20px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+.screen-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.screen-header h1 {
+  color: #4ecdc4;
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  text-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+}
+
+.screen-header p {
+  color: #b0b0b0;
+  font-size: 1.1em;
+  margin: 5px 0;
+}
+
+/* Tab Navigation */
+.view-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 10px;
+  gap: 10px;
+}
+
+.view-tabs .tab {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.view-tabs .tab:hover {
+  background: rgba(78, 205, 196, 0.2);
+  border-color: rgba(78, 205, 196, 0.4);
+  transform: translateY(-2px);
+}
+
+.view-tabs .tab.active {
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  border-color: #4ecdc4;
+  box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+}
+
+/* Tab Content */
+.tab-content {
+  min-height: 600px;
+}
+
+/* Policy Tab */
+.policy-tab {
+  padding: 20px 0;
+}
+
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 25px;
+}
+
+.policy-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.policy-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(78, 205, 196, 0.1);
+  border-color: rgba(78, 205, 196, 0.3);
+}
+
+.policy-card h3 {
+  color: #4ecdc4;
+  font-size: 1.4em;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.doctrine-display {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.current-doctrine {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #4ecdc4;
+  margin-bottom: 10px;
+}
+
+.policy-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.metric span:first-child {
+  color: #b0b0b0;
+  font-size: 0.9em;
+  min-width: 120px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4, #44a08d);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.spending-display {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #4ecdc4;
+}
+
+.secretary-info {
+  text-align: center;
+}
+
+.secretary-name {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #4ecdc4;
+  margin-bottom: 10px;
+}
+
+.authority-level {
+  color: #b0b0b0;
+  margin-bottom: 20px;
+}
+
+.active-initiatives h4 {
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.active-initiatives ul {
+  list-style: none;
+  padding: 0;
+}
+
+.active-initiatives li {
+  background: rgba(78, 205, 196, 0.1);
+  padding: 8px 12px;
+  margin: 5px 0;
+  border-radius: 8px;
+  border-left: 3px solid #4ecdc4;
+}
+
+/* Planning Tab */
+.planning-tab {
+  padding: 20px 0;
+}
+
+.planning-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 25px;
+}
+
+.planning-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.planning-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(78, 205, 196, 0.1);
+  border-color: rgba(78, 205, 196, 0.3);
+}
+
+.planning-card h3 {
+  color: #4ecdc4;
+  font-size: 1.4em;
+  margin-bottom: 20px;
+}
+
+.force-targets {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.target-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #4ecdc4;
+}
+
+.target-item span:first-child {
+  color: #b0b0b0;
+}
+
+.target-item span:last-child {
+  color: #4ecdc4;
+  font-weight: bold;
+}
+
+.capabilities-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.capability-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.capability-name {
+  min-width: 140px;
+  color: #b0b0b0;
+  font-size: 0.9em;
+}
+
+.priority-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.priority-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4, #44a08d);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.priority-value {
+  color: #4ecdc4;
+  font-weight: bold;
+  min-width: 50px;
+  text-align: right;
+}
+
+.review-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.cycle-duration,
+.next-review {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.cycle-duration span:first-child,
+.next-review span:first-child {
+  color: #b0b0b0;
+}
+
+.cycle-duration span:last-child,
+.next-review span:last-child {
+  color: #4ecdc4;
+  font-weight: bold;
+}
+
+/* Threats Tab */
+.threats-tab {
+  padding: 20px 0;
+}
+
+.threats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 25px;
+}
+
+.threat-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.threat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(255, 68, 68, 0.1);
+  border-color: rgba(255, 68, 68, 0.3);
+}
+
+.threat-card h3 {
+  color: #ff4444;
+  font-size: 1.4em;
+  margin-bottom: 20px;
+}
+
+.global-threat {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.threat-gauge {
+  flex: 1;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.threat-level {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.regional-threats {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.regional-threat {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 15px;
+  border-left: 3px solid #ff4444;
+}
+
+.threat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.region-name {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.threat-level {
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.threat-concerns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.concern-tag {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+}
+
+.emerging-threats {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.emerging-threat {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 15px;
+  border-left: 3px solid #ffaa00;
+}
+
+.threat-type {
+  color: #ffaa00;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.threat-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.threat-metrics .metric {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.threat-metrics .metric span:first-child {
+  color: #b0b0b0;
+  font-size: 0.8em;
+}
+
+.threat-metrics .metric span:last-child {
+  color: #ffaa00;
+  font-weight: bold;
+}
+
+/* Budget Tab */
+.budget-tab {
+  padding: 20px 0;
+}
+
+.budget-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 25px;
+}
+
+.budget-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.budget-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(78, 205, 196, 0.1);
+  border-color: rgba(78, 205, 196, 0.3);
+}
+
+.budget-card h3 {
+  color: #4ecdc4;
+  font-size: 1.4em;
+  margin-bottom: 20px;
+}
+
+.total-budget {
+  font-size: 2.5em;
+  font-weight: bold;
+  color: #4ecdc4;
+  text-align: center;
+}
+
+.allocation-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.allocation-item {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 15px;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #4ecdc4;
+}
+
+.allocation-item span:first-child {
+  color: #b0b0b0;
+}
+
+.allocation-item span:nth-child(2) {
+  color: #4ecdc4;
+  font-weight: bold;
+  text-align: right;
+}
+
+.allocation-item span:last-child {
+  color: #ffffff;
+  font-weight: bold;
+  text-align: right;
+}
+
+/* Cooperation Tab */
+.cooperation-tab {
+  padding: 20px 0;
+}
+
+.cooperation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 25px;
+}
+
+.cooperation-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.cooperation-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(78, 205, 196, 0.1);
+  border-color: rgba(78, 205, 196, 0.3);
+}
+
+.cooperation-card h3 {
+  color: #4ecdc4;
+  font-size: 1.4em;
+  margin-bottom: 20px;
+}
+
+.alliances-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alliance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #4ecdc4;
+}
+
+.alliance-name {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.alliance-status {
+  color: #44ff44;
+  font-size: 0.9em;
+}
+
+.cooperation-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #4ecdc4;
+}
+
+.metric-item span:first-child {
+  color: #b0b0b0;
+}
+
+.metric-item span:last-child {
+  color: #4ecdc4;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+/* Common Button Styles */
+.btn {
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+}
+
+.btn.primary {
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+}
+
+.btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Loading and Error States */
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(78, 205, 196, 0.3);
+  border-top: 3px solid #4ecdc4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-state h3 {
+  color: #ff4444;
+  margin-bottom: 15px;
+}
+
+.error-state button {
+  background: linear-gradient(45deg, #ff4444, #cc3333);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.error-state button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 68, 68, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .defense-screen {
+    padding: 15px;
+  }
+  
+  .screen-header h1 {
+    font-size: 2em;
+  }
+  
+  .view-tabs {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .view-tabs .tab {
+    padding: 10px 16px;
+    font-size: 0.9em;
+  }
+  
+  .policy-grid,
+  .planning-grid,
+  .threats-grid,
+  .budget-grid,
+  .cooperation-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .allocation-item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .threat-metrics {
+    grid-template-columns: 1fr;
+  }
+}

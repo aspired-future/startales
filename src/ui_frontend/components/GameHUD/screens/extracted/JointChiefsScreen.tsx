@@ -1,3 +1,18 @@
+/**
+ * Joint Chiefs Screen - Military Command Hierarchy and Strategic Coordination
+ * 
+ * This screen focuses on military leadership and command structure including:
+ * - Joint Chiefs of Staff and service chiefs
+ * - Military command hierarchy and chain of command
+ * - Inter-service coordination and joint operations
+ * - Strategic military planning and doctrine
+ * - Service-specific leadership and specializations
+ * 
+ * Distinct from:
+ * - Military Screen: Operational forces, fleets, bases, tactical operations
+ * - Defense Screen: Civilian defense policy, budget allocation, strategic planning
+ */
+
 import React, { useState, useEffect } from 'react';
 import './JointChiefsScreen.css';
 

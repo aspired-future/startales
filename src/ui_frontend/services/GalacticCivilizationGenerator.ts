@@ -341,6 +341,9 @@ export class GalacticCivilizationGenerator {
     for (let i = 0; i < raceCount; i++) {
       const race = await this.generateSingleRace();
       this.races.set(race.id, race);
+      
+      // Generate species image
+      this.generateSpeciesImage(race);
     }
   }
 
@@ -1155,7 +1158,60 @@ export class GalacticCivilizationGenerator {
   // Placeholder methods for the remaining generation steps
   private async generateCivilizations() {
     console.log('🏛️ Generating civilizations...');
-    // Implementation would go here
+    
+    const civilizationCount = this.randomBetween(3, 8);
+    const availableRaces = Array.from(this.races.values());
+    const availableSystems = Array.from(this.systems.values());
+    
+    for (let i = 0; i < civilizationCount && i < availableRaces.length; i++) {
+      const race = availableRaces[i];
+      const homeSystem = availableSystems[i % availableSystems.length];
+      const homeworld = homeSystem.planets[0]; // Use first planet as homeworld
+      
+      const civilization: Civilization = {
+        id: `civ_${race.id}`,
+        name: `${race.name} ${this.randomChoice(['Empire', 'Republic', 'Federation', 'Alliance', 'Collective', 'Union'])}`,
+        race: race.id,
+        type: this.randomChoice(['EMPIRE', 'REPUBLIC', 'FEDERATION', 'THEOCRACY', 'CORPORATE', 'HIVE_MIND']),
+        homeworld: homeworld?.id || `planet_${homeSystem.id}_1`,
+        territory: [homeSystem.id],
+        population: this.randomBetween(1000000000, 50000000000),
+        government: this.generateCivilizationGovernment(),
+        culture: {
+          values: race.culturalTraits.values.slice(0, 3),
+          artForms: race.culturalTraits.artForms.slice(0, 2),
+          philosophy: race.culturalTraits.philosophy
+        },
+        technology: {
+          level: this.randomBetween(5, 9),
+          specializations: race.technologicalLevel.specializations,
+          uniqueTech: race.technologicalLevel.uniqueTechnologies.slice(0, 2)
+        },
+        military: {
+          strength: this.randomBetween(3, 8),
+          doctrine: this.randomChoice(['Defensive', 'Aggressive', 'Balanced', 'Technological', 'Guerrilla']),
+          specialUnits: []
+        },
+        economy: {
+          strength: this.randomBetween(4, 9),
+          focus: this.randomChoice(['Industrial', 'Trade', 'Research', 'Agriculture', 'Mining', 'Services']),
+          tradePartners: []
+        },
+        diplomacy: {
+          relations: new Map(),
+          treaties: [],
+          reputation: this.randomBetween(-5, 5)
+        },
+        history: []
+      };
+      
+      this.civilizations.set(civilization.id, civilization);
+      
+      // Generate civilization logo
+      this.generateCivilizationLogo(civilization, race);
+    }
+    
+    console.log(`✅ Generated ${this.civilizations.size} civilizations`);
   }
 
   private async establishDiplomacy() {
@@ -1232,6 +1288,109 @@ export class GalacticCivilizationGenerator {
   private generateYearLength(orbitalPosition: number): number {
     // Implementation would go here
     return 365;
+  }
+
+  /**
+   * Generate image for a species/race
+   */
+  private async generateSpeciesImage(race: GalacticRace): Promise<void> {
+    try {
+      // Dynamic import to avoid circular dependencies and ensure it works in browser context
+      if (typeof window === 'undefined') {
+        // Server-side: use the visual integration
+        const { getSpeciesVisualIntegration } = await import('../../server/visual-systems/SpeciesVisualIntegration.js');
+        const speciesVisual = getSpeciesVisualIntegration();
+        
+        speciesVisual.queueSpeciesImageGeneration({
+          id: race.id,
+          name: race.name,
+          type: race.type,
+          origin: race.origin,
+          physicalTraits: race.physicalTraits,
+          mentalTraits: race.mentalTraits,
+          culturalTraits: race.culturalTraits,
+          technologicalLevel: race.technologicalLevel,
+          biologicalNeeds: race.biologicalNeeds
+        }, 'medium');
+      } else {
+        // Client-side: queue for later processing or use a different approach
+        console.log(`🧬 Species ${race.name} created - image generation queued for server processing`);
+      }
+    } catch (error) {
+      console.warn(`Failed to queue species image generation for ${race.name}:`, error);
+    }
+  }
+
+  /**
+   * Generate government structure for a civilization
+   */
+  private generateCivilizationGovernment(): CivilizationGovernment {
+    const governmentTypes = ['Democracy', 'Empire', 'Republic', 'Federation', 'Theocracy', 'Corporate State', 'Military Junta', 'Collective'];
+    const leaderTitles = ['President', 'Emperor', 'Chancellor', 'Prime Minister', 'High Priest', 'CEO', 'General', 'Collective Mind'];
+    
+    const govType = this.randomChoice(governmentTypes);
+    const leaderTitle = this.randomChoice(leaderTitles);
+    
+    return {
+      type: govType,
+      leader: {
+        title: leaderTitle,
+        name: `${leaderTitle} ${this.generateRandomName()}`,
+        tenure: this.randomBetween(1, 20)
+      },
+      structure: {
+        branches: this.randomBetween(2, 4),
+        decisionMaking: this.randomChoice(['Centralized', 'Distributed', 'Consensus', 'Hierarchical']),
+        representation: this.randomChoice(['Direct', 'Representative', 'Appointed', 'Hereditary'])
+      },
+      policies: {
+        economicPolicy: this.randomChoice(['Free Market', 'Planned Economy', 'Mixed Economy', 'Resource Sharing']),
+        socialPolicy: this.randomChoice(['Liberal', 'Conservative', 'Progressive', 'Traditional']),
+        militaryPolicy: this.randomChoice(['Pacifist', 'Defensive', 'Aggressive', 'Expansionist'])
+      }
+    };
+  }
+
+  /**
+   * Generate logo for a civilization
+   */
+  private async generateCivilizationLogo(civilization: Civilization, race: GalacticRace): Promise<void> {
+    try {
+      // Dynamic import to avoid circular dependencies and ensure it works in browser context
+      if (typeof window === 'undefined') {
+        // Server-side: use the logo integration
+        const { getLogoVisualIntegration } = await import('../../server/visual-systems/LogoVisualIntegration.js');
+        const logoVisual = getLogoVisualIntegration();
+        
+        await logoVisual.onCivilizationCreated({
+          id: civilization.id,
+          name: civilization.name,
+          type: civilization.type,
+          race: race.name,
+          values: civilization.culture.values,
+          government: civilization.government.type,
+          culture: civilization.culture,
+          technology: civilization.technology,
+          homeworld: civilization.homeworld,
+          philosophy: civilization.culture.philosophy
+        });
+      } else {
+        // Client-side: queue for later processing
+        console.log(`🏛️ Civilization ${civilization.name} created - logo generation queued for server processing`);
+      }
+    } catch (error) {
+      console.warn(`Failed to generate logo for civilization ${civilization.name}:`, error);
+    }
+  }
+
+  /**
+   * Generate a random name
+   */
+  private generateRandomName(): string {
+    const prefixes = ['Astra', 'Zara', 'Keth', 'Vex', 'Nyx', 'Orion', 'Luna', 'Sol', 'Nova', 'Void'];
+    const suffixes = ['ion', 'ara', 'eth', 'ius', 'eon', 'ath', 'iel', 'oss', 'ynn', 'ux'];
+    
+    return this.randomChoice(prefixes) + this.randomChoice(suffixes);
   }
 }
 

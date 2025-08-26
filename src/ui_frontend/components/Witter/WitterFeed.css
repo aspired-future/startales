@@ -116,6 +116,56 @@
   background: rgba(255, 255, 255, 0.5);
 }
 
+/* Infinite Scroll Enhancements */
+.witter-list.infinite-scroll {
+  padding: 0 16px;
+}
+
+/* Loading More Indicator */
+.witter-loading-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.witter-loading-more .loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top: 2px solid #4ecdc4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 8px;
+}
+
+.witter-loading-more p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* End of Feed Indicator */
+.witter-end-of-feed {
+  text-align: center;
+  padding: 30px 20px;
+  color: rgba(255, 255, 255, 0.6);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 20px;
+}
+
+.witter-end-of-feed p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.witter-end-of-feed p:first-child {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+
 /* Error State */
 .witter-error {
   padding: 16px;

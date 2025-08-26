@@ -1,0 +1,212 @@
+/* LiveGameHUD Styles */
+.live-game-hud {
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  color: #e0e6ed;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+.live-hud-container {
+  display: grid;
+  grid-template-columns: 300px 1fr 350px;
+  grid-template-rows: 60px 1fr;
+  grid-template-areas:
+    "header header header"
+    "left-panel main-content right-panel";
+  height: 100vh;
+  gap: 1px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.live-hud-header {
+  grid-area: header;
+  background: rgba(15, 15, 35, 0.95);
+  border-bottom: 2px solid rgba(78, 205, 196, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  backdrop-filter: blur(10px);
+}
+
+.live-hud-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #4ecdc4;
+  margin: 0;
+}
+
+.live-hud-status {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 0.9rem;
+}
+
+.live-left-panel {
+  grid-area: left-panel;
+  background: rgba(15, 15, 35, 0.8);
+  border-right: 1px solid rgba(78, 205, 196, 0.2);
+  overflow-y: auto;
+  backdrop-filter: blur(5px);
+}
+
+.live-main-content {
+  grid-area: main-content;
+  background: rgba(10, 10, 25, 0.6);
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.live-right-panel {
+  grid-area: right-panel;
+  background: rgba(15, 15, 35, 0.8);
+  border-left: 1px solid rgba(78, 205, 196, 0.2);
+  overflow-y: auto;
+  backdrop-filter: blur(5px);
+}
+
+.live-tab-navigation {
+  display: flex;
+  background: rgba(26, 26, 46, 0.6);
+  border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.live-tab-button {
+  flex: 1;
+  padding: 12px 8px;
+  background: none;
+  border: none;
+  color: #a0a6b0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  border-bottom: 2px solid transparent;
+}
+
+.live-tab-button:hover {
+  background: rgba(78, 205, 196, 0.1);
+  color: #4ecdc4;
+}
+
+.live-tab-button.active {
+  color: #4ecdc4;
+  background: rgba(78, 205, 196, 0.15);
+  border-bottom-color: #4ecdc4;
+}
+
+.live-tab-content {
+  padding: 15px;
+  height: calc(100% - 60px);
+  overflow-y: auto;
+}
+
+.live-panel-section {
+  margin-bottom: 20px;
+}
+
+.live-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4ecdc4;
+  margin: 0 0 10px 0;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.live-metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.live-metric-label {
+  font-size: 0.85rem;
+  color: #b0b6c0;
+}
+
+.live-metric-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #e0e6ed;
+}
+
+.live-status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.live-status-indicator.online {
+  background: #4ecdc4;
+  box-shadow: 0 0 6px rgba(78, 205, 196, 0.6);
+}
+
+.live-status-indicator.offline {
+  background: #ff6b6b;
+  box-shadow: 0 0 6px rgba(255, 107, 107, 0.6);
+}
+
+.live-status-indicator.warning {
+  background: #ffd93d;
+  box-shadow: 0 0 6px rgba(255, 217, 61, 0.6);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .live-hud-container {
+    grid-template-columns: 250px 1fr 300px;
+  }
+}
+
+@media (max-width: 900px) {
+  .live-hud-container {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "main-content";
+  }
+  
+  .live-left-panel,
+  .live-right-panel {
+    display: none;
+  }
+}
+
+/* Scrollbar styling */
+.live-left-panel::-webkit-scrollbar,
+.live-right-panel::-webkit-scrollbar,
+.live-main-content::-webkit-scrollbar,
+.live-tab-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.live-left-panel::-webkit-scrollbar-track,
+.live-right-panel::-webkit-scrollbar-track,
+.live-main-content::-webkit-scrollbar-track,
+.live-tab-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.live-left-panel::-webkit-scrollbar-thumb,
+.live-right-panel::-webkit-scrollbar-thumb,
+.live-main-content::-webkit-scrollbar-thumb,
+.live-tab-content::-webkit-scrollbar-thumb {
+  background: rgba(78, 205, 196, 0.3);
+  border-radius: 3px;
+}
+
+.live-left-panel::-webkit-scrollbar-thumb:hover,
+.live-right-panel::-webkit-scrollbar-thumb:hover,
+.live-main-content::-webkit-scrollbar-thumb:hover,
+.live-tab-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(78, 205, 196, 0.5);
+}
+

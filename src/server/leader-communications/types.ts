@@ -123,6 +123,7 @@ export interface LeaderSpeech {
   tone: 'formal' | 'casual' | 'inspirational' | 'somber' | 'urgent' | 'celebratory';
   duration: number; // estimated minutes
   keyMessages: string[];
+  deliveryMode?: 'avatar' | 'teleprompter' | 'off-the-cuff';
   
   // Impact and Effects
   expectedImpact: SpeechImpact;
@@ -635,6 +636,9 @@ export interface SpeechRequest {
   styleGuide?: string;
   inspirationalLevel?: number; // 0 to 1
   formalityLevel?: number; // 0 to 1
+  
+  // Delivery Mode
+  deliveryMode?: 'avatar' | 'teleprompter' | 'off-the-cuff';
 }
 
 export interface DecisionSupportRequest {

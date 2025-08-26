@@ -15,6 +15,8 @@ import { InstitutionalOverrideSimulationIntegration } from '../institutional-ove
 import { MediaControlService } from '../media-control/MediaControlService.js';
 import { GalaxySimulationIntegration } from '../galaxy/GalaxySimulationIntegration.js';
 import { SpatialIntelligenceIntegration } from '../characters/SpatialIntelligenceIntegration.js';
+import { EntertainmentTourismSimulationIntegration } from '../entertainment-tourism/EntertainmentTourismSimulationIntegration.js';
+import { EnhancedKnobsIntegration } from './EnhancedKnobsIntegration.js';
 
 export interface SimulationContext {
   campaignId: string;
@@ -69,6 +71,8 @@ export class SimEngineOrchestrator extends EventEmitter {
   private mediaControlService: MediaControlService;
   private galaxySimulation: GalaxySimulationIntegration;
   private spatialIntelligence: SpatialIntelligenceIntegration;
+  private entertainmentTourismSimulation: EntertainmentTourismSimulationIntegration;
+  private enhancedKnobsIntegration: EnhancedKnobsIntegration;
 
   constructor(pool: Pool) {
     super();
@@ -81,6 +85,8 @@ export class SimEngineOrchestrator extends EventEmitter {
     this.mediaControlService = new MediaControlService(pool);
     this.galaxySimulation = new GalaxySimulationIntegration(pool);
     this.spatialIntelligence = new SpatialIntelligenceIntegration(pool);
+    this.entertainmentTourismSimulation = new EntertainmentTourismSimulationIntegration(pool);
+    this.enhancedKnobsIntegration = new EnhancedKnobsIntegration(pool);
     this.startSimulationLoop();
   }
 
@@ -101,6 +107,12 @@ export class SimEngineOrchestrator extends EventEmitter {
 
     // Register key characters for spatial intelligence
     await this.registerCivilizationCharacters(context.civilizationId);
+
+    // Register with entertainment/tourism simulation
+    await this.entertainmentTourismSimulation.registerCivilization(context.campaignId, context.civilizationId);
+
+    // Initialize enhanced knobs for this civilization
+    await this.enhancedKnobsIntegration.initializeCivilizationKnobs(context.campaignId, context.civilizationId);
 
     console.log(`🤖 Registered civilization ${context.civilizationId} for AI simulation`);
     this.emit('civilizationRegistered', context);
@@ -818,6 +830,9 @@ export class SimEngineOrchestrator extends EventEmitter {
         // Run Media Control simulations
         await this.runMediaControlSimulations(context.civilizationId);
 
+        // Run Entertainment/Tourism simulations
+        await this.runEntertainmentTourismSimulations(context.civilizationId);
+
       } catch (error) {
         console.error(`Error in simulation cycle for ${context.civilizationId}:`, error);
       }
@@ -1077,6 +1092,108 @@ export class SimEngineOrchestrator extends EventEmitter {
   }
 
   /**
+   * Run Entertainment/Tourism simulations
+   */
+  private async runEntertainmentTourismSimulations(civilizationId: string): Promise<void> {
+    try {
+      // Get current entertainment/tourism knobs
+      const knobStates = this.getKnobStates(civilizationId);
+      const entertainmentTourismKnobs: any = {};
+      
+      // Extract entertainment/tourism knobs
+      for (const [knobKey, value] of knobStates) {
+        if (knobKey.startsWith('entertainment-tourism.')) {
+          const knobName = knobKey.replace('entertainment-tourism.', '');
+          entertainmentTourismKnobs[knobName] = value;
+        }
+      }
+      
+      // If no specific knobs found, use defaults
+      if (Object.keys(entertainmentTourismKnobs).length === 0) {
+        const { DEFAULT_ENTERTAINMENT_TOURISM_KNOBS } = await import('../entertainment-tourism/entertainmentTourismKnobs.js');
+        Object.assign(entertainmentTourismKnobs, DEFAULT_ENTERTAINMENT_TOURISM_KNOBS);
+      }
+      
+      // Run entertainment/tourism simulation
+      const simulationResult = await this.entertainmentTourismSimulation.runOrchestratorSimulation({
+        civilization_id: civilizationId,
+        knobs: entertainmentTourismKnobs
+      });
+      
+      // Generate events based on simulation results
+      const events = this.entertainmentTourismSimulation.generateEvents(civilizationId);
+      
+      // Emit events for real-time updates
+      for (const event of events) {
+        const simulationEvent: SimulationEvent = {
+          id: event.id,
+          type: 'custom',
+          severity: event.severity,
+          description: event.description,
+          affectedSystems: ['entertainment-tourism', 'economy', 'culture'],
+          recommendedKnobAdjustments: [],
+          timestamp: event.timestamp
+        };
+        
+        this.emit('simulationEvent', simulationEvent);
+      }
+      
+      console.log(`🎭 Entertainment/Tourism simulation completed for civilization ${civilizationId}`);
+      
+    } catch (error) {
+      console.error(`Error in entertainment/tourism simulation for ${civilizationId}:`, error);
+    }
+  }
+
+  /**
+   * Update enhanced knobs for a civilization
+   */
+  async updateEnhancedKnobs(
+    campaignId: string,
+    civilizationId: string,
+    system: string,
+    knobs: Record<string, number>,
+    source: 'ai' | 'player' | 'system' = 'system'
+  ): Promise<void> {
+    await this.enhancedKnobsIntegration.updateKnobs(campaignId, civilizationId, system, knobs, source);
+    
+    // Emit knob update event
+    this.emit('knobsUpdated', {
+      campaignId,
+      civilizationId,
+      system,
+      knobs,
+      source,
+      timestamp: new Date()
+    });
+  }
+
+  /**
+   * Get enhanced knob values for a civilization
+   */
+  async getEnhancedKnobValues(campaignId: string, civilizationId: string): Promise<Record<string, Record<string, number>>> {
+    return await this.enhancedKnobsIntegration.getKnobValues(campaignId, civilizationId);
+  }
+
+  /**
+   * Get simulation state for a civilization
+   */
+  getSimulationState(campaignId: string, civilizationId: string): any {
+    return this.enhancedKnobsIntegration.getSimulationState(campaignId, civilizationId);
+  }
+
+  /**
+   * Get AI knob recommendations
+   */
+  async getAIKnobRecommendations(
+    campaignId: string,
+    civilizationId: string,
+    context: Record<string, any>
+  ): Promise<Record<string, Record<string, number>>> {
+    return await this.enhancedKnobsIntegration.getAIKnobRecommendations(campaignId, civilizationId, context);
+  }
+
+  /**
    * Stop the simulation engine
    */
   stop(): void {
@@ -1084,6 +1201,10 @@ export class SimEngineOrchestrator extends EventEmitter {
       clearInterval(this.simulationInterval);
       this.simulationInterval = null;
     }
+    
+    // Stop enhanced knobs integration
+    this.enhancedKnobsIntegration.destroy();
+    
     console.log('🤖 Sim Engine stopped');
   }
 }

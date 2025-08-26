@@ -8,6 +8,18 @@ interface SpeechesScreenProps {
   gameContext?: any;
 }
 
+interface SpeechGenerationRequest {
+  type: string;
+  audience: string;
+  occasion: string;
+  tone: string;
+  duration: number;
+  keyMessages: string[];
+  issuesToAddress: string[];
+  deliveryMode: 'avatar' | 'teleprompter' | 'off-the-cuff';
+  styleGuide?: string;
+}
+
 interface Speech {
   id: string;
   title: string;
@@ -68,6 +80,19 @@ const SpeechesScreen: React.FC<SpeechesScreenProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedSpeech, setSelectedSpeech] = useState<Speech | null>(null);
+  const [showNewSpeechForm, setShowNewSpeechForm] = useState(false);
+  const [generatingSpeech, setGeneratingSpeech] = useState(false);
+  const [speechForm, setSpeechForm] = useState<SpeechGenerationRequest>({
+    type: 'policy_announcement',
+    audience: 'general_public',
+    occasion: 'Press Conference',
+    tone: 'formal',
+    duration: 15,
+    keyMessages: [''],
+    issuesToAddress: [''],
+    deliveryMode: 'avatar',
+    styleGuide: 'Professional, authoritative, inspiring when appropriate'
+  });
 
   useEffect(() => {
     const fetchSpeechData = async () => {
@@ -91,17 +116,17 @@ const SpeechesScreen: React.FC<SpeechesScreenProps> = ({
           speeches: [
             {
               id: 'speech_001',
-              title: 'State of the Galaxy Address',
+              title: 'State of the Union Address',
               speaker: 'President Sarah Chen',
               occasion: 'Annual Address',
               date: '2024-03-15',
               duration: 45,
               status: 'delivered',
-              audience: 'Galactic Citizens',
+              audience: 'Civilization Citizens',
               topic: 'Government Policy',
               approvalRating: 87.3,
               viewCount: 2400000,
-              transcript: 'Fellow citizens of the galaxy, today we stand at a crossroads of unprecedented opportunity...'
+              transcript: 'Fellow citizens of our civilization, today we stand at a crossroads of unprecedented opportunity...'
             },
             {
               id: 'speech_002',
@@ -209,11 +234,362 @@ const SpeechesScreen: React.FC<SpeechesScreenProps> = ({
 
   const handleAction = (action: string, context?: any) => {
     console.log(`Speeches Action: ${action}`, context);
+    
+    if (action === 'Create New Speech') {
+      setShowNewSpeechForm(true);
+      return;
+    }
+    
     alert(`Speeches System: ${action}\n\nThis would ${action.toLowerCase()} in the full implementation.\n\nContext: ${JSON.stringify(context, null, 2)}`);
   };
 
+  const addArrayItem = (field: 'keyMessages' | 'issuesToAddress') => {
+    setSpeechForm(prev => ({
+      ...prev,
+      [field]: [...prev[field], '']
+    }));
+  };
+
+  const removeArrayItem = (field: 'keyMessages' | 'issuesToAddress', index: number) => {
+    setSpeechForm(prev => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateArrayItem = (field: 'keyMessages' | 'issuesToAddress', index: number, value: string) => {
+    setSpeechForm(prev => ({
+      ...prev,
+      [field]: prev[field].map((item, i) => i === index ? value : item)
+    }));
+  };
+
+  const generateSpeech = async () => {
+    if (!speechForm.keyMessages.some(msg => msg.trim()) || !speechForm.issuesToAddress.some(issue => issue.trim())) {
+      alert('Please provide at least one key message and one issue to address.');
+      return;
+    }
+
+    setGeneratingSpeech(true);
+    try {
+      const requestPayload = {
+        campaignId: gameContext?.campaignId || 1,
+        tickId: gameContext?.tickId || 1,
+        leaderCharacterId: gameContext?.playerId || 'player_1',
+        type: speechForm.type,
+        audience: {
+          primary: speechForm.audience,
+          demographics: [],
+          estimatedSize: 1000000,
+          broadcastChannels: ['National TV', 'Radio', 'Internet'],
+          expectedReach: 0.8
+        },
+        occasion: speechForm.occasion,
+        keyMessages: speechForm.keyMessages.filter(msg => msg.trim()),
+        tone: speechForm.tone,
+        duration: speechForm.duration,
+        policyFocus: speechForm.issuesToAddress.filter(issue => issue.trim()),
+        currentChallenges: speechForm.issuesToAddress.filter(issue => issue.trim()),
+        styleGuide: speechForm.styleGuide,
+        inspirationalLevel: speechForm.deliveryMode === 'off-the-cuff' ? 0.8 : 0.6,
+        formalityLevel: speechForm.tone === 'formal' ? 0.8 : 0.5,
+        deliveryMode: speechForm.deliveryMode
+      };
+
+      console.log('Generating speech with payload:', requestPayload);
+
+      const response = await fetch('/api/leader/speech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestPayload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Speech generation result:', result);
+
+      if (result.success) {
+        const impactLevels = {
+          'avatar': 'Baseline (1.0x)',
+          'teleprompter': 'Enhanced (1.2x)',
+          'off-the-cuff': 'Maximum (1.5x)'
+        };
+        alert(`Speech Generated Successfully!\n\nTitle: ${result.data.title}\n\nDelivery Mode: ${speechForm.deliveryMode}\nExpected Impact: ${impactLevels[speechForm.deliveryMode]}\n\nThe speech has been added to your drafts.`);
+        setShowNewSpeechForm(false);
+        // Reset form
+        setSpeechForm({
+          type: 'policy_announcement',
+          audience: 'general_public',
+          occasion: 'Press Conference',
+          tone: 'formal',
+          duration: 15,
+          keyMessages: [''],
+          issuesToAddress: [''],
+          deliveryMode: 'avatar',
+          styleGuide: 'Professional, authoritative, inspiring when appropriate'
+        });
+        // Refresh speech data
+        // fetchSpeechData(); // Would need to be extracted to call here
+      } else {
+        throw new Error(result.error || 'Unknown error occurred');
+      }
+    } catch (error) {
+      console.error('Error generating speech:', error);
+      alert(`Error generating speech: ${error instanceof Error ? error.message : 'Unknown error'}\n\nFalling back to mock generation...`);
+      
+      // Fallback to mock generation
+      const impactLevels = {
+        'automated': 'Baseline (1.0x)',
+        'teleprompter': 'Enhanced (1.2x)',
+        'off-the-cuff': 'Maximum (1.5x)'
+      };
+      
+      const mockSpeech = {
+        title: `${speechForm.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}: ${speechForm.occasion}`,
+        content: `Mock speech content addressing: ${speechForm.issuesToAddress.filter(i => i.trim()).join(', ')}\n\nKey messages: ${speechForm.keyMessages.filter(m => m.trim()).join(', ')}\n\nDelivery mode: ${speechForm.deliveryMode}`,
+        deliveryMode: speechForm.deliveryMode,
+        expectedImpact: impactLevels[speechForm.deliveryMode]
+      };
+      
+      alert(`Mock Speech Generated!\n\nTitle: ${mockSpeech.title}\n\nDelivery Mode: ${speechForm.deliveryMode}\nExpected Impact: ${mockSpeech.expectedImpact}\n\nThis is a fallback when the API is unavailable.`);
+      setShowNewSpeechForm(false);
+    } finally {
+      setGeneratingSpeech(false);
+    }
+  };
+
+  const renderNewSpeechForm = () => (
+    <div className="new-speech-form">
+      <div className="form-header">
+        <h3>🎤 Generate New Speech</h3>
+        <button className="btn secondary" onClick={() => setShowNewSpeechForm(false)}>
+          ✕ Close
+        </button>
+      </div>
+
+      <div className="form-grid">
+        <div className="form-section">
+          <h4>📋 Basic Information</h4>
+          
+          <div className="form-group">
+            <label>Speech Type:</label>
+            <select 
+              value={speechForm.type} 
+              onChange={(e) => setSpeechForm(prev => ({ ...prev, type: e.target.value }))}
+            >
+              <option value="policy_announcement">Policy Announcement</option>
+              <option value="state_of_union">State of the Union</option>
+              <option value="crisis_address">Crisis Address</option>
+              <option value="economic_update">Economic Update</option>
+              <option value="diplomatic_address">Diplomatic Address</option>
+              <option value="victory_speech">Victory Speech</option>
+              <option value="rally">Rally</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Audience:</label>
+            <select 
+              value={speechForm.audience} 
+              onChange={(e) => setSpeechForm(prev => ({ ...prev, audience: e.target.value }))}
+            >
+              <option value="general_public">General Public</option>
+              <option value="government">Government Officials</option>
+              <option value="military">Military Personnel</option>
+              <option value="business_leaders">Business Leaders</option>
+              <option value="diplomats">Diplomatic Corps</option>
+              <option value="scientists">Scientific Community</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Occasion:</label>
+            <input 
+              type="text" 
+              value={speechForm.occasion}
+              onChange={(e) => setSpeechForm(prev => ({ ...prev, occasion: e.target.value }))}
+              placeholder="e.g., Press Conference, State Dinner, Emergency Broadcast"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Tone:</label>
+            <select 
+              value={speechForm.tone} 
+              onChange={(e) => setSpeechForm(prev => ({ ...prev, tone: e.target.value }))}
+            >
+              <option value="formal">Formal</option>
+              <option value="casual">Casual</option>
+              <option value="inspirational">Inspirational</option>
+              <option value="somber">Somber</option>
+              <option value="urgent">Urgent</option>
+              <option value="celebratory">Celebratory</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Duration (minutes):</label>
+            <input 
+              type="number" 
+              min="5" 
+              max="60" 
+              value={speechForm.duration}
+              onChange={(e) => setSpeechForm(prev => ({ ...prev, duration: parseInt(e.target.value) || 15 }))}
+            />
+          </div>
+        </div>
+
+        <div className="form-section">
+          <h4>🎯 Key Messages</h4>
+          <p>What are the main points you want to communicate?</p>
+          
+          {speechForm.keyMessages.map((message, index) => (
+            <div key={index} className="array-input-group">
+              <input
+                type="text"
+                value={message}
+                onChange={(e) => updateArrayItem('keyMessages', index, e.target.value)}
+                placeholder={`Key message ${index + 1}`}
+              />
+              {speechForm.keyMessages.length > 1 && (
+                <button 
+                  className="btn secondary small"
+                  onClick={() => removeArrayItem('keyMessages', index)}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+          
+          <button 
+            className="btn secondary small"
+            onClick={() => addArrayItem('keyMessages')}
+          >
+            ➕ Add Key Message
+          </button>
+        </div>
+
+        <div className="form-section">
+          <h4>⚠️ Issues to Address</h4>
+          <p>What challenges or topics should the speech address?</p>
+          
+          {speechForm.issuesToAddress.map((issue, index) => (
+            <div key={index} className="array-input-group">
+              <input
+                type="text"
+                value={issue}
+                onChange={(e) => updateArrayItem('issuesToAddress', index, e.target.value)}
+                placeholder={`Issue ${index + 1}`}
+              />
+              {speechForm.issuesToAddress.length > 1 && (
+                <button 
+                  className="btn secondary small"
+                  onClick={() => removeArrayItem('issuesToAddress', index)}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+          
+          <button 
+            className="btn secondary small"
+            onClick={() => addArrayItem('issuesToAddress')}
+          >
+            ➕ Add Issue
+          </button>
+        </div>
+
+        <div className="form-section">
+          <h4>🎭 Delivery Mode</h4>
+          <p>How will this speech be delivered?</p>
+          
+          <div className="delivery-mode-selector">
+            <label className={`delivery-option ${speechForm.deliveryMode === 'avatar' ? 'selected' : ''}`}>
+              <input
+                type="radio"
+                name="deliveryMode"
+                value="avatar"
+                checked={speechForm.deliveryMode === 'avatar'}
+                onChange={(e) => setSpeechForm(prev => ({ ...prev, deliveryMode: e.target.value as 'avatar' | 'teleprompter' | 'off-the-cuff' }))}
+              />
+              <div className="option-content">
+                <div className="option-icon">🤖</div>
+                <div className="option-details">
+                  <h5>Avatar Mode</h5>
+                  <p>AI avatar delivers speech, leader not present</p>
+                  <small>Baseline impact, digital representation only</small>
+                </div>
+              </div>
+            </label>
+
+            <label className={`delivery-option ${speechForm.deliveryMode === 'teleprompter' ? 'selected' : ''}`}>
+              <input
+                type="radio"
+                name="deliveryMode"
+                value="teleprompter"
+                checked={speechForm.deliveryMode === 'teleprompter'}
+                onChange={(e) => setSpeechForm(prev => ({ ...prev, deliveryMode: e.target.value as 'avatar' | 'teleprompter' | 'off-the-cuff' }))}
+              />
+              <div className="option-content">
+                <div className="option-icon">📺</div>
+                <div className="option-details">
+                  <h5>Teleprompter</h5>
+                  <p>Prepared, polished delivery with script</p>
+                  <small>Enhanced impact, professional appearance</small>
+                </div>
+              </div>
+            </label>
+
+            <label className={`delivery-option ${speechForm.deliveryMode === 'off-the-cuff' ? 'selected' : ''}`}>
+              <input
+                type="radio"
+                name="deliveryMode"
+                value="off-the-cuff"
+                checked={speechForm.deliveryMode === 'off-the-cuff'}
+                onChange={(e) => setSpeechForm(prev => ({ ...prev, deliveryMode: e.target.value as 'avatar' | 'teleprompter' | 'off-the-cuff' }))}
+              />
+              <div className="option-content">
+                <div className="option-icon">🎤</div>
+                <div className="option-details">
+                  <h5>Off-the-Cuff</h5>
+                  <p>Spontaneous, authentic delivery</p>
+                  <small>Highest impact, shows authenticity and confidence</small>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="form-actions">
+        <button 
+          className="btn"
+          onClick={generateSpeech}
+          disabled={generatingSpeech}
+        >
+          {generatingSpeech ? '🔄 Generating...' : '🎤 Generate Speech'}
+        </button>
+        <button 
+          className="btn secondary"
+          onClick={() => setShowNewSpeechForm(false)}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+
   const renderSpeechesTab = () => (
     <div className="speeches-tab">
+      {showNewSpeechForm && renderNewSpeechForm()}
+      
       <div className="speeches-header">
         <h2>🎤 Speech Management</h2>
         <p>Manage speeches, addresses, and public communications</p>
@@ -555,12 +931,155 @@ const SpeechesScreen: React.FC<SpeechesScreenProps> = ({
         <p>Live speech delivery and teleprompter system</p>
       </div>
 
+      <div className="delivery-modes-comparison">
+        <h3>📊 Delivery Mode Impact Comparison</h3>
+        <div className="comparison-grid three-modes">
+          <div className="mode-comparison avatar-mode">
+            <div className="mode-header">
+              <div className="mode-icon">🤖</div>
+              <h4>Avatar Mode</h4>
+            </div>
+            <div className="impact-metrics">
+              <div className="metric">
+                <span className="metric-label">Authenticity:</span>
+                <div className="metric-bar">
+                  <div className="metric-fill" style={{ width: '40%', backgroundColor: '#F44336' }}></div>
+                </div>
+                <span className="metric-value">40%</span>
+              </div>
+              <div className="metric">
+                <span className="metric-label">Professionalism:</span>
+                <div className="metric-bar">
+                  <div className="metric-fill" style={{ width: '70%', backgroundColor: '#FF9800' }}></div>
+                </div>
+                <span className="metric-value">70%</span>
+              </div>
+              <div className="metric">
+                <span className="metric-label">Public Trust:</span>
+                <div className="metric-bar">
+                  <div className="metric-fill" style={{ width: '50%', backgroundColor: '#FF9800' }}></div>
+                </div>
+                <span className="metric-value">50%</span>
+              </div>
+              <div className="metric">
+                <span className="metric-label">Overall Impact:</span>
+                <div className="metric-bar">
+                  <div className="metric-fill" style={{ width: '50%', backgroundColor: '#FF9800' }}></div>
+                </div>
+                <span className="metric-value">50% (1.0x)</span>
+              </div>
+            </div>
+            <div className="mode-benefits">
+              <h5>Benefits:</h5>
+              <ul>
+                <li>No preparation time required</li>
+                <li>Leader can focus on other tasks</li>
+                <li>Consistent digital representation</li>
+                <li>Available 24/7 for communications</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mode-comparison teleprompter-mode">
+            <div className="mode-header">
+              <div className="mode-icon">📺</div>
+              <h4>Teleprompter Mode</h4>
+            </div>
+            <div className="impact-metrics">
+              <div className="metric">
+                <span className="metric-label">Authenticity:</span>
+                <div className="metric-bar">
+                  <div className="metric-fill" style={{ width: '65%', backgroundColor: '#FF9800' }}></div>
+                </div>
+                <span className="metric-value">65%</span>
+              </div>
+              <div className="metric">
+                <span className="metric-label">Professionalism:</span>
+                <div className="metric-bar">
+                  <div className="metric-fill" style={{ width: '95%', backgroundColor: '#4CAF50' }}></div>
+                </div>
+                <span className="metric-value">95%</span>
+              </div>
+              <div className="metric">
+                <span className="metric-label">Public Trust:</span>
+                <div className="metric-bar">
+                  <div className="metric-fill" style={{ width: '75%', backgroundColor: '#2196F3' }}></div>
+                </div>
+                <span className="metric-value">75%</span>
+              </div>
+              <div className="metric">
+                <span className="metric-label">Overall Impact:</span>
+                <div className="metric-bar">
+                  <div className="metric-fill" style={{ width: '60%', backgroundColor: '#2196F3' }}></div>
+                </div>
+                <span className="metric-value">60% (1.2x)</span>
+              </div>
+            </div>
+            <div className="mode-benefits">
+              <h5>Benefits:</h5>
+              <ul>
+                <li>Polished, error-free delivery</li>
+                <li>Consistent messaging</li>
+                <li>Professional appearance</li>
+                <li>Leader engagement with content</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mode-comparison off-the-cuff-mode">
+            <div className="mode-header">
+              <div className="mode-icon">🎤</div>
+              <h4>Off-the-Cuff Mode</h4>
+            </div>
+            <div className="impact-metrics">
+              <div className="metric">
+                <span className="metric-label">Authenticity:</span>
+                <div className="metric-bar">
+                  <div className="metric-fill" style={{ width: '95%', backgroundColor: '#4CAF50' }}></div>
+                </div>
+                <span className="metric-value">95%</span>
+              </div>
+              <div className="metric">
+                <span className="metric-label">Professionalism:</span>
+                <div className="metric-bar">
+                  <div className="metric-fill" style={{ width: '70%', backgroundColor: '#FF9800' }}></div>
+                </div>
+                <span className="metric-value">70%</span>
+              </div>
+              <div className="metric">
+                <span className="metric-label">Public Trust:</span>
+                <div className="metric-bar">
+                  <div className="metric-fill" style={{ width: '90%', backgroundColor: '#4CAF50' }}></div>
+                </div>
+                <span className="metric-value">90%</span>
+              </div>
+              <div className="metric">
+                <span className="metric-label">Overall Impact:</span>
+                <div className="metric-bar">
+                  <div className="metric-fill" style={{ width: '75%', backgroundColor: '#4CAF50' }}></div>
+                </div>
+                <span className="metric-value">75% (1.5x)</span>
+              </div>
+            </div>
+            <div className="mode-benefits">
+              <h5>Benefits:</h5>
+              <ul>
+                <li>Highest authenticity and relatability</li>
+                <li>Shows confidence and competence</li>
+                <li>Strongest emotional connection</li>
+                <li>Maximum simulation impact</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="delivery-system">
         <div className="teleprompter-card">
           <h3>📺 Teleprompter</h3>
           <div className="teleprompter-screen">
             <div className="teleprompter-text">
-              <p>Fellow citizens of the galaxy, today we stand at a crossroads of unprecedented opportunity...</p>
+              <p>Fellow citizens of our civilization, today we stand at a crossroads of unprecedented opportunity...</p>
               <p>Our economic recovery plan will create millions of jobs across all sectors...</p>
               <p>Together, we will build a stronger, more prosperous future for all...</p>
             </div>

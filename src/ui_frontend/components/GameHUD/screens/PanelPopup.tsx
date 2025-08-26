@@ -13,6 +13,7 @@ import { GovernmentBondsScreen } from './GovernmentBondsScreen';
 import FinancialMarketsScreen from './extracted/FinancialMarketsScreen';
 import EconomicEcosystemScreen from './extracted/EconomicEcosystemScreen';
 import MilitaryDemoScreen from './extracted/MilitaryDemoScreen';
+import DefenseScreen from './security/DefenseScreen';
 import CitiesScreen from './extracted/CitiesScreen';
 import DemographicsScreen from './extracted/DemographicsScreen';
 import MigrationScreen from './extracted/MigrationScreen';
@@ -38,11 +39,23 @@ import ExplorationScreen from './extracted/ExplorationScreen';
 import JointChiefsScreen from './extracted/JointChiefsScreen';
 import TechnologyScreen from './extracted/TechnologyScreen';
 import GovernmentScreen from './extracted/GovernmentScreen';
+import ConstitutionScreen from './extracted/ConstitutionScreen';
+import ExportControlsScreen from './extracted/ExportControlsScreen';
+import GovernmentContractsScreen from './extracted/GovernmentContractsScreen';
+import MissionsScreen from './extracted/MissionsScreen';
 import ScienceTechnologyScreen from './extracted/ScienceTechnologyScreen';
 import ClassifiedResearchScreen from './extracted/ClassifiedResearchScreen';
 import UniversityResearchScreen from './extracted/UniversityResearchScreen';
 import VisualSystemsScreen from './extracted/VisualSystemsScreen';
 import InstitutionalOverrideScreen from './extracted/InstitutionalOverrideScreen';
+import EntertainmentTourismScreen from './extracted/EntertainmentTourismScreen';
+import GalaxyWondersScreen from './extracted/GalaxyWondersScreen';
+import HouseholdEconomicsScreen from './extracted/HouseholdEconomicsScreen';
+import BusinessCycleScreen from './BusinessCycleScreen';
+import WorldWondersEnhancedScreen from './WorldWondersScreen';
+import TreasuryEnhancedScreen from './TreasuryEnhancedScreen';
+import CharacterAwarenessScreen from './CharacterAwarenessScreen';
+import EnhancedKnobsControlCenter from './EnhancedKnobsControlCenter';
 
 interface PanelInfo {
   id: string;
@@ -66,8 +79,8 @@ export const PanelPopup: React.FC<PanelPopupProps> = ({
 }) => {
   const renderPanelContent = () => {
     switch (panel.id) {
-      case 'government':
-        return <GovernmentPanel playerId={playerId} />;
+      case 'constitution':
+        return <ConstitutionPanel playerId={playerId} />;
       case 'cabinet':
         return <CabinetPanel playerId={playerId} />;
       case 'policies':
@@ -80,10 +93,28 @@ export const PanelPopup: React.FC<PanelPopupProps> = ({
         return <PoliticalPartiesPanel playerId={playerId} />;
       case 'treasury':
         return <TreasuryPanel playerId={playerId} />;
+      case 'treasury-enhanced':
+        return (
+          <TreasuryEnhancedScreen
+            screenId="treasury-enhanced"
+            title="Treasury & Tax Management"
+            icon="💰"
+            gameContext={{ currentLocation: 'Capital System', playerId }}
+          />
+        );
       case 'trade':
         return <TradePanel playerId={playerId} />;
       case 'businesses':
         return <BusinessesPanel playerId={playerId} />;
+      case 'business-cycle':
+        return (
+          <BusinessCycleScreen
+            screenId="business-cycle"
+            title="Business Cycle Management"
+            icon="📊"
+            gameContext={{ currentLocation: 'Capital System', playerId }}
+          />
+        );
       case 'central-bank':
         return <CentralBankPanel playerId={playerId} />;
       case 'sovereign-wealth-fund':
@@ -135,17 +166,65 @@ export const PanelPopup: React.FC<PanelPopupProps> = ({
       case 'speeches':
         return <SpeechesPanel playerId={playerId} />;
       case 'witter':
-        return <WitterPanel playerId={playerId} />;
+        return <WitterScreen 
+          screenId="witter" 
+          title="Witter" 
+          icon="🐦" 
+          gameContext={{ currentLocation: 'Capital System', playerId }} 
+        />;
       case 'galaxy-map':
         return <GalaxyMapPanel playerId={playerId} />;
       case 'conquest':
         return <ConquestPanel playerId={playerId} />;
       case 'exploration':
         return <ExplorationPanel playerId={playerId} />;
+      case 'missions':
+        return <MissionsPanel playerId={playerId} />;
       case 'government-contracts':
         return <GovernmentContractsPanel playerId={playerId} />;
+      case 'export-controls':
+        return <ExportControlsPanel playerId={playerId} />;
       case 'institutional-override':
         return <InstitutionalOverridePanel playerId={playerId} />;
+      case 'entertainment-tourism':
+        return <EntertainmentTourismPanel playerId={playerId} />;
+      case 'world-wonders':
+      case 'world-wonders-enhanced':
+        return (
+          <GalaxyWondersScreen
+            screenId="world-wonders"
+            title="Galaxy Wonders"
+            icon="🏛️"
+            gameContext={{ currentLocation: 'Capital System', playerId }}
+          />
+        );
+      case 'household-economics':
+        return (
+          <HouseholdEconomicsScreen
+            screenId="household-economics"
+            title="Household Economics"
+            icon="🏠"
+            gameContext={{ currentLocation: 'Capital System', playerId }}
+          />
+        );
+      case 'character-awareness':
+        return (
+          <CharacterAwarenessScreen
+            screenId="character-awareness"
+            title="Character AI Control (Game Master)"
+            icon="🧠"
+            gameContext={{ currentLocation: 'Capital System', playerId }}
+          />
+        );
+      case 'enhanced-knobs-control':
+        return (
+          <EnhancedKnobsControlCenter
+            screenId="enhanced-knobs-control"
+            title="Enhanced Knobs Control Center"
+            icon="🎛️"
+            gameContext={{ currentLocation: 'Capital System', playerId }}
+          />
+        );
       default:
         return <DefaultPanel panel={panel} playerId={playerId} />;
     }
@@ -181,12 +260,12 @@ const DefaultPanel: React.FC<{ panel: PanelInfo; playerId: string }> = ({ panel,
   );
 };
 
-// Government Panel with government types support
-const GovernmentPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
-  <GovernmentScreen 
-    screenId="government" 
-    title="Government Overview" 
-    icon="🏛️" 
+// Constitution Panel with political party system configuration
+const ConstitutionPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
+  <ConstitutionScreen 
+    screenId="constitution" 
+    title="Constitution" 
+    icon="📜" 
     gameContext={{ currentLocation: 'Capital System', playerId }} 
   />
 );
@@ -313,9 +392,9 @@ const MilitaryPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
 );
 
 const DefensePanel: React.FC<{ playerId: string }> = ({ playerId }) => (
-  <MilitaryDemoScreen 
+  <DefenseScreen 
     screenId="defense" 
-    title="Defense Operations" 
+    title="Defense Policy" 
     icon="🏰" 
     gameContext={{ currentLocation: 'Capital System', playerId }} 
   />
@@ -458,14 +537,7 @@ const SpeechesPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
   />
 );
 
-const WitterPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
-  <WitterScreen 
-    screenId="witter" 
-    title="Witter" 
-    icon="🐦" 
-    gameContext={{ currentLocation: 'Capital System', playerId }} 
-  />
-);
+
 
 const GalaxyMapPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
   <GalaxyMapScreen 
@@ -504,35 +576,34 @@ const InstitutionalOverridePanel: React.FC<{ playerId: string }> = ({ playerId }
 );
 
 const GovernmentContractsPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
-  <div className="panel-section">
-    <h3>📜 Government Contracts</h3>
-    <p>Manage defense, infrastructure, and government contracts for {playerId}.</p>
-    <div className="panel-grid">
-      <div className="panel-card">
-        <h4>📊 Total Contracts</h4>
-        <div className="value">24</div>
-        <div className="change positive">+3 this month</div>
-      </div>
-      <div className="panel-card">
-        <h4>💰 Total Value</h4>
-        <div className="value">2.4B TER</div>
-        <div className="change positive">+12% this quarter</div>
-      </div>
-      <div className="panel-card">
-        <h4>🏗️ Active Projects</h4>
-        <div className="value">18</div>
-        <div className="change neutral">On schedule</div>
-      </div>
-      <div className="panel-card">
-        <h4>⏳ Pending Approval</h4>
-        <div className="value">6</div>
-        <div className="change neutral">Awaiting review</div>
-      </div>
-    </div>
-    <div className="panel-actions">
-      <button className="panel-btn">New Contract</button>
-      <button className="panel-btn secondary">Performance Review</button>
-      <button className="panel-btn secondary">Budget Analysis</button>
-    </div>
-  </div>
+  <GovernmentContractsScreen 
+    screenId="government-contracts" 
+    title="Government Contracts" 
+    icon="📜" 
+    gameContext={{ currentLocation: 'Capital System', playerId }}
+  />
+);
+
+const MissionsPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
+  <MissionsScreen 
+    screenId="missions" 
+    title="Missions" 
+    icon="🎯" 
+    gameContext={{ currentLocation: 'Capital System', playerId }}
+  />
+);
+
+const ExportControlsPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
+  <ExportControlsScreen 
+    screenId="export-controls" 
+    title="Export Controls" 
+    icon="🛡️" 
+    gameContext={{ currentLocation: 'Capital System', playerId }}
+  />
+);
+
+const EntertainmentTourismPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
+  <EntertainmentTourismScreen 
+    gameContext={{ currentLocation: 'Capital System', playerId }} 
+  />
 );

@@ -1,0 +1,18 @@
+{
+  "title": "🌌 Galactic Civilization Hub",
+  "prompt": "A magnificent galactic civilization with towering crystal spires, floating platforms, and bioluminescent gardens stretching across multiple levels, digital art style, high quality, detailed architecture",
+  "aspectRatio": "16:9",
+  "filename": "galactic-civilization.png",
+  "imagePath": "samples/images/galactic-civilization.png",
+  "result": {
+    "success": true,
+    "imageUrl": "https://picsum.photos/1344/768?random=1756177129562",
+    "width": 1344,
+    "height": 768,
+    "processingTime": 2536,
+    "cost": 0.02
+  },
+  "generatedAt": "2025-08-26T02:58:50.877Z",
+  "provider": "Google Imagen",
+  "apiKey": "AIzaSyAOOT...1435"
+}

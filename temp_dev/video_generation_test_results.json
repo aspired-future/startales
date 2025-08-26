@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-08-26T03:19:51.987Z",
+  "authenticationWorking": true,
+  "accessTokenObtained": true,
+  "apiAccessible": true,
+  "totalModels": 50,
+  "videoModels": 2,
+  "imageModels": 43,
+  "mockVideoResponse": {
+    "videoId": "google_auth_1756178391987",
+    "status": "completed",
+    "videoUrl": "/api/videos/mock/space_discovery.mp4",
+    "thumbnailUrl": "/api/videos/mock/space_discovery_thumb.jpg",
+    "duration": 6,
+    "resolution": "1080p",
+    "prompt": "A futuristic space station with glowing lights",
+    "generatedAt": "2025-08-26T03:19:51.987Z",
+    "provider": "google-service-account",
+    "authenticationWorking": true,
+    "accessTokenLength": 1024,
+    "availableModels": 50
+  },
+  "recommendation": "use_real_veo3"
+}

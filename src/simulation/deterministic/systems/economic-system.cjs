@@ -63,9 +63,19 @@ class EconomicSystem extends DeterministicSystemInterface {
         
         this.initializeInputKnobs();
         this.initializeOutputChannels();
+
+        // Business cycle state (expansion, peak, contraction, trough)
+        this.businessCycle = {
+            phase: 'expansion', // expansion | peak | contraction | trough
+            phaseDayCounter: 0,
+            phaseLengthDays: 365, // default ~1 year per phase
+            lastPhaseChange: Date.now()
+        };
         
-        // Start economic simulation
-        this.startSimulation();
+        // Start economic simulation (can be disabled in tests)
+        if (config.autoStart !== false) {
+            this.startSimulation();
+        }
     }
 
     initializeInputKnobs() {
@@ -329,6 +339,25 @@ class EconomicSystem extends DeterministicSystemInterface {
             }
         });
 
+        // Business Cycle Output
+        this.defineOutputChannel('business_cycle', {
+            name: 'Business Cycle Phase',
+            description: 'Current macroeconomic business cycle phase and timing',
+            aiInterpretation: 'Use phase to modulate policies and expectations (expansion/peak/contraction/trough)',
+            dataType: 'metric',
+            category: 'macroeconomic',
+            priority: 'high',
+            updateFrequency: 'daily',
+            structure: {
+                required: ['phase', 'phaseDayCounter', 'phaseLengthDays'],
+                fields: {
+                    phase: { type: 'string' },
+                    phaseDayCounter: { type: 'number' },
+                    phaseLengthDays: { type: 'number' }
+                }
+            }
+        });
+
         // Fiscal Status
         this.defineOutputChannel('fiscal_status', {
             name: 'Government Fiscal Status',
@@ -518,6 +547,9 @@ class EconomicSystem extends DeterministicSystemInterface {
         const inputs = this.getAllInputs();
         const state = this.economicState;
         
+        // Advance business cycle
+        this.advanceBusinessCycle();
+
         // Update core economic indicators
         this.updateGDP(inputs);
         this.updateInflation(inputs);
@@ -548,8 +580,32 @@ class EconomicSystem extends DeterministicSystemInterface {
         state.lastUpdate = Date.now();
     }
 
+    advanceBusinessCycle() {
+        const cycle = this.businessCycle;
+        cycle.phaseDayCounter += 1;
+        
+        // Transition logic at end of phase
+        if (cycle.phaseDayCounter >= cycle.phaseLengthDays) {
+            const next = {
+                expansion: 'peak',
+                peak: 'contraction',
+                contraction: 'trough',
+                trough: 'expansion'
+            }[cycle.phase] || 'expansion';
+            cycle.phase = next;
+            cycle.phaseDayCounter = 0;
+            
+            // Randomize next phase length within reasonable bounds (0.5–1.5 years)
+            const base = 365;
+            const jitter = 0.5 + Math.random(); // 0.5–1.5
+            cycle.phaseLengthDays = Math.max(120, Math.min(720, Math.floor(base * jitter)));
+            cycle.lastPhaseChange = Date.now();
+        }
+    }
+
     updateGDP(inputs) {
         const state = this.economicState;
+        const cycle = this.businessCycle;
         
         // Base growth rate
         let growthRate = 0.025; // 2.5% annual base
@@ -578,6 +634,17 @@ class EconomicSystem extends DeterministicSystemInterface {
         growthRate += spendingEffect + taxEffect + interestRateEffect + 
                      infrastructureEffect + rdEffect + tradeEffect + 
                      regulationEffect + laborFlexibilityEffect;
+        
+        // Business cycle modulation
+        const phaseModifiers = {
+            expansion: 1.0,
+            peak: 0.6,
+            contraction: -0.8,
+            trough: 0.3
+        };
+        const cycleMod = phaseModifiers[cycle.phase] ?? 1.0;
+        // Blend towards cycle effect proportionally, keeping policy effects influential
+        growthRate = growthRate * 0.7 + (growthRate >= 0 ? 0.03 : -0.03) * cycleMod * 0.3;
         
         // Add some randomness for market volatility
         growthRate += (Math.random() - 0.5) * 0.01 * state.marketVolatility;
@@ -863,6 +930,13 @@ class EconomicSystem extends DeterministicSystemInterface {
             unemployment: state.unemployment,
             interestRate: state.interestRate,
             timestamp: Date.now()
+        });
+
+        // Business cycle output
+        this.setOutput('business_cycle', {
+            phase: this.businessCycle.phase,
+            phaseDayCounter: this.businessCycle.phaseDayCounter,
+            phaseLengthDays: this.businessCycle.phaseLengthDays
         });
         
         // Fiscal status

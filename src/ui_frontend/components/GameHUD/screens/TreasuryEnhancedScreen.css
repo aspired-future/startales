@@ -1,0 +1,406 @@
+.treasury-enhanced-screen {
+  padding: 20px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #ffffff;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.treasury-enhanced-screen.loading,
+.treasury-enhanced-screen.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+.loading-spinner {
+  font-size: 18px;
+  color: #64b5f6;
+  animation: pulse 2s infinite;
+}
+
+.error-message {
+  font-size: 18px;
+  color: #f44336;
+  margin-bottom: 20px;
+}
+
+.retry-button {
+  padding: 10px 20px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+
+.retry-button:hover {
+  background: #1976d2;
+}
+
+.screen-header {
+  margin-bottom: 30px;
+}
+
+.screen-header h2 {
+  font-size: 28px;
+  margin: 0 0 20px 0;
+  color: #64b5f6;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.treasury-summary {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px 25px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #b0bec5;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #4fc3f7;
+}
+
+.tab-navigation {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab-button {
+  padding: 12px 24px;
+  background: transparent;
+  color: #b0bec5;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.tab-button:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-button.active {
+  color: #4fc3f7;
+  border-bottom-color: #4fc3f7;
+  background: rgba(79, 195, 247, 0.1);
+}
+
+.tab-content {
+  min-height: 500px;
+}
+
+/* Tax Lines Tab */
+.tax-lines-tab h3 {
+  font-size: 22px;
+  color: #4fc3f7;
+  margin-bottom: 20px;
+}
+
+.tax-lines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.tax-line-item {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.tax-line-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.tax-source {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+.tax-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric-label {
+  font-size: 14px;
+  color: #b0bec5;
+}
+
+.metric-value {
+  font-weight: bold;
+  color: #4fc3f7;
+}
+
+.metric-value.evasion {
+  color: #ff7043;
+}
+
+.collection-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.collection-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4fc3f7, #29b6f6);
+  transition: width 0.5s ease;
+}
+
+/* Budget Tab */
+.budget-tab h3 {
+  font-size: 22px;
+  color: #4fc3f7;
+  margin-bottom: 20px;
+}
+
+.budget-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.budget-category {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: transform 0.3s;
+}
+
+.budget-category:hover {
+  transform: translateY(-2px);
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.category-name {
+  font-size: 16px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.category-percentage {
+  font-size: 14px;
+  color: #4fc3f7;
+  font-weight: bold;
+}
+
+.category-amount {
+  font-size: 20px;
+  color: #66bb6a;
+  font-weight: bold;
+}
+
+.reserves-debt-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.reserves-info,
+.debt-info {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.reserves-info h4,
+.debt-info h4 {
+  color: #4fc3f7;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.reserves-target,
+.reserves-current,
+.debt-priority,
+.debt-amount {
+  margin-bottom: 10px;
+  color: #e0e0e0;
+}
+
+/* Knobs Tab */
+.knobs-tab {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.knobs-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.knobs-category h3 {
+  font-size: 20px;
+  color: #4fc3f7;
+  margin-bottom: 20px;
+  border-bottom: 2px solid rgba(79, 195, 247, 0.3);
+  padding-bottom: 10px;
+}
+
+.knobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.knob-control {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.knob-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.knob-label {
+  font-size: 16px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.knob-value {
+  font-size: 16px;
+  color: #4fc3f7;
+  font-weight: bold;
+}
+
+.knob-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  margin-bottom: 10px;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.knob-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4fc3f7;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s;
+}
+
+.knob-slider::-webkit-slider-thumb:hover {
+  background: #29b6f6;
+  transform: scale(1.1);
+}
+
+.knob-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4fc3f7;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.knob-description {
+  font-size: 14px;
+  color: #b0bec5;
+  line-height: 1.4;
+}
+
+/* Animations */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .treasury-enhanced-screen {
+    padding: 15px;
+  }
+  
+  .treasury-summary {
+    gap: 15px;
+  }
+  
+  .summary-stat {
+    padding: 10px 15px;
+  }
+  
+  .tax-lines-grid,
+  .budget-grid,
+  .knobs-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .reserves-debt-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab-navigation {
+    flex-wrap: wrap;
+  }
+  
+  .tab-button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}

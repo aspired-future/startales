@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './ComprehensiveHUD.css';
 import { useWhoseAppWebSocket } from '../../hooks/useWhoseAppWebSocket';
+import { WhoseAppMain } from '../WhoseApp/WhoseAppMain';
 
 // Import all the specialized components
 import { SimpleWitterFeed } from '../Witter/SimpleWitterFeed';
+import StoryScreen from './screens/extracted/StoryScreen';
 import { GalaxyMapComponent } from './GalaxyMapComponent';
 import { TradeEconomics } from './TradeEconomics';
 import { createScreen } from './screens/ScreenFactory';
@@ -20,7 +22,7 @@ import {
 
 // Import Popup components
 import { PanelPopup } from './screens/PanelPopup';
-import { WitterPopup } from './screens/WitterPopup';
+
 import { MapPopup } from './screens/MapPopup';
 import { GovernmentBondsScreen } from './screens/GovernmentBondsScreen';
 
@@ -42,6 +44,7 @@ interface LiveMetrics {
   treasury: number;
   securityLevel: number;
   threatLevel: string;
+  debtToGDP: number;
 }
 
 interface CharacterMessage {
@@ -102,14 +105,19 @@ const getTimeAgo = (date: Date): string => {
 
 export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, gameContext }) => {
   // State management for all systems
-  const [activePanel, setActivePanel] = useState<string>('command-center');
-  const [activeTab, setActiveTab] = useState<'whoseapp' | 'events' | 'map' | 'witter' | 'analytics'>('whoseapp');
+  const [activePanel, setActivePanel] = useState<string>('story');
+  const [activeTab, setActiveTab] = useState<'story' | 'map' | 'whoseapp' | 'witter' | 'galaxy' | 'civ'>('story');
   const [expandedAccordion, setExpandedAccordion] = useState<string>('quick-actions');
+  
+  // Unread count states
+  const [storyUnreadCount, setStoryUnreadCount] = useState<number>(3);
+  const [whoseappUnreadCount, setWhoseappUnreadCount] = useState<number>(7);
+  const [witterUnreadCount, setWitterUnreadCount] = useState<number>(12);
   const [activeQuickAction, setActiveQuickAction] = useState<QuickActionScreenType | null>(null);
   
   // Popup state management
   const [activePanelPopup, setActivePanelPopup] = useState<string | null>(null);
-  const [isWitterPopupOpen, setIsWitterPopupOpen] = useState(false);
+
   const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
 
   // WhoseApp WebSocket integration for real-time updates
@@ -128,7 +136,8 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     approval: 73,
     treasury: 45000000,
     securityLevel: 82,
-    threatLevel: 'Medium'
+    threatLevel: 'Medium',
+    debtToGDP: 0.42 // 42% debt-to-GDP ratio
   });
 
   // Communication API state
@@ -782,6 +791,45 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     }
   };
 
+  // Refresh functions for tabs
+  const refreshStoryData = () => {
+    console.log('Refreshing story data...');
+    setStoryUnreadCount(0); // Clear unread count when refreshed
+    // Add actual refresh logic here
+  };
+
+  const refreshMapData = () => {
+    console.log('Refreshing map data...');
+    // Add actual refresh logic here
+  };
+
+  const refreshWhoseAppData = () => {
+    console.log('Refreshing WhoseApp data...');
+    setWhoseappUnreadCount(0); // Clear unread count when refreshed
+    fetchCommunicationData();
+  };
+
+  const refreshWitterData = () => {
+    console.log('Refreshing Witter data...');
+    setWitterUnreadCount(0); // Clear unread count when refreshed
+    // Add actual refresh logic here
+  };
+
+  const refreshGalaxyData = () => {
+    console.log('Refreshing galaxy data...');
+    // Add actual refresh logic here
+  };
+
+  const refreshCivData = () => {
+    console.log('Refreshing civilization data...');
+    // Add actual refresh logic here
+  };
+
+  const refreshMissionsData = () => {
+    console.log('Refreshing missions data...');
+    // Add actual refresh logic here
+  };
+
   // Fetch communication data on component mount
   useEffect(() => {
     fetchCommunicationData();
@@ -824,7 +872,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
       const { targetOfficial, context, priority } = event.detail;
       
       // Switch to WhoseApp tab
-      setCenterActiveTab('whoseapp');
+      setActiveTab('whoseapp');
       setActiveWhoseAppTab('incoming');
       
       // Create a new message from the target official
@@ -857,19 +905,21 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
   // Panel definitions for all major systems
   const panels = [
     // Government & Leadership
-    { id: 'government', name: 'Government', icon: '🏛️', category: 'government' },
+    { id: 'constitution', name: 'Constitution', icon: '📜', category: 'government' },
     { id: 'cabinet', name: 'Cabinet', icon: '👥', category: 'government' },
     { id: 'policies', name: 'Policies', icon: '⚖️', category: 'government' },
     { id: 'legislature', name: 'Legislature', icon: '🏛️', category: 'government' },
     { id: 'supreme-court', name: 'Supreme Court', icon: '⚖️', category: 'government' },
     { id: 'institutional-override', name: 'Override System', icon: '⚖️', category: 'government' },
 
-    { id: 'political-parties', name: 'Politics', icon: '🎭', category: 'government' },
+    { id: 'political-parties', name: 'Political Parties', icon: '🎭', category: 'government' },
     
     // Economy & Trade
     { id: 'treasury', name: 'Treasury', icon: '💰', category: 'economy' },
+    { id: 'treasury-enhanced', name: 'Treasury Enhanced', icon: '💰', category: 'economy' },
+    { id: 'business-cycle', name: 'Business Cycle', icon: '📊', category: 'economy' },
     { id: 'trade', name: 'Trade', icon: '📈', category: 'economy' },
-    { id: 'businesses', name: 'Business', icon: '🏢', category: 'economy' },
+    { id: 'businesses', name: 'Business Ecosystem', icon: '🏢', category: 'economy' },
     { id: 'central-bank', name: 'Central Bank', icon: '🏦', category: 'economy' },
     { id: 'sovereign-wealth-fund', name: 'Sovereign Fund', icon: '💰', category: 'economy' },
     { id: 'government-bonds', name: 'Gov Bonds', icon: '💎', category: 'economy' },
@@ -883,6 +933,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     { id: 'security', name: 'Security', icon: '🔒', category: 'security' },
     { id: 'joint-chiefs', name: 'Joint Chiefs', icon: '⭐', category: 'security' },
     { id: 'intelligence', name: 'Intelligence', icon: '🕵️', category: 'security' },
+    { id: 'export-controls', name: 'Export Controls', icon: '🛡️', category: 'security' },
     
     // Population & Society
     { id: 'demographics', name: 'Demographics', icon: '👥', category: 'population' },
@@ -891,26 +942,36 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     { id: 'professions', name: 'Professions', icon: '💼', category: 'population' },
     { id: 'education', name: 'Education', icon: '🎓', category: 'population' },
     { id: 'health', name: 'Health & Welfare', icon: '🏥', category: 'population' },
+    { id: 'household-economics', name: 'Households', icon: '🏠', category: 'population' },
+    { id: 'entertainment-tourism', name: 'Culture', icon: '🎭', category: 'population' },
+    
+    // Game Master Controls (Admin Only)
+    { id: 'character-awareness', name: 'Character AI Control', icon: '🧠', category: 'gamemaster' },
     
     // Science & Technology (All Research Consolidated)
     { id: 'government-research', name: 'Government R&D', icon: '🏛️', category: 'science' },
     { id: 'corporate-research', name: 'Corporate R&D', icon: '🏢', category: 'science' },
     { id: 'university-research', name: 'University Research', icon: '🏫', category: 'science' },
     { id: 'classified-research', name: 'Classified Projects', icon: '🔒', category: 'science' },
-    { id: 'technology', name: 'Tech Systems', icon: '⚙️', category: 'science' },
-    { id: 'visual-systems', name: 'Visual Systems', icon: '🎨', category: 'science' },
+    { id: 'technology', name: 'Science & Tech', icon: '⚙️', category: 'science' },
     
     // Communications
     { id: 'communications', name: 'Comm Hub', icon: '📡', category: 'communications' },
     { id: 'news', name: 'News', icon: '📰', category: 'communications' },
     { id: 'speeches', name: 'Speeches', icon: '🎤', category: 'communications' },
     { id: 'witter', name: 'Witter', icon: '🐦', category: 'communications' },
+    { id: 'whoseapp', name: 'WhoseApp', icon: '📱', category: 'communications' },
     
     // Galaxy & Space
     { id: 'galaxy-map', name: 'Galaxy Map', icon: '🗺️', category: 'galaxy' },
     { id: 'galaxy-data', name: 'Galaxy Data', icon: '🌌', category: 'galaxy' },
     { id: 'conquest', name: 'Conquest', icon: '⚔️', category: 'galaxy' },
-    { id: 'exploration', name: 'Exploration', icon: '🚀', category: 'galaxy' }
+    { id: 'exploration', name: 'Exploration', icon: '🚀', category: 'galaxy' },
+    { id: 'world-wonders', name: 'Galaxy Wonders', icon: '🏛️', category: 'galaxy' },
+    { id: 'visual-systems', name: 'Visuals', icon: '🎨', category: 'galaxy' },
+    
+    // System Controls
+    { id: 'enhanced-knobs-control', name: 'Enhanced Knobs', icon: '🎛️', category: 'system' }
   ];
 
   const formatNumber = (num: number): string => {
@@ -934,11 +995,10 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
       {/* Command Header */}
       <div className="command-header">
         <div className="header-left">
-          <span className="game-title">🌌 LIVELYGALAXY.COM</span>
+          <span className="game-title">🌌 LIVELYGALAXY.AI</span>
           <span className="civilization-info">👑 Commander {playerId} | 🏛️ Terran Federation</span>
         </div>
         <div className="header-center">
-          <span className="game-time">⏰ Tick 2847 | Speed: 2x</span>
           <span className="location">📍 {gameContext.currentLocation}</span>
         </div>
         <div className="header-right">
@@ -994,6 +1054,24 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
                 >
                   🔄 System Status
                 </button>
+                <button 
+                  className="nav-item"
+                  onClick={() => setActivePanel('missions')}
+                >
+                  🎯 Missions
+                </button>
+                <button 
+                  className="nav-item"
+                  onClick={() => setActivePanel('story')}
+                >
+                  📖 Story
+                </button>
+                <button 
+                  className="nav-item"
+                  onClick={() => setActivePanel('civilization-overview')}
+                >
+                  🏛️ Civilization
+                </button>
               </div>
             )}
           </div>
@@ -1024,7 +1102,11 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
                   {panels.filter(p => p.category === category).map(panel => (
                     <button
                       key={panel.id}
-                      className={`nav-item ${activePanelPopup === panel.id ? 'active' : ''}`}
+                      className={`nav-item ${
+                        panel.id === 'whoseapp' 
+                          ? (activePanel === 'command-center' && activeTab === 'whoseapp' ? 'active' : '')
+                          : (activePanelPopup === panel.id ? 'active' : '')
+                      }`}
                       onClick={() => {
                         if (panel.id === 'galaxy-map') {
                           // Open the same map popup as the center tab
@@ -1032,6 +1114,10 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
                         } else if (panel.id === 'galaxy-data') {
                           // Open Galaxy Data as a proper screen, not a popup
                           setActivePanel('galaxy-data');
+                        } else if (panel.id === 'whoseapp') {
+                          // Open WhoseApp in the center panel tab
+                          setActivePanel('command-center');
+                          setActiveTab('whoseapp');
                         } else {
                           setActivePanelPopup(panel.id);
                         }
@@ -1050,1089 +1136,174 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
         <div className="center-panel">
           {activePanel === 'command-center' && (
             <>
-              {/* Tab Navigation */}
-              <div className="tab-navigation">
-                <button 
-                  className={`tab-button ${activeTab === 'whoseapp' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('whoseapp')}
-                >
-                  💬 WhoseApp
-                </button>
-                <button 
-                  className={`tab-button ${activeTab === 'events' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('events')}
-                >
-                  🌟 Events
-                </button>
-                <button 
-                  className={`tab-button ${isMapPopupOpen ? 'active' : ''}`}
-                  onClick={() => setIsMapPopupOpen(true)}
-                >
-                  🗺️ Map
-                </button>
-                <button 
-                  className={`tab-button ${activePanel === 'galaxy-data' ? 'active' : ''}`}
-                  onClick={() => setActivePanel('galaxy-data')}
-                >
-                  🌌 Galaxy Data
-                </button>
-                <button 
-                  className={`tab-button ${isWitterPopupOpen ? 'active' : ''}`}
-                  onClick={() => setIsWitterPopupOpen(true)}
-                >
-                  🐦 Witter
-                </button>
-                <button 
-                  className={`tab-button ${activeTab === 'analytics' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('analytics')}
-                >
-                  📊 Analytics
-                </button>
+              {/* Welcome Message - No more redundant tabs */}
+              <div className="welcome-header">
+                <h2>🌌 Command Center</h2>
+                <p>Use the right panel buttons to navigate to different sections of your galactic empire.</p>
               </div>
 
-              {/* Tab Content */}
-              <div className="tab-content">
-                {activeTab === 'whoseapp' && (
-                  <div className="whoseapp-tab">
-                    <div className="whoseapp-header">
-                      <h2>💬 WHOSEAPP</h2>
-                      <div className="whoseapp-status">
-                        <span className="status-indicator online"></span>
-                        <span>Online</span>
-                      </div>
-                    </div>
-                    
-                    <div className="whoseapp-nav">
-                      <button 
-                        className={`whoseapp-nav-btn ${activeWhoseAppTab === 'incoming' ? 'active' : ''}`}
-                        onClick={() => setActiveWhoseAppTab('incoming')}
-                      >
-                        📥 Incoming
-                      </button>
-                      <button 
-                        className={`whoseapp-nav-btn ${activeWhoseAppTab === 'people' ? 'active' : ''}`}
-                        onClick={() => setActiveWhoseAppTab('people')}
-                      >
-                        👥 People
-                      </button>
-                      <button 
-                        className={`whoseapp-nav-btn ${activeWhoseAppTab === 'channels' ? 'active' : ''}`}
-                        onClick={() => setActiveWhoseAppTab('channels')}
-                      >
-                        📢 Channels
-                      </button>
-                    </div>
-
-                    <div className="whoseapp-content">
-                      {communicationLoading ? (
-                        <div className="message-loading">
-                          <div className="loading-spinner"></div>
-                          <p>Loading communication data...</p>
-                        </div>
-                      ) : communicationError ? (
-                        <div className="message-error">
-                          <p>⚠️ Failed to load communication data: {communicationError}</p>
-                          <button onClick={fetchCommunicationData} className="retry-btn">
-                            🔄 Retry
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-                          {/* Incoming Messages Tab */}
-                          {activeWhoseAppTab === 'incoming' && (
-                            <div className="message-feed">
-                              {communicationMessages.length === 0 ? (
-                                <div className="no-messages">
-                                  <p>📭 No messages available</p>
-                                  <p>Check back later for new communications</p>
-                                </div>
-                              ) : (
-                                communicationMessages.map((message) => {
-                                  const timeAgo = getTimeAgo(new Date(message.timestamp));
-                                  const isUrgent = message.content.toLowerCase().includes('urgent') || 
-                                                 message.content.toLowerCase().includes('critical') ||
-                                                 message.content.toLowerCase().includes('emergency');
-                                  
-                                  return (
-                                    <div key={message.id} className={`message-item ${isUrgent ? 'urgent' : ''}`}>
-                                      <div className="message-header">
-                                        <div className="message-avatar">
-                                          {message.senderDetails?.avatar || '👤'}
-                                        </div>
-                                        <div className="message-sender-info">
-                                          <div className="message-sender">
-                                            {message.senderDetails?.name || `Player ${message.senderId}`}
-                                          </div>
-                                          <div className="message-details">
-                                            {message.senderDetails ? 
-                                              `${message.senderDetails.civilization} • ${message.senderDetails.department} • ${message.senderDetails.role}` :
-                                              `Player ID: ${message.senderId}`
-                                            }
-                                          </div>
-                                        </div>
-                                        <div className="message-time">{timeAgo}</div>
-                                        {isUrgent && <div className="message-priority urgent">URGENT</div>}
-                                      </div>
-                                      <div className="message-content">
-                                        {message.type === 'voice' ? (
-                                          <>
-                                            <strong>🎙️ Voice Message</strong><br/>
-                                            {message.content}
-                                          </>
-                                        ) : (
-                                          message.content
-                                        )}
-                                      </div>
-                                      <div className="message-actions">
-                                        <button className={`msg-action-btn ${isUrgent ? 'urgent' : ''}`}>
-                                          📞 {message.type === 'voice' ? 'Call Back' : 'Call'}
-                                        </button>
-                                        <button className="msg-action-btn">✉️ Reply</button>
-                                      </div>
-                                    </div>
-                                  );
-                                })
-                              )}
-                            </div>
-                          )}
-
-                          {/* People Tab */}
-                          {activeWhoseAppTab === 'people' && (
-                            <div className="people-tab">
-                              <div className="people-filters">
-                                <div className="filter-row">
-                                  <select 
-                                    value={peopleFilter} 
-                                    onChange={(e) => setPeopleFilter(e.target.value)}
-                                    className="filter-select"
-                                  >
-                                    <option value="all">All Personnel</option>
-                                    <option value="human">👤 Human Leaders</option>
-                                    <option value="ai_leader">🤖 AI Leaders</option>
-                                    <option value="ai_character">🎭 AI Characters</option>
-                                    <option value="government">Government</option>
-                                    <option value="military">Military</option>
-                                    <option value="science">Science</option>
-                                    <option value="intelligence">Intelligence</option>
-                                    <option value="diplomacy">Diplomacy</option>
-                                    <option value="engineering">Engineering</option>
-                                    <option value="civilian">Civilian</option>
-                                    <option value="online">Online Only</option>
-                                  </select>
-                                  <select 
-                                    value={civFilter} 
-                                    onChange={(e) => setCivFilter(e.target.value)}
-                                    className="filter-select"
-                                  >
-                                    <option value="all">All Civilizations</option>
-                                    <option value="Zephyrian Empire">🏛️ Zephyrian Empire</option>
-                                    <option value="Centauri Republic">🏛️ Centauri Republic</option>
-                                    <option value="Vegan Collective">🌱 Vegan Collective</option>
-                                    <option value="Sirian Empire">⚔️ Sirian Empire</option>
-                                    <option value="Kepler Technocracy">🔧 Kepler Technocracy</option>
-                                  </select>
-                                  <input
-                                    type="text"
-                                    placeholder="Search by name or title..."
-                                    value={peopleSearch}
-                                    onChange={(e) => setPeopleSearch(e.target.value)}
-                                    className="search-input"
-                                  />
-                                </div>
-                              </div>
-                              
-                              <div className="people-list">
-                                {(() => {
-                                  let filteredPlayers = communicationPlayers;
-                                  
-                                  // Apply player type filter
-                                  if (peopleFilter !== 'all') {
-                                    if (peopleFilter === 'online') {
-                                      filteredPlayers = filteredPlayers.filter(p => p.status === 'online');
-                                    } else if (peopleFilter === 'human') {
-                                      filteredPlayers = filteredPlayers.filter(p => p.playerType === 'human');
-                                    } else if (peopleFilter === 'ai_leader') {
-                                      filteredPlayers = filteredPlayers.filter(p => p.playerType === 'ai_leader');
-                                    } else if (peopleFilter === 'ai_character') {
-                                      filteredPlayers = filteredPlayers.filter(p => p.playerType === 'ai_character');
-                                    } else {
-                                      filteredPlayers = filteredPlayers.filter(p => p.jobCategory === peopleFilter);
-                                    }
-                                  }
-                                  
-                                  // Apply civilization filter
-                                  if (civFilter !== 'all') {
-                                    filteredPlayers = filteredPlayers.filter(p => p.civilization === civFilter);
-                                  }
-                                  
-                                  // Apply search filter
-                                  if (peopleSearch) {
-                                    const searchLower = peopleSearch.toLowerCase();
-                                    filteredPlayers = filteredPlayers.filter(p => 
-                                      p.name.toLowerCase().includes(searchLower) ||
-                                      p.title.toLowerCase().includes(searchLower) ||
-                                      p.department.toLowerCase().includes(searchLower) ||
-                                      p.specialization?.toLowerCase().includes(searchLower) ||
-                                      p.civilization.toLowerCase().includes(searchLower)
-                                    );
-                                  }
-                                  
-                                  if (filteredPlayers.length === 0) {
-                                    return (
-                                      <div className="no-messages">
-                                        <p>👥 No personnel found</p>
-                                        <p>Try adjusting your filters or search terms</p>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  return filteredPlayers.map((player) => {
-                                    const getPlayerTypeIcon = (playerType: string, isLeader: boolean) => {
-                                      if (playerType === 'human') return isLeader ? '👑' : '👤';
-                                      if (playerType === 'ai_leader') return '🤖';
-                                      if (playerType === 'ai_character') return '🎭';
-                                      return '👤';
-                                    };
-                                    
-                                    const getPlayerTypeLabel = (playerType: string, isLeader: boolean) => {
-                                      if (playerType === 'human') return isLeader ? 'Human Leader' : 'Human';
-                                      if (playerType === 'ai_leader') return 'AI Leader';
-                                      if (playerType === 'ai_character') return 'AI Character';
-                                      return 'Unknown';
-                                    };
-                                    
-                                    return (
-                                      <div key={player.id} className={`player-item ${player.playerType}`} onClick={() => console.log('Start chat with', player.id)}>
-                                        <div className="player-avatar">{player.avatar || getPlayerTypeIcon(player.playerType, player.isLeader)}</div>
-                                        <div className={`player-status status-${player.status}`}></div>
-                                        <div className="player-type-indicator">
-                                          {getPlayerTypeIcon(player.playerType, player.isLeader)}
-                                        </div>
-                                        <div className="player-info">
-                                          <div className="player-name">
-                                            {player.name}
-                                            <span className="player-type-label">({getPlayerTypeLabel(player.playerType, player.isLeader)})</span>
-                                          </div>
-                                          <div className="player-title">{player.title} • {player.rank}</div>
-                                          <div className="player-details">
-                                            {player.civilization} • {player.department}
-                                          </div>
-                                          <div className="player-specialization">{player.specialization}</div>
-                                          <div className="player-role">{player.role}</div>
-                                        </div>
-                                        <div className="player-actions">
-                                          <button className="msg-action-btn">💬 Chat</button>
-                                          <button className="msg-action-btn">📞 Call</button>
-                                        </div>
-                                      </div>
-                                    );
-                                  });
-                                })()}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Channels Tab */}
-                          {activeWhoseAppTab === 'channels' && (
-                            <div className="channels-tab">
-                              <div className="channels-header">
-                                <h3>Communication Channels</h3>
-                                <p>Join conversations and coordinate with your team</p>
-                                <div className="channels-actions">
-                                  <button 
-                                    className="action-btn create-channel-btn"
-                                    onClick={() => setShowCreateChannelModal(true)}
-                                  >
-                                    ➕ Create Channel
-                                  </button>
-                                  <button 
-                                    className="action-btn schedule-summit-btn"
-                                    onClick={() => setShowScheduleSummitModal(true)}
-                                  >
-                                    🏛️ Schedule Summit
-                                  </button>
-                                </div>
-                              </div>
-                              
-                              <div className="channels-list">
-                                {communicationConversations.length === 0 ? (
-                                  <div className="no-messages">
-                                    <p>📢 No channels available</p>
-                                    <p>Create or join channels to start group conversations</p>
-                                  </div>
-                                ) : (
-                                  (() => {
-                                    // Group conversations by type
-                                    const directMessages = communicationConversations.filter(c => c.type === 'direct');
-                                    const groups = communicationConversations.filter(c => c.type === 'group');
-                                    const channels = communicationConversations.filter(c => c.type === 'channel');
-                                    
-                                    return (
-                                      <>
-                                        {directMessages.length > 0 && (
-                                          <div className="channel-category">
-                                            <div className="category-header">💬 Direct Messages</div>
-                                            {directMessages.map((conversation) => {
-                                              const timeAgo = getTimeAgo(new Date(conversation.lastActivity));
-                                              
-                                              return (
-                                                <div key={conversation.id} className="channel-item" onClick={() => setSelectedConversation(conversation.id)}>
-                                                  <div className="channel-avatar">💬</div>
-                                                  <div className="channel-info">
-                                                    <div className="channel-name">{conversation.name}</div>
-                                                    <div className="channel-description">{conversation.description}</div>
-                                                    <div className="channel-activity">Last activity: {timeAgo}</div>
-                                                  </div>
-                                                  {conversation.unreadCount > 0 && (
-                                                    <div className="channel-badge">{conversation.unreadCount}</div>
-                                                  )}
-                                                  <div className="channel-actions">
-                                                    <button className="msg-action-btn">💬 Open</button>
-                                                    <button className="msg-action-btn">📞 Call</button>
-                                                  </div>
-                                                </div>
-                                              );
-                                            })}
-                                          </div>
-                                        )}
-                                        
-                                        {groups.length > 0 && (
-                                          <div className="channel-category">
-                                            <div className="category-header">👥 Government Groups</div>
-                                            {groups.map((conversation) => {
-                                              const timeAgo = getTimeAgo(new Date(conversation.lastActivity));
-                                              
-                                              return (
-                                                <div key={conversation.id} className="channel-item" onClick={() => setSelectedConversation(conversation.id)}>
-                                                  <div className="channel-avatar">👥</div>
-                                                  <div className="channel-info">
-                                                    <div className="channel-name">{conversation.name}</div>
-                                                    <div className="channel-description">{conversation.description}</div>
-                                                    <div className="channel-details">
-                                                      {conversation.participants.length} members • Last activity: {timeAgo}
-                                                    </div>
-                                                  </div>
-                                                  {conversation.unreadCount > 0 && (
-                                                    <div className="channel-badge">{conversation.unreadCount}</div>
-                                                  )}
-                                                  <div className="channel-actions">
-                                                    <button className="msg-action-btn">💬 Join</button>
-                                                    <button className="msg-action-btn">🔊 Voice</button>
-                                                  </div>
-                                                </div>
-                                              );
-                                            })}
-                                          </div>
-                                        )}
-                                        
-                                        {channels.length > 0 && (
-                                          <div className="channel-category">
-                                            <div className="category-header">🌌 Inter-Galactic Channels</div>
-                                            {channels.map((conversation) => {
-                                              const timeAgo = getTimeAgo(new Date(conversation.lastActivity));
-                                              
-                                              return (
-                                                <div key={conversation.id} className="channel-item" onClick={() => setSelectedConversation(conversation.id)}>
-                                                  <div className="channel-avatar">🌌</div>
-                                                  <div className="channel-info">
-                                                    <div className="channel-name">{conversation.name}</div>
-                                                    <div className="channel-description">{conversation.description}</div>
-                                                    <div className="channel-details">
-                                                      {conversation.participants.length} civilizations • Last activity: {timeAgo}
-                                                    </div>
-                                                  </div>
-                                                  {conversation.unreadCount > 0 && (
-                                                    <div className="channel-badge urgent">{conversation.unreadCount}</div>
-                                                  )}
-                                                  <div className="channel-actions">
-                                                    <button className="msg-action-btn">💬 Join</button>
-                                                    <button className="msg-action-btn">🔊 Voice</button>
-                                                  </div>
-                                                </div>
-                                              );
-                                            })}
-                                          </div>
-                                        )}
-                                      </>
-                                    );
-                                  })()
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      )}
-
-                      <div className="whoseapp-actions">
-                        <button className="action-btn">📞 Voice Call</button>
-                        <button className="action-btn">✉️ New Message</button>
-                      </div>
-
-                      {/* Create Channel Modal */}
-                      {showCreateChannelModal && (
-                        <div className="modal-overlay" onClick={() => setShowCreateChannelModal(false)}>
-                          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                            <div className="modal-header">
-                              <h3>Create Custom Channel</h3>
-                              <button className="modal-close" onClick={() => setShowCreateChannelModal(false)}>✕</button>
-                            </div>
-                            <div className="modal-body">
-                              <form onSubmit={(e) => {
-                                e.preventDefault();
-                                const formData = new FormData(e.target as HTMLFormElement);
-                                const selectedParticipants = Array.from(formData.getAll('participants')) as string[];
-                                
-                                createCustomChannel({
-                                  name: formData.get('name') as string,
-                                  description: formData.get('description') as string,
-                                  type: formData.get('type') as 'group' | 'channel',
-                                  participants: [playerId, ...selectedParticipants]
-                                });
-                              }}>
-                                <div className="form-group">
-                                  <label>Channel Name:</label>
-                                  <input type="text" name="name" required placeholder="Enter channel name" />
-                                </div>
-                                <div className="form-group">
-                                  <label>Description:</label>
-                                  <textarea name="description" placeholder="Describe the channel purpose" />
-                                </div>
-                                <div className="form-group">
-                                  <label>Type:</label>
-                                  <select name="type" required>
-                                    <option value="group">Government Group</option>
-                                    <option value="channel">Inter-Galactic Channel</option>
-                                  </select>
-                                </div>
-                                <div className="form-group">
-                                  <label>Participants:</label>
-                                  <div className="participants-list">
-                                    {communicationPlayers.filter(p => p.id !== playerId).map(player => (
-                                      <label key={player.id} className="participant-checkbox">
-                                        <input type="checkbox" name="participants" value={player.id} />
-                                        <span>{player.name} ({player.civilization})</span>
-                                      </label>
-                                    ))}
-                                  </div>
-                                </div>
-                                <div className="modal-actions">
-                                  <button type="button" onClick={() => setShowCreateChannelModal(false)}>Cancel</button>
-                                  <button type="submit" className="primary">Create Channel</button>
-                                </div>
-                              </form>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Schedule Summit Modal */}
-                      {showScheduleSummitModal && (
-                        <div className="modal-overlay" onClick={() => setShowScheduleSummitModal(false)}>
-                          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                            <div className="modal-header">
-                              <h3>Schedule Diplomatic Summit</h3>
-                              <button className="modal-close" onClick={() => setShowScheduleSummitModal(false)}>✕</button>
-                            </div>
-                            <div className="modal-body">
-                              <form onSubmit={(e) => {
-                                e.preventDefault();
-                                const formData = new FormData(e.target as HTMLFormElement);
-                                const selectedParticipants = Array.from(formData.getAll('participants')) as string[];
-                                
-                                scheduleSummit({
-                                  name: formData.get('name') as string,
-                                  participants: [playerId, ...selectedParticipants],
-                                  scheduledTime: formData.get('scheduledTime') as string,
-                                  agenda: formData.get('agenda') as string,
-                                  description: formData.get('description') as string,
-                                  priority: formData.get('priority') as 'low' | 'normal' | 'high'
-                                });
-                              }}>
-                                <div className="form-group">
-                                  <label>Summit Name:</label>
-                                  <input type="text" name="name" required placeholder="Enter summit name" />
-                                </div>
-                                <div className="form-group">
-                                  <label>Scheduled Time:</label>
-                                  <input type="datetime-local" name="scheduledTime" required />
-                                </div>
-                                <div className="form-group">
-                                  <label>Agenda:</label>
-                                  <textarea name="agenda" required placeholder="Summit agenda and topics" />
-                                </div>
-                                <div className="form-group">
-                                  <label>Description:</label>
-                                  <textarea name="description" placeholder="Additional summit details" />
-                                </div>
-                                <div className="form-group">
-                                  <label>Priority:</label>
-                                  <select name="priority" required>
-                                    <option value="normal">Normal</option>
-                                    <option value="high">High</option>
-                                    <option value="low">Low</option>
-                                  </select>
-                                </div>
-                                <div className="form-group">
-                                  <label>Participants (Human Leaders Recommended):</label>
-                                  <div className="participants-list">
-                                    {communicationPlayers
-                                      .filter(p => p.id !== playerId)
-                                      .sort((a, b) => {
-                                        // Sort human leaders first
-                                        if (a.playerType === 'human' && b.playerType !== 'human') return -1;
-                                        if (a.playerType !== 'human' && b.playerType === 'human') return 1;
-                                        return a.name.localeCompare(b.name);
-                                      })
-                                      .map(player => (
-                                        <label key={player.id} className="participant-checkbox">
-                                          <input type="checkbox" name="participants" value={player.id} />
-                                          <span>
-                                            {player.playerType === 'human' ? '👤' : player.playerType === 'ai_leader' ? '🤖' : '🎭'} 
-                                            {player.name} ({player.civilization})
-                                            {player.playerType === 'human' && <span className="human-leader-badge">Human Leader</span>}
-                                          </span>
-                                        </label>
-                                      ))}
-                                  </div>
-                                </div>
-                                <div className="modal-actions">
-                                  <button type="button" onClick={() => setShowScheduleSummitModal(false)}>Cancel</button>
-                                  <button type="submit" className="primary">Schedule Summit</button>
-                                </div>
-                              </form>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+              {/* Quick Stats Overview */}
+              <div className="command-center-stats">
+                <div className="stats-grid">
+                  <div className="stat-card">
+                    <div className="stat-icon">👥</div>
+                    <div className="stat-info">
+                      <div className="stat-label">Population</div>
+                      <div className="stat-value">{formatNumber(liveMetrics.population)}</div>
                     </div>
                   </div>
-                )}
-
-                {activeTab === 'events' && (
-                  <div className="events-tab">
-                    <h2>🌟 GAME MASTER EVENTS</h2>
-                    <div className="gamemaster-events">
-                      {gameMasterEvents.map(event => (
-                        <div key={event.id} className={`gamemaster-event ${event.type}`}>
-                          <div className="event-header">
-                            <span className="event-title">{event.title}</span>
-                            <span className="event-time">{getTimeAgo(event.timestamp)}</span>
-                          </div>
-                          <div className="event-content">
-                            {event.visualContent && (
-                              <img src={event.visualContent} alt={event.title} className="event-visual" />
-                            )}
-                            <p>{event.description}</p>
-                            {event.requiresResponse && (
-                              <button className="response-btn">Respond</button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                  <div className="stat-card">
+                    <div className="stat-icon">💰</div>
+                    <div className="stat-info">
+                      <div className="stat-label">Treasury</div>
+                      <div className="stat-value">${formatNumber(liveMetrics.treasury)}</div>
                     </div>
                   </div>
-                )}
-
-                {/* Map content moved to popup */}
-
-                {/* Keep the old map as backup - remove this section */}
-                {false && (
-                  <div className="map-tab-old">
-                    <div className="embedded-galaxy-map">
-                      <div className="galaxy-map-container">
-                        <div className="galaxy-controls">
-                          <button className="zoom-btn" onClick={() => console.log('Zoom in')}>🔍 Zoom In</button>
-                          <button className="zoom-btn" onClick={() => console.log('Zoom out')}>🔍 Zoom Out</button>
-                          <select className="layer-select">
-                            <option value="political">🏛️ Political</option>
-                            <option value="economic">💰 Economic</option>
-                            <option value="military">⚔️ Military</option>
-                            <option value="diplomatic">🤝 Diplomatic</option>
-                          </select>
-                        </div>
-                        
-                        <div className="galaxy-viewport">
-                          <div className="star-field">
-                            {/* Background stars */}
-                            {Array.from({ length: 100 }, (_, i) => (
-                              <div
-                                key={`bg-star-${i}`}
-                                className="background-star"
-                                style={{
-                                  left: `${Math.random() * 100}%`,
-                                  top: `${Math.random() * 100}%`,
-                                  animationDelay: `${Math.random() * 3}s`
-                                }}
-                              />
-                            ))}
-                            
-                            {/* Major star systems */}
-                            <div className="star-system sol-system" style={{ left: '20%', top: '30%' }}>
-                              <div className="system-glow"></div>
-                              <div className="system-icon">⭐</div>
-                              <div className="system-label">
-                                <div className="system-name">Sol System</div>
-                                <div className="system-info">Capital | Pop: 2.8M</div>
-                              </div>
-                            </div>
-                            
-                            <div className="star-system kepler-system" style={{ left: '70%', top: '20%' }}>
-                              <div className="system-glow"></div>
-                              <div className="system-icon">🌟</div>
-                              <div className="system-label">
-                                <div className="system-name">Kepler-442</div>
-                                <div className="system-info">Colony | Pop: 450K</div>
-                              </div>
-                            </div>
-                            
-                            <div className="star-system centauri-system" style={{ left: '45%', top: '70%' }}>
-                              <div className="system-glow"></div>
-                              <div className="system-icon">✨</div>
-                              <div className="system-label">
-                                <div className="system-name">Alpha Centauri</div>
-                                <div className="system-info">Trade Hub | Pop: 1.2M</div>
-                              </div>
-                            </div>
-                            
-                            <div className="star-system vega-system" style={{ left: '80%', top: '60%' }}>
-                              <div className="system-glow"></div>
-                              <div className="system-icon">💫</div>
-                              <div className="system-label">
-                                <div className="system-name">Vega Prime</div>
-                                <div className="system-info">Research | Pop: 890K</div>
-                              </div>
-                            </div>
-                            
-                            {/* Trade routes */}
-                            <svg className="trade-routes" viewBox="0 0 100 100">
-                              <defs>
-                                <linearGradient id="tradeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                  <stop offset="0%" stopColor="transparent" />
-                                  <stop offset="50%" stopColor="#4ecdc4" />
-                                  <stop offset="100%" stopColor="transparent" />
-                                </linearGradient>
-                              </defs>
-                              <line x1="20" y1="30" x2="70" y2="20" stroke="url(#tradeGradient)" strokeWidth="0.5" className="trade-route" />
-                              <line x1="20" y1="30" x2="45" y2="70" stroke="url(#tradeGradient)" strokeWidth="0.5" className="trade-route" />
-                              <line x1="70" y1="20" x2="80" y2="60" stroke="url(#tradeGradient)" strokeWidth="0.5" className="trade-route" />
-                              <line x1="45" y1="70" x2="80" y2="60" stroke="url(#tradeGradient)" strokeWidth="0.5" className="trade-route" />
-                            </svg>
-                          </div>
-                        </div>
-                        
-                        <div className="galaxy-info">
-                          <div className="info-panel">
-                            <h4>🌌 LivelyGalaxy.ai</h4>
-                            <p>Spiral Galaxy | Age: 13.8B years</p>
-                            <p>Systems: 247 | Civilizations: 8</p>
-                            <p>Current Location: {gameContext.currentLocation}</p>
-                          </div>
-                        </div>
-                      </div>
+                  <div className="stat-card">
+                    <div className="stat-icon">📊</div>
+                    <div className="stat-info">
+                      <div className="stat-label">Approval</div>
+                      <div className="stat-value">{liveMetrics.approval}%</div>
                     </div>
                   </div>
-                )}
-
-                {/* Witter content moved to popup */}
-
-                {activeTab === 'analytics' && (
-                  <div className="analytics-tab">
-                    <h2>📊 COMPREHENSIVE ANALYTICS</h2>
-                    
-                    {/* Government Overview */}
-                    <div className="analytics-section">
-                      <h3>🏛️ Government</h3>
-                      <div className="analytics-grid">
-                        <div className="analytics-card">
-                          <div className="card-header">
-                            <span className="card-icon">👑</span>
-                            <span className="card-title">Leadership</span>
-                          </div>
-                          <div className="card-content">
-                            <div className="metric-row">
-                              <span>Approval Rating:</span>
-                              <span className="metric-value">{liveMetrics.approval}%</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Stability:</span>
-                              <span className="metric-value">High</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Policy Efficiency:</span>
-                              <span className="metric-value">87%</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="analytics-card">
-                          <div className="card-header">
-                            <span className="card-icon">⚖️</span>
-                            <span className="card-title">Justice System</span>
-                          </div>
-                          <div className="card-content">
-                            <div className="metric-row">
-                              <span>Crime Rate:</span>
-                              <span className="metric-value">2.3%</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Court Efficiency:</span>
-                              <span className="metric-value">94%</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Legal Compliance:</span>
-                              <span className="metric-value">96%</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Military Overview */}
-                    <div className="analytics-section">
-                      <h3>⚔️ Military</h3>
-                      <div className="analytics-grid">
-                        <div className="analytics-card">
-                          <div className="card-header">
-                            <span className="card-icon">🚀</span>
-                            <span className="card-title">Fleet Status</span>
-                          </div>
-                          <div className="card-content">
-                            <div className="metric-row">
-                              <span>Active Fleets:</span>
-                              <span className="metric-value">12</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Readiness:</span>
-                              <span className="metric-value">{liveMetrics.militaryStrength}%</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Deployment:</span>
-                              <span className="metric-value">Strategic</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="analytics-card">
-                          <div className="card-header">
-                            <span className="card-icon">🛡️</span>
-                            <span className="card-title">Defense</span>
-                          </div>
-                          <div className="card-content">
-                            <div className="metric-row">
-                              <span>Security Level:</span>
-                              <span className="metric-value">{liveMetrics.securityLevel}%</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Threat Level:</span>
-                              <span className="metric-value">{liveMetrics.threatLevel}</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Border Security:</span>
-                              <span className="metric-value">Secure</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Economy Overview */}
-                    <div className="analytics-section">
-                      <h3>💰 Economy</h3>
-                      <div className="analytics-grid">
-                        <div className="analytics-card">
-                          <div className="card-header">
-                            <span className="card-icon">📈</span>
-                            <span className="card-title">Economic Health</span>
-                          </div>
-                          <div className="card-content">
-                            <div className="metric-row">
-                              <span>GDP:</span>
-                              <span className="metric-value">${formatNumber(liveMetrics.gdp)}</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Growth Rate:</span>
-                              <span className="metric-value">+3.2%</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Inflation:</span>
-                              <span className="metric-value">1.8%</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="analytics-card">
-                          <div className="card-header">
-                            <span className="card-icon">🏦</span>
-                            <span className="card-title">Treasury</span>
-                          </div>
-                          <div className="card-content">
-                            <div className="metric-row">
-                              <span>Balance:</span>
-                              <span className="metric-value">${formatNumber(liveMetrics.treasury)}</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Revenue:</span>
-                              <span className="metric-value">+12.5M/day</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Expenses:</span>
-                              <span className="metric-value">-8.3M/day</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Intelligence & Research */}
-                    <div className="analytics-section">
-                      <h3>🔬 Intelligence & Research</h3>
-                      <div className="analytics-grid">
-                        <div className="analytics-card">
-                          <div className="card-header">
-                            <span className="card-icon">🕵️</span>
-                            <span className="card-title">Intelligence</span>
-                          </div>
-                          <div className="card-content">
-                            <div className="metric-row">
-                              <span>Network Coverage:</span>
-                              <span className="metric-value">89%</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Active Operations:</span>
-                              <span className="metric-value">7</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Threat Detection:</span>
-                              <span className="metric-value">High</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="analytics-card">
-                          <div className="card-header">
-                            <span className="card-icon">🧪</span>
-                            <span className="card-title">Research</span>
-                          </div>
-                          <div className="card-content">
-                            <div className="metric-row">
-                              <span>Active Projects:</span>
-                              <span className="metric-value">{liveMetrics.researchProjects}</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Breakthrough Rate:</span>
-                              <span className="metric-value">23%</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Tech Level:</span>
-                              <span className="metric-value">Advanced</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Civilization Relationships */}
-                    <div className="analytics-section">
-                      <h3>🌌 Civilization Relations</h3>
-                      <div className="analytics-grid">
-                        <div className="analytics-card">
-                          <div className="card-header">
-                            <span className="card-icon">🤝</span>
-                            <span className="card-title">Diplomatic Status</span>
-                          </div>
-                          <div className="card-content">
-                            <div className="metric-row">
-                              <span>Allies:</span>
-                              <span className="metric-value">3</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Neutral:</span>
-                              <span className="metric-value">5</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Hostile:</span>
-                              <span className="metric-value">1</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="analytics-card">
-                          <div className="card-header">
-                            <span className="card-icon">🛸</span>
-                            <span className="card-title">Trade Relations</span>
-                          </div>
-                          <div className="card-content">
-                            <div className="metric-row">
-                              <span>Trade Partners:</span>
-                              <span className="metric-value">6</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Trade Volume:</span>
-                              <span className="metric-value">2.4B credits</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Trade Balance:</span>
-                              <span className="metric-value">+340M</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Population & Demographics */}
-                    <div className="analytics-section">
-                      <h3>👥 Population</h3>
-                      <div className="analytics-grid">
-                        <div className="analytics-card">
-                          <div className="card-header">
-                            <span className="card-icon">🏙️</span>
-                            <span className="card-title">Demographics</span>
-                          </div>
-                          <div className="card-content">
-                            <div className="metric-row">
-                              <span>Total Population:</span>
-                              <span className="metric-value">{formatNumber(liveMetrics.population)}</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Growth Rate:</span>
-                              <span className="metric-value">+1.2%</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Happiness Index:</span>
-                              <span className="metric-value">78%</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="analytics-card">
-                          <div className="card-header">
-                            <span className="card-icon">🎓</span>
-                            <span className="card-title">Education & Health</span>
-                          </div>
-                          <div className="card-content">
-                            <div className="metric-row">
-                              <span>Education Level:</span>
-                              <span className="metric-value">Advanced</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Health Index:</span>
-                              <span className="metric-value">92%</span>
-                            </div>
-                            <div className="metric-row">
-                              <span>Life Expectancy:</span>
-                              <span className="metric-value">127 years</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                  <div className="stat-card">
+                    <div className="stat-icon">⚔️</div>
+                    <div className="stat-info">
+                      <div className="stat-label">Military</div>
+                      <div className="stat-value">{liveMetrics.militaryStrength}%</div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
+
             </>
           )}
 
           {/* Render specific panels based on activePanel */}
-          {activePanel === 'trade' && <TradeEconomics playerId={playerId} gameContext={gameContext} onClose={() => setActivePanel('command-center')} />}
+          {activePanel === 'trade' && <TradeEconomics playerId={playerId} gameContext={gameContext} onClose={() => setActivePanel('story')} />}
+          {activePanel === 'whoseapp' && (
+            <div className="panel-screen">
+              <WhoseAppMain 
+                playerId={playerId}
+                gameContext={gameContext}
+              />
+            </div>
+          )}
           
           {/* Dynamic Screen Content */}
-          {activePanel !== 'command-center' && activePanel !== 'trade' && activePanel !== 'galaxy-map' && (
+          {activePanel !== 'command-center' && activePanel !== 'trade' && activePanel !== 'galaxy-map' && activePanel !== 'whoseapp' && (
             <div className="panel-screen">
               {createScreen(activePanel, gameContext)}
             </div>
           )}
         </div>
 
-        {/* Right Panel - Live Metrics */}
+        {/* Right Panel - Quick Access & Info */}
         <div className="right-panel">
-          <div className="live-metrics">
-            <h3>📊 LIVE METRICS</h3>
-            
-            <div className="metric">
-              <span className="metric-label">Population:</span>
-              <span className="metric-value">{formatNumber(liveMetrics.population)}</span>
-              <div className="metric-bar">
-                <div className="metric-fill" style={{width: '85%'}}></div>
-              </div>
-            </div>
+          {/* Wide Square Buttons Grid */}
+          <div className="quick-access-grid">
+            <button 
+              className={`quick-access-btn ${activePanel === 'story' ? 'active' : ''}`}
+              onClick={() => setActivePanel('story')}
+            >
+              <div className="btn-icon">📖</div>
+              <div className="btn-label">Story</div>
+              {storyUnreadCount > 0 && <span className="unread-badge">{storyUnreadCount}</span>}
+            </button>
+            <button 
+              className={`quick-access-btn ${isMapPopupOpen ? 'active' : ''}`}
+              onClick={() => setIsMapPopupOpen(true)}
+            >
+              <div className="btn-icon">🗺️</div>
+              <div className="btn-label">Map</div>
+            </button>
+            <button 
+              className={`quick-access-btn ${activePanel === 'whoseapp' ? 'active' : ''}`}
+              onClick={() => setActivePanel('whoseapp')}
+            >
+              <div className="btn-icon">💬</div>
+              <div className="btn-label">WhoseApp</div>
+              {whoseappUnreadCount > 0 && <span className="unread-badge">{whoseappUnreadCount}</span>}
+            </button>
+            <button 
+              className={`quick-access-btn ${activePanel === 'witter' ? 'active' : ''}`}
+              onClick={() => setActivePanel('witter')}
+            >
+              <div className="btn-icon">🐦</div>
+              <div className="btn-label">Witter</div>
+              {witterUnreadCount > 0 && <span className="unread-badge">{witterUnreadCount}</span>}
+            </button>
+            <button 
+              className={`quick-access-btn ${activePanel === 'galaxy-data' ? 'active' : ''}`}
+              onClick={() => setActivePanel('galaxy-data')}
+            >
+              <div className="btn-icon">🌌</div>
+              <div className="btn-label">Galaxy</div>
+            </button>
+            <button 
+              className={`quick-access-btn ${activePanel === 'civilization-overview' ? 'active' : ''}`}
+              onClick={() => setActivePanel('civilization-overview')}
+            >
+              <div className="btn-icon">🏛️</div>
+              <div className="btn-label">Civ</div>
+            </button>
+          </div>
 
-            <div className="metric">
-              <span className="metric-label">GDP:</span>
-              <span className="metric-value">${formatNumber(liveMetrics.gdp)}</span>
-              <div className="metric-bar">
-                <div className="metric-fill" style={{width: '78%'}}></div>
-              </div>
+          {/* Active Missions Section */}
+          <div className="active-missions-section">
+            <div className="section-header">
+              <h3>🎯 ACTIVE MISSIONS</h3>
+              <button className="refresh-btn" onClick={() => refreshMissionsData()}>🔄</button>
             </div>
-
-            <div className="metric">
-              <span className="metric-label">Military:</span>
-              <span className="metric-value">{liveMetrics.militaryStrength}%</span>
-              <div className="metric-bar">
-                <div className="metric-fill" style={{width: `${liveMetrics.militaryStrength}%`}}></div>
-              </div>
-            </div>
-
-            <div className="metric">
-              <span className="metric-label">Research:</span>
-              <span className="metric-value">{liveMetrics.researchProjects} projects</span>
-              <div className="metric-bar">
-                <div className="metric-fill" style={{width: '92%'}}></div>
-              </div>
-            </div>
-
-            {/* Active Missions Section */}
-            <div className="missions-section">
-              <h4>🎯 ACTIVE MISSIONS</h4>
-              <div className="missions-list">
-                <div className="mission-item">
-                  <div className="mission-header">
-                    <span className="mission-icon">🔍</span>
-                    <span className="mission-title">Explore Kepler System</span>
-                  </div>
-                  <div className="mission-progress">
-                    <div className="progress-bar">
-                      <div className="progress-fill" style={{width: '65%'}}></div>
-                    </div>
-                    <span className="progress-text">65%</span>
-                  </div>
-                  <div className="mission-status">
-                    <span className="status-badge active">Active</span>
-                    <span className="mission-time">12 days left</span>
-                  </div>
+            <div className="missions-list">
+              <div className="mission-item">
+                <div className="mission-header">
+                  <span className="mission-icon">🔍</span>
+                  <span className="mission-title">Explore Kepler System</span>
                 </div>
-
-                <div className="mission-item">
-                  <div className="mission-header">
-                    <span className="mission-icon">🤝</span>
-                    <span className="mission-title">Diplomatic Contact</span>
+                <div className="mission-progress">
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{width: '65%'}}></div>
                   </div>
-                  <div className="mission-progress">
-                    <div className="progress-bar">
-                      <div className="progress-fill" style={{width: '30%'}}></div>
-                    </div>
-                    <span className="progress-text">30%</span>
-                  </div>
-                  <div className="mission-status">
-                    <span className="status-badge active">Active</span>
-                    <span className="mission-time">8 days left</span>
-                  </div>
+                  <span className="progress-text">65%</span>
                 </div>
+                <div className="mission-status">
+                  <span className="status-badge active">Active</span>
+                  <span className="mission-time">12 days left</span>
+                </div>
+              </div>
 
-                <div className="mission-item">
-                  <div className="mission-header">
-                    <span className="mission-icon">⚔️</span>
-                    <span className="mission-title">Border Defense</span>
+              <div className="mission-item">
+                <div className="mission-header">
+                  <span className="mission-icon">🤝</span>
+                  <span className="mission-title">Diplomatic Contact</span>
+                </div>
+                <div className="mission-progress">
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{width: '30%'}}></div>
                   </div>
-                  <div className="mission-progress">
-                    <div className="progress-bar">
-                      <div className="progress-fill" style={{width: '85%'}}></div>
-                    </div>
-                    <span className="progress-text">85%</span>
+                  <span className="progress-text">30%</span>
+                </div>
+                <div className="mission-status">
+                  <span className="status-badge active">Active</span>
+                  <span className="mission-time">8 days left</span>
+                </div>
+              </div>
+
+              <div className="mission-item">
+                <div className="mission-header">
+                  <span className="mission-icon">⚔️</span>
+                  <span className="mission-title">Border Defense</span>
+                </div>
+                <div className="mission-progress">
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{width: '85%'}}></div>
                   </div>
-                  <div className="mission-status">
-                    <span className="status-badge critical">Critical</span>
-                    <span className="mission-time">3 days left</span>
-                  </div>
+                  <span className="progress-text">85%</span>
+                </div>
+                <div className="mission-status">
+                  <span className="status-badge critical">Critical</span>
+                  <span className="mission-time">3 days left</span>
                 </div>
               </div>
             </div>
@@ -2158,25 +1329,60 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
           <div className="game-master-section">
             <h3>🎮 GAME MASTER</h3>
             <div className="gm-content">
-              <p>🎭 "The discovery on Kepler-442b has attracted attention from neighboring civilizations..."</p>
-              <p>🌟 "Your economic policies are showing remarkable results across the galaxy."</p>
+              <div className="gm-category">
+                <h4>🎯 Mission Opportunities</h4>
+                <div className="gamemaster-event discovery">
+                  <span className="event-icon">🔍</span>
+                  <span className="event-text">Investigate the anomalous readings from Sector 7-G</span>
+                  <span className="event-reward">+500 Research Points</span>
+                </div>
+                <div className="gamemaster-event achievement">
+                  <span className="event-icon">💰</span>
+                  <span className="event-text">Establish trade route with the Zephyrian Empire</span>
+                  <span className="event-reward">+15% GDP Growth</span>
+                </div>
+              </div>
+              <div className="gm-category">
+                <h4>⚠️ Player Alerts</h4>
+                <div className="gamemaster-event warning">
+                  <span className="event-icon">🚨</span>
+                  <span className="event-text">Your approval rating has dropped to 73% - consider policy adjustments</span>
+                </div>
+                <div className="gamemaster-event info">
+                  <span className="event-icon">📊</span>
+                  <span className="event-text">New diplomatic opportunity available with Stellar Confederation</span>
+                </div>
+              </div>
             </div>
           </div>
 
           <div className="civilization-stats">
-            <h3>📈 ALL CIVILIZATIONS</h3>
+            <h3>🏆 LEADING CIVILIZATIONS</h3>
             <div className="civ-comparison">
               <div className="civ-entry">
+                <span className="civ-rank">1.</span>
                 <span className="civ-name">Terran Federation</span>
                 <span className="civ-score">2847</span>
               </div>
               <div className="civ-entry">
+                <span className="civ-rank">2.</span>
                 <span className="civ-name">Vega Alliance</span>
                 <span className="civ-score">2634</span>
               </div>
               <div className="civ-entry">
+                <span className="civ-rank">3.</span>
                 <span className="civ-name">Centauri Republic</span>
                 <span className="civ-score">2512</span>
+              </div>
+              <div className="civ-entry">
+                <span className="civ-rank">4.</span>
+                <span className="civ-name">Andromeda Empire</span>
+                <span className="civ-score">2398</span>
+              </div>
+              <div className="civ-entry">
+                <span className="civ-rank">5.</span>
+                <span className="civ-name">Orion Collective</span>
+                <span className="civ-score">2156</span>
               </div>
             </div>
           </div>
@@ -2185,9 +1391,9 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
 
       {/* Status Bar */}
       <div className="status-bar">
-        <span>🎮 Simulation: Active | Speed: 2x | Next Tick: 45s</span>
-        <span>📊 Performance: 94% | 💾 Auto-Save: Enabled | 🔄 Last Sync: 2s ago</span>
-        <span>🌐 Online | 👥 Players: 1,247 | 🌌 Galaxy: Milky Way Sector 7</span>
+        <span>🌌 Galaxy: Milky Way Sector 7 | 🌟 Systems: 2,847 | 🔍 Explored: 73%</span>
+        <span>⏰ Tick: 2847 | 💾 Auto-Save: Enabled | 🔄 Last Sync: 2s ago</span>
+        <span>🌐 Online | 👥 Active Players: 1,247 | 🏛️ Active Civilizations: 156</span>
       </div>
 
       {/* Quick Action Screens */}
@@ -2228,12 +1434,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
         />
       )}
 
-      {/* Witter Popup */}
-      <WitterPopup
-        playerId={playerId}
-        isVisible={isWitterPopupOpen}
-        onClose={() => setIsWitterPopupOpen(false)}
-      />
+
 
       {/* Map Popup */}
       <MapPopup
@@ -2244,3 +1445,5 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     </div>
   );
 };
+
+export default ComprehensiveHUD;

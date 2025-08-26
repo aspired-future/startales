@@ -1,0 +1,12 @@
+{
+  "title": "🏰 Crystal Palace",
+  "prompt": "an elegant crystal palace with translucent walls and rainbow reflections, fantasy architecture",
+  "filename": "crystal-palace.png",
+  "imagePath": "samples/images/crystal-palace.png",
+  "fileSize": 1494793,
+  "mimeType": "image/png",
+  "generatedAt": "2025-08-26T03:24:23.578Z",
+  "provider": "Google Imagen API (Service Account)",
+  "projectId": "lively-galaxy",
+  "success": true
+}

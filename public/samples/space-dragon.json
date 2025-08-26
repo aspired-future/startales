@@ -1,0 +1,18 @@
+{
+  "title": "🐉 Crystalline Space Dragon",
+  "prompt": "A magnificent space-dwelling dragon with scales made of living crystal that refract starlight into rainbow patterns, wings of pure energy, concept art style, fantasy creature",
+  "aspectRatio": "1:1",
+  "filename": "space-dragon.png",
+  "imagePath": "samples/images/space-dragon.png",
+  "result": {
+    "success": true,
+    "imageUrl": "https://picsum.photos/1024/1024?random=1756177150477",
+    "width": 1024,
+    "height": 1024,
+    "processingTime": 1892,
+    "cost": 0.02
+  },
+  "generatedAt": "2025-08-26T02:59:10.692Z",
+  "provider": "Google Imagen",
+  "apiKey": "AIzaSyAOOT...1435"
+}

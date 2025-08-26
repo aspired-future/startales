@@ -73,10 +73,15 @@ import galaxyRouter from './galaxy/galaxyRoutes.js';
 import campaignRoutesRouter from './campaigns/campaignRoutes.js';
 import scheduleRoutesRouter from './schedules/scheduleRoutes.js';
 import { createGovernmentTypesRoutes } from './governance/governmentTypesRoutes.js';
+import { createConstitutionRoutes } from './governance/constitutionRoutes.js';
 import { createGovernmentContractsRoutes } from './governance/governmentContractsRoutes.js';
 import { createMissionsRoutes } from './missions/missionsRoutes.js';
 import { initializeMissionsSchema } from './missions/missionsSchema.js';
 import { createExportControlsRoutes } from './export-controls/exportControlsRoutes.js';
+import { createGameMasterVideoRoutes } from './gamemaster/GameMasterVideoAPI.js';
+import { gameMasterWebSocketService } from './gamemaster/GameMasterWebSocket.js';
+import { gameMasterTriggerService } from './gamemaster/GameMasterTriggers.js';
+import { createGameMasterTestRoutes } from './gamemaster/GameMasterTestRoutes.js';
 import { initializeExportControlsSchema } from './export-controls/exportControlsSchema.js';
 import { SimEngineOrchestrator } from './sim-engine/SimEngineOrchestrator.js';
 import { WebSocketManager } from './sim-engine/WebSocketManager.js';
@@ -92,6 +97,8 @@ import { createInstitutionalOverrideRoutes } from './institutional-override/inst
 import { createMediaControlRoutes } from './media-control/mediaControlRoutes.js';
 import galaxyRoutes from './galaxy/galaxyRoutes.js';
 import spatialIntelligenceRoutes from './characters/spatialIntelligenceRoutes.js';
+import { createEntertainmentTourismRoutes } from './entertainment-tourism/entertainmentTourismRoutes.js';
+import imagenRoutes from './routes/imagenRoutes.js';
 
 const app = express();
 app.use(cors());
@@ -131,8 +138,9 @@ app.use('/api/government-bonds', createGovernmentBondsRoutes(getPool()));
 app.use('/api/planetary-government', createPlanetaryGovernmentRoutes(getPool()));
 app.use('/api/institutional-override', createInstitutionalOverrideRoutes(getPool()));
 app.use('/api/media-control', createMediaControlRoutes(getPool()));
-app.use('/api/galaxy', galaxyRoutes);
-app.use('/api/characters', spatialIntelligenceRoutes);
+  app.use('/api/galaxy', galaxyRoutes);
+  app.use('/api/characters', spatialIntelligenceRoutes);
+  app.use('/api/entertainment-tourism', createEntertainmentTourismRoutes(getPool()));
 app.use('/api/legislature', legislatureRouter);
 app.use('/api/supreme-court', supremeCourtRouter);
 app.use('/api/political-parties', politicalPartyRouter);
@@ -157,9 +165,13 @@ app.use('/api/galaxy', galaxyRouter);
 app.use('/api/campaigns', campaignRoutesRouter);
 app.use('/api/schedules', scheduleRoutesRouter);
 app.use('/api/government-types', createGovernmentTypesRoutes(getPool()));
+app.use('/api/constitution', createConstitutionRoutes(getPool()));
 app.use('/api/government-contracts', createGovernmentContractsRoutes(getPool()));
 app.use('/api/missions', createMissionsRoutes(getPool()));
 app.use('/api/export-controls', createExportControlsRoutes(getPool()));
+app.use('/api/imagen', imagenRoutes);
+app.use('/api/gamemaster', createGameMasterVideoRoutes());
+app.use('/api/gamemaster', createGameMasterTestRoutes());
 // Serve built UI (run: npm run ui -- --build)
 app.use('/app', express.static('dist/ui'));
 app.get('/app/*', (_req, res) => res.sendFile('dist/ui/index.html', { root: process.cwd() }));
@@ -244,6 +256,20 @@ try {
   initializeHealthService(getPool());
   initializeBusinessNewsService(getPool());
   initializeSportsNewsService(getPool());
+  
+  // Initialize enhanced Witter services
+const { initializeWitterServices } = await import('./witter/witterRoutes.js');
+initializeWitterServices(getPool());
+
+// Initialize Story system
+const { default: storyRoutes, initializeStoryRoutes } = await import('./story/storyRoutes.js');
+initializeStoryRoutes(getPool());
+app.use('/api/story', storyRoutes);
+
+// Initialize Game Setup system
+const { default: gameSetupRoutes, initializeGameSetupRoutes } = await import('./game/gameSetupRoutes.js');
+initializeGameSetupRoutes(getPool());
+app.use('/api/game', gameSetupRoutes);
   initializeCityEmergenceService(getPool());
   initializeCorporateLifecycleService(getPool());
       initializeCharacterService(getPool());
@@ -277,6 +303,14 @@ try {
   console.log('💬 WhoseApp WebSocket Service initialized');
 } catch (error) {
   console.error('❌ WhoseApp WebSocket Service initialization failed:', error);
+}
+
+// Initialize Game Master WebSocket Service
+try {
+  gameMasterWebSocketService.initialize(server);
+  console.log('🎬 Game Master WebSocket Service initialized');
+} catch (error) {
+  console.error('❌ Game Master WebSocket Service initialization failed:', error);
 }
 // Register server-initiated broadcast function
 wsHub.setBroadcaster((campaignId, message) => {

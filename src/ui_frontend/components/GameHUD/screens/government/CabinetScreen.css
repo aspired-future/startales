@@ -505,3 +505,637 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Delegation Management Styles */
+.delegation-management {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.delegation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.delegation-header h3 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 18px;
+}
+
+.delegation-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.auto-toggle {
+  background: rgba(78, 205, 196, 0.2);
+  border: 1px solid rgba(78, 205, 196, 0.5);
+  color: #4ecdc4;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.auto-toggle:hover {
+  background: rgba(78, 205, 196, 0.3);
+  border-color: #4ecdc4;
+}
+
+.auto-toggle.active {
+  background: rgba(78, 205, 196, 0.4);
+  border-color: #4ecdc4;
+  box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+}
+
+.delegation-tabs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  overflow-y: auto;
+}
+
+.tab-section {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.tab-section h4 {
+  color: #4ecdc4;
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Delegation Cards */
+.delegations-list,
+.auto-rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.delegation-card,
+.auto-rule-card {
+  background: rgba(26, 26, 46, 0.8);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.delegation-card:hover,
+.auto-rule-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 20px rgba(78, 205, 196, 0.2);
+}
+
+.delegation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.delegation-info h5 {
+  color: #4ecdc4;
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.delegation-info p {
+  color: #b8bcc8;
+  margin: 0;
+  font-size: 14px;
+}
+
+.delegation-status .status {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status.active {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.status.inactive {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.delegation-details {
+  margin-bottom: 15px;
+}
+
+.delegation-permissions {
+  margin-bottom: 10px;
+}
+
+.delegation-permissions strong {
+  color: #4ecdc4;
+  font-size: 14px;
+}
+
+.permissions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.permission-tag {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.delegation-dates {
+  display: flex;
+  gap: 15px;
+  font-size: 12px;
+  color: #b8bcc8;
+}
+
+.delegation-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn.danger {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+}
+
+.action-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: #ef4444;
+}
+
+/* Auto-Delegation Rules */
+.rule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.rule-header h5 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.rule-toggle {
+  display: flex;
+  align-items: center;
+}
+
+/* Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(78, 205, 196, 0.2);
+  transition: 0.3s;
+  border-radius: 24px;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #b8bcc8;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: rgba(78, 205, 196, 0.4);
+  border-color: #4ecdc4;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+  background-color: #4ecdc4;
+}
+
+.rule-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rule-info {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.priority {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.priority.critical {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.priority.high {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+}
+
+.priority.medium {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.priority.low {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.rule-conditions {
+  color: #b8bcc8;
+  font-size: 13px;
+}
+
+.rule-conditions strong {
+  color: #4ecdc4;
+}
+
+.rule-conditions ul {
+  margin: 5px 0 0 0;
+  padding-left: 20px;
+}
+
+.rule-conditions li {
+  margin-bottom: 3px;
+  font-size: 12px;
+}
+
+/* Responsive Delegation Styles */
+@media (max-width: 768px) {
+  .delegation-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .delegation-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .delegation-tabs {
+    gap: 20px;
+  }
+  
+  .permissions-list {
+    flex-direction: column;
+  }
+  
+  .delegation-dates {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .rule-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* Department Management Styles */
+.departments-management {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.departments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.departments-header h3 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 18px;
+}
+
+.departments-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.departments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+  overflow-y: auto;
+}
+
+.department-card {
+  background: rgba(26, 26, 46, 0.8);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 12px;
+  padding: 25px;
+  transition: all 0.3s ease;
+}
+
+.department-card:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 4px 20px rgba(78, 205, 196, 0.2);
+}
+
+.department-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.department-info h4 {
+  color: #4ecdc4;
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.department-info p {
+  color: #b8bcc8;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.department-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.delegation-level {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.delegation-level.full {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.delegation-level.partial {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+}
+
+.delegation-level.none {
+  background: rgba(156, 163, 175, 0.2);
+  color: #9ca3af;
+}
+
+.auto-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auto-label {
+  color: #b8bcc8;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.department-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.department-head,
+.department-members {
+  color: #b8bcc8;
+  font-size: 14px;
+}
+
+.department-head strong,
+.department-members strong,
+.department-permissions strong {
+  color: #4ecdc4;
+}
+
+.members-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.member-tag {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.member-tag.more {
+  background: rgba(156, 163, 175, 0.2);
+  color: #9ca3af;
+}
+
+.department-permissions {
+  color: #b8bcc8;
+  font-size: 14px;
+}
+
+.department-performance {
+  background: rgba(15, 15, 35, 0.6);
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.performance-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.performance-metrics .metric {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.performance-metrics .metric label {
+  color: #b8bcc8;
+  font-size: 12px;
+  min-width: 70px;
+}
+
+.performance-metrics .metric-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(78, 205, 196, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.performance-metrics .metric-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4, #45b7aa);
+  transition: width 0.3s ease;
+}
+
+.performance-metrics .metric span {
+  color: #4ecdc4;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 35px;
+  text-align: right;
+}
+
+.department-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.department-actions .action-btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+.department-actions .action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.department-summary {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.department-summary h4 {
+  color: #4ecdc4;
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.summary-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: rgba(15, 15, 35, 0.6);
+  border-radius: 6px;
+}
+
+.stat-label {
+  color: #b8bcc8;
+  font-size: 13px;
+}
+
+.stat-value {
+  color: #4ecdc4;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Responsive Department Styles */
+@media (max-width: 768px) {
+  .departments-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .department-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .department-status {
+    align-items: flex-start;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .department-actions {
+    flex-direction: column;
+  }
+  
+  .department-actions .action-btn {
+    min-width: auto;
+  }
+  
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
+}

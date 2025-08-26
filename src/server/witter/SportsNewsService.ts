@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { getEnhancedAIContentService } from './EnhancedAIContentService.js';
 
 export interface SportsNewsPost {
   id: string;
@@ -44,29 +45,150 @@ export class SportsNewsService {
     this.pool = pool;
   }
 
-  // Generate futuristic sports news
+  // Generate enhanced AI-powered sports news
   async generateSportsNews(civilizationId: number, count: number = 5): Promise<SportsNewsPost[]> {
-    const posts: SportsNewsPost[] = [];
+    try {
+      // Build rich sports context
+      const gameContext = {
+        currentEvents: [
+          'Interplanetary Gravity Ball League playoffs underway',
+          'Quantum Racing championship series heating up',
+          'Zero-G Combat Federation introducing new weight classes'
+        ],
+        economicStatus: 'Sports betting markets showing record activity',
+        politicalClimate: 'Inter-civilization Olympic negotiations ongoing',
+        recentNews: [
+          'Major athlete trade between Terra Prime and Alpha Centauri',
+          'New anti-doping regulations affecting multiple leagues',
+          'Fan violence incidents spark security discussions'
+        ]
+      };
 
-    const newsTypes = [
-      'game_results',
-      'athlete_spotlight',
-      'league_standings',
-      'olympics_update',
-      'trade_news',
-      'injury_report'
+      // Use enhanced AI content service
+      const enhancedAIService = getEnhancedAIContentService();
+      const aiPosts = await enhancedAIService.generateEnhancedContent({
+        contentType: 'sports',
+        civilizationId,
+        gameContext
+      }, count);
+
+      // Convert AI posts to SportsNewsPost format
+      return aiPosts.map(aiPost => ({
+        id: aiPost.id,
+        authorId: aiPost.authorId,
+        authorName: aiPost.authorName,
+        authorType: aiPost.authorType as 'SPORTS_MEDIA' | 'ATHLETE' | 'FAN' | 'ANALYST',
+        authorAvatar: aiPost.authorAvatar,
+        content: aiPost.content,
+        timestamp: aiPost.timestamp,
+        metadata: {
+          category: this.randomSportsCategory(),
+          sportType: this.randomSportType(),
+          league: this.randomLeague(),
+          teams: this.randomTeams(),
+          athletes: this.randomAthletes(),
+          civilizations: this.randomCivilizations(),
+          urgency: 'MEDIUM' as 'HIGH' | 'MEDIUM' | 'LOW',
+          sourceCredibility: Math.floor(Math.random() * 3) + 7 // 7-9
+        },
+        metrics: aiPost.metrics
+      }));
+
+    } catch (error) {
+      console.error('Error generating enhanced sports news:', error);
+      // Fallback to a few simple posts
+      return this.generateFallbackSportsNews(civilizationId, Math.min(count, 3));
+    }
+  }
+
+  private randomSportsCategory(): 'SPORTS_NEWS' | 'GAME_RESULTS' | 'ATHLETE_NEWS' | 'OLYMPICS' | 'LEAGUE_NEWS' {
+    const categories = ['SPORTS_NEWS', 'GAME_RESULTS', 'ATHLETE_NEWS', 'OLYMPICS', 'LEAGUE_NEWS'];
+    return categories[Math.floor(Math.random() * categories.length)] as any;
+  }
+
+  private randomSportType(): 'GRAVITY_BALL' | 'QUANTUM_RACING' | 'ZERO_G_COMBAT' | 'NEURAL_CHESS' | 'HOLO_TENNIS' | 'SPACE_MARATHON' {
+    const sports = ['GRAVITY_BALL', 'QUANTUM_RACING', 'ZERO_G_COMBAT', 'NEURAL_CHESS', 'HOLO_TENNIS', 'SPACE_MARATHON'];
+    return sports[Math.floor(Math.random() * sports.length)] as any;
+  }
+
+  private randomLeague(): string {
+    const leagues = [
+      'Interplanetary Gravity Ball League',
+      'Galactic Quantum Racing Circuit',
+      'Zero-G Combat Federation',
+      'Neural Chess Masters League',
+      'Holo-Tennis Championship Series',
+      'Space Marathon Association'
+    ];
+    return leagues[Math.floor(Math.random() * leagues.length)];
+  }
+
+  private randomTeams(): string[] {
+    const teams = [
+      'Terra Prime Titans', 'Alpha Centauri Comets', 'Vega Velocity', 'Proxima Predators',
+      'Kepler Knights', 'Sirius Storm', 'Andromeda Aces', 'Orion Outlaws',
+      'Nebula Navigators', 'Cosmos Crushers', 'Stellar Strikers', 'Galactic Guardians'
+    ];
+    const count = Math.floor(Math.random() * 3) + 1; // 1-3 teams
+    const shuffled = teams.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
+
+  private randomAthletes(): string[] {
+    const athletes = [
+      'Zara "Lightning" Voss', 'Marcus "Gravity" Chen', 'Nova "Mindstorm" Patel',
+      'Rex "Zero-G" Martinez', 'Luna "Quantum" Stark', 'Phoenix "Blaze" Torres',
+      'Kai "Velocity" Wong', 'Aria "Storm" Blake', 'Orion "Titan" Cross',
+      'Sage "Phantom" Rivers', 'Atlas "Thunder" Kane', 'Echo "Swift" Vale'
+    ];
+    const count = Math.floor(Math.random() * 2) + 1; // 1-2 athletes
+    const shuffled = athletes.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
+
+  private randomCivilizations(): string[] {
+    const civilizations = [
+      'Terran Republic', 'Alpha Centauri Alliance', 'Vega Federation',
+      'Proxima Coalition', 'Kepler Union', 'Sirius Empire'
+    ];
+    const count = Math.floor(Math.random() * 2) + 1; // 1-2 civilizations
+    const shuffled = civilizations.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
+
+  private async generateFallbackSportsNews(civilizationId: number, count: number): Promise<SportsNewsPost[]> {
+    const fallbackPosts: SportsNewsPost[] = [];
+    
+    const fallbackContent = [
+      "🏆 The Quantum Racing finals just delivered the most INSANE finish in galactic sports history! Three civilizations, one photo finish, and a controversy that's got everyone talking. This is why we love inter-planetary competition! 🚀 #QuantumRacing #Epic #GalacticSports",
+      "⚽ Gravity Ball drama reaches new heights as the Terra Prime Titans pull off the impossible comeback! Down by 12 points in the final quarter, they somehow defied physics AND expectations. The crowd is still going wild! 🤯 #GravityBall #Comeback #Unbelievable",
+      "🥇 Olympic preparations are getting spicy as athlete eligibility debates heat up between civilizations! Apparently, cybernetic enhancements are causing quite the diplomatic incident. Nothing like sports to bring out the politics! 😅 #Olympics #Drama #InterCivRivalry"
     ];
 
-    for (let i = 0; i < count; i++) {
-      const newsType = newsTypes[Math.floor(Math.random() * newsTypes.length)];
-      const post = await this.generateSportsPost(newsType, civilizationId);
-      
-      if (post) {
-        posts.push(post);
-      }
+    for (let i = 0; i < Math.min(count, fallbackContent.length); i++) {
+      fallbackPosts.push({
+        id: `fallback_sports_${Date.now()}_${i}`,
+        authorId: 'galactic_sports_network',
+        authorName: 'Galactic Sports Network',
+        authorType: 'SPORTS_MEDIA',
+        authorAvatar: '🏆',
+        content: fallbackContent[i],
+        timestamp: new Date(),
+        metadata: {
+          category: 'SPORTS_NEWS',
+          sportType: 'GRAVITY_BALL',
+          urgency: 'HIGH',
+          sourceCredibility: 9
+        },
+        metrics: {
+          likes: Math.floor(Math.random() * 800) + 200,
+          shares: Math.floor(Math.random() * 400) + 100,
+          comments: Math.floor(Math.random() * 200) + 50
+        }
+      });
     }
 
-    return posts;
+    return fallbackPosts;
   }
 
   private async generateSportsPost(newsType: string, civilizationId: number): Promise<SportsNewsPost | null> {

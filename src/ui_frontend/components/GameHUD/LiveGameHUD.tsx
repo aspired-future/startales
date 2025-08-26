@@ -11,6 +11,8 @@ import LiveDataService, {
   WitterPost, 
   GameMasterMessage 
 } from '../../services/LiveDataService';
+import { LiveMissions } from './LiveMissions';
+import WitterScreen from './screens/extracted/WitterScreen';
 import './LiveGameHUD.css';
 
 interface LiveGameHUDProps {
@@ -21,7 +23,7 @@ interface LiveGameHUDProps {
 interface TabState {
   activeLeftTab: string;
   activeCenterTab: string;
-  activeRightTab: string;
+  activeRightTab: 'stats' | 'missions' | 'civilizations';
 }
 
 export const LiveGameHUD: React.FC<LiveGameHUDProps> = ({ 
@@ -423,11 +425,17 @@ export const LiveGameHUD: React.FC<LiveGameHUDProps> = ({
           <span>WhoseApp</span>
         </div>
         <div 
-          className={`system-item ${tabs.activeLeftTab === 'witter-menu' ? 'active' : ''}`}
-          onClick={() => handleTabChange('activeCenterTab', 'witter')}
+          className={`system-item ${tabs.activeCenterTab === 'witter' ? 'active' : ''}`}
+          onClick={() => {
+            handleTabChange('activeCenterTab', 'witter');
+            setUnreadCounts(prev => ({ ...prev, witter: 0 }));
+          }}
         >
           <span className="system-icon">🐦</span>
           <span>Witter</span>
+          {unreadCounts.witter > 0 && (
+            <span className="unread-badge">{unreadCounts.witter}</span>
+          )}
         </div>
         <div 
           className={`system-item ${tabs.activeLeftTab === 'speeches' ? 'active' : ''}`}
@@ -481,7 +489,10 @@ export const LiveGameHUD: React.FC<LiveGameHUDProps> = ({
         </button>
         <button 
           className={`center-tab ${tabs.activeCenterTab === 'witter' ? 'active' : ''}`}
-          onClick={() => handleTabChange('activeCenterTab', 'witter')}
+          onClick={() => {
+            handleTabChange('activeCenterTab', 'witter');
+            setUnreadCounts(prev => ({ ...prev, witter: 0 }));
+          }}
         >
           🐦 Witter
           {unreadCounts.witter > 0 && (
@@ -539,30 +550,16 @@ export const LiveGameHUD: React.FC<LiveGameHUDProps> = ({
         )}
 
         {tabs.activeCenterTab === 'witter' && (
-          <div className="witter-content">
-            <h3>🐦 Witter Feed</h3>
-            <div className="witter-feed">
-              {witterFeed.map(post => (
-                <div key={post.id} className="witter-post">
-                  <div className="witter-header">
-                    <span className="witter-author">{post.author}</span>
-                    <span className="witter-type">@{post.authorType}</span>
-                    <span className="witter-time">
-                      {post.timestamp.toLocaleTimeString()}
-                    </span>
-                  </div>
-                  <div className="witter-text">{post.content}</div>
-                  <div className="witter-actions">
-                    <span>❤️ {post.likes}</span>
-                    <span>🔄 {post.shares}</span>
-                    {post.civilization && (
-                      <span className="witter-civ">🏛️ {post.civilization}</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <WitterScreen 
+            screenId="witter"
+            title="Witter"
+            icon="🐦"
+            gameContext={{
+              currentLocation: 'Galactic Capital',
+              currentActivity: 'Managing Civilization',
+              recentEvents: ['Economic policy update', 'Diplomatic summit scheduled']
+            }}
+          />
         )}
       </div>
     </section>
@@ -576,6 +573,12 @@ export const LiveGameHUD: React.FC<LiveGameHUDProps> = ({
           onClick={() => handleTabChange('activeRightTab', 'stats')}
         >
           📊 Stats
+        </button>
+        <button 
+          className={`right-tab ${tabs.activeRightTab === 'missions' ? 'active' : ''}`}
+          onClick={() => handleTabChange('activeRightTab', 'missions')}
+        >
+          🎯 Missions
         </button>
         <button 
           className={`right-tab ${tabs.activeRightTab === 'civilizations' ? 'active' : ''}`}
@@ -633,6 +636,14 @@ export const LiveGameHUD: React.FC<LiveGameHUDProps> = ({
               </div>
             </div>
           </div>
+        )}
+
+        {tabs.activeRightTab === 'missions' && (
+          <LiveMissions 
+            playerId={playerId}
+            campaignId={campaignId || 'default_campaign'}
+            refreshInterval={30000}
+          />
         )}
 
         {tabs.activeRightTab === 'civilizations' && (

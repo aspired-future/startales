@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StarTales UI Test</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #0f0f23; color: white; font-family: Arial, sans-serif; }
+        .test-section { margin: 20px 0; padding: 20px; background: #1a1a2e; border-radius: 8px; }
+        .success { color: #4ecdc4; }
+        .error { color: #ff6b6b; }
+        .loading { color: #ffd93d; }
+    </style>
+</head>
+<body>
+    <h1>🎭 StarTales UI Test</h1>
+    
+    <div class="test-section">
+        <h2>API Connectivity Test</h2>
+        <div id="api-test" class="loading">Testing API connection...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Entertainment & Tourism API Test</h2>
+        <div id="entertainment-test" class="loading">Testing Entertainment & Tourism endpoints...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>React App Test</h2>
+        <div id="react-test" class="loading">Testing React app loading...</div>
+        <iframe src="http://localhost:5174" width="100%" height="600" style="border: 1px solid #4ecdc4; margin-top: 10px;"></iframe>
+    </div>
+
+    <script>
+        // Test API connectivity
+        async function testAPI() {
+            try {
+                const response = await fetch('http://localhost:4000/api/entertainment-tourism/knobs/1');
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('api-test').innerHTML = '<span class="success">✅ API is working! Entertainment & Tourism knobs loaded successfully.</span>';
+                } else {
+                    document.getElementById('api-test').innerHTML = '<span class="error">❌ API responded but with error: ' + data.error + '</span>';
+                }
+            } catch (error) {
+                document.getElementById('api-test').innerHTML = '<span class="error">❌ API connection failed: ' + error.message + '</span>';
+            }
+        }
+
+        // Test Entertainment & Tourism endpoints
+        async function testEntertainment() {
+            try {
+                const endpoints = [
+                    '/api/entertainment-tourism/cultural/sites/1',
+                    '/api/entertainment-tourism/entertainment/venues/1',
+                    '/api/entertainment-tourism/tourism/attractions/1'
+                ];
+                
+                let results = [];
+                for (const endpoint of endpoints) {
+                    try {
+                        const response = await fetch('http://localhost:4000' + endpoint);
+                        const data = await response.json();
+                        results.push(`✅ ${endpoint}: ${data.success ? 'OK' : 'Error'}`);
+                    } catch (err) {
+                        results.push(`❌ ${endpoint}: Failed`);
+                    }
+                }
+                
+                document.getElementById('entertainment-test').innerHTML = '<div class="success">' + results.join('<br>') + '</div>';
+            } catch (error) {
+                document.getElementById('entertainment-test').innerHTML = '<span class="error">❌ Entertainment API test failed: ' + error.message + '</span>';
+            }
+        }
+
+        // Test React app
+        async function testReact() {
+            try {
+                const response = await fetch('http://localhost:5174');
+                const html = await response.text();
+                if (html.includes('root') && html.includes('main.tsx')) {
+                    document.getElementById('react-test').innerHTML = '<span class="success">✅ React app is serving correctly. Check the iframe below.</span>';
+                } else {
+                    document.getElementById('react-test').innerHTML = '<span class="error">❌ React app HTML structure looks incorrect.</span>';
+                }
+            } catch (error) {
+                document.getElementById('react-test').innerHTML = '<span class="error">❌ React app test failed: ' + error.message + '</span>';
+            }
+        }
+
+        // Run tests
+        testAPI();
+        testEntertainment();
+        testReact();
+    </script>
+</body>
+</html>

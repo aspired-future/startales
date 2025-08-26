@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { WitterFeed } from '../Witter/WitterFeed';
+import { SimpleWitterFeed } from '../Witter/SimpleWitterFeed';
 import { ExplorationDashboard } from '../Exploration/ExplorationDashboard';
 import { CivilizationBrowser } from './CivilizationBrowser';
 import { GalacticMap } from './GalacticMap';
@@ -131,7 +131,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
         id: 'witter',
         name: 'Witter Feed',
         icon: '📱',
-        component: WitterFeed,
+        component: SimpleWitterFeed,
         isVisible: true,
         position: { x: 20, y: 20 },
         size: { width: 400, height: 600 },

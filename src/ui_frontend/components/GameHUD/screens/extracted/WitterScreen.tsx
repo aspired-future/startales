@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { WitterFeed } from '../../../Witter/WitterFeed';
+import { SimpleWitterFeed } from '../../../Witter/SimpleWitterFeed';
 import './WitterScreen.css';
 
 interface WitterScreenProps {
@@ -30,7 +30,7 @@ const WitterScreen: React.FC<WitterScreenProps> = ({
         <p>Real-time galactic social media feed with AI-generated content</p>
       </div>
       <div className="embedded-witter-feed">
-        <WitterFeed 
+        <SimpleWitterFeed 
           gameContext={gameContext}
           playerId="player-1"
           className="full-witter-feed"
