@@ -19,6 +19,9 @@ test-results
 # Google Cloud credentials
 *.json
 lively-galaxy-*.json
+*service-account*.json
+*credentials*.json
+*key*.json
 
 # Editor directories and files
 .idea
