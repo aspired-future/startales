@@ -9,96 +9,97 @@ try {
   const dotenv = req('dotenv');
   if (dotenv?.config) dotenv.config();
 } catch {}
-import campaignsRouter from './routes/campaigns.js';
-import { schedulesRouter } from './routes/schedules.js';
-import { audioRouter } from './routes/audio.js';
-import { personalitiesRouter } from './routes/personalities.js';
-import { outcomeRouter } from './routes/outcome.js';
-import { registerProvider, registerSTTProvider, registerTTSProvider } from './llm/factory.js';
-import { OllamaProvider } from './llm/providers/ollama.js';
+
+import { audioRouter } from './routes/audio.ts';
+import { personalitiesRouter } from './routes/personalities.ts';
+import { outcomeRouter } from './routes/outcome.ts';
+import { registerProvider, registerSTTProvider, registerTTSProvider } from './llm/factory.ts';
+import { OllamaProvider } from './llm/providers/ollama.ts';
 import http from 'http';
-import { createGateway } from './ws/gateway.js';
-import { wsHub } from './ws/hub.js';
-import { WhisperSTTProvider } from './llm/providers/whisper.js';
-import { XTTSProvider } from './llm/providers/xtts.js';
-import { demoRouter } from './routes/demo.js';
-import { settingsRouter } from './routes/settings.js';
-import { encounterRouter } from './routes/encounter.js';
-import { vezyRouter } from './routes/vezy.js';
-import { generatorRouter } from './routes/generator.js';
-import { empireRouter } from './routes/empire.js';
-import { mapRouter } from './routes/map.js';
-import tradeRouter from './routes/trade.js';
-import { initDb, getPool } from './storage/db.js';
-import { analyticsRouter } from './routes/analytics.js';
-import policiesRouter from './routes/policies.js';
-import advisorsRouter from './routes/advisors.js';
-import civilizationAnalyticsRouter from './routes/civilizationAnalytics.js';
-import providersRouter from './routes/providers.js';
-import { initializeRegistry } from './registry/AdapterRegistry.js';
-import treasuryRouter from './treasury/treasuryRoutes.js';
-import defenseRouter from './defense/defenseRoutes.js';
-import inflationRouter from './economics/inflationRoutes.js';
-import stateRouter from './state/stateRoutes.js';
-import interiorRouter from './interior/interiorRoutes.js';
-import justiceRouter from './justice/justiceRoutes.js';
-import commerceRouter from './commerce/commerceRoutes.js';
-import workflowRouter from './cabinet/workflowRoutes.js';
-import scienceRouter from './science/scienceRoutes.js';
-import communicationsRouter from './communications/communicationsRoutes.js';
-import centralBankRouter from './central-bank/centralBankRoutes.js';
-import { createCentralBankEnhancementsRoutes } from './central-bank/centralBankEnhancementsRoutes.js';
-import { createSovereignWealthFundRoutes } from './sovereign-wealth-fund/sovereignWealthFundRoutes.js';
-import legislatureRouter from './legislature/legislatureRoutes.js';
-import supremeCourtRouter from './supreme-court/supremeCourtRoutes.js';
-import politicalPartyRouter from './political-parties/politicalPartyRoutes.js';
-import jointChiefsRouter from './joint-chiefs/jointChiefsRoutes.js';
-import intelligenceDirectorsRouter from './intelligence/intelligenceRoutes.js';
-import currencyExchangeRouter from './currency-exchange/currencyExchangeRoutes.js';
-import fiscalSimulationRouter from './fiscal-simulation/fiscalSimulationRoutes.js';
-import financialMarketsRouter from './financial-markets/financialMarketsRoutes.js';
-import economicEcosystemRouter from './economic-ecosystem/economicEcosystemRoutes.js';
-import healthRouter from './health/healthRoutes.js';
-import cityEmergenceRouter from './cities/cityEmergenceRoutes.js';
-import characterRouter from './characters/characterRoutes.js';
-import smallBusinessRouter from './small-business/smallBusinessRoutes.js';
-import economicTierRouter from './economic-tiers/economicTierRoutes.js';
-import educationRouter from './education/educationRoutes.js';
-import conquestRouter from './conquest/conquestRoutes.js';
-import tradeRoutesRouter from './trade/tradeRoutes.js';
-import witterRouter from './witter/witterRoutes.js';
-import memoryRouter from './memory/memoryRoutes.js';
-import whoseappRouter from './whoseapp/whoseappRoutes.js';
-import galaxyRouter from './galaxy/galaxyRoutes.js';
-import campaignRoutesRouter from './campaigns/campaignRoutes.js';
-import scheduleRoutesRouter from './schedules/scheduleRoutes.js';
-import { createGovernmentTypesRoutes } from './governance/governmentTypesRoutes.js';
-import { createConstitutionRoutes } from './governance/constitutionRoutes.js';
-import { createGovernmentContractsRoutes } from './governance/governmentContractsRoutes.js';
-import { createMissionsRoutes } from './missions/missionsRoutes.js';
-import { initializeMissionsSchema } from './missions/missionsSchema.js';
-import { createExportControlsRoutes } from './export-controls/exportControlsRoutes.js';
-import { createGameMasterVideoRoutes } from './gamemaster/GameMasterVideoAPI.js';
-import { gameMasterWebSocketService } from './gamemaster/GameMasterWebSocket.js';
-import { gameMasterTriggerService } from './gamemaster/GameMasterTriggers.js';
-import { createGameMasterTestRoutes } from './gamemaster/GameMasterTestRoutes.js';
-import { initializeExportControlsSchema } from './export-controls/exportControlsSchema.js';
-import { SimEngineOrchestrator } from './sim-engine/SimEngineOrchestrator.js';
-import { WebSocketManager } from './sim-engine/WebSocketManager.js';
-import { TelemetrySystem } from './sim-engine/TelemetrySystem.js';
-import { AILearningLoop } from './sim-engine/AILearningLoop.js';
-import { initializeSimEngineSchema } from './sim-engine/simEngineSchema.js';
-import { createSimEngineRoutes } from './sim-engine/simEngineRoutes.js';
-import { WhoseAppWebSocketService } from './whoseapp/WhoseAppWebSocketService.js';
-import { initializeWhoseAppSchema } from './whoseapp/whoseAppSchema.js';
-import { createGovernmentBondsRoutes } from './government-bonds/governmentBondsRoutes.js';
-import { createPlanetaryGovernmentRoutes } from './planetary-government/planetaryGovernmentRoutes.js';
-import { createInstitutionalOverrideRoutes } from './institutional-override/institutionalOverrideRoutes.js';
-import { createMediaControlRoutes } from './media-control/mediaControlRoutes.js';
-import galaxyRoutes from './galaxy/galaxyRoutes.js';
-import spatialIntelligenceRoutes from './characters/spatialIntelligenceRoutes.js';
-import { createEntertainmentTourismRoutes } from './entertainment-tourism/entertainmentTourismRoutes.js';
-import imagenRoutes from './routes/imagenRoutes.js';
+import { createGateway } from './ws/gateway.ts';
+import { wsHub } from './ws/hub.ts';
+import { WhisperSTTProvider } from './llm/providers/whisper.ts';
+import { XTTSProvider } from './llm/providers/xtts.ts';
+// import { demoRouter } from './routes/demo.js'; // Removed - demo server deleted
+import { settingsRouter } from './routes/settings.ts';
+import { encounterRouter } from './routes/encounter.ts';
+import { vezyRouter } from './routes/vezy.ts';
+import { generatorRouter } from './routes/generator.ts';
+import { empireRouter } from './routes/empire.ts';
+import { mapRouter } from './routes/map.ts';
+import tradeRouter from './routes/trade.ts';
+import { initDb, getPool } from './storage/db.ts';
+import { analyticsRouter } from './routes/analytics.ts';
+import policiesRouter from './routes/policies.ts';
+import advisorsRouter from './routes/advisors.ts';
+import civilizationAnalyticsRouter from './routes/civilizationAnalytics.ts';
+import providersRouter from './routes/providers.ts';
+import { initializeRegistry } from './registry/AdapterRegistry.ts';
+import treasuryRouter from './treasury/treasuryRoutes.ts';
+import defenseRouter from './defense/defenseRoutes.ts';
+import inflationRouter from './economics/inflationRoutes.ts';
+import stateRouter from './state/stateRoutes.ts';
+import interiorRouter from './interior/interiorRoutes.ts';
+import justiceRouter from './justice/justiceRoutes.ts';
+import commerceRouter from './commerce/commerceRoutes.ts';
+import workflowRouter from './cabinet/workflowRoutes.ts';
+import scienceRouter from './science/scienceRoutes.ts';
+import communicationsRouter from './communications/communicationsRoutes.ts';
+import centralBankRouter from './central-bank/centralBankRoutes.ts';
+import { createCentralBankEnhancementsRoutes } from './central-bank/centralBankEnhancementsRoutes.ts';
+import { createSovereignWealthFundRoutes } from './sovereign-wealth-fund/sovereignWealthFundRoutes.ts';
+import legislatureRouter from './legislature/legislatureRoutes.ts';
+import supremeCourtRouter from './supreme-court/supremeCourtRoutes.ts';
+import politicalPartyRouter from './political-parties/politicalPartyRoutes.ts';
+import jointChiefsRouter from './joint-chiefs/jointChiefsRoutes.ts';
+import intelligenceDirectorsRouter from './intelligence/intelligenceRoutes.ts';
+import currencyExchangeRouter from './currency-exchange/currencyExchangeRoutes.ts';
+import fiscalSimulationRouter from './fiscal-simulation/fiscalSimulationRoutes.ts';
+import financialMarketsRouter from './financial-markets/financialMarketsRoutes.ts';
+import economicEcosystemRouter from './economic-ecosystem/economicEcosystemRoutes.ts';
+import healthRouter from './health/healthRoutes.ts';
+import cityEmergenceRouter from './cities/cityEmergenceRoutes.ts';
+import characterRouter from './characters/characterRoutes.ts';
+import smallBusinessRouter from './small-business/smallBusinessRoutes.ts';
+import economicTierRouter from './economic-tiers/economicTierRoutes.ts';
+import educationRouter from './education/educationRoutes.ts';
+import conquestRouter from './conquest/conquestRoutes.ts';
+import tradeRoutesRouter from './trade/tradeRoutes.ts';
+import witterRouter from './witter/witterRoutes.ts';
+import memoryRouter from './memory/memoryRoutes.ts';
+import whoseappRouter from './whoseapp/whoseappRoutes.ts';
+import galaxyRouter from './galaxy/galaxyRoutes.ts';
+import campaignRoutesRouter from './campaigns/campaignRoutes.ts';
+import scheduleRoutesRouter from './schedules/scheduleRoutes.ts';
+import { createGovernmentTypesRoutes } from './governance/governmentTypesRoutes.ts';
+import { createConstitutionRoutes } from './governance/constitutionRoutes.ts';
+import { createGovernmentContractsRoutes } from './governance/governmentContractsRoutes.ts';
+import { createMissionsRoutes } from './missions/missionsRoutes.ts';
+import { initializeMissionsSchema } from './missions/missionsSchema.ts';
+import { createExportControlsRoutes } from './export-controls/exportControlsRoutes.ts';
+import { createGameMasterVideoRoutes } from './gamemaster/GameMasterVideoAPI.ts';
+import { gameMasterWebSocketService } from './gamemaster/GameMasterWebSocket.ts';
+import { gameMasterTriggerService } from './gamemaster/GameMasterTriggers.ts';
+import { createGameMasterTestRoutes } from './gamemaster/GameMasterTestRoutes.ts';
+import { initializeExportControlsSchema } from './export-controls/exportControlsSchema.ts';
+import { initializeCentralBankSchema } from './central-bank/centralBankSchema.ts';
+import { SimEngineOrchestrator } from '../simulation/engine/SimEngineOrchestrator.ts';
+import { WebSocketManager } from '../simulation/engine/WebSocketManager.ts';
+import { TelemetrySystem } from '../simulation/engine/TelemetrySystem.ts';
+import { AILearningLoop } from '../simulation/engine/AILearningLoop.ts';
+import { initializeSimEngineSchema } from '../simulation/routes/simEngineSchema.ts';
+import { createSimEngineRoutes } from '../simulation/routes/simEngineRoutes.ts';
+import { createStepRoutes } from '../simulation/routes/stepRoutes.ts';
+import { WhoseAppWebSocketService } from './whoseapp/WhoseAppWebSocketService.ts';
+import { initializeWhoseAppSchema } from './whoseapp/whoseAppSchema.ts';
+import { createGovernmentBondsRoutes } from './government-bonds/governmentBondsRoutes.ts';
+import { createPlanetaryGovernmentRoutes } from './planetary-government/planetaryGovernmentRoutes.ts';
+import { createInstitutionalOverrideRoutes } from './institutional-override/institutionalOverrideRoutes.ts';
+import { createMediaControlRoutes } from './media-control/mediaControlRoutes.ts';
+import galaxyRoutes from './galaxy/galaxyRoutes.ts';
+import spatialIntelligenceRoutes from './characters/spatialIntelligenceRoutes.ts';
+import { createEntertainmentTourismRoutes } from './entertainment-tourism/entertainmentTourismRoutes.ts';
+import imagenRoutes from './routes/imagenRoutes.ts';
 
 const app = express();
 app.use(cors());
@@ -108,7 +109,7 @@ app.use(express.json());
 app.use('/api/audio', audioRouter);
 app.use('/api/personalities', personalitiesRouter);
 app.use('/api/outcome', outcomeRouter);
-app.use('/demo', demoRouter);
+// app.use('/demo', demoRouter); // Removed - demo server deleted
 app.use('/api/settings', settingsRouter);
 app.use('/api/encounter', encounterRouter);
 app.use('/api/vezy', vezyRouter);
@@ -205,45 +206,60 @@ try {
   // Initialize export controls schema
   await initializeExportControlsSchema(getPool());
   
+  // Initialize central bank schema
+  await initializeCentralBankSchema(getPool());
+  
   // Create sim engine components
   simEngine = new SimEngineOrchestrator(getPool());
   telemetrySystem = new TelemetrySystem(getPool());
   aiLearningLoop = new AILearningLoop(getPool(), simEngine, telemetrySystem);
+  
+  // Inject trade simulation into trade routes
+  const { setTradeSimulation } = await import('./trade/tradeRoutes.ts');
+  setTradeSimulation((simEngine as any).tradeSimulation);
   
   console.log('✅ AI Simulation Engine initialized successfully');
   
   // Register sim engine routes after initialization
   app.use('/api/sim-engine', createSimEngineRoutes(getPool(), simEngine, telemetrySystem, aiLearningLoop, webSocketManager));
   console.log('🔗 Sim Engine API routes registered');
+  
+  // Register basic simulation step routes
+  app.use('/api/sim', createStepRoutes());
+  console.log('🔗 Simulation Step API routes registered');
 } catch (error) {
   console.error('❌ Sim Engine initialization failed:', error);
   
   // Register sim engine routes without the systems (will return 503 errors)
   app.use('/api/sim-engine', createSimEngineRoutes(getPool()));
   console.log('🔗 Sim Engine API routes registered (limited functionality)');
+  
+  // Register basic simulation step routes (these don't depend on sim engine)
+  app.use('/api/sim', createStepRoutes());
+  console.log('🔗 Simulation Step API routes registered');
 }
 
 // Initialize services
 try {
-  const { initializeJointChiefsService } = await import('./joint-chiefs/JointChiefsService.js');
-  const { initializeIntelligenceDirectorsService } = await import('./intelligence/IntelligenceDirectorsService.js');
-  const { initializeCurrencyExchangeService } = await import('./currency-exchange/CurrencyExchangeService.js');
-  const { initializeFiscalSimulationService } = await import('./fiscal-simulation/FiscalSimulationService.js');
-  const { initializeFinancialMarketsService } = await import('./financial-markets/FinancialMarketsService.js');
-  const { initializeEconomicEcosystemService } = await import('./economic-ecosystem/EconomicEcosystemService.js');
-  const { initializeProceduralCorporationGenerator } = await import('./economic-ecosystem/ProceduralCorporationGenerator.js');
-  const { initializeDynamicCityGenerator } = await import('./economic-ecosystem/DynamicCityGenerator.js');
-        const { initializeTradePactsService } = await import('./economic-ecosystem/TradePactsService.js');
-          const { initializeHealthService } = await import('./health/HealthService.js');
-    const { initializeBusinessNewsService } = await import('./witter/BusinessNewsService.js');
-    const { initializeSportsNewsService } = await import('./witter/SportsNewsService.js');
-    const { initializeCityEmergenceService } = await import('./cities/cityEmergenceRoutes.js');
-    const { initializeCorporateLifecycleService } = await import('./economic-ecosystem/corporateLifecycleRoutes.js');
-    const { initializeCharacterService } = await import('./characters/characterRoutes.js');
-    const { initializeSmallBusinessService } = await import('./small-business/smallBusinessRoutes.js');
-    const { initializeEconomicTierService } = await import('./economic-tiers/economicTierRoutes.js');
-    const { initializeEducationService } = await import('./education/EducationService.js');
-      const { getPool } = await import('./storage/db.js');
+  const { initializeJointChiefsService } = await import('./joint-chiefs/JointChiefsService.ts');
+  const { initializeIntelligenceDirectorsService } = await import('./intelligence/IntelligenceDirectorsService.ts');
+  const { initializeCurrencyExchangeService } = await import('./currency-exchange/CurrencyExchangeService.ts');
+  const { initializeFiscalSimulationService } = await import('./fiscal-simulation/FiscalSimulationService.ts');
+  const { initializeFinancialMarketsService } = await import('./financial-markets/FinancialMarketsService.ts');
+  const { initializeEconomicEcosystemService } = await import('./economic-ecosystem/EconomicEcosystemService.ts');
+  const { initializeProceduralCorporationGenerator } = await import('./economic-ecosystem/ProceduralCorporationGenerator.ts');
+  const { initializeDynamicCityGenerator } = await import('./economic-ecosystem/DynamicCityGenerator.ts');
+        const { initializeTradePactsService } = await import('./economic-ecosystem/TradePactsService.ts');
+          const { initializeHealthService } = await import('./health/HealthService.ts');
+    const { initializeBusinessNewsService } = await import('./witter/BusinessNewsService.ts');
+    const { initializeSportsNewsService } = await import('./witter/SportsNewsService.ts');
+    const { initializeCityEmergenceService } = await import('./cities/cityEmergenceRoutes.ts');
+    const { initializeCorporateLifecycleService } = await import('./economic-ecosystem/corporateLifecycleRoutes.ts');
+    const { initializeCharacterService } = await import('./characters/characterRoutes.ts');
+    const { initializeSmallBusinessService } = await import('./small-business/smallBusinessRoutes.ts');
+    const { initializeEconomicTierService } = await import('./economic-tiers/economicTierRoutes.ts');
+    const { initializeEducationService } = await import('./education/EducationService.ts');
+      const { getPool } = await import('./storage/db.ts');
   initializeJointChiefsService(getPool());
   initializeIntelligenceDirectorsService(getPool());
   initializeCurrencyExchangeService(getPool());
@@ -258,16 +274,16 @@ try {
   initializeSportsNewsService(getPool());
   
   // Initialize enhanced Witter services
-const { initializeWitterServices } = await import('./witter/witterRoutes.js');
+const { initializeWitterServices } = await import('./witter/witterRoutes.ts');
 initializeWitterServices(getPool());
 
 // Initialize Story system
-const { default: storyRoutes, initializeStoryRoutes } = await import('./story/storyRoutes.js');
+const { default: storyRoutes, initializeStoryRoutes } = await import('./story/storyRoutes.ts');
 initializeStoryRoutes(getPool());
 app.use('/api/story', storyRoutes);
 
 // Initialize Game Setup system
-const { default: gameSetupRoutes, initializeGameSetupRoutes } = await import('./game/gameSetupRoutes.js');
+const { default: gameSetupRoutes, initializeGameSetupRoutes } = await import('./game/gameSetupRoutes.ts');
 initializeGameSetupRoutes(getPool());
 app.use('/api/game', gameSetupRoutes);
   initializeCityEmergenceService(getPool());

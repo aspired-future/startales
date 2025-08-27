@@ -9,7 +9,7 @@ import express from 'express';
 import { BusinessNewsService } from './BusinessNewsService.js';
 import { SportsNewsService } from './SportsNewsService.js';
 import { initializeEnhancedAIContentService } from './EnhancedAIContentService.js';
-import { initializeCharacterDrivenContentService } from './CharacterDrivenContentService.js';
+import { initializeCharacterDrivenContentService, getCharacterDrivenContentService } from './CharacterDrivenContentService.js';
 import { initializeGameMasterStoryEngine } from './GameMasterStoryEngine.js';
 import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
@@ -287,6 +287,142 @@ router.post('/stop-story-management/:civilizationId', async (req, res) => {
     console.error('❌ Error stopping story management:', error);
     res.status(500).json({
       error: 'Failed to stop story management',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ===== CHARACTER AI INTEGRATION =====
+
+/**
+ * GET /api/witter/character-driven-posts - Get Character AI generated posts
+ */
+router.get('/character-driven-posts', async (req, res) => {
+  try {
+    const { 
+      civilizationId, 
+      count = 10, 
+      offset = 0,
+      category,
+      characterId 
+    } = req.query;
+
+    if (!civilizationId) {
+      return res.status(400).json({
+        error: 'Missing required parameter: civilizationId'
+      });
+    }
+
+    // Get characters from the civilization
+    const charactersResponse = await fetch(`/api/characters/generate-population`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        civilizationId: Number(civilizationId),
+        planetId: 'planet_1', // Default planet
+        count: Math.min(Number(count), 10) // Limit character generation
+      })
+    });
+
+    let characters = [];
+    if (charactersResponse.ok) {
+      const charData = await charactersResponse.json();
+      characters = charData.characters || [];
+    }
+
+    // Generate Character AI posts for each character
+    const posts = [];
+    for (const character of characters.slice(0, Number(count))) {
+      try {
+        // Use Character AI to generate a contextual post
+        const aiResponse = await fetch(`/api/characters/${character.id}/interact-aware`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: `Generate a short social media post (like Twitter/X) about current events in our galactic civilization. Make it engaging, relevant to your expertise, and include appropriate emojis. Keep it under 280 characters. Focus on recent developments in your field.`,
+            interactionType: 'social_media_post',
+            conversationId: `witter_${Date.now()}`,
+            participantId: 'public_feed',
+            topic: 'Current Events',
+            context: `Witter post generation for ${character.category} specialist`,
+            gameState: {
+              civilizationId: Number(civilizationId),
+              currentTurn: Date.now(),
+              gamePhase: 'expansion'
+            },
+            urgency: 'low',
+            confidentiality: 'public'
+          })
+        });
+
+        if (aiResponse.ok) {
+          const aiData = await aiResponse.json();
+          const content = aiData.interaction?.response?.content || aiData.interaction?.response;
+          
+          if (content && content.length > 10) {
+            posts.push({
+              id: `char_ai_${character.id}_${Date.now()}`,
+              characterId: character.id,
+              characterName: character.name?.full_display || character.name,
+              characterTitle: character.current_job || character.category,
+              content: content,
+              timestamp: new Date(),
+              category: character.category?.toUpperCase() || 'GENERAL',
+              location: character.location || 'Unknown Location',
+              metrics: {
+                likes: Math.floor(Math.random() * 1000) + 50,
+                shares: Math.floor(Math.random() * 100) + 10,
+                comments: Math.floor(Math.random() * 50) + 5
+              },
+              aiGenerated: true,
+              processingTime: aiData.meta?.processing_time || 0
+            });
+          }
+        }
+      } catch (error) {
+        console.error(`Failed to generate Character AI post for ${character.id}:`, error);
+        // Continue with other characters
+      }
+    }
+
+    // If no Character AI posts were generated, create some fallback posts
+    if (posts.length === 0) {
+      console.log('No Character AI posts generated, using enhanced fallback');
+      // Use existing character-driven content service as fallback
+      const characterDrivenService = getCharacterDrivenContentService();
+      const fallbackPosts = await characterDrivenService.generateCharacterDrivenContent(
+        Number(civilizationId),
+        [], // Empty game events for now
+        Number(count)
+      );
+      
+      posts.push(...fallbackPosts.map(post => ({
+        id: post.id,
+        characterId: post.characterId,
+        characterName: post.characterName,
+        characterTitle: post.characterTitle,
+        content: post.content,
+        timestamp: post.timestamp,
+        category: post.category,
+        location: post.location,
+        metrics: post.metrics,
+        aiGenerated: true
+      })));
+    }
+
+    res.json({
+      success: true,
+      posts: posts,
+      count: posts.length,
+      offset: Number(offset),
+      aiGenerated: true,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ Error generating Character AI posts:', error);
+    res.status(500).json({
+      error: 'Failed to generate Character AI posts',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }

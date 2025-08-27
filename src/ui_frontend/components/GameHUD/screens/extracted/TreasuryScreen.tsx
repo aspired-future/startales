@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
 import './TreasuryScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface TreasurySecretary {
   id: string;
@@ -1093,6 +1094,104 @@ const TreasuryScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameCont
                       </div>
                     </div>
                   </div>
+
+                  {/* Treasury Charts Section */}
+                  <div className="treasury-charts-section">
+                    <div className="charts-grid">
+                      <div className="chart-container">
+                        <LineChart
+                          data={[
+                            { label: 'Jan', value: treasuryData.revenue.taxRevenue * 0.85 },
+                            { label: 'Feb', value: treasuryData.revenue.taxRevenue * 0.88 },
+                            { label: 'Mar', value: treasuryData.revenue.taxRevenue * 0.92 },
+                            { label: 'Apr', value: treasuryData.revenue.taxRevenue * 0.96 },
+                            { label: 'May', value: treasuryData.revenue.taxRevenue * 0.98 },
+                            { label: 'Jun', value: treasuryData.revenue.taxRevenue }
+                          ]}
+                          title="💰 Revenue vs Expenses Trends"
+                          color="#4ecdc4"
+                          height={250}
+                          width={400}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <PieChart
+                          data={[
+                            { label: 'Health & Human Services', value: 950, color: '#4ecdc4' },
+                            { label: 'Defense Spending', value: 580, color: '#45b7aa' },
+                            { label: 'Education', value: 420, color: '#96ceb4' },
+                            { label: 'Transportation', value: 320, color: '#feca57' },
+                            { label: 'Other Programs', value: 435, color: '#ff9ff3' },
+                            { label: 'Interest on Debt', value: 182, color: '#ff6b6b' }
+                          ]}
+                          title="💸 Budget Allocation (Billions)"
+                          size={200}
+                          showLegend={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <LineChart
+                          data={[
+                            { label: '2019', value: 38.5 },
+                            { label: '2020', value: 39.2 },
+                            { label: '2021', value: 40.1 },
+                            { label: '2022', value: 41.3 },
+                            { label: '2023', value: 41.8 },
+                            { label: '2024', value: 42.0 }
+                          ]}
+                          title="📈 Debt-to-GDP Ratio Trends"
+                          color="#ff6b6b"
+                          height={250}
+                          width={400}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <BarChart
+                          data={[
+                            { label: 'Corporate Tax', value: treasuryData.revenue.corporateTax / 1000000000, color: '#4ecdc4' },
+                            { label: 'Individual Tax', value: treasuryData.revenue.individualTax / 1000000000, color: '#45b7aa' },
+                            { label: 'Trade Tariffs', value: treasuryData.revenue.tradeTariffs / 1000000000, color: '#96ceb4' },
+                            { label: 'Other Revenue', value: treasuryData.revenue.otherRevenue / 1000000000, color: '#feca57' }
+                          ]}
+                          title="📊 Revenue Sources (Billions)"
+                          height={250}
+                          width={400}
+                          showTooltip={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <PieChart
+                          data={[
+                            { label: 'Efficient', value: treasuryData.revenue.collectionEfficiency, color: '#4ecdc4' },
+                            { label: 'Uncollected', value: 100 - treasuryData.revenue.collectionEfficiency, color: '#ff6b6b' }
+                          ]}
+                          title="⚡ Tax Collection Efficiency"
+                          size={200}
+                          showLegend={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <BarChart
+                          data={[
+                            { label: 'Q1', value: treasuryData.finances.totalBudget * 0.22 / 1000000000, color: '#4ecdc4' },
+                            { label: 'Q2', value: treasuryData.finances.totalBudget * 0.25 / 1000000000, color: '#45b7aa' },
+                            { label: 'Q3', value: treasuryData.finances.totalBudget * 0.28 / 1000000000, color: '#96ceb4' },
+                            { label: 'Q4', value: treasuryData.finances.totalBudget * 0.25 / 1000000000, color: '#feca57' }
+                          ]}
+                          title="📅 Quarterly Budget Utilization (Billions)"
+                          height={250}
+                          width={400}
+                          showTooltip={true}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="tab-actions">
                     <button className="action-btn">Financial Report</button>
                     <button className="action-btn secondary">Budget Summary</button>

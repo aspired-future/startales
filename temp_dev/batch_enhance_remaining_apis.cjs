@@ -16,7 +16,7 @@ const remainingAPIs = [
   'other-apis.cjs'
 ];
 
-const apiDir = path.join(__dirname, '../src/demo/apis');
+const apiDir = path.join(__dirname, '../src/server/routes');
 
 function enhanceAPI(filename) {
   console.log(`\n🔧 Enhancing ${filename}...`);

@@ -1615,5 +1615,6 @@ const ReviewCreateStep: React.FC<{
     </div>
   </div>
 );
+};
 
 export default CampaignWizard;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
 import './TradeScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface TradeIndex {
   name: string;
@@ -104,13 +105,13 @@ const TradeScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext
     
     try {
       const [indicesRes, systemsRes, commoditiesRes, routesRes, corporationsRes, contractsRes, opportunitiesRes] = await Promise.all([
-        fetch('/api/trade/indices'),
-        fetch('/api/trade/systems'),
-        fetch('/api/trade/commodities'),
-        fetch('/api/trade/routes'),
-        fetch('/api/trade/corporations'),
-        fetch('/api/trade/contracts'),
-        fetch('/api/trade/opportunities')
+        fetch('/api/trade/indices?campaignId=1'),
+        fetch('/api/trade/systems?campaignId=1'),
+        fetch('/api/trade/commodities?campaignId=1'),
+        fetch('/api/trade/routes?campaignId=1'),
+        fetch('/api/trade/corporations?campaignId=1'),
+        fetch('/api/trade/contracts?campaignId=1'),
+        fetch('/api/trade/opportunities?campaignId=1')
       ]);
 
       const [indices, systems, commodities, routes, corporations, contracts, opportunities] = await Promise.all([
@@ -134,7 +135,6 @@ const TradeScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext
       });
     } catch (err) {
       console.error('Failed to fetch trade data:', err);
-      setError('Failed to load trade data');
       // Use mock data as fallback
       setTradeData({
         indices: generateMockIndices(),
@@ -261,6 +261,98 @@ const TradeScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Trade Charts Section */}
+      <div className="trade-charts-section">
+        <div className="charts-grid">
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Jan', value: 2.8 },
+                { label: 'Feb', value: 3.2 },
+                { label: 'Mar', value: 2.9 },
+                { label: 'Apr', value: 3.5 },
+                { label: 'May', value: 3.8 },
+                { label: 'Jun', value: 4.1 }
+              ]}
+              title="📈 Import/Export Balance (Trillions)"
+              color="#4ecdc4"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={tradeData?.systems.slice(0, 6).map((system, index) => ({
+                label: system.name,
+                value: system.volume / 1000000000, // Convert to billions
+                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'][index]
+              })) || []}
+              title="🚀 Trade Partners by Volume"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Quantum Materials', value: 45.2, color: '#4ecdc4' },
+                { label: 'Energy Crystals', value: 38.7, color: '#45b7aa' },
+                { label: 'Rare Metals', value: 32.1, color: '#96ceb4' },
+                { label: 'Bio-Tech', value: 28.9, color: '#feca57' },
+                { label: 'Starship Parts', value: 25.6, color: '#ff9ff3' }
+              ]}
+              title="📦 Commodity Flows (Billions)"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <LineChart
+              data={tradeData?.indices.map((index, i) => ({
+                label: index.name.split(' ')[0], // Shorten names
+                value: index.value / 1000000 // Convert to millions
+              })) || []}
+              title="📊 Market Indices Performance"
+              color="#feca57"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Active Systems', value: tradeData?.systems.filter(s => s.status === 'active').length || 0, color: '#4ecdc4' },
+                { label: 'Expanding Systems', value: tradeData?.systems.filter(s => s.status === 'expanding').length || 0, color: '#feca57' },
+                { label: 'Stable Systems', value: tradeData?.systems.filter(s => s.status === 'stable').length || 0, color: '#45b7aa' }
+              ]}
+              title="🌟 Trading System Status"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Q1', value: 125.4, color: '#4ecdc4' },
+                { label: 'Q2', value: 138.7, color: '#45b7aa' },
+                { label: 'Q3', value: 142.1, color: '#96ceb4' },
+                { label: 'Q4', value: 156.8, color: '#feca57' }
+              ]}
+              title="📅 Quarterly Trade Volume (Trillions)"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
         </div>
       </div>
     </div>

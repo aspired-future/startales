@@ -1,17 +1,16 @@
 import request from 'supertest';
-import { createServer } from 'http';
-import { apiResolver } from 'next/dist/server/api-utils/node';
-import handler from '@/pages/api/sim/step';
+import express from 'express';
+import { createStepRoutes } from '../../src/simulation/routes/stepRoutes.js';
 
-// Create a test server for the API endpoint
-const testServer = createServer((req, res) => {
-  return apiResolver(req, res, undefined, handler, {}, undefined);
-});
+// Create a test Express app with the simulation routes
+const app = express();
+app.use(express.json());
+app.use('/api/sim', createStepRoutes());
 
 describe('/api/sim/step', () => {
   describe('POST /api/sim/step', () => {
     it('should return 200 and simulation results for valid request', async () => {
-      const response = await request(testServer)
+      const response = await request(app)
         .post('/api/sim/step')
         .send({
           campaignId: 1,
@@ -34,7 +33,7 @@ describe('/api/sim/step', () => {
     });
 
     it('should return 400 for missing campaignId', async () => {
-      const response = await request(testServer)
+      const response = await request(app)
         .post('/api/sim/step')
         .send({
           seed: 'test-seed-123',
@@ -48,7 +47,7 @@ describe('/api/sim/step', () => {
     });
 
     it('should return 400 for missing seed', async () => {
-      const response = await request(testServer)
+      const response = await request(app)
         .post('/api/sim/step')
         .send({
           campaignId: 1,
@@ -67,7 +66,7 @@ describe('/api/sim/step', () => {
         { type: 'research', itemId: 'advanced_materials', priority: 2 }
       ];
 
-      const response = await request(testServer)
+      const response = await request(app)
         .post('/api/sim/step')
         .send({
           campaignId: 1,
@@ -127,7 +126,7 @@ describe('/api/sim/step', () => {
     });
 
     it('should return 405 for non-POST requests', async () => {
-      const response = await request(testServer)
+      const response = await request(app)
         .get('/api/sim/step');
 
       expect(response.status).toBe(405);
@@ -138,7 +137,7 @@ describe('/api/sim/step', () => {
 
     it('should handle simulation errors gracefully', async () => {
       // Test with invalid campaignId that might cause database errors
-      const response = await request(testServer)
+      const response = await request(app)
         .post('/api/sim/step')
         .send({
           campaignId: -1,

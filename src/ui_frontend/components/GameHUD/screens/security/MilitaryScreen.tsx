@@ -15,6 +15,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
 import './MilitaryScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface Fleet {
   id: string;
@@ -433,6 +434,96 @@ const MilitaryScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameCont
           </div>
         </div>
       )}
+
+      {/* Military Charts Section */}
+      <div className="military-charts-section">
+        <div className="charts-grid">
+          <div className="chart-container">
+            <BarChart
+              data={militaryData?.fleets.slice(0, 6).map((fleet, index) => ({
+                label: fleet.name.split(' ')[0], // Shorten names
+                value: fleet.ships,
+                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'][index]
+              })) || []}
+              title="🚀 Fleet Strength (Ships)"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <LineChart
+              data={militaryData?.fleets.slice(0, 6).map((fleet, index) => ({
+                label: fleet.name.split(' ')[0], // Shorten names
+                value: fleet.readiness
+              })) || []}
+              title="⚡ Fleet Readiness Levels"
+              color="#4ecdc4"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Active', value: militaryData?.fleets.filter(f => f.status === 'active').length || 0, color: '#4ecdc4' },
+                { label: 'Deployed', value: militaryData?.fleets.filter(f => f.status === 'deployed').length || 0, color: '#45b7aa' },
+                { label: 'Maintenance', value: militaryData?.fleets.filter(f => f.status === 'maintenance').length || 0, color: '#feca57' },
+                { label: 'Standby', value: militaryData?.fleets.filter(f => f.status === 'standby').length || 0, color: '#96ceb4' }
+              ]}
+              title="🎯 Fleet Status Distribution"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={militaryData?.bases.slice(0, 6).map((base, index) => ({
+                label: base.location.split(' ')[0], // Shorten names
+                value: base.personnel,
+                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'][index]
+              })) || []}
+              title="👥 Base Personnel Distribution"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Q1 2023', value: 85 },
+                { label: 'Q2 2023', value: 88 },
+                { label: 'Q3 2023', value: 91 },
+                { label: 'Q4 2023', value: 89 },
+                { label: 'Q1 2024', value: 93 },
+                { label: 'Q2 2024', value: 95 }
+              ]}
+              title="📈 Defense Spending Trends (%)"
+              color="#feca57"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={militaryData?.bases.slice(0, 5).map((base, index) => ({
+                label: base.type.replace('-', ' '),
+                value: base.defenseRating,
+                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3'][index]
+              })) || []}
+              title="🛡️ Base Defense Ratings"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 

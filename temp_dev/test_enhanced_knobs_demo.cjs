@@ -2,7 +2,7 @@
  * Demo of the Enhanced Knob System with real examples
  */
 
-const { EnhancedKnobSystem } = require('../src/demo/apis/enhanced-knob-system.cjs');
+const { EnhancedKnobSystem } = require('../src/server/routes/enhanced-knob-system.cjs');
 
 // Create a sample knob system like our APIs use
 const sampleKnobs = {

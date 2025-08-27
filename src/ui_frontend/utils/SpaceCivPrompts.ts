@@ -22,45 +22,45 @@ export interface EntityContext {
 
 // Consistent visual style for the space civilization game
 const GAME_VISUAL_STYLE: PromptStyle = {
-  baseStyle: "photorealistic sci-fi concept art, highly detailed, professional game asset",
-  lighting: "dramatic cinematic lighting with volumetric fog and particle effects",
-  composition: "dynamic composition with depth of field and atmospheric perspective",
-  quality: "8K resolution, ultra-high quality, sharp focus, intricate details",
-  artStyle: "modern sci-fi aesthetic, sleek futuristic design, advanced technology"
+  baseStyle: "epic space fantasy concept art, fantastical galactic civilization, otherworldly and imaginative, digital art masterpiece",
+  lighting: "ethereal cosmic lighting with mystical energy auras, stellar phenomena, and magical particle effects",
+  composition: "cinematic space opera composition with sweeping galactic vistas and dramatic scale",
+  quality: "ultra-high quality digital art, vibrant colors, stunning visual effects, masterful detail",
+  artStyle: "space age fantasy aesthetic, mystical technology, crystalline structures, energy-based designs, cosmic magic"
 };
 
 // Color palettes for different civilizations
 const CIVILIZATION_PALETTES = {
-  'Terran Federation': 'blue and silver tones, clean metallic surfaces, holographic displays',
-  'Zephyrian Empire': 'purple and gold accents, crystalline structures, energy patterns',
-  'Centauri Republic': 'green and copper hues, organic-tech fusion, bioluminescent elements',
-  'Vegan Collective': 'warm orange and bronze, sustainable technology, living architecture',
-  'Sirian Empire': 'red and black military aesthetic, angular designs, weapon systems',
-  'Kepler Technocracy': 'white and cyan, pristine laboratory environments, advanced AI interfaces',
-  'Andromeda Empire': 'deep space purple and silver, massive scale structures, ancient technology',
-  'Orion Collective': 'multi-colored energy signatures, diverse species integration, adaptive technology'
+  'Terran Federation': 'brilliant azure and prismatic silver, crystalline energy conduits, floating holographic mandalas',
+  'Zephyrian Empire': 'royal amethyst and liquid gold, living crystal formations, pulsing energy webs',
+  'Centauri Republic': 'emerald starlight and molten copper, bio-luminescent tree cities, symbiotic energy networks',
+  'Vegan Collective': 'sunset plasma and cosmic bronze, organic crystal spires, living light architecture',
+  'Sirian Empire': 'crimson void and obsidian steel, angular energy blades, weapon-crystal arrays',
+  'Kepler Technocracy': 'pure starlight and electric cyan, floating crystal laboratories, sentient AI light-forms',
+  'Andromeda Empire': 'deep cosmos purple and astral silver, ancient floating megaliths, time-worn energy matrices',
+  'Orion Collective': 'rainbow nebula energies, multi-dimensional crystal harmonics, unified consciousness light-streams'
 };
 
 // Environmental settings for consistency
 const ENVIRONMENT_SETTINGS = {
-  space: "deep space background with distant stars, nebulae, and cosmic phenomena",
-  planet_surface: "alien planet surface with unique geological features, atmospheric effects",
-  city: "futuristic cityscape with towering spires, flying vehicles, holographic advertisements",
-  ship_interior: "high-tech spaceship interior with control panels, corridors, and viewing ports",
-  station: "massive space station with docking bays, rotating sections, and defensive systems",
-  void: "mysterious void space with energy anomalies and unknown phenomena"
+  space: "mystical cosmic void with swirling galaxies, ethereal nebulae, floating crystal asteroids, and dimensional portals",
+  planet_surface: "fantastical alien worlds with floating landmasses, crystal forests, energy geysers, and magical atmospheric phenomena",
+  city: "magnificent crystal spire cities with floating platforms, energy bridges, levitating vehicles, and holographic constellation displays",
+  ship_interior: "mystical starship interiors with crystalline control matrices, energy conduit walls, and cosmic viewing chambers",
+  station: "colossal space citadels with rotating crystal rings, energy docking arrays, and defensive light-barrier systems",
+  void: "enigmatic dimensional rifts with swirling energy storms, reality distortions, and ancient cosmic artifacts"
 };
 
 // Species-specific characteristics for consistency
 const SPECIES_TRAITS = {
-  human: "human features, diverse ethnicities, advanced cybernetic enhancements, military or civilian attire",
-  zephyrian: "tall elegant beings with crystalline skin patterns, luminous eyes, flowing robes with energy conduits",
-  centaurian: "plant-human hybrid features, bark-like skin textures, symbiotic technology integration",
-  vegan: "insectoid characteristics, compound eyes, chitinous armor plating, hive-mind indicators",
-  sirian: "reptilian features, scaled skin, predatory aspects, military bearing and equipment",
-  kepler: "highly augmented beings, visible cybernetic implants, neural interface ports, pristine appearance",
-  andromedan: "ancient ethereal beings, energy-based physiology, translucent features, cosmic awareness",
-  orion: "diverse collective species, adaptive characteristics, multi-species cooperation indicators"
+  human: "evolved human forms with stellar energy tattoos, cosmic awareness eyes, flowing star-cloth garments with energy patterns",
+  zephyrian: "majestic crystal-born beings with prismatic skin, galaxy-swirl eyes, ethereal robes woven from pure light",
+  centaurian: "tree-spirit humanoids with living bark skin, bioluminescent veins, symbiotic crystal-tech integration",
+  vegan: "elegant insectoid mystics with iridescent carapaces, multifaceted gem eyes, ceremonial energy-armor",
+  sirian: "draconic warrior-mages with scaled energy skin, flame-bright eyes, mystical battle regalia and crystal weapons",
+  kepler: "transcendent techno-mystics with living metal implants, neural-light interfaces, robes of pure energy",
+  andromedan: "ancient star-born entities with translucent energy bodies, cosmic-void eyes, flowing dimensional cloaks",
+  orion: "harmonious collective beings with adaptive energy forms, rainbow-spectrum features, unity-crystal accessories"
 };
 
 export class SpaceCivPromptGenerator {
@@ -97,7 +97,7 @@ export class SpaceCivPromptGenerator {
     
     const civilizationPalette = CIVILIZATION_PALETTES[civilization as keyof typeof CIVILIZATION_PALETTES] || CIVILIZATION_PALETTES['Terran Federation'];
     
-    return `${GAME_VISUAL_STYLE.baseStyle}, ${entityName} spaceship, ${civilizationPalette}, ${era} era technology and design, ${mood} presence in space, advanced propulsion systems, weapon arrays, defensive shields, detailed hull textures and markings, ${ENVIRONMENT_SETTINGS.space}, ${GAME_VISUAL_STYLE.lighting}, ${GAME_VISUAL_STYLE.composition}, ${GAME_VISUAL_STYLE.quality}, ${GAME_VISUAL_STYLE.artStyle}`;
+    return `${GAME_VISUAL_STYLE.baseStyle}, ${entityName} mystical starcraft, ${civilizationPalette}, ${era} era crystal-tech and energy design, ${mood} presence in cosmic void, ethereal propulsion systems, energy weapon arrays, shimmering force barriers, intricate crystal hull patterns and glowing runes, ${ENVIRONMENT_SETTINGS.space}, ${GAME_VISUAL_STYLE.lighting}, ${GAME_VISUAL_STYLE.composition}, ${GAME_VISUAL_STYLE.quality}, ${GAME_VISUAL_STYLE.artStyle}`;
   }
 
   /**
@@ -108,7 +108,7 @@ export class SpaceCivPromptGenerator {
     
     const civilizationPalette = CIVILIZATION_PALETTES[civilization as keyof typeof CIVILIZATION_PALETTES] || CIVILIZATION_PALETTES['Terran Federation'];
     
-    return `${GAME_VISUAL_STYLE.baseStyle}, ${entityName} city, ${civilizationPalette}, ${era} era architecture and infrastructure, ${mood} atmosphere, towering spires and megastructures, flying vehicles and transport systems, holographic displays and advertisements, diverse population and activity, ${GAME_VISUAL_STYLE.lighting}, ${GAME_VISUAL_STYLE.composition}, ${GAME_VISUAL_STYLE.quality}, ${GAME_VISUAL_STYLE.artStyle}`;
+    return `${GAME_VISUAL_STYLE.baseStyle}, ${entityName} crystal metropolis, ${civilizationPalette}, ${era} era mystical architecture and energy infrastructure, ${mood} atmosphere, soaring crystal spires and floating megastructures, levitating vehicles and energy transport streams, holographic constellation displays and light-advertisements, diverse galactic population and mystical activity, ${GAME_VISUAL_STYLE.lighting}, ${GAME_VISUAL_STYLE.composition}, ${GAME_VISUAL_STYLE.quality}, ${GAME_VISUAL_STYLE.artStyle}`;
   }
 
   /**
@@ -120,7 +120,7 @@ export class SpaceCivPromptGenerator {
     const civilizationPalette = civilization ? CIVILIZATION_PALETTES[civilization as keyof typeof CIVILIZATION_PALETTES] : '';
     const environmentSetting = ENVIRONMENT_SETTINGS[setting];
     
-    return `${GAME_VISUAL_STYLE.baseStyle}, cinematic sequence: ${entityName}, ${environmentSetting}, ${civilizationPalette}, ${era} era technology and effects, ${mood} pacing and tension, dynamic camera movements, particle effects and energy signatures, character interactions and dialogue, ambient sound design elements, ${GAME_VISUAL_STYLE.lighting}, ${GAME_VISUAL_STYLE.composition}, ${GAME_VISUAL_STYLE.quality}, ${GAME_VISUAL_STYLE.artStyle}, 30 second duration, smooth transitions`;
+    return `${GAME_VISUAL_STYLE.baseStyle}, epic cinematic sequence: ${entityName}, ${environmentSetting}, ${civilizationPalette}, ${era} era mystical technology and magical effects, ${mood} pacing and cosmic tension, sweeping camera movements through space, ethereal particle effects and energy signatures, character interactions with mystical dialogue, ambient cosmic soundscape elements, ${GAME_VISUAL_STYLE.lighting}, ${GAME_VISUAL_STYLE.composition}, ${GAME_VISUAL_STYLE.quality}, ${GAME_VISUAL_STYLE.artStyle}, 30 second duration, seamless magical transitions`;
   }
 
   /**
@@ -149,7 +149,7 @@ export class SpaceCivPromptGenerator {
         return this.generateVideoPrompt(context);
       
       default:
-        return `${GAME_VISUAL_STYLE.baseStyle}, ${context.entityName}, space civilization game asset, ${GAME_VISUAL_STYLE.lighting}, ${GAME_VISUAL_STYLE.composition}, ${GAME_VISUAL_STYLE.quality}, ${GAME_VISUAL_STYLE.artStyle}`;
+        return `${GAME_VISUAL_STYLE.baseStyle}, ${context.entityName}, mystical galactic civilization game asset, ${GAME_VISUAL_STYLE.lighting}, ${GAME_VISUAL_STYLE.composition}, ${GAME_VISUAL_STYLE.quality}, ${GAME_VISUAL_STYLE.artStyle}`;
     }
   }
 

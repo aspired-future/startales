@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
 import './HealthScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface HealthSecretary {
   id: string;
@@ -216,15 +217,30 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
     } catch (err) {
       console.error('Failed to fetch health data:', err);
       // Use mock data as fallback
+      const mockDiseases = generateMockDiseases();
+      const mockBudgetAllocations = generateMockBudget();
+      
+      // Create budget object with expected properties
+      const mockBudget = {
+        hospitalFunding: 8500000000,
+        researchFunding: 2800000000,
+        preventionPrograms: 3200000000,
+        emergencyResponse: 2000000000,
+        mentalHealthServices: 1800000000,
+        administration: 1700000000
+      };
+      
       setHealthData({
         secretary: generateMockSecretary(),
         surgeonGeneral: generateMockSurgeonGeneral(),
         populationMetrics: generateMockPopulationMetrics(),
-        chronicDiseases: generateMockDiseases(),
+        chronicDiseases: mockDiseases,
+        diseases: mockDiseases, // Add diseases alias for compatibility
         facilities: generateMockFacilities(),
         policies: generateMockPolicies(),
         emergencies: generateMockEmergencies(),
-        budgetAllocations: generateMockBudget(),
+        budgetAllocations: mockBudgetAllocations,
+        budget: mockBudget, // Add budget object with expected properties
         workflows: generateMockWorkflows()
       });
     } finally {
@@ -657,6 +673,104 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
                       )}
                     </div>
                   </div>
+
+                  {/* Health Charts Section */}
+                  <div className="health-charts-section">
+                    <div className="charts-grid">
+                      <div className="chart-container">
+                        <LineChart
+                          data={[
+                            { label: '2019', value: healthData.populationMetrics.lifeExpectancy - 2.5 },
+                            { label: '2020', value: healthData.populationMetrics.lifeExpectancy - 2.0 },
+                            { label: '2021', value: healthData.populationMetrics.lifeExpectancy - 1.5 },
+                            { label: '2022', value: healthData.populationMetrics.lifeExpectancy - 1.0 },
+                            { label: '2023', value: healthData.populationMetrics.lifeExpectancy - 0.5 },
+                            { label: '2024', value: healthData.populationMetrics.lifeExpectancy }
+                          ]}
+                          title="📈 Health Metrics Trends (Life Expectancy)"
+                          color="#4ecdc4"
+                          height={250}
+                          width={400}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <PieChart
+                          data={healthData.diseases.slice(0, 6).map((disease, index) => ({
+                            label: disease.name,
+                            value: disease.prevalence,
+                            color: ['#ff6b6b', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3'][index]
+                          }))}
+                          title="🦠 Disease Distribution"
+                          size={200}
+                          showLegend={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <BarChart
+                          data={[
+                            { label: 'Hospitals', value: healthData.budget.hospitalFunding / 1000000000, color: '#4ecdc4' },
+                            { label: 'Research', value: healthData.budget.researchFunding / 1000000000, color: '#45b7aa' },
+                            { label: 'Prevention', value: healthData.budget.preventionPrograms / 1000000000, color: '#96ceb4' },
+                            { label: 'Emergency', value: healthData.budget.emergencyResponse / 1000000000, color: '#feca57' },
+                            { label: 'Mental Health', value: healthData.budget.mentalHealthServices / 1000000000, color: '#ff9ff3' }
+                          ]}
+                          title="💰 Healthcare Spending (Billions)"
+                          height={250}
+                          width={400}
+                          showTooltip={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <LineChart
+                          data={[
+                            { label: 'Jan', value: healthData.populationMetrics.infantMortality + 0.8 },
+                            { label: 'Feb', value: healthData.populationMetrics.infantMortality + 0.6 },
+                            { label: 'Mar', value: healthData.populationMetrics.infantMortality + 0.4 },
+                            { label: 'Apr', value: healthData.populationMetrics.infantMortality + 0.2 },
+                            { label: 'May', value: healthData.populationMetrics.infantMortality + 0.1 },
+                            { label: 'Jun', value: healthData.populationMetrics.infantMortality }
+                          ]}
+                          title="👶 Infant Mortality Trends"
+                          color="#ff6b6b"
+                          height={250}
+                          width={400}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <PieChart
+                          data={[
+                            { label: 'Excellent', value: 35, color: '#4ecdc4' },
+                            { label: 'Good', value: 40, color: '#45b7aa' },
+                            { label: 'Fair', value: 20, color: '#feca57' },
+                            { label: 'Poor', value: 5, color: '#ff6b6b' }
+                          ]}
+                          title="🏥 Healthcare Quality Distribution"
+                          size={200}
+                          showLegend={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <BarChart
+                          data={[
+                            { label: 'Vaccination Rate', value: healthData.populationMetrics.vaccinationRate, color: '#4ecdc4' },
+                            { label: 'Health Insurance', value: 87.5, color: '#45b7aa' },
+                            { label: 'Preventive Care', value: 72.3, color: '#96ceb4' },
+                            { label: 'Mental Health Access', value: 68.9, color: '#feca57' }
+                          ]}
+                          title="📊 Health Coverage Metrics (%)"
+                          height={250}
+                          width={400}
+                          showTooltip={true}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="tab-actions">
                     <button className="action-btn">Hire Secretary</button>
                     <button className="action-btn secondary">Hire Surgeon General</button>

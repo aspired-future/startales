@@ -13,7 +13,7 @@ import DemographicsScreen from './extracted/DemographicsScreen';
 import TradeScreen from './extracted/TradeScreen';
 import PolicyScreen from './extracted/PolicyScreen';
 import TechnologyScreen from './extracted/TechnologyScreen';
-import MilitaryDemoScreen from './extracted/MilitaryDemoScreen';
+
 import CommunicationsScreen from './extracted/CommunicationsScreen';
 import IntelligenceScreen from './extracted/IntelligenceScreen';
 import EducationScreen from './extracted/EducationScreen';
@@ -42,6 +42,7 @@ import WitterScreen from './extracted/WitterScreen';
 import WhoseAppScreen from './WhoseAppScreen';
 import GalaxyMapScreen from './extracted/GalaxyMapScreen';
 import GalaxyDataScreen from './extracted/GalaxyDataScreen';
+import Enhanced3DGalaxyMapScreen from './Enhanced3DGalaxyMapScreen';
 import EntertainmentTourismScreen from './extracted/EntertainmentTourismScreen';
 import GalaxyWondersScreen from './extracted/GalaxyWondersScreen';
 import HouseholdEconomicsScreen from './extracted/HouseholdEconomicsScreen';
@@ -352,8 +353,14 @@ const screenRegistry: Record<string, ScreenConfig> = {
   },
   'galaxy-map': {
     component: GalaxyMapScreen,
-    title: 'Galaxy Map',
+    title: 'Galaxy Map (Legacy)',
     icon: '🗺️',
+    category: 'galaxy'
+  },
+  'enhanced-3d-galaxy-map': {
+    component: Enhanced3DGalaxyMapScreen,
+    title: 'Enhanced 3D Galaxy Map',
+    icon: '🌌',
     category: 'galaxy'
   },
   'galaxy-data': {

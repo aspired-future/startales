@@ -8,5 +8,6 @@ function run(cmd, args, opts = {}){
 }
 
 // Placeholder: in future will run server and UI concurrently
-run('npx', ['tsx', 'src/demo/index.ts'], { env: { ...process.env, DEMO_START: '1', PORT: process.env.PORT || '4011' } });
+// run('npx', ['tsx', 'src/demo/index.ts'], { env: { ...process.env, DEMO_START: '1', PORT: process.env.PORT || '4011' } }); // Demo removed
+console.log('Demo server removed. Use main server instead.');
 

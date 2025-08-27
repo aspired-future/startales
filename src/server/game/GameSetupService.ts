@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import { getGameMasterStoryEngine } from '../story/GameMasterStoryEngine.js';
-import { getAIService } from '../../services/AIService.js';
+import { getAIService } from '../ai/AIService.js';
 
 export interface GameConfiguration {
   id: string;

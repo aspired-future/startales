@@ -146,23 +146,24 @@ Rules:
 
 ## Image Generation — Prompt Templates
 Common guidance:
-- Maintain `style_profile` (e.g., “inked space opera,” “retro-futurist neon”).
-- Include lighting, lens, composition; add negative prompts for artifacts.
+- Maintain `style_profile` (e.g., "mystical space fantasy," "cosmic crystal-tech," "ethereal galactic civilization").
+- Include magical lighting, cosmic composition; add negative prompts for artifacts.
+- Emphasize fantastical, otherworldly elements over realistic depictions.
 
 Scene (1024×576):
 ```
-[style tokens], [location/biome], [key subjects/NPCs], [action/mood], cinematic framing, volumetric lighting, high detail, subtle film grain
-Negative: low-res, deformed hands, text, watermark, oversaturated
+[style tokens], epic space fantasy, [mystical location/cosmic biome], [key subjects/NPCs with energy auras], [magical action/cosmic mood], cinematic galactic framing, ethereal cosmic lighting with energy particles, ultra-high fantasy detail, mystical atmosphere
+Negative: realistic, photographic, low-res, deformed hands, text, watermark, mundane, earthly
 ```
 Portrait (square):
 ```
-[style tokens], [species], [role], [costume/tech], [expression], bust portrait, rim light
-Negative: asymmetry, duplicate face, watermark, text
+[style tokens], space fantasy character, [mystical species with energy features], [cosmic role], [crystal-tech costume/magical attire], [ethereal expression], bust portrait with energy aura, cosmic rim light
+Negative: realistic human, asymmetry, duplicate face, watermark, text, mundane clothing
 ```
 Item Card:
 ```
-[style tokens], isolated object, [material], [tech level], studio lighting on dark gradient
-Negative: clutter, text, watermark
+[style tokens], mystical galactic artifact, isolated magical object, [crystal/energy material], [cosmic tech level], ethereal studio lighting on starfield gradient, energy glow effects
+Negative: realistic, mundane objects, clutter, text, watermark, earthly materials
 ```
 
 ---
@@ -170,23 +171,23 @@ Negative: clutter, text, watermark
 ## Video Generation — Prompt Templates
 Cutscene (3–12s):
 ```
-Type: cutscene | Source: prompt|i2v|storyboard
-Style: [style tokens]
-Content: [who/where/what stakes]
-Motion: [pan/orbit/push], [speed], [atmospherics]
-Continuity: use reference portraits for recurring NPCs; seed=<seed>
-Safety: adhere to maturity settings
+Type: epic space fantasy cutscene | Source: prompt|i2v|storyboard
+Style: [mystical style tokens], cosmic fantasy aesthetic, ethereal galactic civilization
+Content: [mystical beings/cosmic locations/magical stakes with energy effects]
+Motion: [sweeping cosmic pan/ethereal orbit/mystical push], [flowing speed], [magical atmospherics with particle effects]
+Continuity: use reference portraits for recurring NPCs with energy auras; seed=<seed>
+Safety: adhere to maturity settings, maintain fantastical tone
 ```
 Ambient Loop (3–8s):
 ```
-Type: ambient | Source: i2v from scene image
-Motion: subtle parallax, particle drift, light flicker; loopable
+Type: mystical ambient | Source: i2v from fantasy scene image
+Motion: subtle cosmic parallax, magical particle drift, energy crystal flicker, ethereal atmosphere; seamlessly loopable
 ```
 Highlight (5–20s):
 ```
-Type: highlight | Source: storyboard from recent events
-Beats: [shot list with timings]
-Caption: auto-generate from events
+Type: galactic fantasy highlight | Source: storyboard from recent cosmic events
+Beats: [shot list with magical timings and energy transitions]
+Caption: auto-generate from mystical events with fantasy terminology
 ```
 
 ---

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
 import './TechnologyScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface Technology {
   id: string;
@@ -550,6 +551,101 @@ const TechnologyScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameCo
             <div className="activity-item">
               <span>Innovation Events: {technologyData?.innovationEvents.length || 0}</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Technology Charts Section */}
+      <div className="technology-charts-section">
+        <div className="charts-grid">
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: '2019', value: (technologyData?.analytics.totalTechnologies || 0) * 0.75 },
+                { label: '2020', value: (technologyData?.analytics.totalTechnologies || 0) * 0.82 },
+                { label: '2021', value: (technologyData?.analytics.totalTechnologies || 0) * 0.88 },
+                { label: '2022', value: (technologyData?.analytics.totalTechnologies || 0) * 0.93 },
+                { label: '2023', value: (technologyData?.analytics.totalTechnologies || 0) * 0.97 },
+                { label: '2024', value: technologyData?.analytics.totalTechnologies || 0 }
+              ]}
+              title="📈 Research Progress Over Time"
+              color="#4ecdc4"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={technologyData?.civilizations.map((civ, index) => ({
+                label: civ.name.split(' ')[0], // Shorten names
+                value: parseInt(civ.techLevel.split(' ')[0]) || 0, // Extract numeric level
+                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'][index]
+              })) || []}
+              title="🏛️ Tech Level by Civilization"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Q1', value: (technologyData?.analytics.activeResearch || 0) * 0.8 },
+                { label: 'Q2', value: (technologyData?.analytics.activeResearch || 0) * 0.9 },
+                { label: 'Q3', value: (technologyData?.analytics.activeResearch || 0) * 0.95 },
+                { label: 'Q4', value: technologyData?.analytics.activeResearch || 0 }
+              ]}
+              title="🔬 Innovation Trends (Quarterly)"
+              color="#feca57"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Quantum Computing', value: 28, color: '#4ecdc4' },
+                { label: 'AI/ML', value: 24, color: '#45b7aa' },
+                { label: 'Biotechnology', value: 18, color: '#96ceb4' },
+                { label: 'Space Tech', value: 15, color: '#feca57' },
+                { label: 'Energy Systems', value: 10, color: '#ff9ff3' },
+                { label: 'Other', value: 5, color: '#54a0ff' }
+              ]}
+              title="🧬 Research Categories Distribution"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Active Research', value: technologyData?.analytics.activeResearch || 0, color: '#4ecdc4' },
+                { label: 'Cyber Operations', value: technologyData?.analytics.cyberOperations || 0, color: '#45b7aa' },
+                { label: 'Tech Transfers', value: technologyData?.analytics.technologyTransfers || 0, color: '#96ceb4' },
+                { label: 'Innovation Events', value: technologyData?.innovationEvents.length || 0, color: '#feca57' }
+              ]}
+              title="⚡ Technology Activities"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Operational', value: 85, color: '#4ecdc4' },
+                { label: 'Maintenance', value: 10, color: '#feca57' },
+                { label: 'Offline', value: 5, color: '#ff6b6b' }
+              ]}
+              title="🔧 System Status Distribution"
+              size={200}
+              showLegend={true}
+            />
           </div>
         </div>
       </div>

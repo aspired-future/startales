@@ -98,23 +98,7 @@ function App() {
     if (currentPage === 'comprehensive') {
     return (
       <div style={{ height: '100vh', background: '#0f0f23' }}>
-        <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 1000 }}>
-          <button
-            onClick={() => setCurrentPage('imagen')}
-            style={{
-              padding: '8px 16px',
-              background: '#8b5cf6',
-              color: 'white',
-              border: 'none',
-              borderRadius: 4,
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '600'
-            }}
-          >
-            🎨 Imagen Test
-          </button>
-        </div>
+
         <ComprehensiveHUD
           playerId="Commander_Alpha"
           gameContext={{
@@ -179,19 +163,7 @@ function App() {
             >
               📱 Witter
             </button>
-            <button
-              onClick={() => setCurrentPage('imagen')}
-              style={{
-                padding: '8px 16px',
-                background: '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                borderRadius: 4,
-                cursor: 'pointer'
-              }}
-            >
-              🎨 Imagen Test
-            </button>
+
           </div>
         </div>
         <LiveGameHUD

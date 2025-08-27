@@ -8,6 +8,7 @@ import { useWhoseAppWebSocket } from '../../hooks/useWhoseAppWebSocket';
 import { ActionItemSystem } from './ActionItemSystem';
 import CharacterProfileModal from './CharacterProfileModal';
 import VoiceControls from './VoiceControls';
+// Removed ConversationalCallControls - using enhanced VoiceControls instead
 import ChannelParticipants from './ChannelParticipants';
 import { voiceService } from '../../services/VoiceService';
 import { dynamicVoiceGenerator } from '../../services/DynamicVoiceGenerator';
@@ -146,6 +147,7 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
   const [isProfileModalVisible, setIsProfileModalVisible] = useState(false);
   const [messageInput, setMessageInput] = useState('');
   const [isVoiceMode, setIsVoiceMode] = useState(false);
+  const [isConversationalCall, setIsConversationalCall] = useState(false);
   const [currentSpeakerId, setCurrentSpeakerId] = useState<string | null>(null);
   const [voiceEnabledParticipants, setVoiceEnabledParticipants] = useState<Set<string>>(new Set());
 
@@ -526,63 +528,29 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
       // Add to conversations list
       setConversations(prev => [callConversation, ...prev]);
       
-      // Switch to call conversation
+      // Switch to call conversation and enable conversational mode
       setSelectedConversation(callConversation);
       setSelectedChannel(null);
       setActiveTab('conversations');
+      setIsConversationalCall(true);
       
-      // Create call messages
-      const callMessages: WhoseAppMessage[] = [
-        {
+      // Initialize with system message
+      const systemMessage: WhoseAppMessage = {
           id: `msg_${Date.now()}_call_start`,
           conversationId: callConversation.id,
           senderId: 'system',
           senderName: 'System',
           senderTitle: 'System',
           senderAvatar: '',
-          content: `📞 Call initiated with ${character.name}`,
-          timestamp: new Date(),
-          messageType: 'system',
-          isRead: true,
-          attachments: [],
-          reactions: []
-        },
-        {
-          id: `msg_${Date.now()}_call_connect`,
-          conversationId: callConversation.id,
-          senderId: character.id,
-          senderName: character.name,
-          senderTitle: character.title,
-          senderAvatar: character.avatar,
-          content: `Hello! Thanks for calling. I'm ${character.whoseAppProfile.status === 'online' ? 'available to talk' : 'a bit busy but can chat briefly'}. What's on your mind?`,
-          timestamp: new Date(Date.now() + 1000),
-          messageType: 'text',
-          isRead: false,
-          attachments: [],
-          reactions: []
-        }
-      ];
-      
-      setMessages(callMessages);
-      
-      // Simulate call connection delay
-      setTimeout(() => {
-        const connectedMessage: WhoseAppMessage = {
-          id: `msg_${Date.now()}_connected`,
-          conversationId: callConversation.id,
-          senderId: 'system',
-          senderName: 'System',
-          senderTitle: 'System',
-          senderAvatar: '',
-          content: '🟢 Call connected - You can now speak with the character',
+        content: `📞 Conversational call initiated with ${character.name}. Use the controls below to start talking naturally.`,
           timestamp: new Date(),
           messageType: 'system',
           isRead: true,
           attachments: [],
           reactions: []
         };
-        setMessages(prev => [...prev, connectedMessage]);
-      }, 2000);
+      
+      setMessages([systemMessage]);
       
     } catch (error) {
       console.error('Error initiating call:', error);
@@ -590,30 +558,236 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
     }
   }, [currentUserId]);
 
-  // Handle voice mode toggle with continuous listening
-  const handleVoiceModeToggle = useCallback(() => {
-    const newVoiceMode = !isVoiceMode;
-    setIsVoiceMode(newVoiceMode);
-    
-    if (newVoiceMode) {
-      // Start continuous listening when entering voice mode
-      console.log('🎤 Starting continuous listening...');
-      const success = voiceService.startContinuousListening((transcript) => {
-        console.log('🗣️ User said:', transcript);
-        // Send transcript as message and trigger character response
-        handleVoiceTranscript(transcript);
+  // Track if AI is currently speaking to prevent feedback loops
+  const [isAISpeaking, setIsAISpeaking] = useState(false);
+
+  // Generate conversational AI response using Character AI system
+  const generateConversationalResponse = useCallback(async (userMessage: string) => {
+    // Prevent processing if AI is currently speaking (feedback prevention)
+    if (isAISpeaking) {
+      console.log('🚫 Ignoring voice input while AI is speaking to prevent feedback');
+      return;
+    }
+
+    try {
+      console.log('🤖 Generating Character AI response for:', userMessage);
+      
+      // Get the current character
+      const currentCharacter = generateMockCharacters().find(char => 
+        selectedConversation?.participants.includes(char.id)
+      );
+      
+      if (!currentCharacter) {
+        console.log('No character found, using fallback response');
+        return;
+      }
+      
+      // Use the Character AI system for contextually aware responses
+      const characterAIResponse = await fetch(`/api/characters/${currentCharacter.id}/interact-aware`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `Player: "${userMessage}". Respond as ${currentCharacter.name} in natural conversation. Focus on the single most critical issue right now - explain what's happening, why it matters, and what we need to do about it. Go deep on this one priority rather than listing multiple issues. Use complete sentences and sound like we're having a focused strategic discussion about this specific problem.`,
+          interactionType: 'voice_conversation',
+          conversationId: selectedConversation?.id || `voice_${Date.now()}`,
+          participantId: currentUserId,
+          topic: 'Galactic Civilization Discussion',
+          context: `Strategic conversation between civilization leader and advisor. Focus on ONE priority issue at a time. Go deep on the most critical problem rather than listing multiple concerns. Explain the situation thoroughly and provide specific next steps for this single issue.`,
+          gameState: {
+            civilizationId: civilizationId,
+            currentTurn: Date.now(),
+            gamePhase: 'expansion',
+            playerRole: 'Civilization Leader',
+            conversationType: 'voice_call'
+          },
+          urgency: 'normal',
+          confidentiality: 'internal',
+          previousMessages: messages.slice(-3).map(msg => ({
+            speaker: msg.senderId === currentUserId ? 'Civilization Leader' : currentCharacter.name,
+            message: msg.content,
+            timestamp: msg.timestamp.toISOString(),
+            emotional_tone: 'professional'
+          }))
+        })
       });
       
-      if (!success) {
-        console.error('❌ Failed to start continuous listening');
-        setError('Failed to start voice mode. Please check microphone permissions.');
-      }
+      let response = '';
+      
+      if (characterAIResponse.ok) {
+        const aiData = await characterAIResponse.json();
+        response = aiData.interaction?.response?.content || aiData.interaction?.response || 'I understand your message.';
+        console.log('✅ Character AI response received:', {
+          processingTime: aiData.meta?.processing_time,
+          confidence: aiData.meta?.confidence_score,
+          characterName: aiData.meta?.character_name
+        });
     } else {
-      // Stop continuous listening when exiting voice mode
-      console.log('🔇 Stopping continuous listening...');
+        console.log('❌ Character AI failed, using enhanced fallback');
+        // Create focused, single-issue fallback responses
+        const contextualResponses = {
+          'Foreign Affairs': `The Zephyrian Empire is mobilizing a significant military force near Sector 7, and this is our most pressing diplomatic concern right now. Our intelligence suggests they're positioning for either an invasion of the neutral zone or preparing to blockade our trade routes through that sector. What makes this particularly dangerous is that Sector 7 controls access to three of our most profitable mining operations. If they move forward with this, we're looking at losing approximately thirty percent of our resource income within weeks. I recommend we immediately open direct diplomatic channels with their High Command and offer a face-to-face summit. We need to understand their intentions before this escalates into something we can't control.`,
+          'Science': `We've detected what appears to be a new bioweapon being developed in enemy territories, and this is the most critical threat we're facing right now. Our analysis shows it's designed to target the specific genetic markers found in our population - this isn't a general weapon, it's specifically engineered to harm us. The concerning part is that our current medical countermeasures would be completely ineffective against this particular strain. I've already redirected our top research teams to work on defensive measures, but we need to accelerate this project immediately. We should also consider reaching out to our allies who might have encountered similar threats. This could be a game-changer if we don't get ahead of it.`,
+          'Military': `Our intelligence reports are showing coordinated enemy buildups in three sectors, and the timing suggests we're looking at a coordinated attack within the next two weeks. What's particularly concerning is that these aren't random troop movements - they're positioning forces in a pattern that would allow them to cut off our supply lines while simultaneously hitting our defensive installations. Our fleet is currently at seventy-eight percent strength, which puts us at a significant disadvantage if this attack materializes. I believe we need to make a decision right now: either we mobilize everything we have for a defensive stance, or we consider a preemptive strike while we still have the element of surprise. Waiting isn't really an option at this point.`,
+          'Economics': `We're facing a critical resource shortage that could cripple our entire economy if we don't act within the next month. The pirate attacks on our trade routes have escalated beyond simple raids - they're now systematically targeting our most valuable cargo shipments, and we're losing about eight percent of our total revenue. What makes this worse is that our primary suppliers are starting to demand payment upfront because they're concerned about the security of their shipments. This is creating a cash flow crisis that could force us to shut down essential services. I think our immediate priority has to be deploying military escorts for all trade convoys, even if it means pulling ships from other duties. We can't let our economy collapse while we're dealing with other threats.`,
+          'default': `There's a critical situation developing in sector ${Math.floor(Math.random() * 10 + 1)} that needs your immediate attention. Our monitoring systems are showing efficiency dropping to ${Math.floor(Math.random() * 20 + 60)} percent, which suggests either equipment failure or possible sabotage. If this continues to deteriorate, it could cascade into other sectors and create a system-wide crisis. I recommend we dispatch an emergency response team immediately to assess the situation and determine whether this is a technical failure or something more serious. We need to get ahead of this before it spreads.`
+        };
+        
+        response = contextualResponses[currentCharacter.department] || contextualResponses['default'];
+      }
+      
+      // Simulate realistic thinking time (shorter to prevent interruption)
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Add AI response to messages
+      const aiMessage: WhoseAppMessage = {
+        id: `ai_${Date.now()}`,
+        senderId: selectedConversation?.participants.find(p => p !== currentUserId) || 'ai',
+        content: response,
+        timestamp: new Date(),
+        type: 'text',
+        status: 'sent'
+      };
+      setMessages(prev => [...prev, aiMessage]);
+      
+      // Always speak the response with natural voice (stop listening first to prevent feedback)
+      console.log('🔊 Speaking AI response:', response.substring(0, 50) + '...');
+      
+      // CRITICAL: Set AI speaking flag and COMPLETELY disable voice mode during AI speech
+      setIsAISpeaking(true);
+      setIsVoiceMode(false);
+      setVoiceModeEnabled(false);
+      console.log('🔇 AI now speaking - COMPLETELY disabling voice mode to prevent feedback');
       voiceService.stopContinuousListening();
+      
+      // Calculate estimated speech time based on response length (roughly 150 words per minute)
+      const wordCount = response.split(' ').length;
+      const estimatedSpeechTime = (wordCount / 150) * 60 * 1000; // Convert to milliseconds
+      const minSpeechTime = Math.max(estimatedSpeechTime, 3000); // At least 3 seconds
+      
+      console.log(`📊 Estimated speech time: ${Math.round(estimatedSpeechTime/1000)}s for ${wordCount} words`);
+      
+      try {
+        // CRITICAL: Ensure COMPLETE silence before starting character voice
+        if (window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+          console.log('🔇 Cancelled any existing speech synthesis');
+          
+          // Wait for cancellation to fully complete
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Double-check that synthesis is truly stopped
+          if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+            console.log('⚠️ Speech synthesis still active, forcing stop...');
+            window.speechSynthesis.cancel();
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        }
+        
+        // Start ONLY the character voice TTS - NO FALLBACK to prevent robotic voice
+        console.log('🎭 Starting EXCLUSIVE character voice synthesis...');
+        console.log('🚫 All other TTS disabled to prevent conflicts');
+        
+        // Start character voice synthesis and wait for completion
+        const speechPromise = voiceService.textToSpeechWithEmotion(response, {
+          characterId: currentCharacter.id,
+          emotion: 'professional',
+          naturalPauses: true,
+          rate: 0.85, // Slightly slower to ensure clarity
+          pitch: currentCharacter.department === 'Foreign Affairs' ? 1.1 : 1.0
+        });
+        
+        // Wait for speech to complete AND ensure minimum time for full response
+        await Promise.all([
+          speechPromise,
+          new Promise(resolve => setTimeout(resolve, Math.max(minSpeechTime, 5000)))
+        ]);
+        
+        console.log('✅ Character voice synthesis completed successfully');
+        
+        // Minimal buffer to ensure speech synthesis is fully released
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+      } catch (voiceError) {
+        console.error('❌ Character voice synthesis failed:', voiceError);
+        console.log('🔇 NO FALLBACK - preventing robotic voice interruption');
+        console.log('🎭 Character voice only - no default TTS allowed');
+        // DO NOT use fallback TTS to prevent robotic voice conflicts
+        // Just wait the estimated time and continue
+        await new Promise(resolve => setTimeout(resolve, minSpeechTime));
+      }
+      
+      // Clear AI speaking flag and resume listening for natural conversation flow
+      setIsAISpeaking(false);
+      console.log('✅ AI speech complete - clearing speaking flag');
+      
+      // Resume voice mode immediately after AI speech completes (natural conversation flow)
+      if (isVoiceMode) {
+        console.log('🎤 AI speech completed - immediately resuming voice listening...');
+        console.log('🛡️ Enhanced feedback protection still active');
+        
+        // Wait for actual audio playback to finish, not just synthesis completion
+        const waitForAudioPlayback = async () => {
+          // Check if speech synthesis is still speaking or pending
+          let attempts = 0;
+          const maxAttempts = 50; // 5 seconds max wait
+          
+          while (attempts < maxAttempts) {
+            if (window.speechSynthesis && 
+                (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
+              console.log(`🔊 Audio still playing, waiting... (${attempts + 1}/${maxAttempts})`);
+              await new Promise(resolve => setTimeout(resolve, 100));
+              attempts++;
+            } else {
+              break;
+            }
+          }
+          
+          // Additional buffer to ensure audio has completely finished playing
+          console.log('🔊 Audio playback finished, adding safety buffer...');
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second buffer for audio completion
+        };
+        
+        setTimeout(async () => {
+          if (isVoiceMode && !isAISpeaking) {
+            await waitForAudioPlayback();
+            
+            console.log('🎤 Audio completely finished - now safe to resume voice input');
+            setVoiceModeEnabled(true);
+            
+            // Restart voice listening after confirming audio is done
+            try {
+              voiceService.speechToTextWithConfidence(
+                (transcript, isFinal, confidence) => {
+                  console.log('🎤 Transcript:', transcript, 'Final:', isFinal, 'Confidence:', confidence);
+                  
+                  // Only process final results with good confidence
+                  if (isFinal && (confidence || 1.0) > 0.7 && transcript.trim().length > 2) {
+                    console.log('✅ Processing final transcript:', transcript);
+                    
+                    // Send user message
+                    handleVoiceTranscript(transcript);
+                    
+                    // Generate AI response if in conversational call
+                    if (isConversationalCall) {
+                      generateConversationalResponse(transcript);
+                    }
+                  }
+                },
+                (error) => {
+                  console.error('❌ Voice recognition error after resume:', error);
+                }
+              );
+              console.log('🎤 Voice listening safely resumed after audio completion');
+            } catch (error) {
+              console.error('❌ Failed to resume voice listening:', error);
+            }
+          }
+        }, 100); // Start the audio check after minimal delay
+      }
+    } catch (error) {
+      console.error('Failed to generate conversational response:', error);
     }
-  }, [isVoiceMode]);
+  }, [selectedConversation, currentUserId, isVoiceMode, messages, civilizationId, isAISpeaking]);
 
   // Send message
   const handleSendMessage = useCallback(async (content: string, messageType: string = 'text', audioBlob?: Blob) => {
@@ -691,22 +865,96 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
     }
   }, [selectedConversation, selectedChannel, currentUserId, civilizationId, sendMessage]);
 
-  // Handle voice transcript from continuous listening
-  const handleVoiceTranscript = useCallback(async (transcript: string) => {
-    if (!transcript.trim()) return;
-    
-    try {
-      // Send the transcript as a regular message
-      await handleSendMessage(transcript, 'text');
-      
-      // Generate and send character response with voice
-      await generateCharacterVoiceResponse(transcript);
-      
-    } catch (error) {
-      console.error('Error processing voice transcript:', error);
-      setError('Failed to process voice message');
+  // Handle voice transcript
+  const handleVoiceTranscript = useCallback((transcript: string) => {
+    // Ignore voice input if AI is currently speaking (feedback prevention)
+    if (isAISpeaking) {
+      console.log('🚫 Ignoring voice transcript while AI is speaking:', transcript);
+      return;
     }
-  }, [handleSendMessage]);
+    
+    // Enhanced check: ignore transcripts that sound like AI responses (aggressive feedback prevention)
+    const aiResponseKeywords = [
+      'zephyrian empire', 'sector 7', 'diplomatic concern', 'military force', 'trade routes',
+      'intelligence suggests', 'our most pressing', 'particularly dangerous', 'recommend we',
+      'thirty percent', 'resource income', 'direct diplomatic channels', 'face-to-face summit',
+      'understand their intentions', 'before this escalates'
+    ];
+    const transcriptLower = transcript.toLowerCase();
+    const soundsLikeAIResponse = aiResponseKeywords.some(keyword => transcriptLower.includes(keyword));
+    
+    // Also check for repeated phrases that are likely AI echo
+    const recentMessages = messages.slice(-3); // Check last 3 messages
+    const isRepeatedPhrase = recentMessages.some(msg => 
+      msg.content && msg.content.toLowerCase().includes(transcriptLower)
+    );
+    
+    if (soundsLikeAIResponse || isRepeatedPhrase) {
+      console.log('🚫 Ignoring transcript that sounds like AI feedback or repetition:', transcript);
+      return;
+    }
+    
+    console.log('🎤 Processing voice transcript:', transcript);
+    if (transcript.trim()) {
+      handleSendMessage(transcript, 'voice');
+    }
+  }, [handleSendMessage, isAISpeaking]);
+
+  // Handle voice mode toggle with continuous listening
+  const handleVoiceModeToggle = useCallback(async () => {
+    // Prevent voice mode activation while AI is speaking
+    if (isAISpeaking) {
+      console.log('🚫 Cannot toggle voice mode while AI is speaking');
+      return;
+    }
+    
+    console.log('🎤 Voice mode toggle clicked');
+    const newVoiceMode = !isVoiceMode;
+    setIsVoiceMode(newVoiceMode);
+    setVoiceModeEnabled(newVoiceMode);
+    
+    if (newVoiceMode) {
+      console.log('🎤 Starting conversational listening...');
+      
+      try {
+        await voiceService.speechToTextWithConfidence(
+          (transcript, isFinal, confidence) => {
+            console.log('🎤 Transcript:', transcript, 'Final:', isFinal, 'Confidence:', confidence);
+            
+            // Only process final results with good confidence
+            if (isFinal && (confidence || 1.0) > 0.7 && transcript.trim().length > 2) {
+              console.log('✅ Processing final transcript:', transcript);
+              
+              // Send user message
+              handleVoiceTranscript(transcript);
+              
+              // Generate AI response if in conversational call
+              if (isConversationalCall) {
+                generateConversationalResponse(transcript);
+              }
+              
+              // Don't automatically restart listening - let the AI response complete first
+              // The generateConversationalResponse function will handle resuming listening
+              console.log('🎤 Voice input processed, waiting for AI response to complete before resuming');
+            }
+          },
+          (error) => {
+            console.error('Speech recognition error:', error);
+            setError('Speech recognition failed');
+            setIsVoiceMode(false);
+          },
+          2500 // Wait 2.5 seconds of silence
+        );
+    } catch (error) {
+        console.error('❌ Failed to start conversational listening:', error);
+        setError('Failed to start voice mode. Please check microphone permissions.');
+        setIsVoiceMode(false);
+      }
+    } else {
+      console.log('🔇 Stopping conversational listening...');
+      // The speechToTextWithConfidence will stop automatically
+    }
+  }, [isVoiceMode, isConversationalCall, handleVoiceTranscript, generateConversationalResponse, isAISpeaking]);
 
   // Generate character voice response
   const generateCharacterVoiceResponse = useCallback(async (userMessage: string) => {
@@ -840,16 +1088,7 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
   }, [handleCharacterProfileView]);
 
   // Handle recording
-  const [isRecording, setIsRecording] = useState(false);
   const [voiceModeEnabled, setVoiceModeEnabled] = useState(false);
-
-  const handleStartRecording = useCallback(() => {
-    setIsRecording(true);
-  }, []);
-
-  const handleStopRecording = useCallback(() => {
-    setIsRecording(false);
-  }, []);
 
   // Generate channel participants from channel data
   const generateChannelParticipants = useCallback((channel: WhoseAppChannel) => {
@@ -1123,6 +1362,40 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
                 }}
               />
               
+              {/* Interrupt button when AI is speaking */}
+              {isAISpeaking && (
+                <button
+                  onClick={() => {
+                    console.log('🛑 User interrupted AI speech');
+                    setIsAISpeaking(false);
+                    setIsVoiceMode(false);
+                    setVoiceModeEnabled(false);
+                    voiceService.stopContinuousListening();
+                    // CRITICAL: Stop ALL speech synthesis immediately
+                    if (window.speechSynthesis) {
+                      window.speechSynthesis.cancel();
+                      console.log('🔇 All speech synthesis cancelled by user');
+                    }
+                  }}
+                  style={{
+                    background: 'rgba(244, 67, 54, 0.3)',
+                    border: '1px solid #f44336',
+                    borderRadius: '8px',
+                    color: '#f44336',
+                    padding: '10px',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    minWidth: '50px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title="Stop AI Response"
+                >
+                  🛑
+                </button>
+              )}
+              
               <button
                 onClick={handleVoiceModeToggle}
                 style={{
@@ -1176,15 +1449,7 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
               </button>
             </div>
             
-            {isVoiceMode && (
-              <VoiceControls
-                onVoiceMessage={handleVoiceMessage}
-                onTextToSpeech={handleTextToSpeech}
-                characterId={selectedChannel ? 'channel_voice' : selectedConversation?.participants.find(p => p !== currentUserId)}
-                disabled={false}
-                showTTSControls={true}
-              />
-            )}
+                        {/* Voice controls removed - using mic button next to send instead */}
           </div>
         </div>
       </div>
@@ -1882,9 +2147,33 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
         borderBottom: '1px solid rgba(78, 205, 196, 0.2)',
         background: 'rgba(26, 26, 46, 0.6)'
       }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <h2 style={{ color: '#4ecdc4', margin: 0, fontSize: '20px' }}>
           💬 WhoseApp
         </h2>
+          {isAISpeaking && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'rgba(76, 175, 80, 0.2)',
+              border: '1px solid #4CAF50',
+              borderRadius: '20px',
+              padding: '6px 12px',
+              fontSize: '12px',
+              color: '#4CAF50'
+            }}>
+              <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: '#4CAF50',
+                animation: 'pulse 1.5s infinite'
+              }} />
+              AI Speaking...
+            </div>
+          )}
+        </div>
         
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
@@ -1995,55 +2284,7 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
         {renderContent()}
       </div>
 
-      {/* Voice Controls (when enabled) */}
-      {voiceModeEnabled && (
-        <div className="voice-controls-container" style={{
-          padding: '16px 20px',
-          borderTop: '1px solid rgba(78, 205, 196, 0.2)',
-          background: 'rgba(26, 26, 46, 0.6)',
-          display: 'flex',
-          gap: '12px',
-          alignItems: 'center'
-        }}>
-          <button
-            onClick={handleStartRecording}
-            disabled={isRecording}
-            style={{
-              background: isRecording ? 'rgba(244, 67, 54, 0.3)' : 'rgba(76, 175, 80, 0.2)',
-              border: `1px solid ${isRecording ? '#F44336' : '#4CAF50'}`,
-              borderRadius: '8px',
-              color: isRecording ? '#F44336' : '#4CAF50',
-              padding: '8px 16px',
-              fontSize: '14px',
-              cursor: isRecording ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {isRecording ? '🔴 Recording...' : '🎙️ Record'}
-          </button>
-          
-          <button
-            onClick={handleStopRecording}
-            disabled={!isRecording}
-            style={{
-              background: !isRecording ? 'rgba(78, 205, 196, 0.1)' : 'rgba(78, 205, 196, 0.2)',
-              border: '1px solid rgba(78, 205, 196, 0.3)',
-              borderRadius: '8px',
-              color: !isRecording ? '#666' : '#4ecdc4',
-              padding: '8px 16px',
-              fontSize: '14px',
-              cursor: !isRecording ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            ⏹️ Stop
-          </button>
-          
-          <div style={{ flex: 1, fontSize: '12px', color: '#888' }}>
-            {isRecording ? 'Recording voice message...' : 'Voice controls ready'}
-          </div>
-        </div>
-      )}
+
 
       {/* Character Profile Modal */}
       {isProfileModalVisible && selectedCharacterForProfile && (

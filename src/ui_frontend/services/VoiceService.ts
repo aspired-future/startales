@@ -321,15 +321,20 @@ class VoiceService {
     }
 
     return new Promise((resolve, reject) => {
-      // Add timeout to prevent hanging
+      // Calculate dynamic timeout based on text length (minimum 15 seconds, ~100ms per character)
+      const dynamicTimeout = Math.max(15000, text.length * 100);
+      console.log(`🕐 Setting TTS timeout to ${Math.round(dynamicTimeout/1000)}s for ${text.length} characters`);
+      
       const timeout = setTimeout(() => {
+        console.warn(`⚠️ TTS timeout after ${Math.round(dynamicTimeout/1000)}s for: "${text.substring(0, 50)}..."`);
         this.synthesis.cancel();
         reject(new Error('synthesis-timeout'));
-      }, 10000); // 10 second timeout
+      }, dynamicTimeout);
       
       utterance.onend = () => {
         clearTimeout(timeout);
         console.log(`✅ TTS completed for: "${text.substring(0, 50)}..."`);
+        console.log(`🎤 Speech synthesis finished - ready for immediate voice input`);
         resolve();
       };
       
@@ -693,6 +698,190 @@ class VoiceService {
   // Set silence threshold
   public setSilenceThreshold(ms: number): void {
     this.silenceThreshold = ms;
+  }
+
+  // Enhanced STT with confidence scoring and silence detection for conversational calls
+  public async speechToTextWithConfidence(
+    onResult: (transcript: string, isFinal: boolean, confidence?: number) => void,
+    onError?: (error: any) => void,
+    silenceTimeout: number = 2000 // Wait 2 seconds of silence before considering speech finished
+  ): Promise<void> {
+    if (!this.isSTTSupported()) {
+      throw new Error('Speech-to-text not supported');
+    }
+
+    return new Promise((resolve, reject) => {
+      let silenceTimer: NodeJS.Timeout | null = null;
+      let lastTranscript = '';
+      let hasSpoken = false;
+
+      this.recognition.continuous = true;
+      this.recognition.interimResults = true;
+      this.recognition.maxAlternatives = 3;
+
+      // Clear any existing silence timer
+      const clearSilenceTimer = () => {
+        if (silenceTimer) {
+          clearTimeout(silenceTimer);
+          silenceTimer = null;
+        }
+      };
+
+      // Start silence detection timer
+      const startSilenceTimer = (transcript: string, confidence: number) => {
+        clearSilenceTimer();
+        silenceTimer = setTimeout(() => {
+          if (hasSpoken && transcript.trim()) {
+            // User has finished speaking, send final result
+            onResult(transcript, true, confidence);
+            this.recognition.stop();
+          }
+        }, silenceTimeout);
+      };
+
+      this.recognition.onresult = (event: any) => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          const transcript = result[0].transcript.trim();
+          const confidence = result[0].confidence || 1.0;
+          
+          if (transcript) {
+            hasSpoken = true;
+            lastTranscript = transcript;
+            
+            // Always send interim results for UI display
+            onResult(transcript, false, confidence);
+            
+            if (!result.isFinal) {
+              // Start/restart silence timer for interim results
+              clearSilenceTimer();
+              silenceTimer = setTimeout(() => {
+                if (hasSpoken && lastTranscript.trim().length > 2) {
+                  // User has finished speaking, send final result
+                  console.log('🔇 Silence detected, finalizing:', lastTranscript);
+                  onResult(lastTranscript, true, confidence);
+                  this.recognition.stop();
+                }
+              }, silenceTimeout);
+            } else {
+              // Browser detected final result, clear timer and send it
+              clearSilenceTimer();
+              console.log('🎯 Browser final result:', transcript);
+              onResult(transcript, true, confidence);
+            }
+          }
+        }
+      };
+
+      this.recognition.onspeechend = () => {
+        // Speech has ended - the silence timer is already running from onresult
+        console.log('🎤 Speech ended detected');
+      };
+
+      this.recognition.onerror = (event: any) => {
+        clearSilenceTimer();
+        if (onError) onError(event.error);
+        reject(new Error(event.error));
+      };
+
+      this.recognition.onend = () => {
+        clearSilenceTimer();
+        resolve();
+      };
+
+      this.recognition.start();
+    });
+  }
+
+  // Enhanced TTS with emotional characteristics
+  public async textToSpeechWithEmotion(
+    text: string, 
+    options: TTSOptions & { 
+      emotion?: 'neutral' | 'happy' | 'sad' | 'excited' | 'calm' | 'urgent';
+      naturalPauses?: boolean;
+    } = {}
+  ): Promise<void> {
+    // Apply emotional adjustments to voice parameters
+    const emotionalOptions = this.applyEmotionalCharacteristics(options);
+    
+    // Add natural pauses if requested
+    const processedText = options.naturalPauses ? this.addNaturalPauses(text) : text;
+    
+    return this.textToSpeech(processedText, emotionalOptions);
+  }
+
+  // Apply emotional characteristics to voice with natural variations
+  private applyEmotionalCharacteristics(options: any): TTSOptions {
+    // Use more natural base values - slower rate, lower pitch for more human-like speech
+    const baseRate = options.rate || 0.85; // Slower than default for more natural speech
+    const basePitch = options.pitch || 0.95; // Slightly lower pitch
+    const baseVolume = options.volume || 0.8;
+
+    // Add slight random variations to make speech more natural (±3%)
+    const naturalVariation = () => 0.97 + (Math.random() * 0.06);
+
+    switch (options.emotion) {
+      case 'happy':
+      case 'excited':
+        return {
+          ...options,
+          rate: Math.min(1.1, baseRate * 1.08 * naturalVariation()),
+          pitch: Math.min(1.2, basePitch * 1.03 * naturalVariation()),
+          volume: Math.min(1.0, baseVolume * 1.05 * naturalVariation())
+        };
+      
+      case 'sad':
+      case 'calm':
+        return {
+          ...options,
+          rate: Math.max(0.6, baseRate * 0.92 * naturalVariation()),
+          pitch: Math.max(0.7, basePitch * 0.96 * naturalVariation()),
+          volume: Math.max(0.5, baseVolume * 0.95 * naturalVariation())
+        };
+      
+      case 'urgent':
+        return {
+          ...options,
+          rate: Math.min(1.2, baseRate * 1.15 * naturalVariation()),
+          pitch: Math.min(1.1, basePitch * 1.01 * naturalVariation()),
+          volume: Math.min(1.0, baseVolume * 1.1 * naturalVariation())
+        };
+      
+      default: // neutral - still add natural variation for less robotic speech
+        return {
+          ...options,
+          rate: Math.max(0.7, Math.min(1.0, baseRate * naturalVariation())),
+          pitch: Math.max(0.8, Math.min(1.1, basePitch * naturalVariation())),
+          volume: Math.max(0.6, Math.min(1.0, baseVolume * naturalVariation()))
+        };
+    }
+  }
+
+  // Add natural pauses to text for more human-like speech
+  private addNaturalPauses(text: string): string {
+    return text
+      // Add longer pauses for sentence endings
+      .replace(/\./g, '... ') // Longer pause after periods
+      .replace(/\?/g, '?... ') // Longer pause after questions
+      .replace(/!/g, '!... ') // Longer pause after exclamations
+      
+      // Add medium pauses for clause breaks
+      .replace(/,/g, ', ') // Short pause after commas
+      .replace(/;/g, ';.. ') // Medium pause after semicolons
+      .replace(/:/g, ':.. ') // Medium pause after colons
+      
+      // Add natural breathing pauses in longer sentences
+      .replace(/\b(and|but|or|so|because|however|therefore|meanwhile|furthermore)\b/gi, '.. $1') // Pause before conjunctions
+      .replace(/\b(well|you know|I mean|actually|basically|essentially)\b/gi, '$1.. ') // Pause after filler words
+      
+      // Add slight pauses around parenthetical expressions
+      .replace(/\(/g, '.. (') // Pause before parentheses
+      .replace(/\)/g, ').. ') // Pause after parentheses
+      
+      // Clean up excessive spaces and dots
+      .replace(/\.{4,}/g, '...') // Limit consecutive dots
+      .replace(/\s+/g, ' ') // Clean up extra spaces
+      .trim();
   }
 }
 

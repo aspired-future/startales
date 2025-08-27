@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ExplorationDashboard } from '../../../Exploration/ExplorationDashboard';
 import { GalacticExplorationService } from '../../../../services/GalacticExplorationService';
 import './ExplorationScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface ExplorationScreenProps {
   screenId: string;
@@ -130,6 +131,104 @@ const ExplorationScreen: React.FC<ExplorationScreenProps> = ({
           <div className="stat-content">
             <div className="stat-value">{explorationStats.successRate}%</div>
             <div className="stat-label">Success Rate</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Exploration Charts Section */}
+      <div className="exploration-charts-section">
+        <div className="charts-grid">
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Q1 2023', value: explorationStats.discoveredSystems * 0.6 },
+                { label: 'Q2 2023', value: explorationStats.discoveredSystems * 0.72 },
+                { label: 'Q3 2023', value: explorationStats.discoveredSystems * 0.83 },
+                { label: 'Q4 2023', value: explorationStats.discoveredSystems * 0.91 },
+                { label: 'Q1 2024', value: explorationStats.discoveredSystems * 0.96 },
+                { label: 'Q2 2024', value: explorationStats.discoveredSystems }
+              ]}
+              title="🚀 Exploration Progress Over Time"
+              color="#4ecdc4"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Habitable Worlds', value: 35, color: '#4ecdc4' },
+                { label: 'Resource Rich', value: 28, color: '#45b7aa' },
+                { label: 'Gas Giants', value: 20, color: '#96ceb4' },
+                { label: 'Asteroid Fields', value: 12, color: '#feca57' },
+                { label: 'Unknown', value: 5, color: '#ff9ff3' }
+              ]}
+              title="🌌 Discovered Systems Types"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Rare Minerals', value: 45, color: '#4ecdc4' },
+                { label: 'Energy Sources', value: 38, color: '#45b7aa' },
+                { label: 'Alien Artifacts', value: 32, color: '#96ceb4' },
+                { label: 'Biological Samples', value: 28, color: '#feca57' },
+                { label: 'Technology', value: 22, color: '#ff9ff3' }
+              ]}
+              title="💎 Resource Findings"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Jan', value: explorationStats.successRate - 8 },
+                { label: 'Feb', value: explorationStats.successRate - 6 },
+                { label: 'Mar', value: explorationStats.successRate - 4 },
+                { label: 'Apr', value: explorationStats.successRate - 2 },
+                { label: 'May', value: explorationStats.successRate - 1 },
+                { label: 'Jun', value: explorationStats.successRate }
+              ]}
+              title="📈 Mission Success Rate Trends"
+              color="#feca57"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Friendly', value: explorationStats.firstContacts * 0.6, color: '#4ecdc4' },
+                { label: 'Neutral', value: explorationStats.firstContacts * 0.3, color: '#feca57' },
+                { label: 'Hostile', value: explorationStats.firstContacts * 0.1, color: '#ff6b6b' }
+              ]}
+              title="👽 First Contact Outcomes"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Active Expeditions', value: explorationStats.activeExpeditions, color: '#4ecdc4' },
+                { label: 'Anomalies Found', value: explorationStats.anomaliesFound, color: '#45b7aa' },
+                { label: 'First Contacts', value: explorationStats.firstContacts, color: '#96ceb4' },
+                { label: 'Systems Mapped', value: explorationStats.discoveredSystems, color: '#feca57' }
+              ]}
+              title="📊 Exploration Metrics Overview"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
           </div>
         </div>
       </div>

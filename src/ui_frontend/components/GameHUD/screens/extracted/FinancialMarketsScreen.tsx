@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
 import './FinancialMarketsScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface Stock {
   id: string;
@@ -629,6 +630,99 @@ const FinancialMarketsScreen: React.FC<ScreenProps> = ({ screenId, title, icon, 
                       </div>
                     ))}
                   </div>
+
+                  {/* Financial Markets Charts Section */}
+                  <div className="financial-charts-section">
+                    <div className="charts-grid">
+                      <div className="chart-container">
+                        <LineChart
+                          data={marketsData.stocks.slice(0, 6).map((stock, index) => ({
+                            label: stock.symbol,
+                            value: stock.price + (Math.random() * 20 - 10) // Simulated price movement
+                          }))}
+                          title="📈 Stock Performance Trends"
+                          color="#4ecdc4"
+                          height={250}
+                          width={400}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <PieChart
+                          data={[
+                            { label: 'Technology', value: 35, color: '#4ecdc4' },
+                            { label: 'Healthcare', value: 22, color: '#45b7aa' },
+                            { label: 'Finance', value: 18, color: '#96ceb4' },
+                            { label: 'Energy', value: 12, color: '#feca57' },
+                            { label: 'Manufacturing', value: 8, color: '#ff9ff3' },
+                            { label: 'Other', value: 5, color: '#54a0ff' }
+                          ]}
+                          title="🏭 Sector Allocation"
+                          size={200}
+                          showLegend={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <LineChart
+                          data={[
+                            { label: 'Jan', value: 65 },
+                            { label: 'Feb', value: 72 },
+                            { label: 'Mar', value: 68 },
+                            { label: 'Apr', value: 78 },
+                            { label: 'May', value: 82 },
+                            { label: 'Jun', value: 75 }
+                          ]}
+                          title="🎭 Market Sentiment Over Time"
+                          color="#feca57"
+                          height={250}
+                          width={400}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <BarChart
+                          data={marketsData.stocks.slice(0, 5).map(stock => ({
+                            label: stock.symbol,
+                            value: stock.marketCap / 1000000000, // Convert to billions
+                            color: stock.change >= 0 ? '#4ecdc4' : '#ff6b6b'
+                          }))}
+                          title="💰 Market Cap (Billions)"
+                          height={250}
+                          width={400}
+                          showTooltip={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <PieChart
+                          data={[
+                            { label: 'Bullish', value: 45, color: '#4ecdc4' },
+                            { label: 'Neutral', value: 35, color: '#feca57' },
+                            { label: 'Bearish', value: 20, color: '#ff6b6b' }
+                          ]}
+                          title="📊 Investor Sentiment"
+                          size={200}
+                          showLegend={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <BarChart
+                          data={marketsData.stocks.slice(0, 6).map(stock => ({
+                            label: stock.symbol,
+                            value: stock.volume / 1000000, // Convert to millions
+                            color: '#96ceb4'
+                          }))}
+                          title="📊 Trading Volume (Millions)"
+                          height={250}
+                          width={400}
+                          showTooltip={true}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="tab-actions">
                     <button className="action-btn" onClick={handleExecuteTrade}>Execute Trade</button>
                     <button className="action-btn secondary">View All Stocks</button>

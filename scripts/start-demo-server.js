@@ -45,7 +45,9 @@ process.chdir(path.join(__dirname, '..', 'src'));
 
 console.log('🔧 Starting demo server on port 4010...\n');
 
-const demo = spawn('npx', ['tsx', 'demo/index.ts'], {
+console.log('Demo server has been removed. Use main server instead.');
+process.exit(0);
+// const demo = spawn('npx', ['tsx', 'demo/index.ts'], {
   stdio: 'inherit',
   shell: true,
   env: {

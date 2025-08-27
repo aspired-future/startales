@@ -19,7 +19,7 @@ const apisToUpdate = [
   'military-apis.cjs'
 ];
 
-const apiDir = path.join(__dirname, '../src/demo/apis');
+const apiDir = path.join(__dirname, '../src/server/routes');
 
 function updateApiFile(filename) {
   const filePath = path.join(apiDir, filename);

@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('../../../src/demo/apis/enhanced-knob-system.cjs');
+const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('../../../src/server/routes/enhanced-knob-system.cjs');
 
 const app = express();
 const server = http.createServer(app);

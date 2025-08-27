@@ -36,7 +36,7 @@ services:
       - DEMO_START=1
       - PORT=4000
     # Override default command to run demo on correct port
-    command: ["node", "--experimental-specifier-resolution=node", "dist/src/demo/sprint4-demo.js"]
+    # command: ["node", "--experimental-specifier-resolution=node", "dist/src/demo/sprint4-demo.js"] # Demo removed
     depends_on:
       postgres:
         condition: service_healthy

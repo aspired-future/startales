@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './EducationScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface EducationMetrics {
   totalStudents: number;
@@ -406,6 +407,99 @@ const EducationScreen: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Education Charts Section */}
+      <div className="education-charts-section">
+        <div className="charts-grid">
+          <div className="chart-container">
+            <PieChart
+              data={educationData.levels.map((level, index) => ({
+                label: level.level,
+                value: level.students,
+                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3'][index]
+              }))}
+              title="🎓 Education Levels Distribution"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: '2019', value: educationData.metrics.graduationRate - 4.5 },
+                { label: '2020', value: educationData.metrics.graduationRate - 3.2 },
+                { label: '2021', value: educationData.metrics.graduationRate - 2.1 },
+                { label: '2022', value: educationData.metrics.graduationRate - 1.5 },
+                { label: '2023', value: educationData.metrics.graduationRate - 0.8 },
+                { label: '2024', value: educationData.metrics.graduationRate }
+              ]}
+              title="📈 Performance Trends (Graduation Rate)"
+              color="#4ecdc4"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={educationData.levels.map((level, index) => ({
+                label: level.level.split(' ')[0], // Shorten names
+                value: level.budget / 1000000000, // Convert to billions
+                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'][index]
+              }))}
+              title="💰 Funding Allocation (Billions)"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Jan', value: educationData.metrics.literacyRate - 2.1 },
+                { label: 'Feb', value: educationData.metrics.literacyRate - 1.8 },
+                { label: 'Mar', value: educationData.metrics.literacyRate - 1.2 },
+                { label: 'Apr', value: educationData.metrics.literacyRate - 0.9 },
+                { label: 'May', value: educationData.metrics.literacyRate - 0.4 },
+                { label: 'Jun', value: educationData.metrics.literacyRate }
+              ]}
+              title="📚 Literacy Rate Progress"
+              color="#feca57"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Public', value: educationData.institutions.filter(i => i.publicPrivate === 'public').length, color: '#4ecdc4' },
+                { label: 'Private', value: educationData.institutions.filter(i => i.publicPrivate === 'private').length, color: '#45b7aa' }
+              ]}
+              title="🏫 Public vs Private Institutions"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Student-Teacher Ratio', value: Math.round(educationData.metrics.totalStudents / educationData.metrics.totalTeachers), color: '#4ecdc4' },
+                { label: 'Institutions per 100K', value: Math.round((educationData.metrics.totalInstitutions / educationData.metrics.totalStudents) * 100000), color: '#45b7aa' },
+                { label: 'Teachers per 1K Students', value: Math.round((educationData.metrics.totalTeachers / educationData.metrics.totalStudents) * 1000), color: '#96ceb4' },
+                { label: 'Budget per Student (K)', value: Math.round(educationData.metrics.totalBudget / educationData.metrics.totalStudents / 1000), color: '#feca57' }
+              ]}
+              title="📊 Education System Ratios"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
         </div>
       </div>
     </div>

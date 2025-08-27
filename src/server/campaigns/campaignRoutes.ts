@@ -488,6 +488,66 @@ router.post('/:campaignId/players', async (req, res) => {
   }
 });
 
+// ===== GRAPHICS GENERATION =====
+
+/**
+ * POST /api/campaign/generate-graphics - Generate graphics options for campaign
+ */
+router.post('/generate-graphics', async (req, res) => {
+  try {
+    const { scenario } = req.body;
+
+    if (!scenario) {
+      return res.status(400).json({
+        error: 'Missing required field: scenario'
+      });
+    }
+
+    // Generate graphics options based on scenario
+    const graphicsOptions = [
+      {
+        id: 'realistic-space',
+        name: 'Realistic Space Opera',
+        theme: 'Photorealistic space environments with detailed starships and planets',
+        preview: '/api/images/placeholder/realistic-space.jpg',
+        style: 'realistic'
+      },
+      {
+        id: 'stylized-cosmic',
+        name: 'Stylized Cosmic Adventure',
+        theme: 'Artistic interpretation with vibrant colors and stylized designs',
+        preview: '/api/images/placeholder/stylized-cosmic.jpg',
+        style: 'stylized'
+      },
+      {
+        id: 'minimalist-clean',
+        name: 'Minimalist Interface',
+        theme: 'Clean, geometric designs with focus on clarity and function',
+        preview: '/api/images/placeholder/minimalist-clean.jpg',
+        style: 'minimalist'
+      },
+      {
+        id: 'retro-futuristic',
+        name: 'Retro-Futuristic',
+        theme: 'Classic sci-fi aesthetic with neon colors and chrome details',
+        preview: '/api/images/placeholder/retro-futuristic.jpg',
+        style: 'retro'
+      }
+    ];
+
+    // TODO: In the future, use AI to generate actual custom graphics based on scenario
+    // For now, return predefined options
+
+    res.json(graphicsOptions);
+  } catch (error) {
+    console.error('Error generating graphics options:', error);
+    res.status(500).json({
+      error: 'Failed to generate graphics options',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Enhanced Knob System Endpoints
 createEnhancedKnobEndpoints(router, 'campaigns', campaignKnobSystem, applyCampaignKnobsToGameState);
 

@@ -35,7 +35,7 @@ services:
       - NODE_ENV=production
       - PORT=4010
     # Run the main demo server with all systems including Population Engine
-    command: ["npx", "tsx", "src/demo/index.ts"]
+    # command: ["npx", "tsx", "src/demo/index.ts"] # Demo removed
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4010/api/population/health"]

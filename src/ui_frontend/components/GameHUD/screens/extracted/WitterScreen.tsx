@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SimpleWitterFeed } from '../../../Witter/SimpleWitterFeed';
 import './WitterScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface WitterScreenProps {
   screenId: string;
@@ -25,9 +26,26 @@ const WitterScreen: React.FC<WitterScreenProps> = ({
 
   const renderFeedTab = () => (
     <div className="witter-feed-tab">
-      <div className="feed-header">
-        <h2>🐦 Witty Galaxy Social Network</h2>
-        <p>Real-time galactic social media feed with AI-generated content</p>
+      <div className="feed-filters">
+        <div className="filter-row">
+          <select className="filter-dropdown">
+            <option value="all">All Categories</option>
+            <option value="science">🧬 Science</option>
+            <option value="business">📊 Business</option>
+            <option value="sports">⚽ Sports</option>
+            <option value="politics">🌟 Politics</option>
+            <option value="technology">🤖 Technology</option>
+          </select>
+          <select className="filter-dropdown">
+            <option value="all">All Civilizations</option>
+            <option value="terran">🌍 Terran Federation</option>
+            <option value="vega">⭐ Vega Alliance</option>
+            <option value="centauri">🏛️ Centauri Republic</option>
+            <option value="andromeda">🌌 Andromeda Empire</option>
+            <option value="orion">🔮 Orion Collective</option>
+            <option value="zephyrian">💨 Zephyrian Empire</option>
+          </select>
+        </div>
       </div>
       <div className="embedded-witter-feed">
         <SimpleWitterFeed 
@@ -188,56 +206,98 @@ const WitterScreen: React.FC<WitterScreenProps> = ({
         </div>
       </div>
 
-      <div className="analytics-charts">
-        <div className="chart-card">
-          <h3>📈 Engagement Over Time</h3>
-          <div className="chart-placeholder">
-            <div className="chart-bars">
-              <div className="bar" style={{ height: '60%' }}></div>
-              <div className="bar" style={{ height: '75%' }}></div>
-              <div className="bar" style={{ height: '45%' }}></div>
-              <div className="bar" style={{ height: '90%' }}></div>
-              <div className="bar" style={{ height: '80%' }}></div>
-              <div className="bar" style={{ height: '95%' }}></div>
-              <div className="bar" style={{ height: '70%' }}></div>
-            </div>
-            <div className="chart-labels">
-              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-            </div>
+      {/* Witter Charts Section */}
+      <div className="witter-charts-section">
+        <div className="charts-grid">
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Mon', value: 60 },
+                { label: 'Tue', value: 75 },
+                { label: 'Wed', value: 45 },
+                { label: 'Thu', value: 90 },
+                { label: 'Fri', value: 80 },
+                { label: 'Sat', value: 95 },
+                { label: 'Sun', value: 70 }
+              ]}
+              title="📈 Engagement Trends (Weekly)"
+              color="#4ecdc4"
+              height={250}
+              width={400}
+            />
           </div>
-        </div>
 
-        <div className="chart-card">
-          <h3>🌍 Geographic Distribution</h3>
-          <div className="geo-stats">
-            <div className="geo-item">
-              <span className="geo-label">Core Worlds</span>
-              <div className="geo-bar">
-                <div className="geo-fill" style={{ width: '85%' }}></div>
-              </div>
-              <span className="geo-value">85%</span>
-            </div>
-            <div className="geo-item">
-              <span className="geo-label">Mid Rim</span>
-              <div className="geo-bar">
-                <div className="geo-fill" style={{ width: '65%' }}></div>
-              </div>
-              <span className="geo-value">65%</span>
-            </div>
-            <div className="geo-item">
-              <span className="geo-label">Outer Rim</span>
-              <div className="geo-bar">
-                <div className="geo-fill" style={{ width: '45%' }}></div>
-              </div>
-              <span className="geo-value">45%</span>
-            </div>
-            <div className="geo-item">
-              <span className="geo-label">Unknown Regions</span>
-              <div className="geo-bar">
-                <div className="geo-fill" style={{ width: '25%' }}></div>
-              </div>
-              <span className="geo-value">25%</span>
-            </div>
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Core Worlds', value: 85, color: '#4ecdc4' },
+                { label: 'Mid Rim', value: 65, color: '#45b7aa' },
+                { label: 'Outer Rim', value: 45, color: '#96ceb4' },
+                { label: 'Unknown Regions', value: 25, color: '#feca57' }
+              ]}
+              title="🌍 Geographic Distribution"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Likes', value: 32.1, color: '#4ecdc4' },
+                { label: 'Daily Wits', value: 18.7, color: '#45b7aa' },
+                { label: 'Shares', value: 4.2, color: '#96ceb4' },
+                { label: 'Active Users', value: 2.4, color: '#feca57' }
+              ]}
+              title="💬 Content Metrics (Millions)"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Q1', value: 2.1 },
+                { label: 'Q2', value: 2.2 },
+                { label: 'Q3', value: 2.3 },
+                { label: 'Q4', value: 2.4 }
+              ]}
+              title="👥 User Growth (Millions)"
+              color="#feca57"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Humans', value: 60, color: '#4ecdc4' },
+                { label: 'AI Characters', value: 25, color: '#45b7aa' },
+                { label: 'Aliens', value: 10, color: '#96ceb4' },
+                { label: 'Bots', value: 5, color: '#feca57' }
+              ]}
+              title="🤖 User Type Distribution"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Active Planets', value: 847, color: '#4ecdc4' },
+                { label: 'AI Characters', value: 1200, color: '#45b7aa' },
+                { label: 'Daily Posts', value: 18700, color: '#96ceb4' },
+                { label: 'Trending Topics', value: 156, color: '#feca57' }
+              ]}
+              title="🌟 Platform Statistics"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
           </div>
         </div>
       </div>

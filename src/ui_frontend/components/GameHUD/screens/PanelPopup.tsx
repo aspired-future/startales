@@ -12,7 +12,7 @@ import SovereignWealthFundScreen from './SovereignWealthFundScreen';
 import { GovernmentBondsScreen } from './GovernmentBondsScreen';
 import FinancialMarketsScreen from './extracted/FinancialMarketsScreen';
 import EconomicEcosystemScreen from './extracted/EconomicEcosystemScreen';
-import MilitaryDemoScreen from './extracted/MilitaryDemoScreen';
+
 import DefenseScreen from './security/DefenseScreen';
 import CitiesScreen from './extracted/CitiesScreen';
 import DemographicsScreen from './extracted/DemographicsScreen';
@@ -53,9 +53,10 @@ import GalaxyWondersScreen from './extracted/GalaxyWondersScreen';
 import HouseholdEconomicsScreen from './extracted/HouseholdEconomicsScreen';
 import BusinessCycleScreen from './BusinessCycleScreen';
 import WorldWondersEnhancedScreen from './WorldWondersScreen';
-import TreasuryEnhancedScreen from './TreasuryEnhancedScreen';
+
 import CharacterAwarenessScreen from './CharacterAwarenessScreen';
 import EnhancedKnobsControlCenter from './EnhancedKnobsControlCenter';
+import WhoseAppMain from '../../WhoseApp/WhoseAppMain';
 
 interface PanelInfo {
   id: string;
@@ -93,15 +94,6 @@ export const PanelPopup: React.FC<PanelPopupProps> = ({
         return <PoliticalPartiesPanel playerId={playerId} />;
       case 'treasury':
         return <TreasuryPanel playerId={playerId} />;
-      case 'treasury-enhanced':
-        return (
-          <TreasuryEnhancedScreen
-            screenId="treasury-enhanced"
-            title="Treasury & Tax Management"
-            icon="💰"
-            gameContext={{ currentLocation: 'Capital System', playerId }}
-          />
-        );
       case 'trade':
         return <TradePanel playerId={playerId} />;
       case 'businesses':
@@ -121,6 +113,8 @@ export const PanelPopup: React.FC<PanelPopupProps> = ({
         return <SovereignWealthFundPanel playerId={playerId} />;
       case 'government-bonds':
         return <GovernmentBondsPanel playerId={playerId} />;
+      case 'government':
+        return <GovernmentPanel playerId={playerId} />;
       case 'financial-markets':
         return <FinancialMarketsPanel playerId={playerId} />;
       case 'economic-ecosystem':
@@ -225,6 +219,8 @@ export const PanelPopup: React.FC<PanelPopupProps> = ({
             gameContext={{ currentLocation: 'Capital System', playerId }}
           />
         );
+      case 'whoseapp':
+        return <WhoseAppPanel playerId={playerId} />;
       default:
         return <DefaultPanel panel={panel} playerId={playerId} />;
     }
@@ -362,6 +358,22 @@ const SovereignWealthFundPanel: React.FC<{ playerId: string }> = ({ playerId }) 
 
 const GovernmentBondsPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
   <GovernmentBondsScreen civilizationId={playerId} />
+);
+
+const GovernmentPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
+  <GovernmentScreen 
+    screenId="government" 
+    title="Government Performance" 
+    icon="📊"
+    gameContext={{ currentLocation: 'Capital System', playerId }}
+  />
+);
+
+const WhoseAppPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
+  <WhoseAppMain 
+    playerId={playerId}
+    gameContext={{ currentLocation: 'Capital System', playerId }}
+  />
 );
 
 const FinancialMarketsPanel: React.FC<{ playerId: string }> = ({ playerId }) => (

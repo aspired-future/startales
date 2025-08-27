@@ -10,7 +10,7 @@ import { Pool } from 'pg';
 import { CharacterService } from '../characters/CharacterService.js';
 import { DynamicCharacterEngine } from '../characters/DynamicCharacterEngine.js';
 import { ProceduralCharacterGenerator } from '../characters/ProceduralCharacterGenerator.js';
-import { getAIService } from '../../services/AIService.js';
+import { getAIService } from '../ai/AIService.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface GameSetup {

@@ -46,42 +46,42 @@ const imagesDir = path.join(samplesDir, 'images');
 
 console.log(`📁 Created directories: ${imagesDir}\n`);
 
-// Sample image generation requests
+// Sample image generation requests - Updated with Space Fantasy Galactic Themes
 const sampleRequests = [
   {
     filename: 'galactic-civilization.png',
-    title: '🌌 Galactic Civilization Hub',
-    prompt: 'A magnificent galactic civilization with towering crystal spires, floating platforms, and bioluminescent gardens stretching across multiple levels, digital art style, high quality, detailed architecture',
+    title: '🌌 Mystical Galactic Civilization Hub',
+    prompt: 'Epic space fantasy concept art, fantastical galactic civilization, otherworldly and imaginative, digital art masterpiece, magnificent crystal metropolis with soaring crystal spires and floating megastructures, levitating vehicles and energy transport streams, holographic constellation displays and light-advertisements, diverse galactic population and mystical activity, ethereal cosmic lighting with mystical energy auras, stellar phenomena, and magical particle effects, ultra-high quality digital art, vibrant colors, stunning visual effects, space age fantasy aesthetic, mystical technology, crystalline structures, energy-based designs, cosmic magic',
     aspectRatio: '16:9'
   },
   {
     filename: 'orbital-station.png',
-    title: '🚀 Orbital Megastructure',
-    prompt: 'A colossal orbital ring station surrounding a planet, with massive solar collectors, rotating habitat modules, and docking bays for starships, concept art style, sci-fi, detailed',
+    title: '🚀 Ethereal Cosmic Citadel',
+    prompt: 'Epic space fantasy concept art, fantastical galactic civilization, otherworldly and imaginative, digital art masterpiece, colossal space citadels with rotating crystal rings, energy docking arrays, and defensive light-barrier systems, mystical cosmic void with swirling galaxies, ethereal nebulae, floating crystal asteroids, and dimensional portals, ethereal cosmic lighting with mystical energy auras, stellar phenomena, and magical particle effects, ultra-high quality digital art, vibrant colors, stunning visual effects, space age fantasy aesthetic, mystical technology, crystalline structures, energy-based designs, cosmic magic',
     aspectRatio: '16:9'
   },
   {
     filename: 'alien-empress.png',
-    title: '👑 Alien Empress Portrait',
-    prompt: 'A regal alien empress with iridescent skin, crystalline crown, and flowing robes made of stardust, seated on a throne of living coral, fantasy illustration, portrait style',
+    title: '👑 Mystical Galactic Empress Portrait',
+    prompt: 'Epic space fantasy concept art, fantastical galactic civilization, otherworldly and imaginative, digital art masterpiece, portrait of a majestic crystal-born empress with prismatic skin, galaxy-swirl eyes, ethereal robes woven from pure light, royal amethyst and liquid gold, living crystal formations, pulsing energy webs, seated on a throne of living energy coral, ethereal cosmic lighting with mystical energy auras, stellar phenomena, and magical particle effects, ultra-high quality digital art, vibrant colors, stunning visual effects, space age fantasy aesthetic, mystical technology, crystalline structures, energy-based designs, cosmic magic',
     aspectRatio: '9:16'
   },
   {
     filename: 'terraformed-mars.png',
-    title: '🌍 Terraformed Mars Colony',
-    prompt: 'A thriving terraformed Mars with blue skies and white clouds, vast green continents with Earth-like vegetation, gleaming dome cities, photorealistic style',
+    title: '🌍 Mystical Terraformed World Colony',
+    prompt: 'Epic space fantasy concept art, fantastical galactic civilization, otherworldly and imaginative, digital art masterpiece, fantastical alien worlds with floating landmasses, crystal forests, energy geysers, and magical atmospheric phenomena, mystical atmosphere, interstellar era mystical architecture and energy infrastructure, alien flora and fauna, atmospheric effects and weather patterns, crystalline formations and cosmic atmosphere, ethereal cosmic lighting with mystical energy auras, stellar phenomena, and magical particle effects, ultra-high quality digital art, vibrant colors, stunning visual effects, space age fantasy aesthetic, mystical technology, crystalline structures, energy-based designs, cosmic magic',
     aspectRatio: '16:9'
   },
   {
     filename: 'federation-flag.png',
-    title: '🏛️ Terran Federation Flag',
-    prompt: 'Official flag of the Terran Federation: blue field with golden Earth at center, surrounded by silver stars representing colonies, clean illustration style, flag design',
+    title: '🏛️ Terran Federation Cosmic Banner',
+    prompt: 'Epic space fantasy concept art, fantastical galactic civilization, otherworldly and imaginative, digital art masterpiece, mystical galactic artifact, official banner of the Terran Federation with brilliant azure and prismatic silver, crystalline energy conduits, floating holographic mandalas, cosmic Earth at center surrounded by energy stars representing colonies, ethereal cosmic lighting with mystical energy auras, stellar phenomena, and magical particle effects, ultra-high quality digital art, vibrant colors, stunning visual effects, space age fantasy aesthetic, mystical technology, crystalline structures, energy-based designs, cosmic magic',
     aspectRatio: '1:1'
   },
   {
     filename: 'space-dragon.png',
-    title: '🐉 Crystalline Space Dragon',
-    prompt: 'A magnificent space-dwelling dragon with scales made of living crystal that refract starlight into rainbow patterns, wings of pure energy, concept art style, fantasy creature',
+    title: '🐉 Cosmic Energy Dragon',
+    prompt: 'Epic space fantasy concept art, fantastical galactic civilization, otherworldly and imaginative, digital art masterpiece, magnificent cosmic dragon entity with scales made of living crystal energy that refract starlight into rainbow patterns, wings of pure cosmic energy, mystical cosmic void with swirling galaxies, ethereal nebulae, floating crystal asteroids, and dimensional portals, ethereal cosmic lighting with mystical energy auras, stellar phenomena, and magical particle effects, ultra-high quality digital art, vibrant colors, stunning visual effects, space age fantasy aesthetic, mystical technology, crystalline structures, energy-based designs, cosmic magic',
     aspectRatio: '1:1'
   }
 ];

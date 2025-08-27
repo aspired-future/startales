@@ -13,6 +13,8 @@ interface VoiceControlsProps {
   characterId?: string;
   disabled?: boolean;
   showTTSControls?: boolean;
+  conversationalMode?: boolean; // Enable natural conversation flow
+  onConversationResponse?: (response: string) => void; // Handle AI responses
 }
 
 const VoiceControls: React.FC<VoiceControlsProps> = ({
@@ -20,7 +22,9 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({
   onTextToSpeech,
   characterId,
   disabled = false,
-  showTTSControls = true
+  showTTSControls = true,
+  conversationalMode = false,
+  onConversationResponse
 }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -111,22 +115,59 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({
       setIsListening(true);
       setTranscript('');
 
-      await voiceService.speechToText(
-        (transcript, isFinal) => {
-          setTranscript(transcript);
-          
-          if (isFinal && onVoiceMessage) {
-            onVoiceMessage(transcript);
-            setTranscript('');
+      if (conversationalMode) {
+        // Use enhanced STT with silence detection for natural conversation
+        await voiceService.speechToTextWithConfidence(
+          (transcript, isFinal, confidence) => {
+            // Always show interim results to user
+            setTranscript(transcript);
+            
+            // ONLY process final results with good confidence and meaningful content
+            if (isFinal && (confidence || 1.0) > 0.7 && transcript.trim().length > 2) {
+              console.log('🎤 Final transcript received:', transcript, 'Confidence:', confidence);
+              
+              if (onVoiceMessage) {
+                onVoiceMessage(transcript);
+              }
+              
+              // Generate AI response if in conversational mode
+              if (onConversationResponse) {
+                generateConversationalResponse(transcript);
+              }
+              
+              setTranscript('');
+              setIsListening(false);
+            } else if (!isFinal) {
+              // This is just an interim result - don't process it
+              console.log('🎤 Interim transcript:', transcript);
+            }
+          },
+          (error) => {
+            console.error('Speech recognition error:', error);
+            setError('Speech recognition failed');
+            setIsListening(false);
+          },
+          2500 // Wait 2.5 seconds of silence before finishing
+        );
+      } else {
+        // Use standard STT for regular voice messages
+        await voiceService.speechToText(
+          (transcript, isFinal) => {
+            setTranscript(transcript);
+            
+            if (isFinal && onVoiceMessage) {
+              onVoiceMessage(transcript);
+              setTranscript('');
+              setIsListening(false);
+            }
+          },
+          (error) => {
+            console.error('Speech recognition error:', error);
+            setError('Speech recognition failed');
             setIsListening(false);
           }
-        },
-        (error) => {
-          console.error('Speech recognition error:', error);
-          setError('Speech recognition failed');
-          setIsListening(false);
-        }
-      );
+        );
+      }
     } catch (error) {
       console.error('Failed to start speech recognition:', error);
       setError('Failed to start speech recognition');
@@ -137,6 +178,54 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({
   const stopListening = () => {
     setIsListening(false);
     // Speech recognition will stop automatically
+  };
+
+  // Generate conversational AI response
+  const generateConversationalResponse = async (userMessage: string) => {
+    try {
+      console.log('🤖 Generating response for:', userMessage);
+      
+      // More contextual responses based on message content
+      let response = "";
+      const message = userMessage.toLowerCase();
+      
+      if (message.includes('status') && message.includes('universe')) {
+        response = "The universe? Well, from a diplomatic perspective, our galactic relations are quite complex. The outer rim territories are showing signs of unrest, and we're monitoring several trade route disruptions. What specific aspect concerns you most?";
+      } else if (message.includes('hello') || message.includes('hey') || message.includes('hi')) {
+        response = "Hello! It's good to hear from you. As your diplomatic advisor, I'm here to discuss any interstellar matters you'd like to address. What's on your mind today?";
+      } else if (message.includes('status')) {
+        response = "I can brief you on our current diplomatic status. We have ongoing negotiations with three major civilizations, and I'm tracking several emerging situations that may require your attention. Which area would you like to focus on?";
+      } else if (message.includes('trade')) {
+        response = "Trade relations are always evolving. We're seeing promising developments with the Centauri Republic, though the Vega Alliance has raised some concerns about our recent agreements. Shall we review the latest reports?";
+      } else {
+        // Fallback responses
+        const responses = [
+          "That's an intriguing point. In my experience with interstellar diplomacy, these matters often have multiple layers. What's your perspective on this?",
+          "I see. From a diplomatic standpoint, we should consider how this affects our broader galactic relationships. Tell me more about your concerns.",
+          "Interesting. As your Chief Diplomatic Officer, I think we should examine the implications carefully. What outcome are you hoping to achieve?",
+          "That's worth discussing. Given the current political climate in our sector, we need to be strategic about our next moves. What are your thoughts?"
+        ];
+        response = responses[Math.floor(Math.random() * responses.length)];
+      }
+      
+      // Simulate realistic thinking time
+      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1500));
+      
+      if (onConversationResponse) {
+        onConversationResponse(response);
+      }
+      
+      // Speak the response with natural voice
+      if (characterId) {
+        await voiceService.textToSpeechWithEmotion(response, {
+          characterId,
+          emotion: 'calm',
+          naturalPauses: true
+        });
+      }
+    } catch (error) {
+      console.error('Failed to generate conversational response:', error);
+    }
   };
 
   const speakText = async (text: string) => {
@@ -178,6 +267,44 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({
         <span className="unsupported-message">
           🎤❌ Voice features not supported in this browser
         </span>
+      </div>
+    );
+  }
+
+  // In conversational mode, show minimal UI - just a simple mic button
+  if (conversationalMode) {
+    return (
+      <div className="voice-controls-simple">
+        {error && (
+          <div className="voice-error">
+            <span className="error-message">{error}</span>
+            <button onClick={() => setError(null)}>✕</button>
+          </div>
+        )}
+
+        {/* Single mic button for conversational mode */}
+        <button
+          className={`mic-button ${isListening ? 'listening' : ''}`}
+          onClick={isListening ? stopListening : startListening}
+          disabled={disabled || hasPermission === false}
+          title={isListening ? 'Stop listening' : 'Start conversation'}
+        >
+          {isListening ? '🔴' : '🎤'}
+        </button>
+
+        {/* Show what you're saying */}
+        {transcript && (
+          <div className="transcript-preview">
+            <span>"{transcript}"</span>
+          </div>
+        )}
+
+        {hasPermission === false && (
+          <div className="permission-request">
+            <span>🎤 Microphone access required</span>
+            <button onClick={checkMicrophonePermission}>Grant Permission</button>
+          </div>
+        )}
       </div>
     );
   }

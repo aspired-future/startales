@@ -1,0 +1,475 @@
+/* Enhanced 3D Galaxy Map Screen Styles */
+.enhanced-3d-galaxy-map-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  overflow: hidden;
+}
+
+.enhanced-3d-galaxy-map-screen.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+}
+
+.enhanced-3d-galaxy-map-screen.windowed {
+  height: 100vh; /* Full height now that header is removed */
+  border-radius: 0; /* No border for fullscreen feel */
+  border: none; /* No border for fullscreen feel */
+}
+
+/* Header Bar (Windowed Mode) */
+.map-screen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(15, 15, 35, 0.95);
+  border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+}
+
+.header-title h2 {
+  color: #4ecdc4;
+  margin: 0 0 5px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.header-info span {
+  color: #b8bcc8;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.header-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.fullscreen-btn,
+.close-btn {
+  background: rgba(78, 205, 196, 0.15);
+  border: 1px solid rgba(78, 205, 196, 0.4);
+  color: #4ecdc4;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.fullscreen-btn:hover,
+.close-btn:hover {
+  background: rgba(78, 205, 196, 0.25);
+  border-color: #4ecdc4;
+  box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+}
+
+.close-btn {
+  font-size: 18px;
+  padding: 6px 10px;
+}
+
+/* Exit Full Screen Button */
+.exit-fullscreen-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(15, 15, 35, 0.9);
+  border: 1px solid rgba(78, 205, 196, 0.4);
+  color: #4ecdc4;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 10001;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.exit-fullscreen-btn:hover {
+  background: rgba(78, 205, 196, 0.1);
+  border-color: #4ecdc4;
+  box-shadow: 0 0 15px rgba(78, 205, 196, 0.3);
+}
+
+/* Minimal Close Button */
+.minimal-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 69, 58, 0.9);
+  border: 1px solid #ff453a;
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(255, 69, 58, 0.4);
+}
+
+.minimal-close-btn:hover {
+  background: rgba(255, 69, 58, 1);
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(255, 69, 58, 0.6);
+}
+
+.minimal-close-btn:focus {
+  outline: 2px solid #ff453a;
+  outline-offset: 3px;
+}
+
+/* Map Container */
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.enhanced-3d-galaxy-map-screen.windowed .map-container {
+  height: 100%; /* Full height now that header is removed */
+}
+
+/* Instructions Overlay */
+.instructions-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10002;
+  backdrop-filter: blur(5px);
+}
+
+.instructions-panel {
+  background: rgba(15, 15, 35, 0.98);
+  border: 2px solid rgba(78, 205, 196, 0.6);
+  border-radius: 16px;
+  padding: 0;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(20px);
+}
+
+.instructions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  background: rgba(78, 205, 196, 0.15);
+  border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 16px 16px 0 0;
+}
+
+.instructions-header h3 {
+  color: #4ecdc4;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.instructions-header button {
+  background: none;
+  border: none;
+  color: #4ecdc4;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.instructions-header button:hover {
+  background: rgba(78, 205, 196, 0.2);
+}
+
+.instructions-content {
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.control-section {
+  background: rgba(26, 26, 46, 0.6);
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.control-section h4 {
+  color: #4ecdc4;
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-section li {
+  color: #b8bcc8;
+  font-size: 14px;
+  line-height: 1.4;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.1);
+}
+
+.control-section li:last-child {
+  border-bottom: none;
+}
+
+.control-section li strong {
+  color: #4ecdc4;
+  font-weight: 600;
+}
+
+.instructions-footer {
+  padding: 20px 25px;
+  background: rgba(26, 26, 46, 0.8);
+  border-top: 1px solid rgba(78, 205, 196, 0.2);
+  border-radius: 0 0 16px 16px;
+  text-align: center;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  border: none;
+  color: #ffffff;
+  padding: 12px 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+}
+
+/* Show Instructions Button */
+.show-instructions-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(15, 15, 35, 0.9);
+  border: 1px solid rgba(78, 205, 196, 0.4);
+  color: #4ecdc4;
+  padding: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.show-instructions-btn:hover {
+  background: rgba(78, 205, 196, 0.1);
+  border-color: #4ecdc4;
+  box-shadow: 0 0 15px rgba(78, 205, 196, 0.3);
+  transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .instructions-panel {
+    max-width: calc(100vw - 40px);
+    margin: 20px;
+  }
+  
+  .instructions-content {
+    padding: 20px;
+    gap: 15px;
+  }
+  
+  .control-section {
+    padding: 12px;
+  }
+  
+  .control-section h4 {
+    font-size: 14px;
+  }
+  
+  .control-section li {
+    font-size: 13px;
+  }
+  
+  .exit-fullscreen-btn {
+    top: 10px;
+    right: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  
+  .show-instructions-btn {
+    bottom: 80px; /* Account for mobile UI */
+    right: 15px;
+    width: 44px;
+    height: 44px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-screen-header {
+    padding: 12px 15px;
+  }
+  
+  .header-title h2 {
+    font-size: 16px;
+  }
+  
+  .header-info span {
+    font-size: 11px;
+  }
+  
+  .fullscreen-btn,
+  .close-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .instructions-panel {
+    max-height: 90vh;
+  }
+  
+  .instructions-header {
+    padding: 15px 20px;
+  }
+  
+  .instructions-header h3 {
+    font-size: 18px;
+  }
+  
+  .instructions-content {
+    padding: 15px;
+  }
+}
+
+/* Animation for smooth entry */
+.enhanced-3d-galaxy-map-screen {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.instructions-overlay {
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(5px);
+  }
+}
+
+.instructions-panel {
+  animation: panelSlideIn 0.4s ease-out;
+}
+
+@keyframes panelSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .enhanced-3d-galaxy-map-screen {
+    border-color: #4ecdc4;
+  }
+  
+  .map-screen-header,
+  .instructions-panel {
+    background: rgba(0, 0, 0, 0.95);
+    border-color: #4ecdc4;
+  }
+  
+  .exit-fullscreen-btn,
+  .show-instructions-btn {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: #4ecdc4;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .enhanced-3d-galaxy-map-screen,
+  .instructions-overlay,
+  .instructions-panel {
+    animation: none;
+  }
+  
+  .primary-btn:hover,
+  .show-instructions-btn:hover {
+    transform: none;
+  }
+  
+  * {
+    transition: none !important;
+  }
+}

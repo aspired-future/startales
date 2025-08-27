@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './SpeechesScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface SpeechesScreenProps {
   screenId: string;
@@ -875,37 +876,96 @@ const SpeechesScreen: React.FC<SpeechesScreenProps> = ({
         </div>
       </div>
 
-      <div className="analytics-charts">
-        <div className="chart-card">
-          <h3>📈 Speech Performance Over Time</h3>
-          <div className="chart-placeholder">
-            <div className="chart-bars">
-              <div className="bar" style={{ height: '75%' }}></div>
-              <div className="bar" style={{ height: '82%' }}></div>
-              <div className="bar" style={{ height: '68%' }}></div>
-              <div className="bar" style={{ height: '91%' }}></div>
-              <div className="bar" style={{ height: '87%' }}></div>
-              <div className="bar" style={{ height: '94%' }}></div>
-              <div className="bar" style={{ height: '89%' }}></div>
-            </div>
-            <div className="chart-labels">
-              <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span>
-            </div>
+      {/* Speech Charts Section */}
+      <div className="speech-charts-section">
+        <div className="charts-grid">
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Jan', value: 75 },
+                { label: 'Feb', value: 82 },
+                { label: 'Mar', value: 68 },
+                { label: 'Apr', value: 91 },
+                { label: 'May', value: 87 },
+                { label: 'Jun', value: 94 },
+                { label: 'Jul', value: 89 }
+              ]}
+              title="📈 Speech Performance Over Time"
+              color="#4ecdc4"
+              height={250}
+              width={400}
+            />
           </div>
-        </div>
 
-        <div className="chart-card">
-          <h3>🏷️ Popular Topics</h3>
-          <div className="topics-breakdown">
-            {speechData.analytics.popularTopics.map((topic, index) => (
-              <div key={index} className="topic-item">
-                <span className="topic-label">{topic}</span>
-                <div className="topic-bar">
-                  <div className="topic-fill" style={{ width: `${90 - index * 15}%` }}></div>
-                </div>
-                <span className="topic-value">{90 - index * 15}%</span>
-              </div>
-            ))}
+          <div className="chart-container">
+            <PieChart
+              data={speechData.analytics.popularTopics.map((topic, index) => ({
+                label: topic,
+                value: 90 - index * 15,
+                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'][index]
+              }))}
+              title="🏷️ Topic Popularity Breakdown"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Engagement Rate', value: speechData.analytics.engagementRate, color: '#4ecdc4' },
+                { label: 'Average Rating', value: speechData.analytics.averageRating, color: '#45b7aa' },
+                { label: 'Completion Rate', value: 85, color: '#96ceb4' },
+                { label: 'Share Rate', value: 72, color: '#feca57' }
+              ]}
+              title="📊 Speech Metrics Comparison"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Q1', value: speechData.analytics.totalViews * 0.7 / 1000000 },
+                { label: 'Q2', value: speechData.analytics.totalViews * 0.8 / 1000000 },
+                { label: 'Q3', value: speechData.analytics.totalViews * 0.9 / 1000000 },
+                { label: 'Q4', value: speechData.analytics.totalViews / 1000000 }
+              ]}
+              title="👁️ Viewership Trends (Millions)"
+              color="#feca57"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Live Audience', value: 45, color: '#4ecdc4' },
+                { label: 'Broadcast Views', value: 35, color: '#45b7aa' },
+                { label: 'Online Streaming', value: 20, color: '#96ceb4' }
+              ]}
+              title="📺 Audience Distribution"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Scheduled', value: speechData.analytics.upcomingSpeeches, color: '#4ecdc4' },
+                { label: 'Delivered', value: speechData.analytics.totalSpeeches, color: '#45b7aa' },
+                { label: 'Cancelled', value: 3, color: '#ff6b6b' },
+                { label: 'Rescheduled', value: 5, color: '#feca57' }
+              ]}
+              title="📅 Speech Status Overview"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
           </div>
         </div>
       </div>

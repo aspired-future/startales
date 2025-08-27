@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
 import './DemographicsScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface DemographicStat {
   label: string;
@@ -361,6 +362,146 @@ const DemographicsScreen: React.FC<ScreenProps> = ({ screenId, title, icon, game
                 </div>
                 <span>{city.incomeDistribution.elite}%</span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Demographics Charts Section */}
+        <div className="demographics-charts-section">
+          <div className="charts-grid">
+            <div className="chart-container">
+              <PieChart
+                data={[
+                  { 
+                    label: 'Adults (18-64)', 
+                    value: city.ageDistribution.adults, 
+                    color: '#4ecdc4' 
+                  },
+                  { 
+                    label: 'Children (0-17)', 
+                    value: city.ageDistribution.children, 
+                    color: '#45b7aa' 
+                  },
+                  { 
+                    label: 'Elderly (65+)', 
+                    value: city.ageDistribution.elderly, 
+                    color: '#96ceb4' 
+                  }
+                ]}
+                title="👥 Age Distribution"
+                size={200}
+                showLegend={true}
+              />
+            </div>
+
+            <div className="chart-container">
+              <LineChart
+                data={[
+                  { label: '2019', value: city.totalPopulation * 0.85 },
+                  { label: '2020', value: city.totalPopulation * 0.88 },
+                  { label: '2021', value: city.totalPopulation * 0.92 },
+                  { label: '2022', value: city.totalPopulation * 0.96 },
+                  { label: '2023', value: city.totalPopulation * 0.98 },
+                  { label: '2024', value: city.totalPopulation }
+                ]}
+                title="📈 Population Growth Trends"
+                color="#feca57"
+                height={250}
+                width={400}
+              />
+            </div>
+
+            <div className="chart-container">
+              <BarChart
+                data={[
+                  { 
+                    label: 'Low Income', 
+                    value: city.incomeDistribution.low, 
+                    color: '#ff6b6b' 
+                  },
+                  { 
+                    label: 'Middle Income', 
+                    value: city.incomeDistribution.middle, 
+                    color: '#4ecdc4' 
+                  },
+                  { 
+                    label: 'High Income', 
+                    value: city.incomeDistribution.high, 
+                    color: '#45b7aa' 
+                  },
+                  { 
+                    label: 'Elite', 
+                    value: city.incomeDistribution.elite, 
+                    color: '#feca57' 
+                  }
+                ]}
+                title="💰 Income Distribution"
+                height={250}
+                width={400}
+                showTooltip={true}
+              />
+            </div>
+
+            <div className="chart-container">
+              <PieChart
+                data={[
+                  { 
+                    label: 'Secondary', 
+                    value: city.educationLevels.secondary, 
+                    color: '#4ecdc4' 
+                  },
+                  { 
+                    label: 'Higher Education', 
+                    value: city.educationLevels.higher, 
+                    color: '#45b7aa' 
+                  },
+                  { 
+                    label: 'Elementary', 
+                    value: city.educationLevels.elementary, 
+                    color: '#96ceb4' 
+                  },
+                  { 
+                    label: 'Advanced Degrees', 
+                    value: city.educationLevels.advanced, 
+                    color: '#feca57' 
+                  }
+                ]}
+                title="🎓 Education Levels"
+                size={200}
+                showLegend={true}
+              />
+            </div>
+
+            <div className="chart-container">
+              <LineChart
+                data={[
+                  { label: 'Jan', value: demographicsData.overallStats[0]?.percentage || 85 },
+                  { label: 'Feb', value: (demographicsData.overallStats[0]?.percentage || 85) + 1 },
+                  { label: 'Mar', value: (demographicsData.overallStats[0]?.percentage || 85) + 2 },
+                  { label: 'Apr', value: (demographicsData.overallStats[0]?.percentage || 85) + 1.5 },
+                  { label: 'May', value: (demographicsData.overallStats[0]?.percentage || 85) + 3 },
+                  { label: 'Jun', value: (demographicsData.overallStats[0]?.percentage || 85) + 2.5 }
+                ]}
+                title="📊 Quality of Life Index"
+                color="#96ceb4"
+                height={250}
+                width={400}
+              />
+            </div>
+
+            <div className="chart-container">
+              <BarChart
+                data={[
+                  { label: 'Birth Rate', value: 12.5, color: '#4ecdc4' },
+                  { label: 'Death Rate', value: 8.2, color: '#ff6b6b' },
+                  { label: 'Migration Rate', value: 15.3, color: '#feca57' },
+                  { label: 'Employment Rate', value: 94.2, color: '#45b7aa' }
+                ]}
+                title="📈 Demographic Indicators"
+                height={250}
+                width={400}
+                showTooltip={true}
+              />
             </div>
           </div>
         </div>

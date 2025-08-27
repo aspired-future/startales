@@ -261,32 +261,32 @@ LOCATION FOCUS:
 
   private generateGenericEventPrompt(eventType: string, context: Record<string, any>): string {
     const eventPrompts: Record<string, string> = {
-      'major_discovery': `Create a cinematic space discovery video showing a significant breakthrough. 
-        Include deep space telescopes, scientists analyzing data, and dramatic reveal of the discovery. 
-        Show futuristic UI elements, holographic displays, and a sense of wonder and excitement.`,
+      'major_discovery': `Create an epic space fantasy discovery video showing a mystical cosmic breakthrough. 
+        Include ethereal crystal telescopes, mystic scholars analyzing energy patterns, and magical reveal of the discovery. 
+        Show floating holographic constellations, crystalline UI elements, and a sense of cosmic wonder and transcendence.`,
       
-      'political_crisis': `Create a dramatic political crisis video showing government instability. 
-        Show emergency government meetings, concerned officials, news broadcasts, and citizens reacting. 
-        Include futuristic government buildings and tense atmosphere.`,
+      'political_crisis': `Create a dramatic galactic political crisis video showing interdimensional government instability. 
+        Show emergency council meetings in floating crystal chambers, concerned mystic officials, energy-broadcast news, and citizens reacting with cosmic awareness. 
+        Include magnificent crystal palace governments and tense mystical atmosphere.`,
       
-      'economic_milestone': `Create an economic success video celebrating major prosperity milestone. 
-        Show bustling space ports, thriving colonies, successful trade routes, and celebrating citizens. 
-        Include rising economic indicators and prosperity displays.`,
+      'economic_milestone': `Create a prosperity celebration video for a major galactic economic milestone. 
+        Show bustling crystal space ports, thriving energy colonies, successful interdimensional trade routes, and celebrating cosmic citizens. 
+        Show rising energy indicators and crystalline prosperity displays with magical abundance.`,
       
-      'military_conflict': `Create a military alert video showing defense systems activation. 
-        Show space defense systems, military commanders in briefings, and fleet preparations. 
-        Include futuristic warships and tactical displays.`,
+      'military_conflict': `Create a military alert video showing mystical defense systems activation. 
+        Show cosmic defense arrays, crystal-armored commanders in energy briefings, and ethereal fleet preparations. 
+        Include magical starships with energy weapons and tactical crystal displays.`,
       
-      'natural_disaster': `Create an emergency disaster video showing crisis response. 
-        Show emergency response teams, evacuation procedures, and disaster management. 
-        Include futuristic emergency systems and rescue operations.`,
+      'natural_disaster': `Create an emergency cosmic disaster video showing mystical crisis response. 
+        Show energy-based emergency response teams, dimensional evacuation procedures, and magical disaster management. 
+        Include crystalline emergency systems and ethereal rescue operations.`,
       
-      'technology_breakthrough': `Create a technology breakthrough video showcasing innovation. 
-        Show research laboratories, scientists celebrating, and new technology demonstrations. 
-        Include futuristic labs and holographic tech displays.`
+      'technology_breakthrough': `Create a mystical technology breakthrough video showcasing cosmic innovation. 
+        Show floating crystal laboratories, mystic scientists celebrating, and new energy-tech demonstrations. 
+        Include ethereal labs with holographic crystal displays and magical technological marvels.`
     };
 
-    return eventPrompts[eventType] || `Create a cinematic video for ${eventType} game event with futuristic sci-fi setting.`;
+    return eventPrompts[eventType] || `Create an epic cinematic video for ${eventType} game event with mystical space fantasy galactic civilization setting.`;
   }
 
   private getEventDuration(eventType: string): number {

@@ -8,9 +8,18 @@
 import express from 'express';
 import { TradeEngine } from './tradeEngine.js';
 import { TradeStorage } from './tradeStorage.js';
+import { TradeSimulationIntegration } from './TradeSimulationIntegration.js';
 import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
 
 const router = express.Router();
+
+// Initialize Trade Simulation Integration (will be properly injected from SimEngineOrchestrator)
+let tradeSimulation: TradeSimulationIntegration | null = null;
+
+// Function to set the trade simulation instance (called from server initialization)
+export function setTradeSimulation(simulation: TradeSimulationIntegration) {
+  tradeSimulation = simulation;
+}
 
 // Enhanced AI Knobs for Trade & Commerce System
 const tradeKnobsData = {
@@ -288,6 +297,406 @@ router.post('/simulate-step', async (req, res) => {
     console.error('Error simulating trade step:', error);
     res.status(500).json({
       error: 'Failed to simulate trade step',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ===== MISSING FRONTEND API ENDPOINTS =====
+
+/**
+ * GET /api/trade/indices - Get trade indices and market indicators
+ */
+router.get('/indices', async (req, res) => {
+  try {
+    const { campaignId } = req.query;
+    
+    if (!campaignId) {
+      return res.status(400).json({
+        error: 'Missing required parameter: campaignId'
+      });
+    }
+
+    // Try to get data from simulation integration first
+    let indices;
+    if (tradeSimulation) {
+      const simulationState = tradeSimulation.getSimulationState('1'); // Default civilization
+      if (simulationState) {
+        indices = {
+          galacticTradeIndex: simulationState.marketIndices.galacticTradeIndex,
+          commodityIndex: simulationState.marketIndices.commodityIndex,
+          shippingIndex: simulationState.marketIndices.shippingIndex,
+          volatilityIndex: simulationState.marketIndices.volatilityIndex,
+          volumeIndex: simulationState.marketIndices.volumeIndex,
+          trends: {
+            daily: (Math.random() - 0.5) * 5,
+            weekly: (Math.random() - 0.5) * 10,
+            monthly: (Math.random() - 0.5) * 20
+          },
+          sectors: [
+            { name: 'Raw Materials', value: 1456.2 * (0.8 + Math.random() * 0.4), change: (Math.random() - 0.5) * 10 },
+            { name: 'Technology', value: 3421.8 * (0.8 + Math.random() * 0.4), change: (Math.random() - 0.5) * 10 },
+            { name: 'Energy', value: 987.6 * (0.8 + Math.random() * 0.4), change: (Math.random() - 0.5) * 10 },
+            { name: 'Agriculture', value: 654.3 * (0.8 + Math.random() * 0.4), change: (Math.random() - 0.5) * 10 }
+          ]
+        };
+      }
+    }
+    
+    // Fallback to mock data if simulation not available
+    if (!indices) {
+      indices = {
+        galacticTradeIndex: 2847.5,
+        commodityIndex: 1234.8,
+        shippingIndex: 892.3,
+        volatilityIndex: 0.23,
+        volumeIndex: 156789,
+        trends: {
+          daily: 2.3,
+          weekly: -1.2,
+          monthly: 8.7
+        },
+        sectors: [
+          { name: 'Raw Materials', value: 1456.2, change: 3.4 },
+          { name: 'Technology', value: 3421.8, change: -0.8 },
+          { name: 'Energy', value: 987.6, change: 5.2 },
+          { name: 'Agriculture', value: 654.3, change: 1.9 }
+        ]
+      };
+    }
+
+    res.json({
+      success: true,
+      data: indices
+    });
+  } catch (error) {
+    console.error('Error fetching trade indices:', error);
+    res.status(500).json({
+      error: 'Failed to fetch trade indices',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/trade/systems - Get trading systems and hubs
+ */
+router.get('/systems', async (req, res) => {
+  try {
+    const { campaignId } = req.query;
+    
+    if (!campaignId) {
+      return res.status(400).json({
+        error: 'Missing required parameter: campaignId'
+      });
+    }
+
+    // Generate mock trading systems data
+    const systems = [
+      {
+        id: 'sol-hub',
+        name: 'Sol Trading Hub',
+        location: 'Sol System',
+        type: 'Major Hub',
+        volume: 2847000,
+        efficiency: 0.92,
+        connections: 15,
+        status: 'Active'
+      },
+      {
+        id: 'alpha-centauri',
+        name: 'Alpha Centauri Exchange',
+        location: 'Alpha Centauri',
+        type: 'Regional Hub',
+        volume: 1234000,
+        efficiency: 0.87,
+        connections: 8,
+        status: 'Active'
+      },
+      {
+        id: 'vega-station',
+        name: 'Vega Trade Station',
+        location: 'Vega System',
+        type: 'Specialized Hub',
+        volume: 892000,
+        efficiency: 0.94,
+        connections: 12,
+        status: 'Active'
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: systems,
+      count: systems.length
+    });
+  } catch (error) {
+    console.error('Error fetching trading systems:', error);
+    res.status(500).json({
+      error: 'Failed to fetch trading systems',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/trade/commodities - Get commodity prices and data
+ */
+router.get('/commodities', async (req, res) => {
+  try {
+    const { campaignId } = req.query;
+    
+    if (!campaignId) {
+      return res.status(400).json({
+        error: 'Missing required parameter: campaignId'
+      });
+    }
+
+    // Generate mock commodities data
+    const commodities = [
+      {
+        id: 'quantum-crystals',
+        name: 'Quantum Crystals',
+        category: 'Technology',
+        price: 15420.50,
+        change: 3.2,
+        volume: 45600,
+        supply: 'Limited',
+        demand: 'High'
+      },
+      {
+        id: 'dark-matter',
+        name: 'Dark Matter',
+        category: 'Energy',
+        price: 89750.25,
+        change: -1.8,
+        volume: 12300,
+        supply: 'Scarce',
+        demand: 'Critical'
+      },
+      {
+        id: 'bio-nutrients',
+        name: 'Bio-Nutrients',
+        category: 'Agriculture',
+        price: 234.75,
+        change: 0.9,
+        volume: 892000,
+        supply: 'Abundant',
+        demand: 'Steady'
+      },
+      {
+        id: 'rare-metals',
+        name: 'Rare Metals',
+        category: 'Raw Materials',
+        price: 5670.80,
+        change: 2.1,
+        volume: 156000,
+        supply: 'Moderate',
+        demand: 'High'
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: commodities,
+      count: commodities.length
+    });
+  } catch (error) {
+    console.error('Error fetching commodities:', error);
+    res.status(500).json({
+      error: 'Failed to fetch commodities',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/trade/corporations - Get corporation data and stocks
+ */
+router.get('/corporations', async (req, res) => {
+  try {
+    const { campaignId } = req.query;
+    
+    if (!campaignId) {
+      return res.status(400).json({
+        error: 'Missing required parameter: campaignId'
+      });
+    }
+
+    // Generate mock corporations data
+    const corporations = [
+      {
+        id: 'galactic-shipping',
+        name: 'Galactic Shipping Corp',
+        sector: 'Logistics',
+        stockPrice: 1247.80,
+        change: 2.3,
+        marketCap: '2.8T Credits',
+        volume: 156000,
+        rating: 'AAA'
+      },
+      {
+        id: 'quantum-dynamics',
+        name: 'Quantum Dynamics Ltd',
+        sector: 'Technology',
+        stockPrice: 3421.50,
+        change: -0.7,
+        marketCap: '1.9T Credits',
+        volume: 89000,
+        rating: 'AA+'
+      },
+      {
+        id: 'stellar-mining',
+        name: 'Stellar Mining Consortium',
+        sector: 'Raw Materials',
+        stockPrice: 892.25,
+        change: 4.1,
+        marketCap: '1.2T Credits',
+        volume: 234000,
+        rating: 'A'
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: corporations,
+      count: corporations.length
+    });
+  } catch (error) {
+    console.error('Error fetching corporations:', error);
+    res.status(500).json({
+      error: 'Failed to fetch corporations',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/trade/contracts - Get available trade contracts
+ */
+router.get('/contracts', async (req, res) => {
+  try {
+    const { campaignId } = req.query;
+    
+    if (!campaignId) {
+      return res.status(400).json({
+        error: 'Missing required parameter: campaignId'
+      });
+    }
+
+    // Generate mock contracts data
+    const contracts = [
+      {
+        id: 'contract-001',
+        title: 'Quantum Crystal Delivery',
+        client: 'Vega Research Institute',
+        commodity: 'Quantum Crystals',
+        quantity: 5000,
+        destination: 'Vega System',
+        reward: 750000,
+        deadline: '2024-12-15',
+        difficulty: 'Medium',
+        status: 'Available'
+      },
+      {
+        id: 'contract-002',
+        title: 'Emergency Medical Supplies',
+        client: 'Centauri Medical Corps',
+        commodity: 'Bio-Nutrients',
+        quantity: 25000,
+        destination: 'Alpha Centauri',
+        reward: 450000,
+        deadline: '2024-11-30',
+        difficulty: 'Easy',
+        status: 'Available'
+      },
+      {
+        id: 'contract-003',
+        title: 'Rare Metal Extraction',
+        client: 'Orion Mining Guild',
+        commodity: 'Rare Metals',
+        quantity: 12000,
+        destination: 'Orion Nebula',
+        reward: 1200000,
+        deadline: '2025-01-20',
+        difficulty: 'Hard',
+        status: 'Available'
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: contracts,
+      count: contracts.length
+    });
+  } catch (error) {
+    console.error('Error fetching trade contracts:', error);
+    res.status(500).json({
+      error: 'Failed to fetch trade contracts',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/trade/opportunities - Get trade opportunities
+ */
+router.get('/opportunities', async (req, res) => {
+  try {
+    const { campaignId } = req.query;
+    
+    if (!campaignId) {
+      return res.status(400).json({
+        error: 'Missing required parameter: campaignId'
+      });
+    }
+
+    // Generate mock opportunities data
+    const opportunities = [
+      {
+        id: 'opp-001',
+        type: 'Price Arbitrage',
+        title: 'Dark Matter Price Gap',
+        description: 'Significant price difference between Sol and Vega systems',
+        commodity: 'Dark Matter',
+        profitPotential: 2.3,
+        riskLevel: 'Medium',
+        timeWindow: '72 hours',
+        estimatedProfit: 890000
+      },
+      {
+        id: 'opp-002',
+        type: 'Supply Shortage',
+        title: 'Bio-Nutrient Shortage on Mars',
+        description: 'Critical shortage creating high demand and premium prices',
+        commodity: 'Bio-Nutrients',
+        profitPotential: 1.8,
+        riskLevel: 'Low',
+        timeWindow: '5 days',
+        estimatedProfit: 340000
+      },
+      {
+        id: 'opp-003',
+        type: 'New Route',
+        title: 'Unexplored Trade Route',
+        description: 'Newly discovered system with untapped resources',
+        commodity: 'Exotic Materials',
+        profitPotential: 4.2,
+        riskLevel: 'High',
+        timeWindow: '2 weeks',
+        estimatedProfit: 1500000
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: opportunities,
+      count: opportunities.length
+    });
+  } catch (error) {
+    console.error('Error fetching trade opportunities:', error);
+    res.status(500).json({
+      error: 'Failed to fetch trade opportunities',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }

@@ -714,9 +714,9 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
   ]);
 
   const [alerts, setAlerts] = useState([
-    { id: '1', type: 'critical', message: 'Resource shortage detected on Mars Colony', count: 1 },
-    { id: '2', type: 'warning', message: 'Diplomatic tension with Vega Federation', count: 3 },
-    { id: '3', type: 'info', message: 'Research projects nearing completion', count: 5 }
+    { id: '1', type: 'critical', message: 'Mars Colony is reporting critical resource shortages', count: 1 },
+    { id: '2', type: 'warning', message: 'Relations with the Vega Federation are getting tense', count: 3 },
+    { id: '3', type: 'info', message: 'We have five research projects that should be wrapping up soon', count: 5 }
   ]);
 
   // Create custom channel
@@ -913,10 +913,10 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     { id: 'institutional-override', name: 'Override System', icon: '⚖️', category: 'government' },
 
     { id: 'political-parties', name: 'Political Parties', icon: '🎭', category: 'government' },
+    { id: 'government', name: 'Performance', icon: '📊', category: 'government' },
     
     // Economy & Trade
     { id: 'treasury', name: 'Treasury', icon: '💰', category: 'economy' },
-    { id: 'treasury-enhanced', name: 'Treasury Enhanced', icon: '💰', category: 'economy' },
     { id: 'business-cycle', name: 'Business Cycle', icon: '📊', category: 'economy' },
     { id: 'trade', name: 'Trade', icon: '📈', category: 'economy' },
     { id: 'businesses', name: 'Business Ecosystem', icon: '🏢', category: 'economy' },
@@ -1115,9 +1115,8 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
                           // Open Galaxy Data as a proper screen, not a popup
                           setActivePanel('galaxy-data');
                         } else if (panel.id === 'whoseapp') {
-                          // Open WhoseApp in the center panel tab
-                          setActivePanel('command-center');
-                          setActiveTab('whoseapp');
+                          // Open WhoseApp as a popup (same as right panel)
+                          setActivePanelPopup(panel.id);
                         } else {
                           setActivePanelPopup(panel.id);
                         }

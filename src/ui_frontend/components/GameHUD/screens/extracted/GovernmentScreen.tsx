@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './GovernmentScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface GovernmentScreenProps {
   screenId: string;
@@ -671,49 +672,100 @@ const GovernmentScreen: React.FC<GovernmentScreenProps> = ({
         <p>Performance metrics and analytical insights</p>
       </div>
 
-      <div className="analytics-charts">
-        <div className="chart-card">
-          <h3>📈 Government Efficiency Trends</h3>
-          <div className="chart-placeholder">
-            <div className="chart-bars">
-              <div className="bar" style={{ height: '70%' }}></div>
-              <div className="bar" style={{ height: '75%' }}></div>
-              <div className="bar" style={{ height: '68%' }}></div>
-              <div className="bar" style={{ height: '82%' }}></div>
-              <div className="bar" style={{ height: '79%' }}></div>
-              <div className="bar" style={{ height: '85%' }}></div>
-              <div className="bar" style={{ height: '84%' }}></div>
-            </div>
-            <div className="chart-labels">
-              <span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span><span>Q1</span><span>Q2</span><span>Q3</span>
-            </div>
+      {/* Government Charts Section */}
+      <div className="government-charts-section">
+        <div className="charts-grid">
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Q1 2023', value: 70 },
+                { label: 'Q2 2023', value: 75 },
+                { label: 'Q3 2023', value: 68 },
+                { label: 'Q4 2023', value: 82 },
+                { label: 'Q1 2024', value: 79 },
+                { label: 'Q2 2024', value: 85 },
+                { label: 'Q3 2024', value: 84 }
+              ]}
+              title="📈 Government Efficiency Trends"
+              color="#4ecdc4"
+              height={250}
+              width={400}
+            />
           </div>
-        </div>
 
-        <div className="chart-card">
-          <h3>🎯 Policy Success Rate</h3>
-          <div className="success-breakdown">
-            <div className="success-item">
-              <span className="success-label">Implemented Successfully</span>
-              <div className="success-bar">
-                <div className="success-fill" style={{ width: '78%', backgroundColor: '#4CAF50' }}></div>
-              </div>
-              <span className="success-value">78%</span>
-            </div>
-            <div className="success-item">
-              <span className="success-label">Partially Implemented</span>
-              <div className="success-bar">
-                <div className="success-fill" style={{ width: '15%', backgroundColor: '#FF9800' }}></div>
-              </div>
-              <span className="success-value">15%</span>
-            </div>
-            <div className="success-item">
-              <span className="success-label">Failed/Cancelled</span>
-              <div className="success-bar">
-                <div className="success-fill" style={{ width: '7%', backgroundColor: '#F44336' }}></div>
-              </div>
-              <span className="success-value">7%</span>
-            </div>
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Successfully Implemented', value: 78, color: '#4ecdc4' },
+                { label: 'Partially Implemented', value: 15, color: '#feca57' },
+                { label: 'Failed/Cancelled', value: 7, color: '#ff6b6b' }
+              ]}
+              title="🎯 Policy Success Rate"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Economic Policy', value: 85, color: '#4ecdc4' },
+                { label: 'Social Programs', value: 78, color: '#45b7aa' },
+                { label: 'Infrastructure', value: 82, color: '#96ceb4' },
+                { label: 'Defense Policy', value: 91, color: '#feca57' },
+                { label: 'Environmental', value: 74, color: '#ff9ff3' }
+              ]}
+              title="📊 Budget Breakdown by Category (%)"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Jan', value: 76 },
+                { label: 'Feb', value: 78 },
+                { label: 'Mar', value: 80 },
+                { label: 'Apr', value: 82 },
+                { label: 'May', value: 84 },
+                { label: 'Jun', value: 85 }
+              ]}
+              title="📈 Public Approval Rating"
+              color="#feca57"
+              height={250}
+              width={400}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Active Officials', value: 45, color: '#4ecdc4' },
+                { label: 'On Leave', value: 8, color: '#45b7aa' },
+                { label: 'Vacant Positions', value: 12, color: '#feca57' },
+                { label: 'Acting Roles', value: 5, color: '#96ceb4' }
+              ]}
+              title="👥 Government Staffing"
+              size={200}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Bills Passed', value: 156, color: '#4ecdc4' },
+                { label: 'Programs Active', value: 89, color: '#45b7aa' },
+                { label: 'Policies Enacted', value: 234, color: '#96ceb4' },
+                { label: 'Initiatives', value: 67, color: '#feca57' }
+              ]}
+              title="📋 Legislative Activity"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
           </div>
         </div>
       </div>

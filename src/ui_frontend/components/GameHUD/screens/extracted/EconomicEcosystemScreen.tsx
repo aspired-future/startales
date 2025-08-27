@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
 import './EconomicEcosystemScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface City {
   id: string;
@@ -614,6 +615,111 @@ const EconomicEcosystemScreen: React.FC<ScreenProps> = ({ screenId, title, icon,
                           <span className="status-label">Employment:</span>
                           <span className="status-value positive">{ecosystemData.overview.employmentRate}%</span>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Economic Charts Section */}
+                  <div className="economic-charts-section">
+                    <div className="charts-grid">
+                      <div className="chart-container">
+                        <BarChart
+                          data={ecosystemData.cities.map(city => ({
+                            label: city.name,
+                            value: city.gdpPerCapita,
+                            color: city.tier === 'post-scarcity' ? '#4ecdc4' : 
+                                   city.tier === 'advanced' ? '#45b7aa' :
+                                   city.tier === 'industrial' ? '#96ceb4' : '#feca57'
+                          }))}
+                          title="💰 GDP per Capita by City"
+                          height={250}
+                          width={400}
+                          showTooltip={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <PieChart
+                          data={[
+                            { label: 'Technology', value: 28, color: '#4ecdc4' },
+                            { label: 'Manufacturing', value: 24, color: '#45b7aa' },
+                            { label: 'Services', value: 22, color: '#96ceb4' },
+                            { label: 'Agriculture', value: 12, color: '#feca57' },
+                            { label: 'Mining', value: 8, color: '#ff9ff3' },
+                            { label: 'Energy', value: 6, color: '#54a0ff' }
+                          ]}
+                          title="🏭 Economic Sector Performance"
+                          size={200}
+                          showLegend={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <LineChart
+                          data={[
+                            { label: 'Q1', value: ecosystemData.overview.tradeVolume * 0.85 },
+                            { label: 'Q2', value: ecosystemData.overview.tradeVolume * 0.92 },
+                            { label: 'Q3', value: ecosystemData.overview.tradeVolume * 0.97 },
+                            { label: 'Q4', value: ecosystemData.overview.tradeVolume }
+                          ]}
+                          title="📈 Trade Volume Trends"
+                          color="#feca57"
+                          height={250}
+                          width={400}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <BarChart
+                          data={ecosystemData.corporations.slice(0, 6).map(corp => ({
+                            label: corp.name,
+                            value: corp.marketCap / 1000000, // Convert to millions
+                            color: corp.size === 'large' ? '#ff6b6b' : 
+                                   corp.size === 'medium' ? '#4ecdc4' : '#96ceb4'
+                          }))}
+                          title="🏢 Top Corporations by Market Cap (M)"
+                          height={250}
+                          width={400}
+                          showTooltip={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <PieChart
+                          data={ecosystemData.supplyChains.reduce((acc, chain) => {
+                            const existing = acc.find(item => item.label === chain.location);
+                            if (existing) {
+                              existing.value += chain.efficiency;
+                            } else {
+                              acc.push({
+                                label: chain.location,
+                                value: chain.efficiency,
+                                color: `hsl(${Math.random() * 360}, 70%, 60%)`
+                              });
+                            }
+                            return acc;
+                          }, [] as Array<{label: string, value: number, color: string}>)}
+                          title="🔗 Supply Chain Efficiency by Region"
+                          size={200}
+                          showLegend={true}
+                        />
+                      </div>
+
+                      <div className="chart-container">
+                        <LineChart
+                          data={[
+                            { label: 'Jan', value: ecosystemData.overview.employmentRate - 3 },
+                            { label: 'Feb', value: ecosystemData.overview.employmentRate - 2 },
+                            { label: 'Mar', value: ecosystemData.overview.employmentRate - 1 },
+                            { label: 'Apr', value: ecosystemData.overview.employmentRate },
+                            { label: 'May', value: ecosystemData.overview.employmentRate + 1 },
+                            { label: 'Jun', value: ecosystemData.overview.employmentRate + 2 }
+                          ]}
+                          title="👷 Employment Rate Trends (%)"
+                          color="#96ceb4"
+                          height={250}
+                          width={400}
+                        />
                       </div>
                     </div>
                   </div>

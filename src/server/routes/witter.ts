@@ -1,6 +1,6 @@
 import express from 'express';
-import WitterAIService from '../../services/WitterAIService.js';
-import DefaultGameStateProvider from '../../services/GameStateProvider.js';
+import WitterAIService from '../witter/WitterAIService.js';
+import DefaultGameStateProvider from '../state/GameStateProvider.js';
 import { getBusinessNewsService } from '../witter/BusinessNewsService.js';
 import { getSportsNewsService } from '../witter/SportsNewsService.js';
 import { getEnhancedAIContentService } from '../witter/EnhancedAIContentService.js';

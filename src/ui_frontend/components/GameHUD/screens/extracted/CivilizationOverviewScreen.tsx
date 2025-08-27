@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import BaseScreen, { ScreenProps } from '../BaseScreen';
 import './CivilizationOverviewScreen.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface CivilizationStats {
   // Core Stats
@@ -221,6 +222,75 @@ const CivilizationOverviewScreen: React.FC<CivilizationOverviewScreenProps> = ({
               <span className="stat-label">Diplomatic Relations</span>
               <span className="stat-value">{civilizationStats.diplomaticRelations} active</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts Section */}
+      <div className="charts-section">
+        <div className="charts-grid">
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Jan', value: 68 },
+                { label: 'Feb', value: 71 },
+                { label: 'Mar', value: 69 },
+                { label: 'Apr', value: 73 },
+                { label: 'May', value: 75 },
+                { label: 'Jun', value: civilizationStats.approval }
+              ]}
+              title="📊 Approval Rating Trend"
+              color="#4ecdc4"
+              height={200}
+              width={350}
+            />
+          </div>
+
+          <div className="chart-container">
+            <PieChart
+              data={[
+                { label: 'Military', value: civilizationStats.defenseSpending, color: '#ff6b6b' },
+                { label: 'Education', value: 25, color: '#4ecdc4' },
+                { label: 'Healthcare', value: 20, color: '#45b7aa' },
+                { label: 'Infrastructure', value: 18, color: '#96ceb4' },
+                { label: 'Research', value: 12, color: '#feca57' },
+                { label: 'Other', value: 100 - civilizationStats.defenseSpending - 75, color: '#ff9ff3' }
+              ]}
+              title="💰 Budget Allocation"
+              size={180}
+              showLegend={true}
+            />
+          </div>
+
+          <div className="chart-container">
+            <BarChart
+              data={[
+                { label: 'Military', value: civilizationStats.militaryStrength, color: '#ff6b6b' },
+                { label: 'Economy', value: Math.min(100, civilizationStats.gdp / 1000000), color: '#4ecdc4' },
+                { label: 'Technology', value: civilizationStats.techLevel * 10, color: '#45b7aa' },
+                { label: 'Education', value: civilizationStats.educationLevel, color: '#96ceb4' },
+                { label: 'Health', value: civilizationStats.healthIndex, color: '#feca57' }
+              ]}
+              title="🏛️ Civilization Strength"
+              height={200}
+              width={350}
+              color="#4ecdc4"
+            />
+          </div>
+
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: 'Q1', value: Math.max(0, civilizationStats.gdp * 0.85) },
+                { label: 'Q2', value: Math.max(0, civilizationStats.gdp * 0.92) },
+                { label: 'Q3', value: Math.max(0, civilizationStats.gdp * 0.97) },
+                { label: 'Q4', value: civilizationStats.gdp }
+              ]}
+              title="📈 GDP Growth"
+              color="#feca57"
+              height={200}
+              width={350}
+            />
           </div>
         </div>
       </div>

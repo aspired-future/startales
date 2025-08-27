@@ -223,7 +223,7 @@ const ConstitutionScreen: React.FC<ConstitutionScreenProps> = ({
       stabilityFactors: {
         governmentStability: 78,
         democraticLegitimacy: 92,
-        representationQuality: 88,
+        representationQuality: 92,
         decisionMakingEfficiency: 72
       }
     },
@@ -1328,7 +1328,7 @@ const ConstitutionScreen: React.FC<ConstitutionScreenProps> = ({
                     {Object.entries(constitution?.politicalPartySystem?.stabilityFactors || {
                       governmentStability: 78,
                       democraticLegitimacy: 92,
-                      representationQuality: 88,
+                      representationQuality: 92,
                       decisionMakingEfficiency: 72
                     }).map(([key, value]) => (
                       <div key={key} className="metric-item" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>

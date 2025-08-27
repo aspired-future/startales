@@ -6,7 +6,7 @@ const http = require('http');
 
 const routes = [
     '/hud',
-    '/demo/hud', 
+ 
     '/demo/command-center',
     '/demo/witty-galaxy-hud'
 ];

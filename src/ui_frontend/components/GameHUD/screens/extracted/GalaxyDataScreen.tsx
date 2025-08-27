@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './GalaxyDataScreen.css';
 import './GalaxyDataScreen_Enhanced.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 const GalaxyDataScreen: React.FC = () => {
   console.log('🌌 GalaxyDataScreen: Component initialized');
@@ -156,6 +157,101 @@ const GalaxyDataScreen: React.FC = () => {
                     <h4>Habitable Planet</h4>
                     <p>Ross 128 System • 1 day ago</p>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Galaxy Charts Section */}
+            <div className="galaxy-charts-section">
+              <div className="charts-grid">
+                <div className="chart-container">
+                  <PieChart
+                    data={[
+                      { label: 'Controlled', value: 1247, color: '#4ecdc4' },
+                      { label: 'Explored', value: 832, color: '#45b7aa' },
+                      { label: 'Unexplored', value: 768, color: '#96ceb4' }
+                    ]}
+                    title="🌟 System Control Distribution"
+                    size={200}
+                    showLegend={true}
+                  />
+                </div>
+
+                <div className="chart-container">
+                  <LineChart
+                    data={[
+                      { label: 'Q1 2023', value: 1089 },
+                      { label: 'Q2 2023', value: 1156 },
+                      { label: 'Q3 2023', value: 1198 },
+                      { label: 'Q4 2023', value: 1223 },
+                      { label: 'Q1 2024', value: 1239 },
+                      { label: 'Q2 2024', value: 1247 }
+                    ]}
+                    title="📈 Galactic Influence Trends"
+                    color="#4ecdc4"
+                    height={250}
+                    width={400}
+                  />
+                </div>
+
+                <div className="chart-container">
+                  <BarChart
+                    data={[
+                      { label: 'Allied', value: 12, color: '#4ecdc4' },
+                      { label: 'Neutral', value: 89, color: '#45b7aa' },
+                      { label: 'Hostile', value: 55, color: '#ff6b6b' }
+                    ]}
+                    title="🏛️ Diplomatic Relations"
+                    height={250}
+                    width={400}
+                    showTooltip={true}
+                  />
+                </div>
+
+                <div className="chart-container">
+                  <LineChart
+                    data={[
+                      { label: 'Jan', value: 2.1 },
+                      { label: 'Feb', value: 2.2 },
+                      { label: 'Mar', value: 2.3 },
+                      { label: 'Apr', value: 2.35 },
+                      { label: 'May', value: 2.38 },
+                      { label: 'Jun', value: 2.4 }
+                    ]}
+                    title="💰 Daily Income Trends (Billions)"
+                    color="#feca57"
+                    height={250}
+                    width={400}
+                  />
+                </div>
+
+                <div className="chart-container">
+                  <PieChart
+                    data={[
+                      { label: 'Habitable Worlds', value: 45, color: '#4ecdc4' },
+                      { label: 'Resource Rich', value: 32, color: '#45b7aa' },
+                      { label: 'Strategic', value: 18, color: '#96ceb4' },
+                      { label: 'Research', value: 5, color: '#feca57' }
+                    ]}
+                    title="🌍 Planet Classifications"
+                    size={200}
+                    showLegend={true}
+                  />
+                </div>
+
+                <div className="chart-container">
+                  <BarChart
+                    data={[
+                      { label: 'Active Missions', value: 47, color: '#4ecdc4' },
+                      { label: 'Trade Routes', value: 234, color: '#45b7aa' },
+                      { label: 'Recent Discoveries', value: 23, color: '#96ceb4' },
+                      { label: 'Anomalies', value: 8, color: '#ff9ff3' }
+                    ]}
+                    title="🚀 Galactic Operations"
+                    height={250}
+                    width={400}
+                    showTooltip={true}
+                  />
                 </div>
               </div>
             </div>

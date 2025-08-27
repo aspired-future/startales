@@ -130,22 +130,147 @@ export const SimpleWitterFeed: React.FC<SimpleWitterFeedProps> = ({
   ];
 
   useEffect(() => {
-    // Load mock data immediately
-    setWitts(mockWitts);
+    loadCharacterDrivenWitts();
   }, []);
 
-  const loadMore = () => {
+  const loadCharacterDrivenWitts = async () => {
     setLoading(true);
-    setTimeout(() => {
-      const additionalWitts = mockWitts.map((witt, index) => ({
+    try {
+      // Try to fetch Character AI generated posts
+      const response = await fetch(`/api/witter/character-driven-posts?civilizationId=1&count=10`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        const characterPosts = data.posts || [];
+        
+        // Convert character posts to SimpleWitt format
+        const characterWitts: SimpleWitt[] = characterPosts.map((post: any) => ({
+          id: post.id,
+          author: post.characterName || post.authorName,
+          handle: `@${(post.characterName || post.authorName).replace(/\s+/g, '')}`,
+          title: post.characterTitle || post.authorType,
+          characterId: post.characterId || post.authorId,
+          content: post.content,
+          timestamp: formatTimestamp(post.timestamp),
+          likes: post.metrics?.likes || Math.floor(Math.random() * 1000) + 50,
+          reposts: post.metrics?.shares || Math.floor(Math.random() * 100) + 10,
+          replies: post.metrics?.comments || Math.floor(Math.random() * 50) + 5,
+          category: post.category || 'GENERAL',
+          avatar: getAvatarForCategory(post.category || 'GENERAL'),
+          verified: post.characterId ? true : false,
+          location: post.location || 'Unknown Location'
+        }));
+        
+        if (characterWitts.length > 0) {
+          console.log(`✅ Loaded ${characterWitts.length} Character AI generated posts`);
+          setWitts(characterWitts);
+        } else {
+          console.log('❌ No Character AI posts available, using fallback');
+          setWitts(mockWitts);
+        }
+      } else {
+        console.log('❌ Character AI posts API failed, using mock data');
+        setWitts(mockWitts);
+      }
+    } catch (error) {
+      console.error('Failed to load Character AI posts:', error);
+      setWitts(mockWitts);
+    }
+    setLoading(false);
+  };
+
+  const formatTimestamp = (timestamp: string | Date): string => {
+    const now = new Date();
+    const postTime = new Date(timestamp);
+    const diffMs = now.getTime() - postTime.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    
+    if (diffMins < 60) {
+      return `${diffMins}m`;
+    } else if (diffHours < 24) {
+      return `${diffHours}h`;
+    } else {
+      return `${Math.floor(diffHours / 24)}d`;
+    }
+  };
+
+  const getAvatarForCategory = (category: string): string => {
+    const avatars = {
+      'SCIENCE': '🧬',
+      'BUSINESS': '📊', 
+      'SPORTS': '⚽',
+      'POLITICS': '🌟',
+      'TECHNOLOGY': '🤖',
+      'MILITARY': '⚔️',
+      'DIPLOMACY': '🤝',
+      'GENERAL': '👤'
+    };
+    return avatars[category.toUpperCase()] || '👤';
+  };
+
+  const loadMore = async () => {
+    setLoading(true);
+    try {
+      // Try to load more Character AI posts
+      const response = await fetch(`/api/witter/character-driven-posts?civilizationId=1&count=5&offset=${witts.length}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        const characterPosts = data.posts || [];
+        
+        const newCharacterWitts: SimpleWitt[] = characterPosts.map((post: any) => ({
+          id: post.id,
+          author: post.characterName || post.authorName,
+          handle: `@${(post.characterName || post.authorName).replace(/\s+/g, '')}`,
+          title: post.characterTitle || post.authorType,
+          characterId: post.characterId || post.authorId,
+          content: post.content,
+          timestamp: formatTimestamp(post.timestamp),
+          likes: post.metrics?.likes || Math.floor(Math.random() * 1000) + 50,
+          reposts: post.metrics?.shares || Math.floor(Math.random() * 100) + 10,
+          replies: post.metrics?.comments || Math.floor(Math.random() * 50) + 5,
+          category: post.category || 'GENERAL',
+          avatar: getAvatarForCategory(post.category || 'GENERAL'),
+          verified: post.characterId ? true : false,
+          location: post.location || 'Unknown Location'
+        }));
+        
+        if (newCharacterWitts.length > 0) {
+          setWitts(prev => [...prev, ...newCharacterWitts]);
+          console.log(`✅ Loaded ${newCharacterWitts.length} more Character AI posts`);
+        } else {
+          // Fallback to mock data if no more Character AI posts
+          const additionalWitts = mockWitts.slice(0, 3).map((witt, index) => ({
+            ...witt,
+            id: `fallback-${Date.now()}-${index}`,
+            content: witt.content + ' [Updated]',
+            timestamp: `${Math.floor(Math.random() * 12) + 1}h`
+          }));
+          setWitts(prev => [...prev, ...additionalWitts]);
+        }
+      } else {
+        // Fallback to mock data
+        const additionalWitts = mockWitts.slice(0, 3).map((witt, index) => ({
+          ...witt,
+          id: `fallback-${Date.now()}-${index}`,
+          content: witt.content + ' [Fallback]',
+          timestamp: `${Math.floor(Math.random() * 12) + 1}h`
+        }));
+        setWitts(prev => [...prev, ...additionalWitts]);
+      }
+    } catch (error) {
+      console.error('Failed to load more posts:', error);
+      // Fallback to mock data
+      const additionalWitts = mockWitts.slice(0, 3).map((witt, index) => ({
         ...witt,
-        id: `mock-page2-${index}`,
-        content: witt.content + ' [Page 2]',
-        timestamp: `${4 + index} hours ago`
+        id: `error-fallback-${Date.now()}-${index}`,
+        content: witt.content + ' [Error Fallback]',
+        timestamp: `${Math.floor(Math.random() * 12) + 1}h`
       }));
       setWitts(prev => [...prev, ...additionalWitts]);
-      setLoading(false);
-    }, 500);
+    }
+    setLoading(false);
   };
 
   return (

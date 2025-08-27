@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('../../../src/demo/apis/enhanced-knob-system.cjs');
+const { EnhancedKnobSystem, createEnhancedKnobEndpoints } = require('../../../src/server/routes/enhanced-knob-system.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 4002;

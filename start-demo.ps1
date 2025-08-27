@@ -39,7 +39,9 @@ $env:NODE_ENV = "development"
 
 # Start the demo server
 try {
-    npx tsx demo/index.ts
+    Write-Host "Demo server has been removed. Use main server instead."
+    exit 0
+    # npx tsx demo/index.ts
 }
 catch {
     Write-Host "❌ Failed to start demo server: $($_.Exception.Message)" -ForegroundColor Red

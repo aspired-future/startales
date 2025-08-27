@@ -47,79 +47,7 @@ const CENTRAL_BANK_ENHANCED_KNOBS = {
 // Initialize routes with database pool
 export function createCentralBankEnhancementsRoutes(pool: Pool) {
   
-  // Dashboard - Overview of enhanced central bank operations
-  router.get('/dashboard/:civilizationId', async (req, res) => {
-    try {
-      const { civilizationId } = req.params;
-      
-      const [reserves, currencies, qeOperations, moneySupply, interestRates, balanceSheet] = await Promise.all([
-        // Gold and other reserves
-        pool.query(`
-          SELECT reserve_type, SUM(quantity) as total_quantity, SUM(market_value_local) as total_value
-          FROM cb_reserves 
-          WHERE civilization_id = $1 
-          GROUP BY reserve_type
-        `, [civilizationId]),
-        
-        // Currency holdings
-        pool.query(`
-          SELECT currency_code, currency_name, total_holdings, exchange_rate, credit_rating
-          FROM cb_currency_holdings 
-          WHERE civilization_id = $1
-          ORDER BY total_holdings DESC
-        `, [civilizationId]),
-        
-        // QE operations
-        pool.query(`
-          SELECT operation_type, SUM(amount) as total_amount, AVG(target_yield) as avg_yield
-          FROM cb_quantitative_easing 
-          WHERE civilization_id = $1 AND status = 'active'
-          GROUP BY operation_type
-        `, [civilizationId]),
-        
-        // Money supply metrics
-        pool.query(`
-          SELECT * FROM cb_money_supply 
-          WHERE civilization_id = $1 
-          ORDER BY measurement_date DESC 
-          LIMIT 1
-        `, [civilizationId]),
-        
-        // Interest rate corridor
-        pool.query(`
-          SELECT * FROM cb_interest_rate_corridor 
-          WHERE civilization_id = $1 
-          ORDER BY effective_date DESC 
-          LIMIT 1
-        `, [civilizationId]),
-        
-        // Balance sheet summary
-        pool.query(`
-          SELECT asset_type, SUM(book_value) as total_value
-          FROM cb_balance_sheet 
-          WHERE civilization_id = $1
-          GROUP BY asset_type
-        `, [civilizationId])
-      ]);
 
-      res.json({
-        success: true,
-        data: {
-          reserves: reserves.rows,
-          currencies: currencies.rows,
-          quantitativeEasing: qeOperations.rows,
-          moneySupply: moneySupply.rows[0] || {},
-          interestRates: interestRates.rows[0] || {},
-          balanceSheet: balanceSheet.rows,
-          knobs: CENTRAL_BANK_ENHANCED_KNOBS
-        }
-      });
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      res.status(500).json({ success: false, error: 'Failed to fetch dashboard data' });
-    }
-  });
-  
   // Get all reserves for a civilization
   router.get('/reserves/:civilizationId', async (req, res) => {
     try {

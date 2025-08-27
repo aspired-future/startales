@@ -727,7 +727,7 @@
   border-radius: 4px;
 }
 
-.score-value {
+.consistency-scores .score-value {
   font-size: 16px;
   font-weight: 600;
   color: #667eea;

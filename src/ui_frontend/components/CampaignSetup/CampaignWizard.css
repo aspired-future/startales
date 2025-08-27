@@ -6,7 +6,10 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   color: #ffffff;
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header */
@@ -104,7 +107,9 @@
   margin: 40px 0;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  min-height: 500px;
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 300px);
 }
 
 .wizard-step h2 {

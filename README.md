@@ -2,8 +2,8 @@
 
 ## Quick Start (Demo)
 
-- Run demo server: `DEMO_START=1 PORT=4011 npm run dev:demo`
-- Open: `http://localhost:4011/demo/hud`, `http://localhost:4011/demo/policies`, `http://localhost:4011/demo/trade`
+- Run main server: `npm run dev`
+- Demo server has been removed (was incomplete/obsolete)
 - Run tests: `npm run test:api` (API), `DEMO_START=1 PORT=4011 npm run e2e` (E2E)
 
 ## Environment
