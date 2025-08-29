@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  witter-api:
+    build:
+      context: ../../../
+      dockerfile: docker/services/witter-api/Dockerfile
+    ports:
+      - "4001:4001"
+    environment:
+      - NODE_ENV=production
+      - PORT=4001
+    networks:
+      - startales-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    container_name: startales-witter-api
+
+networks:
+  startales-network:
+    external: true

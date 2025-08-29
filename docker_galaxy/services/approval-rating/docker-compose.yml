@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  approval-rating-api:
+    build:
+      context: ../../../
+      dockerfile: docker/services/approval-rating/Dockerfile
+    ports:
+      - "4002:4002"
+    environment:
+      - NODE_ENV=production
+      - PORT=4002
+    networks:
+      - startales-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4002/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    container_name: startales-approval-rating-api
+
+networks:
+  startales-network:
+    external: true
+

@@ -1,0 +1,101 @@
+services:
+  # Whisper STT Service
+  whisper-stt:
+    build:
+      context: ../
+      dockerfile: docker_galaxy/whisper-stt/Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      - MODEL_SIZE=base
+      - DEVICE=cpu
+      - LANGUAGE=en
+    volumes:
+      - whisper_models:/app/models
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+
+  # Coqui TTS Service
+  coqui-tts:
+    build:
+      context: ../
+      dockerfile: docker_galaxy/coqui-tts/Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      - MODEL_NAME=tts_models/en/ljspeech/tacotron2-DDC
+      - DEVICE=cpu
+    volumes:
+      - tts_models:/app/models
+      - tts_cache:/app/cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+        reservations:
+          memory: 2G
+
+  # Voice Gateway Service (Node.js)
+  voice-gateway:
+    build:
+      context: ../
+      dockerfile: docker_galaxy/voice-gateway/Dockerfile
+    ports:
+      - "8003:8000"
+    environment:
+      - NODE_ENV=development
+      - WHISPER_STT_URL=http://whisper-stt:8000
+      - COQUI_TTS_URL=http://coqui-tts:8000
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - whisper-stt
+      - coqui-tts
+      - redis
+    volumes:
+      - ../src:/app/src
+      - ../package.json:/app/package.json
+      - ../package-lock.json:/app/package-lock.json
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  whisper_models:
+  tts_models:
+  tts_cache:
+  redis_data:
+
+networks:
+  default:
+    name: startales-voice
+    driver: bridge

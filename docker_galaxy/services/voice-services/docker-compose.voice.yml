@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  whisper-stt:
+    build:
+      context: ../../..
+      dockerfile: docker/services/voice-services/whisper-stt/Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - whisper_models:/app/models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+    networks:
+      - startales
+
+  coqui-tts:
+    build:
+      context: ../../..
+      dockerfile: docker/services/voice-services/coqui-tts/Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - tts_models:/app/models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+    networks:
+      - startales
+
+  voice-gateway:
+    build:
+      context: ../../..
+      dockerfile: docker/services/voice-services/voice-gateway/Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - NODE_ENV=production
+      - PORT=8003
+      - WHISPER_STT_URL=http://whisper-stt:8000
+      - COQUI_TTS_URL=http://coqui-tts:8000
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - whisper-stt
+      - coqui-tts
+      - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - startales
+
+volumes:
+  whisper_models:
+  tts_models:
+
+networks:
+  startales:
+    external: true
