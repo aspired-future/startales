@@ -3,9 +3,9 @@
  * Persists adapter metrics to PostgreSQL database
  */
 
-import { AdapterMetricsSink, MetricsContext, AdapterMetrics } from '../../shared/adapters/metrics.js';
-import { AdapterError } from '../../shared/adapters/base.js';
-import { LLMMetricsDAO, getLLMMetricsDAO } from './llmMetrics.js';
+import { AdapterMetricsSink, MetricsContext, AdapterMetrics } from '../../shared/adapters/metrics';
+import { AdapterError } from '../../shared/adapters/base';
+import { LLMMetricsDAO, getLLMMetricsDAO } from './llmMetrics';
 
 export interface DatabaseMetricsSinkOptions {
   llmMetricsDAO?: LLMMetricsDAO;

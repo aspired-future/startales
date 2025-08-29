@@ -6,13 +6,13 @@
  */
 
 import { Router } from 'express';
-import { CitizenEngine } from './CitizenEngine.js';
-import { PopulationAnalytics } from './PopulationAnalytics.js';
+import { CitizenEngine } from './CitizenEngine';
+import { PopulationAnalytics } from './PopulationAnalytics';
 import { 
   Citizen, PopulationMetrics, IncentiveType, IncentiveResponse, 
   PopulationConfig, DecisionType 
-} from './types.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+} from './types';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

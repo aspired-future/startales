@@ -6,7 +6,7 @@ import {
   EconomicBehavioralEffect, 
   InflationImpactTracking, 
   NarrativeGenerationInput 
-} from './fiscalSimulationSchema.js';
+} from './fiscalSimulationSchema';
 
 export class FiscalSimulationService {
   constructor(private pool: Pool) {}

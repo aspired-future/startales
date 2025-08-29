@@ -1,10 +1,10 @@
 import express from 'express';
-import { getEconomicEcosystemService } from './EconomicEcosystemService.js';
-import { getProceduralCorporationGenerator } from './ProceduralCorporationGenerator.js';
-import { getDynamicCityGenerator } from './DynamicCityGenerator.js';
-import { getTradePactsService } from './TradePactsService.js';
-import corporateLifecycleRouter from './corporateLifecycleRoutes.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { getEconomicEcosystemService } from './EconomicEcosystemService';
+import { getProceduralCorporationGenerator } from './ProceduralCorporationGenerator';
+import { getDynamicCityGenerator } from './DynamicCityGenerator';
+import { getTradePactsService } from './TradePactsService';
+import corporateLifecycleRouter from './corporateLifecycleRoutes';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

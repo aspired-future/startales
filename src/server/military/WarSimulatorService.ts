@@ -5,7 +5,7 @@
  * intelligence operations, and AI-driven morale mechanics.
  */
 
-import { db } from '../storage/db.js';
+import { db } from '../storage/db';
 import { 
   MilitaryUnit,
   UnitType,
@@ -19,7 +19,7 @@ import {
   AllianceIntegration,
   SensorNetwork,
   IntelligenceOperation
-} from './types.js';
+} from './types';
 
 export class WarSimulatorService {
 

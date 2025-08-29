@@ -10,7 +10,7 @@ import {
   FinancialStatus, SocialConnections, LifeGoals, LifeEvent, Decision,
   DecisionType, DecisionOption, IncentiveResponse, IncentiveType,
   PopulationConfig, LifeEventType
-} from './types.js';
+} from './types';
 
 export class CitizenEngine {
   private citizens: Map<string, Citizen> = new Map();

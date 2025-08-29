@@ -1,13 +1,13 @@
 import express from 'express';
-import { bootstrapLLMProviders } from '../llm/bootstrap.js';
-import { conversationStorage } from './conversationStorage.js';
-import { conversationRouter } from './conversationAPI.js';
-import { captureConversations } from './conversationMiddleware.js';
+import { bootstrapLLMProviders } from '../llm/bootstrap';
+import { conversationStorage } from './conversationStorage';
+import { conversationRouter } from './conversationAPI';
+import { captureConversations } from './conversationMiddleware';
 import { 
   captureUserMessage, 
   captureAssistantMessage, 
   createContext 
-} from './messageCapture.js';
+} from './messageCapture';
 
 /**
  * Complete Vector Memory System Demo

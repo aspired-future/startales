@@ -5,7 +5,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { delegationService } from './DelegationService.js';
+import { delegationService } from './DelegationService';
 import { 
   GovernmentRole, 
   Permission, 
@@ -13,8 +13,8 @@ import {
   Decision,
   DecisionCategory,
   ApprovalStatus
-} from './types.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+} from './types';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

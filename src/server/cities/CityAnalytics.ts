@@ -5,7 +5,7 @@
  * economic performance, infrastructure health, and comparative metrics.
  */
 
-import { City, CityAnalytics, CitySpecialization, Infrastructure } from './types.js';
+import { City, CityAnalytics, CitySpecialization, Infrastructure } from './types';
 
 export class CityAnalyticsEngine {
   /**

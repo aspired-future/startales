@@ -19,7 +19,7 @@ import {
   BenchmarkAnalysis,
   DevelopmentPlan,
   TierDefinition
-} from './economicTierInterfaces.js';
+} from './economicTierInterfaces';
 
 export interface CityGenerationContext {
   civilization_id: number;

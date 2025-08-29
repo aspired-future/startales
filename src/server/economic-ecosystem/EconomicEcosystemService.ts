@@ -14,7 +14,7 @@ import {
   LocationSkills,
   GovernmentContract,
   IndustryStatistics
-} from './economicEcosystemSchema.js';
+} from './economicEcosystemSchema';
 
 export class EconomicEcosystemService {
   constructor(private pool: Pool) {}

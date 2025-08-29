@@ -6,12 +6,21 @@ export interface PopupProps {
   isVisible: boolean;
 }
 
+export interface TabConfig {
+  id: string;
+  label: string;
+  icon?: string;
+}
+
 export interface PopupBaseProps extends PopupProps {
   title: string;
   icon: string;
   children: React.ReactNode;
   className?: string;
   size?: 'small' | 'medium' | 'large' | 'fullscreen';
+  tabs?: TabConfig[];
+  activeTab?: string;
+  onTabChange?: (tabId: string) => void;
 }
 
 export const PopupBase: React.FC<PopupBaseProps> = ({
@@ -21,7 +30,10 @@ export const PopupBase: React.FC<PopupBaseProps> = ({
   onClose,
   isVisible,
   className = '',
-  size = 'large'
+  size = 'large',
+  tabs,
+  activeTab,
+  onTabChange
 }) => {
   if (!isVisible) return null;
 
@@ -55,22 +67,7 @@ export const PopupBase: React.FC<PopupBaseProps> = ({
   return (
     <div className="popup-backdrop" onClick={handleBackdropClick}>
       <div className={`popup-screen ${size} ${className}`}>
-        <div className="popup-header">
-          <div className="popup-title">
-            <span className="popup-icon">{icon}</span>
-            <h2>{title}</h2>
-          </div>
-          <button 
-            className="popup-close" 
-            onClick={onClose}
-            aria-label="Close popup"
-          >
-            ✕
-          </button>
-        </div>
-        <div className="popup-content">
-          {children}
-        </div>
+        {children}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { veo3VideoGenerator } from './VEO3VideoGenerator.js';
+import { veo3VideoGenerator } from './VEO3VideoGenerator';
 
 // Visual consistency system for VEO 3 videos matching game aesthetics
 interface GameVisualStyle {

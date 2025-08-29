@@ -3,7 +3,7 @@ import { getPool } from '../storage/db';
 import { TreasuryService } from './TreasuryService';
 import { DepartmentBudgetService } from './DepartmentBudgetService';
 import departmentBudgetRouter from './departmentBudgetRoutes';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const treasuryRouter = Router();
 const treasuryService = new TreasuryService(getPool());

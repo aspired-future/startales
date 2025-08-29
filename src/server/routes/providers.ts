@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { getRegistry } from '../registry/AdapterRegistry.js';
-import { AdapterType } from '../../shared/adapters/index.js';
+import { getRegistry } from '../registry/AdapterRegistry';
+import { AdapterType } from '../../shared/adapters/index';
 
 export const providersRouter = Router();
 

@@ -5,7 +5,7 @@
  * cultural adaptation patterns, and policy effectiveness in promoting successful integration.
  */
 
-import { IntegrationOutcome, MigrationFlow, ImmigrationPolicy } from './types.js';
+import { IntegrationOutcome, MigrationFlow, ImmigrationPolicy } from './types';
 
 export class IntegrationAnalyticsEngine {
   /**

@@ -1,7 +1,7 @@
 import express from 'express';
-import { PolicyEngine } from '../policies/policyEngine.js';
-import { PolicyStorage } from '../policies/policyStorage.js';
-import { resumeCampaign } from '../persistence/eventSourcing.js';
+import { PolicyEngine } from '../policies/policyEngine';
+import { PolicyStorage } from '../policies/policyStorage';
+import { resumeCampaign } from '../persistence/eventSourcing';
 
 const router = express.Router();
 

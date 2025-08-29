@@ -5,8 +5,8 @@
 
 import express from 'express';
 import { Pool } from 'pg';
-import ExportControlsService from './ExportControlsService.js';
-import { EXPORT_CONTROLS_KNOBS, EXPORT_CONTROLS_AI_PROMPTS } from './exportControlsKnobs.js';
+import ExportControlsService from './ExportControlsService';
+import { EXPORT_CONTROLS_KNOBS, EXPORT_CONTROLS_AI_PROMPTS } from './exportControlsKnobs';
 
 export function createExportControlsRoutes(pool: Pool): express.Router {
   const router = express.Router();

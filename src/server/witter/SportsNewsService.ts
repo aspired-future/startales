@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { getEnhancedAIContentService } from './EnhancedAIContentService.js';
+import { getEnhancedAIContentService } from './EnhancedAIContentService';
 
 export interface SportsNewsPost {
   id: string;

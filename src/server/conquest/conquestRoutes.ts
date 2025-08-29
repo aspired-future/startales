@@ -7,8 +7,8 @@
 
 import express from 'express';
 import { Pool } from 'pg';
-import { ConquestService } from './ConquestService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { ConquestService } from './ConquestService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

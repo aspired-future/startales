@@ -11,9 +11,9 @@ import {
   LLMDelta,
   AdapterCapability,
   AdapterDependencies
-} from '../../shared/adapters/index.js';
-import { OpenAIProvider } from '../llm/providers/openai.js';
-import { ModelMessage, CompletionOptions } from '../llm/types.js';
+} from '../../shared/adapters/index';
+import { OpenAIProvider } from '../llm/providers/openai';
+import { ModelMessage, CompletionOptions } from '../llm/types';
 
 export class OpenAILLMAdapter implements LLMAdapter {
   private provider: OpenAIProvider;

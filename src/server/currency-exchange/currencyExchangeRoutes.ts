@@ -1,6 +1,6 @@
 import express from 'express';
-import { getCurrencyExchangeService } from './CurrencyExchangeService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { getCurrencyExchangeService } from './CurrencyExchangeService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

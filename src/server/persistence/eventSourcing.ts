@@ -1,4 +1,4 @@
-import { step, CampaignState } from '../sim/engine.js';
+import { step, CampaignState } from '../../simulation/engine/engine';
 import { 
   initDatabase, 
   createCampaign, 
@@ -11,7 +11,7 @@ import {
   GameEvent,
   CampaignSnapshot,
   Campaign
-} from './database.js';
+} from './database';
 import crypto from 'crypto';
 
 export interface SavedCampaign {

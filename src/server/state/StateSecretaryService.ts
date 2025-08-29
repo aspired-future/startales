@@ -6,7 +6,7 @@
  */
 
 import { Pool } from 'pg';
-import { DiplomaticSynchronizationService } from './DiplomaticSynchronizationService.js';
+import { DiplomaticSynchronizationService } from './DiplomaticSynchronizationService';
 
 // ===== INTERFACES =====
 

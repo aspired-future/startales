@@ -1,6 +1,6 @@
-import { CampaignState } from '../sim/engine.js';
-import { TradeAnalytics } from '../trade/tradeEngine.js';
-import { PolicyStorage } from '../policies/policyStorage.js';
+import { CampaignState } from '../../simulation/engine/engine';
+import { TradeAnalytics } from '../trade/tradeEngine';
+import { PolicyStorage } from '../policies/policyStorage';
 
 export interface KPISnapshot {
   step: number;

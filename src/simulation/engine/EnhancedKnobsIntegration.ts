@@ -7,7 +7,7 @@ import { Pool } from 'pg';
 import { EventEmitter } from 'events';
 
 // Import all enhanced knob systems
-import { EnhancedKnobSystem } from '../shared/enhanced-knob-system';
+import { EnhancedKnobSystem } from '../../server/shared/enhanced-knob-system';
 
 export interface EnhancedKnobsManager {
   businessCycle: EnhancedKnobSystem;

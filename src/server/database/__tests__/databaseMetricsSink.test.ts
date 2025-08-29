@@ -4,10 +4,10 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { DatabaseMetricsSink } from '../databaseMetricsSink.js';
-import { LLMMetricsDAO } from '../llmMetrics.js';
-import { MetricsContext, AdapterMetrics } from '../../../shared/adapters/metrics.js';
-import { AdapterError, AdapterErrorCode } from '../../../shared/adapters/base.js';
+import { DatabaseMetricsSink } from '../databaseMetricsSink';
+import { LLMMetricsDAO } from '../llmMetrics';
+import { MetricsContext, AdapterMetrics } from '../../../shared/adapters/metrics';
+import { AdapterError, AdapterErrorCode } from '../../../shared/adapters/base';
 
 describe('Database Metrics Sink Integration', () => {
   let mockDAO: jest.Mocked<LLMMetricsDAO>;

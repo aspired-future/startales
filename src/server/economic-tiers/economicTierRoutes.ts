@@ -6,10 +6,10 @@
 
 import express from 'express';
 import { Pool } from 'pg';
-import { EconomicTierService } from './EconomicTierService.js';
-import { EconomicTierEvolutionEngine } from './EconomicTierEvolutionEngine.js';
-import { initializeEconomicTierSchema } from './economicTierSchema.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { EconomicTierService } from './EconomicTierService';
+import { EconomicTierEvolutionEngine } from './EconomicTierEvolutionEngine';
+import { initializeEconomicTierSchema } from './economicTierSchema';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

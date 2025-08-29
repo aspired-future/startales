@@ -231,10 +231,20 @@ const GM_PERSONALITIES: GMPersonality[] = [
   }
 ];
 
-export const CampaignWizard: React.FC<{ onComplete: (config: CampaignConfig) => void; onCancel: () => void }> = ({
+interface CampaignWizardProps {
+  isVisible: boolean;
+  onComplete: (config: CampaignConfig) => void;
+  onClose: () => void;
+}
+
+export const CampaignWizard: React.FC<CampaignWizardProps> = ({
+  isVisible,
   onComplete,
-  onCancel
+  onClose
 }) => {
+  // Don't render if not visible
+  if (!isVisible) return null;
+  
   const [currentStep, setCurrentStep] = useState(0);
   const [config, setConfig] = useState<CampaignConfig>({
     name: '',
@@ -630,7 +640,7 @@ export const CampaignWizard: React.FC<{ onComplete: (config: CampaignConfig) => 
 
       <div className="wizard-footer">
         <button 
-          onClick={onCancel}
+          onClick={onClose}
           className="btn-secondary"
         >
           Cancel

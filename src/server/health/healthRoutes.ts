@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { getHealthService } from './HealthService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { getHealthService } from './HealthService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

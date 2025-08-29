@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Conversation Storage Test</title>
+</head>
+<body>
+    <h1>Conversation Storage & Retrieval Test</h1>
+    
+    <h2>1. Create Conversation</h2>
+    <button onclick="createConversation()">Create New Conversation</button>
+    <div id="createResult"></div>
+    
+    <h2>2. Store Message</h2>
+    <button onclick="storeMessage()">Store Test Message</button>
+    <div id="storeResult"></div>
+    
+    <h2>3. Retrieve Conversations</h2>
+    <button onclick="getConversations()">Get All Conversations</button>
+    <div id="getResult"></div>
+
+    <script>
+        let currentConversationId = null;
+
+        async function createConversation() {
+            const result = document.getElementById('createResult');
+            result.innerHTML = 'Creating conversation...<br>';
+            
+            try {
+                const response = await fetch('http://localhost:4000/api/ai/create-conversation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        characterId: 'chief-diplomatic-officer',
+                        characterName: 'Chief Diplomatic Officer',
+                        characterRole: 'diplomat',
+                        characterDepartment: 'Foreign Affairs',
+                        conversationType: 'individual',
+                        title: 'Test Conversation ' + Date.now()
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    currentConversationId = data.conversationId;
+                    result.innerHTML = `<span style="color: green;">✅ Conversation created: ${data.conversationId}</span>`;
+                } else {
+                    result.innerHTML = `<span style="color: red;">❌ Failed to create conversation</span>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<span style="color: red;">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function storeMessage() {
+            const result = document.getElementById('storeResult');
+            if (!currentConversationId) {
+                result.innerHTML = '<span style="color: red;">❌ No conversation created yet</span>';
+                return;
+            }
+
+            result.innerHTML = 'Storing message...<br>';
+            
+            try {
+                const response = await fetch('http://localhost:4000/api/ai/store-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        conversationId: currentConversationId,
+                        characterId: 'chief-diplomatic-officer',
+                        characterName: 'Chief Diplomatic Officer',
+                        characterRole: 'diplomat',
+                        characterDepartment: 'Foreign Affairs',
+                        senderId: 'chief-diplomatic-officer',
+                        senderName: 'Chief Diplomatic Officer',
+                        senderRole: 'diplomat',
+                        content: 'Test message at ' + new Date().toISOString(),
+                        messageType: 'voice'
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    result.innerHTML = `<span style="color: green;">✅ Message stored: ${data.messageId}</span>`;
+                } else {
+                    result.innerHTML = `<span style="color: red;">❌ Failed to store message</span>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<span style="color: red;">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function getConversations() {
+            const result = document.getElementById('getResult');
+            result.innerHTML = 'Retrieving conversations...<br>';
+            
+            try {
+                const response = await fetch('http://localhost:4000/api/ai/conversations/chief-diplomatic-officer');
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `<span style="color: green;">✅ Found ${data.conversations.length} conversations:</span><br>`;
+                    data.conversations.forEach((conv, index) => {
+                        result.innerHTML += `<br><strong>Conversation ${index + 1}:</strong><br>`;
+                        result.innerHTML += `ID: ${conv.id}<br>`;
+                        result.innerHTML += `Title: ${conv.title}<br>`;
+                        result.innerHTML += `Character: ${conv.characterName}<br>`;
+                        result.innerHTML += `Messages: ${conv.messageCount || 0}<br>`;
+                        result.innerHTML += `Last Message: ${conv.lastMessageAt}<br>`;
+                    });
+                } else {
+                    result.innerHTML = `<span style="color: red;">❌ Failed to retrieve conversations</span>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<span style="color: red;">❌ Error: ${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>

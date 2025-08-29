@@ -6,7 +6,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { AIAnalysisEngine } from './AIAnalysisEngine.js';
+import { AIAnalysisEngine } from './AIAnalysisEngine';
 import {
   AnalysisRequest,
   AnalysisType,
@@ -14,8 +14,8 @@ import {
   TimePeriod,
   DataInputs,
   AIAnalysisEngineConfig
-} from './types.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+} from './types';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

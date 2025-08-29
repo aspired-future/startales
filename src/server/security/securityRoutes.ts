@@ -4,9 +4,9 @@
  */
 
 import express from 'express';
-import { SecurityEngine } from './SecurityEngine.js';
-import { SecurityAnalytics } from './SecurityAnalytics.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { SecurityEngine } from './SecurityEngine';
+import { SecurityAnalytics } from './SecurityAnalytics';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
-import { HouseholdService } from './householdService.js';
-import { HouseholdSchema, HouseholdTierType, SocialMobilityEventType } from '../storage/householdSchema.js';
+import { HouseholdService } from './householdService';
+import { HouseholdSchema, HouseholdTierType, SocialMobilityEventType } from '../storage/householdSchema';
 
 export interface HouseholdAPIRequest extends Request {
   body: {

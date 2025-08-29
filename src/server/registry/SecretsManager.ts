@@ -5,7 +5,7 @@
 
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { SecretsManager } from './AdapterRegistry.js';
+import { SecretsManager } from './AdapterRegistry';
 
 /**
  * Environment Variables Secrets Manager

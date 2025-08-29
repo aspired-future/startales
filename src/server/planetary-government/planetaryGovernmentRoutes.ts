@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { Pool } from 'pg';
-import { PlanetaryGovernmentService } from './PlanetaryGovernmentService.js';
+import { PlanetaryGovernmentService } from './PlanetaryGovernmentService';
 
 /**
  * Planetary Government API Routes

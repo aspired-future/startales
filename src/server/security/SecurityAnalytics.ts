@@ -13,7 +13,7 @@ import {
   Officer,
   GuardMember,
   Inmate
-} from './types.js';
+} from './types';
 
 export interface SecurityMetrics {
   policeEffectiveness: number;

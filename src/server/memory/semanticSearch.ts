@@ -1,6 +1,6 @@
-import { embeddingService } from './embeddingService.js';
-import { qdrantClient, SearchOptions, SearchResult } from './qdrantClient.js';
-import { conversationStorage, MessageQuery } from './conversationStorage.js';
+import { embeddingService } from './embeddingService';
+import { qdrantClient, SearchOptions, SearchResult } from './qdrantClient';
+import { conversationStorage, MessageQuery } from './conversationStorage';
 
 export interface SemanticSearchQuery {
   // Core search

@@ -1,7 +1,7 @@
 import express from 'express';
-import { TradeEngine } from '../trade/tradeEngine.js';
-import { TradeStorage } from '../trade/tradeStorage.js';
-import { resumeCampaign } from '../persistence/eventSourcing.js';
+import { TradeEngine } from '../trade/tradeEngine';
+import { TradeStorage } from '../trade/tradeStorage';
+import { resumeCampaign } from '../persistence/eventSourcing';
 import seedrandom from 'seedrandom';
 
 const router = express.Router();

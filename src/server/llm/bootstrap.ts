@@ -1,6 +1,6 @@
-import { registerProvider } from './factory.js';
-import { OllamaProvider } from './providers/ollama.js';
-import { OpenAIProvider } from './providers/openai.js';
+import { registerProvider } from './factory';
+import { OllamaProvider } from './providers/ollama';
+import { OpenAIProvider } from './providers/openai';
 
 /**
  * Bootstrap LLM providers - registers all available providers

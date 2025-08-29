@@ -6,7 +6,7 @@
  */
 
 import { Pool } from 'pg';
-import { ProceduralCorporationGenerator } from './ProceduralCorporationGenerator.js';
+import { ProceduralCorporationGenerator } from './ProceduralCorporationGenerator';
 
 export interface LifecycleEvent {
   id: string;

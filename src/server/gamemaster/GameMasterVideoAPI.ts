@@ -1,7 +1,7 @@
 import express from 'express';
 import { WebSocket } from 'ws';
-import { veo3VideoGenerator } from './VEO3VideoGenerator.js';
-import { unifiedVideoService } from './UnifiedVideoService.js';
+import { veo3VideoGenerator } from './VEO3VideoGenerator';
+import { unifiedVideoService } from './UnifiedVideoService';
 
 interface GameMasterVideo {
   id: string;

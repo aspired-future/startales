@@ -1,0 +1,376 @@
+# Production Docker Compose - Supports up to 50 concurrent players
+networks:
+  startales-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  ollama_models:
+    driver: local
+  stt_models:
+    driver: local
+  tts_models:
+    driver: local
+  tts_cache:
+    driver: local
+  qdrant_data:
+    driver: local
+  nats_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+services:
+  # Load Balancer
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api
+      - ui
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # Frontend UI (Multiple instances for load balancing)
+  ui:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ui
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=http://api:4000
+      - VITE_STT_URL=http://stt:8000
+      - VITE_TTS_URL=http://tts:8000
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # API Service (Multiple instances)
+  api:
+    build:
+      context: ..
+      dockerfile: docker/services/api/Dockerfile
+    environment:
+      - NODE_ENV=production
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - DATABASE_URL=postgres://gtw:gtw@postgres:5432/gtw
+      - STT_SERVICE_URL=http://stt:8000
+      - TTS_SERVICE_URL=http://tts:8000
+      - REDIS_URL=redis://redis:6379
+      - NATS_URL=nats://nats:4222
+      - PORT=4000
+      - MAX_CONCURRENT_PLAYERS=25
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      nats:
+        condition: service_started
+      ollama:
+        condition: service_healthy
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # STT Service (Multiple instances for load balancing)
+  stt:
+    build:
+      context: ..
+      dockerfile: docker/services/stt/Dockerfile
+    environment:
+      - MODEL_SIZE=base
+      - DEVICE=cpu
+      - LANGUAGE=en
+      - PORT=8000
+    volumes:
+      - stt_models:/app/models
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 3G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # TTS Service (Multiple instances for load balancing)
+  tts:
+    build:
+      context: ..
+      dockerfile: docker/services/tts/Dockerfile
+    environment:
+      - MODEL_NAME=tts_models/en/ljspeech/tacotron2-DDC
+      - DEVICE=cpu
+      - PORT=8000
+    volumes:
+      - tts_models:/app/models
+      - tts_cache:/app/cache
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Ollama AI Service (High-performance setup)
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_NUM_PARALLEL=8
+      - OLLAMA_MAX_LOADED_MODELS=4
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis (High-performance caching)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 4gb --maxmemory-policy allkeys-lru --tcp-keepalive 60
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # PostgreSQL (Production configuration)
+  postgres:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=gtw
+      - POSTGRES_PASSWORD=gtw
+      - POSTGRES_DB=gtw
+      - POSTGRES_SHARED_PRELOAD_LIBRARIES=pg_stat_statements
+      - POSTGRES_MAX_CONNECTIONS=200
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gtw"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # NATS Message Queue
+  nats:
+    image: nats:alpine
+    command: 
+      - "--jetstream"
+      - "--store_dir=/data"
+      - "--max_memory_store=2GB"
+      - "--max_file_store=20GB"
+    volumes:
+      - nats_data:/data
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8222/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring: Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  # Monitoring: Grafana
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - startales-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M

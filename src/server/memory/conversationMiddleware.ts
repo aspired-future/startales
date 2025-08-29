@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { conversationStorage } from './conversationStorage.js';
-import { embeddingService } from './embeddingService.js';
-import { qdrantClient } from './qdrantClient.js';
+import { conversationStorage } from './conversationStorage';
+import { embeddingService } from './embeddingService';
+import { qdrantClient } from './qdrantClient';
 
 export interface ConversationContext {
   campaignId: number;

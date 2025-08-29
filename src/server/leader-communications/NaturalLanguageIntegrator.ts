@@ -6,12 +6,12 @@
  * and vice versa.
  */
 
-import { leaderBriefingEngine } from './LeaderBriefingEngine.js';
-import { leaderSpeechEngine } from './LeaderSpeechEngine.js';
-import { decisionSupportEngine } from './DecisionSupportEngine.js';
+import { leaderBriefingEngine } from './LeaderBriefingEngine';
+import { leaderSpeechEngine } from './LeaderSpeechEngine';
+import { decisionSupportEngine } from './DecisionSupportEngine';
 
-import { civilizationVectorMemory } from '../memory/CivilizationVectorMemory.js';
-import { db } from '../storage/db.js';
+import { civilizationVectorMemory } from '../memory/CivilizationVectorMemory';
+import { db } from '../storage/db';
 import { 
   LeaderBriefing, 
   LeaderSpeech, 
@@ -19,7 +19,7 @@ import {
   SimulationInfluence,
   NaturalLanguageContext,
   SystemIntegrationEvent
-} from './types.js';
+} from './types';
 
 /**
  * Natural Language Integrator Class

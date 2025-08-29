@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { BaseAdapter, AdapterError, AdapterErrorCode } from './base.js';
+import { BaseAdapter, AdapterError, AdapterErrorCode } from './base';
 
 // Video Generation Types
 export interface VideoGenInput {

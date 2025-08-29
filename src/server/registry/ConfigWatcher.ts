@@ -7,7 +7,7 @@ import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
 import { watch, FSWatcher } from 'fs';
 import { join } from 'path';
-import { ConfigWatcher, RegistryConfig } from './AdapterRegistry.js';
+import { ConfigWatcher, RegistryConfig } from './AdapterRegistry';
 
 /**
  * File-based Configuration Watcher

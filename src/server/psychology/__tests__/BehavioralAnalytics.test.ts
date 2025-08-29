@@ -11,15 +11,15 @@
  * - Predictive analytics
  */
 
-import { BehavioralAnalytics, PsychologyAnalyticsData } from '../BehavioralAnalytics.js';
-import { PsychologyEngine } from '../PsychologyEngine.js';
+import { BehavioralAnalytics, PsychologyAnalyticsData } from '../BehavioralAnalytics';
+import { PsychologyEngine } from '../PsychologyEngine';
 import { 
   PsychologicalProfile, 
   BehavioralResponse,
   IncentiveStructure,
   SocialDynamics,
   PolicyPsychologyResponse
-} from '../types.js';
+} from '../types';
 
 describe('BehavioralAnalytics', () => {
   let analytics: BehavioralAnalytics;

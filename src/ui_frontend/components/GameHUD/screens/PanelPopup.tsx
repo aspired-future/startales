@@ -1,5 +1,5 @@
-import React from 'react';
-import PopupBase from './PopupBase';
+import React, { useState } from 'react';
+import PopupBase, { TabConfig } from './PopupBase';
 import './PanelPopup.css';
 
 // Import all the detailed screen components
@@ -78,6 +78,17 @@ export const PanelPopup: React.FC<PanelPopupProps> = ({
   isVisible,
   onClose,
 }) => {
+  const [activeTab, setActiveTab] = useState<string>('overview');
+  
+  // Define tabs for Supreme Court (optimized for space)
+  const supremeCourtTabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'reviews', label: 'Reviews', icon: '📋' },
+    { id: 'justices', label: 'Justices', icon: '👩‍⚖️' },
+    { id: 'precedents', label: 'Cases', icon: '📚' },
+    { id: 'relations', label: 'Relations', icon: '🤝' }
+  ];
+
   const renderPanelContent = () => {
     switch (panel.id) {
       case 'constitution':
@@ -89,11 +100,32 @@ export const PanelPopup: React.FC<PanelPopupProps> = ({
       case 'legislature':
         return <LegislaturePanel playerId={playerId} />;
       case 'supreme-court':
-        return <SupremeCourtPanel playerId={playerId} />;
+        return (
+          <SupremeCourtScreen 
+            screenId="supreme-court" 
+            title="Supreme Court" 
+            icon="⚖️" 
+            gameContext={{ currentLocation: 'Capital System', playerId }}
+            isPopup={true}
+            onClose={onClose}
+            tabs={supremeCourtTabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+        );
       case 'political-parties':
         return <PoliticalPartiesPanel playerId={playerId} />;
       case 'treasury':
-        return <TreasuryPanel playerId={playerId} />;
+        return (
+          <TreasuryScreen 
+            screenId="treasury" 
+            title="Treasury" 
+            icon="💰" 
+            gameContext={{ currentLocation: 'Capital System', playerId }}
+            isPopup={true}
+            onClose={onClose}
+          />
+        );
       case 'trade':
         return <TradePanel playerId={playerId} />;
       case 'businesses':
@@ -293,14 +325,30 @@ const LegislaturePanel: React.FC<{ playerId: string }> = ({ playerId }) => (
   />
 );
 
-const SupremeCourtPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
-  <SupremeCourtScreen 
-    screenId="supreme-court" 
-    title="Supreme Court" 
-    icon="⚖️" 
-    gameContext={{ currentLocation: 'Capital System', playerId }} 
-  />
-);
+const SupremeCourtPanel: React.FC<{ playerId: string }> = ({ playerId }) => {
+  const [activeTab, setActiveTab] = useState<string>('overview');
+  
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'reviews', label: 'Reviews', icon: '📋' },
+    { id: 'justices', label: 'Justices', icon: '👩‍⚖️' },
+    { id: 'precedents', label: 'Precedents', icon: '📚' },
+    { id: 'relations', label: 'Relations', icon: '🤝' }
+  ];
+
+  return (
+    <SupremeCourtScreen 
+      screenId="supreme-court" 
+      title="Supreme Court" 
+      icon="⚖️" 
+      gameContext={{ currentLocation: 'Capital System', playerId }}
+      hideHeader={true}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    />
+  );
+};
 
 const PoliticalPartiesPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
   <PoliticalPartiesScreen 
@@ -476,7 +524,12 @@ const ProfessionsPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
 );
 
 const EducationPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
-  <EducationScreen />
+  <EducationScreen 
+    screenId="education" 
+    title="Education" 
+    icon="🎓" 
+    gameContext={{ currentLocation: 'Capital System', playerId }} 
+  />
 );
 
 const HealthPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
@@ -497,7 +550,12 @@ const CorporateResearchPanel: React.FC<{ playerId: string }> = ({ playerId }) =>
 );
 
 const UniversityResearchPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
-  <UniversityResearchScreen />
+  <UniversityResearchScreen 
+    screenId="university-research" 
+    title="University Research" 
+    icon="🔬" 
+    gameContext={{ currentLocation: 'Capital System', playerId }} 
+  />
 );
 
 const ClassifiedResearchPanel: React.FC<{ playerId: string }> = ({ playerId }) => (

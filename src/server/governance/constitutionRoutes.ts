@@ -1,6 +1,6 @@
 import express from 'express';
 import { Pool } from 'pg';
-import { ConstitutionService } from './ConstitutionService.js';
+import { ConstitutionService } from './ConstitutionService';
 
 export function createConstitutionRoutes(pool: Pool): express.Router {
   const router = express.Router();

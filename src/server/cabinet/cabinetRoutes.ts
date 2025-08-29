@@ -5,7 +5,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { cabinetService } from './CabinetService.js';
+import { cabinetService } from './CabinetService';
 import { 
   CabinetMember,
   CabinetMemberStatus,
@@ -13,8 +13,8 @@ import {
   BureaucraticProcess,
   CabinetMeeting,
   DecisionSupportRequest
-} from './types.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+} from './types';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

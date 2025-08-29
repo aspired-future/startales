@@ -7,7 +7,7 @@ import {
   HouseholdTierType, 
   SocialMobilityEventType,
   SocialMobilityResourceCost
-} from '../storage/householdSchema.js';
+} from '../storage/householdSchema';
 
 export interface HouseholdEconomicStatus {
   campaign_id: number;

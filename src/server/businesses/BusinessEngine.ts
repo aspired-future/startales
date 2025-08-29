@@ -25,9 +25,9 @@ import {
   CompetitionLevel,
   BarrierToEntry,
   PricingType
-} from './types.js';
-import { Citizen } from '../population/types.js';
-import { Employment } from '../professions/types.js';
+} from './types';
+import { Citizen } from '../population/types';
+import { Employment } from '../professions/types';
 
 export class BusinessEngine {
   private businesses: Map<string, Business> = new Map();

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { getPool } from '../storage/db.js';
-import { InteriorSecretaryService } from './InteriorSecretaryService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { getPool } from '../storage/db';
+import { InteriorSecretaryService } from './InteriorSecretaryService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

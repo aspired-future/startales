@@ -1,11 +1,11 @@
-import { bootstrapLLMProviders } from '../llm/bootstrap.js';
-import { conversationStorage } from './conversationStorage.js';
-import { embeddingService } from './embeddingService.js';
-import { qdrantClient } from './qdrantClient.js';
-import { semanticSearchService } from './semanticSearch.js';
-import { aiContextService } from './aiContextService.js';
-import { memoryAdminService } from './memoryAdminService.js';
-import { captureUserMessage, captureAssistantMessage, createContext } from './messageCapture.js';
+import { bootstrapLLMProviders } from '../llm/bootstrap';
+import { conversationStorage } from './conversationStorage';
+import { embeddingService } from './embeddingService';
+import { qdrantClient } from './qdrantClient';
+import { semanticSearchService } from './semanticSearch';
+import { aiContextService } from './aiContextService';
+import { memoryAdminService } from './memoryAdminService';
+import { captureUserMessage, captureAssistantMessage, createContext } from './messageCapture';
 
 export interface PerformanceMetrics {
   operation: string;

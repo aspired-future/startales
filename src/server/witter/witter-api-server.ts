@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import witterRoutes from './routes/witter.js';
+import witterRoutes from './routes/witter';
 
 const app = express();
 const PORT = process.env.PORT || 4001;

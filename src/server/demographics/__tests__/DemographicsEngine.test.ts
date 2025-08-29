@@ -4,8 +4,8 @@
  * Unit tests for the Demographics & Lifecycle Systems engine
  */
 
-import { DemographicsEngine } from '../DemographicsEngine.js';
-import { CasualtyType, CasualtyCause, PlunderType, TransitionType } from '../types.js';
+import { DemographicsEngine } from '../DemographicsEngine';
+import { CasualtyType, CasualtyCause, PlunderType, TransitionType } from '../types';
 
 describe('DemographicsEngine', () => {
   let engine: DemographicsEngine;

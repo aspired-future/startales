@@ -1,4 +1,4 @@
-import { qdrantClient } from './qdrantClient.js';
+import { qdrantClient } from './qdrantClient';
 import { v4 as uuidv4 } from 'uuid';
 
 /**

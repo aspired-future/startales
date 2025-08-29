@@ -10,7 +10,7 @@
  * - Behavioral economics applications
  */
 
-import { PsychologyEngine } from '../PsychologyEngine.js';
+import { PsychologyEngine } from '../PsychologyEngine';
 import { 
   PsychologicalProfile, 
   BehavioralResponse,
@@ -19,7 +19,7 @@ import {
   PolicyPsychologyResponse,
   PERSONALITY_ARCHETYPES,
   BEHAVIORAL_CONSTANTS
-} from '../types.js';
+} from '../types';
 
 describe('PsychologyEngine', () => {
   let engine: PsychologyEngine;

@@ -6,7 +6,7 @@
 
 import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
-import { SmallBusiness, BusinessCategory, BusinessType, DistributionNetwork } from './smallBusinessInterfaces.js';
+import { SmallBusiness, BusinessCategory, BusinessType, DistributionNetwork } from './smallBusinessInterfaces';
 
 export interface BusinessGenerationContext {
   civilization_id: number;

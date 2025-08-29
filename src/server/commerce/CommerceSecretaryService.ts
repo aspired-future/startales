@@ -1,8 +1,8 @@
 import { Pool } from 'pg';
 import { nanoid } from 'nanoid';
-import { TradeEngine, TradeResource } from '../trade/tradeEngine.js';
-import { TradeStorage } from '../trade/tradeStorage.js';
-import { getTradePactsService } from '../economic-ecosystem/TradePactsService.js';
+import { TradeEngine, TradeResource } from '../trade/tradeEngine';
+import { TradeStorage } from '../trade/tradeStorage';
+import { getTradePactsService } from '../economic-ecosystem/TradePactsService';
 
 export interface CommerceOperation {
   id: string;

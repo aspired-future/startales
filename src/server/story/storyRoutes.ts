@@ -1,6 +1,6 @@
 import express from 'express';
 import { Pool } from 'pg';
-import { getGameMasterStoryEngine, initializeGameMasterStoryEngine } from './GameMasterStoryEngine.js';
+import { getGameMasterStoryEngine, initializeGameMasterStoryEngine } from './GameMasterStoryEngine';
 
 const router = express.Router();
 

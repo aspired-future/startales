@@ -9,7 +9,7 @@ import {
   HealthEmergency,
   HealthBudget,
   HealthWorkflow
-} from './healthSchema.js';
+} from './healthSchema';
 
 class HealthService {
   private pool: Pool;

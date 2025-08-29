@@ -6,7 +6,7 @@
  * and market mechanics for intelligence commerce.
  */
 
-import { InformationAsset, SecurityLevel, InformationType } from './informationClassification.js';
+import { InformationAsset, SecurityLevel, InformationType } from './informationClassification';
 
 export enum MarketRole {
   BUYER = 'BUYER',

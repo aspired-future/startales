@@ -5,8 +5,8 @@
  */
 
 import express from 'express';
-import { DemographicsEngine } from './DemographicsEngine.js';
-import { DemographicsAnalytics } from './DemographicsAnalytics.js';
+import { DemographicsEngine } from './DemographicsEngine';
+import { DemographicsAnalytics } from './DemographicsAnalytics';
 import {
   CasualtyType,
   CasualtyCause,
@@ -16,8 +16,8 @@ import {
   InjuryType,
   InjurySeverity,
   CasualtyOutcome
-} from './types.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+} from './types';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 const demographicsEngine = new DemographicsEngine();

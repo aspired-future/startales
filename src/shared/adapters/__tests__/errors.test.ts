@@ -13,8 +13,8 @@ import {
   HTTP_STATUS_MAPPINGS,
   ERROR_PATTERNS,
   PROVIDER_ERROR_MAPPINGS
-} from '../errors.js';
-import { AdapterError, AdapterErrorCode } from '../base.js';
+} from '../errors';
+import { AdapterError, AdapterErrorCode } from '../base';
 
 describe('Error Normalization', () => {
   describe('normalizeError', () => {

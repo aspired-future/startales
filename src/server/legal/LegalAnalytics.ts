@@ -18,7 +18,7 @@ import {
   CourtAnalytics,
   CorruptionAnalytics,
   LawEnforcementAnalytics
-} from './types.js';
+} from './types';
 
 export class LegalAnalytics {
   private analyticsHistory: Map<string, LegalSystemAnalytics[]> = new Map();

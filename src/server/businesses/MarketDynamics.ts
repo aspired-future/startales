@@ -14,7 +14,7 @@ import {
   TrendImpact,
   TrendTimeframe,
   BarrierToEntry
-} from './types.js';
+} from './types';
 
 export interface CompetitorAnalysis {
   businessId: string;

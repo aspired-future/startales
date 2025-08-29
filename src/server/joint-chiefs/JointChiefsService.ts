@@ -5,7 +5,7 @@ import {
   StrategicPlan, 
   JointOperation, 
   CommandRecommendation 
-} from './jointChiefsSchema.js';
+} from './jointChiefsSchema';
 
 export class JointChiefsService {
   constructor(private pool: Pool) {}

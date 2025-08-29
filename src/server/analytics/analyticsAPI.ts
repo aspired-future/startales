@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
-import { AnalyticsService, SystemHealthReport, PredictionRequest, BenchmarkingReport } from './analyticsService.js';
-import { AnalyticsSchema } from '../storage/analyticsSchema.js';
-import { HouseholdService } from '../households/householdService.js';
-import { WonderService } from '../wonders/wonderService.js';
+import { AnalyticsService, SystemHealthReport, PredictionRequest, BenchmarkingReport } from './analyticsService';
+import { AnalyticsSchema } from '../storage/analyticsSchema';
+import { HouseholdService } from '../households/householdService';
+import { WonderService } from '../wonders/wonderService';
 
 export interface AnalyticsAPIRequest extends Request {
   body: {

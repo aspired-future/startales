@@ -18,7 +18,7 @@ import {
   GOVERNANCE_EVENTS,
   GOVERNMENT_TYPES,
   ELECTORAL_SYSTEMS
-} from './types.js';
+} from './types';
 
 export class GovernanceEngine {
   private constitutions: Map<string, Constitution> = new Map();

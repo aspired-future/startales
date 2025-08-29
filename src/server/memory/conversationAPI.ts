@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express';
-import { conversationStorage, ConversationQuery, MessageQuery } from './conversationStorage.js';
-import { embeddingService } from './embeddingService.js';
-import { qdrantClient } from './qdrantClient.js';
-import { semanticSearchRouter } from './semanticSearchAPI.js';
-import { aiContextRouter } from './aiContextAPI.js';
-import { adminRouter } from './adminAPI.js';
+import { conversationStorage, ConversationQuery, MessageQuery } from './conversationStorage';
+import { embeddingService } from './embeddingService';
+import { qdrantClient } from './qdrantClient';
+import { semanticSearchRouter } from './semanticSearchAPI';
+import { aiContextRouter } from './aiContextAPI';
+import { adminRouter } from './adminAPI';
 
 export const conversationRouter = express.Router();
 

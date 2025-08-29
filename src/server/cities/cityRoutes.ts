@@ -6,10 +6,10 @@
  */
 
 import express from 'express';
-import { CityEngine } from './CityEngine.js';
-import { CityAnalyticsEngine } from './CityAnalytics.js';
-import { City, CitySpecialization, DEFAULT_SPECIALIZATIONS } from './types.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { CityEngine } from './CityEngine';
+import { CityAnalyticsEngine } from './CityAnalytics';
+import { City, CitySpecialization, DEFAULT_SPECIALIZATIONS } from './types';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

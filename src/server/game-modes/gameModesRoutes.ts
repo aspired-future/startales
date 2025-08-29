@@ -6,9 +6,9 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { GameModesEngine } from './GameModesEngine.js';
-import { GameModeType, DifficultyLevel } from './types.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { GameModesEngine } from './GameModesEngine';
+import { GameModeType, DifficultyLevel } from './types';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

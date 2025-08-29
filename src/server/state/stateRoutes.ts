@@ -6,9 +6,9 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { getPool } from '../storage/db.js';
-import { StateSecretaryService } from './StateSecretaryService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { getPool } from '../storage/db';
+import { StateSecretaryService } from './StateSecretaryService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

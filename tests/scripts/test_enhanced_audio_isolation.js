@@ -56,7 +56,7 @@ async function testEnhancedAudioIsolation() {
   
   try {
     console.log('📱 Navigating to application...');
-    await page.goto('http://localhost:5175/', { 
+    await page.goto('http://localhost:5173/', { 
       waitUntil: 'domcontentloaded',
       timeout: 15000 
     });

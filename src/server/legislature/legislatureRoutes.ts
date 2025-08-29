@@ -1,8 +1,8 @@
 import express from 'express';
-import { getPool } from '../storage/db.js';
-import { LegislativeBodiesAdvisoryService } from './LegislativeBodiesAdvisoryService.js';
-import { createLegislativeOverrideRoutes } from './legislativeOverrideRoutes.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { getPool } from '../storage/db';
+import { LegislativeBodiesAdvisoryService } from './LegislativeBodiesAdvisoryService';
+import { createLegislativeOverrideRoutes } from './legislativeOverrideRoutes';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

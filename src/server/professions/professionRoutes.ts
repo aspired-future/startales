@@ -4,10 +4,10 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { ProfessionEngine } from './ProfessionEngine.js';
-import { LaborMarketAnalytics } from './LaborMarketAnalytics.js';
-import { CitizenEngine } from '../population/CitizenEngine.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { ProfessionEngine } from './ProfessionEngine';
+import { LaborMarketAnalytics } from './LaborMarketAnalytics';
+import { CitizenEngine } from '../population/CitizenEngine';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

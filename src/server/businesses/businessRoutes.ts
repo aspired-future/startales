@@ -4,11 +4,11 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { BusinessEngine } from './BusinessEngine.js';
-import { MarketDynamics } from './MarketDynamics.js';
-import { CitizenEngine } from '../population/CitizenEngine.js';
-import { ProfessionEngine } from '../professions/ProfessionEngine.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { BusinessEngine } from './BusinessEngine';
+import { MarketDynamics } from './MarketDynamics';
+import { CitizenEngine } from '../population/CitizenEngine';
+import { ProfessionEngine } from '../professions/ProfessionEngine';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

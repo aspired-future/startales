@@ -1,4 +1,4 @@
-import { GameStateProvider } from './WitterAIService.js';
+import { GameStateProvider } from './WitterAIService';
 
 /**
  * Implementation of GameStateProvider that integrates with actual game systems

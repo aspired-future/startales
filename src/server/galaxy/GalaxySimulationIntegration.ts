@@ -5,7 +5,7 @@
 
 import { Pool } from 'pg';
 import { EventEmitter } from 'events';
-import { GalaxyKnobsState, DEFAULT_GALAXY_KNOBS, GALAXY_KNOBS_AI_PROMPTS, applyGalaxyKnobsToSimulation } from './galaxyKnobs.js';
+import { GalaxyKnobsState, DEFAULT_GALAXY_KNOBS, GALAXY_KNOBS_AI_PROMPTS, applyGalaxyKnobsToSimulation } from './galaxyKnobs';
 
 export interface GalaxySimulationState {
   campaignId: string;

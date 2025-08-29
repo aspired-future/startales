@@ -1,6 +1,6 @@
-import { videoProviderManager, VideoProviderManager } from './video-providers/VideoProviderFactory.js';
-import { VideoGenerationRequest, VideoGenerationResponse, GameVideoGenerationRequest } from './video-providers/IVideoProvider.js';
-import { videoStyleConsistency } from './VideoStyleConsistency.js';
+import { videoProviderManager, VideoProviderManager } from './video-providers/VideoProviderFactory';
+import { VideoGenerationRequest, VideoGenerationResponse, GameVideoGenerationRequest } from './video-providers/IVideoProvider';
+import { videoStyleConsistency } from './VideoStyleConsistency';
 
 /**
  * Unified Video Generation Service

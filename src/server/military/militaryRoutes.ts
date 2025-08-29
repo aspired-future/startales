@@ -6,9 +6,9 @@
  */
 
 import { Router } from 'express';
-import { warSimulatorService } from './WarSimulatorService.js';
-import { db } from '../storage/db.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { warSimulatorService } from './WarSimulatorService';
+import { db } from '../storage/db';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

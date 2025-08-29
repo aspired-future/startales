@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { MigrationEngine } from '../MigrationEngine.js';
+import { MigrationEngine } from '../MigrationEngine';
 import { 
   MigrationFlow, 
   ImmigrationPolicy, 
@@ -15,7 +15,7 @@ import {
   MIGRATION_FLOW_TYPES,
   MIGRATION_SUBTYPES,
   INTEGRATION_STAGES
-} from '../types.js';
+} from '../types';
 
 describe('MigrationEngine', () => {
   let engine: MigrationEngine;

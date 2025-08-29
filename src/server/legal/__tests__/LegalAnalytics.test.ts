@@ -5,7 +5,7 @@
  * crime statistics, court performance, corruption analytics, and insights generation.
  */
 
-import { LegalAnalytics } from '../LegalAnalytics.js';
+import { LegalAnalytics } from '../LegalAnalytics';
 import { 
   LegalCase, 
   Court, 
@@ -13,7 +13,7 @@ import {
   CorruptionCase, 
   LawEnforcementAgency,
   LegalSystemAnalytics 
-} from '../types.js';
+} from '../types';
 
 describe('LegalAnalytics', () => {
   let legalAnalytics: LegalAnalytics;

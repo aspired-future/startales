@@ -5,8 +5,8 @@
 
 import express from 'express';
 import { Pool } from 'pg';
-import { EntertainmentTourismSimulationIntegration } from './EntertainmentTourismSimulationIntegration.js';
-import { DEFAULT_ENTERTAINMENT_TOURISM_KNOBS, ENTERTAINMENT_TOURISM_AI_PROMPTS, ENTERTAINMENT_TOURISM_KNOB_CATEGORIES } from './entertainmentTourismKnobs.js';
+import { EntertainmentTourismSimulationIntegration } from './EntertainmentTourismSimulationIntegration';
+import { DEFAULT_ENTERTAINMENT_TOURISM_KNOBS, ENTERTAINMENT_TOURISM_AI_PROMPTS, ENTERTAINMENT_TOURISM_KNOB_CATEGORIES } from './entertainmentTourismKnobs';
 
 const router = express.Router();
 

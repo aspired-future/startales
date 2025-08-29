@@ -6,7 +6,7 @@
  */
 
 import { Pool } from 'pg';
-import { StateSecretaryService, DiplomaticCommunication } from './StateSecretaryService.js';
+import { StateSecretaryService, DiplomaticCommunication } from './StateSecretaryService';
 
 // ===== INTERFACES =====
 

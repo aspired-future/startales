@@ -6,12 +6,12 @@
  */
 
 import express from 'express';
-import { BusinessNewsService } from './BusinessNewsService.js';
-import { SportsNewsService } from './SportsNewsService.js';
-import { initializeEnhancedAIContentService } from './EnhancedAIContentService.js';
-import { initializeCharacterDrivenContentService, getCharacterDrivenContentService } from './CharacterDrivenContentService.js';
-import { initializeGameMasterStoryEngine } from './GameMasterStoryEngine.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { BusinessNewsService } from './BusinessNewsService';
+import { SportsNewsService } from './SportsNewsService';
+import { initializeEnhancedAIContentService } from './EnhancedAIContentService';
+import { initializeCharacterDrivenContentService, getCharacterDrivenContentService } from './CharacterDrivenContentService';
+import { initializeGameMasterStoryEngine } from './GameMasterStoryEngine';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

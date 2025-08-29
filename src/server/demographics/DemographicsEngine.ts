@@ -26,7 +26,7 @@ import {
   CasualtyOutcome,
   InjuryType,
   InjurySeverity
-} from './types.js';
+} from './types';
 
 export class DemographicsEngine {
   private lifespanProfiles: Map<string, LifespanProfile> = new Map();

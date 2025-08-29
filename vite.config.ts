@@ -5,7 +5,8 @@ export default defineConfig({
   plugins: [react()],
   root: 'src/ui_frontend',
   server: { 
-    port: 5174,
+    port: 5173,
+    host: '0.0.0.0', // Allow external connections in Docker
     hmr: {
       overlay: false // Disable error overlay to prevent blocking
     },

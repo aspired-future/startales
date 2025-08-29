@@ -26,7 +26,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { GovernanceEngine } from './GovernanceEngine.js';
+import { GovernanceEngine } from './GovernanceEngine';
 import { 
   Constitution,
   PoliticalParty,
@@ -36,8 +36,8 @@ import {
   GovernmentOfficial,
   GOVERNMENT_TYPES,
   ELECTORAL_SYSTEMS
-} from './types.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+} from './types';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

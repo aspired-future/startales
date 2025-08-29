@@ -6,9 +6,9 @@
 
 import express from 'express';
 import { Pool } from 'pg';
-import { CityEmergenceEngine } from './CityEmergenceEngine.js';
-import { CityEmergenceService, initializeCityEmergenceSchema } from './cityEmergenceSchema.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { CityEmergenceEngine } from './CityEmergenceEngine';
+import { CityEmergenceService, initializeCityEmergenceSchema } from './cityEmergenceSchema';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

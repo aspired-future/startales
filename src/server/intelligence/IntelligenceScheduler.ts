@@ -4,7 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import { intelligenceEngine } from './IntelligenceEngine.js';
+import { intelligenceEngine } from './IntelligenceEngine';
 import {
   IntelligenceSchedule,
   IntelligenceReport,
@@ -18,7 +18,7 @@ import {
   TriggerCondition,
   ScheduleConfig,
   GenerateReportRequest
-} from './types.js';
+} from './types';
 
 interface SchedulerConfig {
   maxConcurrentSchedules: number;

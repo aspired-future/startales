@@ -10,7 +10,7 @@ import {
   ExchangeRateHistory,
   CurrencyMarketData,
   CurrencyIntervention
-} from './currencyExchangeSchema.js';
+} from './currencyExchangeSchema';
 
 export class CurrencyExchangeService {
   constructor(private pool: Pool) {}

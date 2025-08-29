@@ -2,8 +2,8 @@
  * Unit tests for CityEngine
  */
 
-import { CityEngine } from '../CityEngine.js';
-import { City, CityEngineConfig } from '../types.js';
+import { CityEngine } from '../CityEngine';
+import { City, CityEngineConfig } from '../types';
 
 describe('CityEngine', () => {
   let cityEngine: CityEngine;

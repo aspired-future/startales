@@ -29,7 +29,7 @@ import {
   InsightPriority,
   TrendDirection,
   PredictionType
-} from './types.js';
+} from './types';
 
 export class AIAnalysisEngine {
   private analysisHistory: Map<string, AnalysisResponse> = new Map();

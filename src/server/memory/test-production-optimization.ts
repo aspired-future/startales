@@ -1,7 +1,7 @@
-import { bootstrapLLMProviders } from '../llm/bootstrap.js';
-import { conversationStorage } from './conversationStorage.js';
-import { performanceTester } from './performanceTesting.js';
-import { productionOptimizer } from './productionOptimization.js';
+import { bootstrapLLMProviders } from '../llm/bootstrap';
+import { conversationStorage } from './conversationStorage';
+import { performanceTester } from './performanceTesting';
+import { productionOptimizer } from './productionOptimization';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 

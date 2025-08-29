@@ -6,8 +6,8 @@
  * Builds upon the Delegation & Authority Management System.
  */
 
-import { db } from '../storage/db.js';
-import { delegationService } from '../delegation/DelegationService.js';
+import { db } from '../storage/db';
+import { delegationService } from '../delegation/DelegationService';
 import { 
   CabinetMember,
   CabinetMemberStatus,
@@ -22,13 +22,13 @@ import {
   CabinetResponse,
   CabinetSummary,
   RecentActivity
-} from './types.js';
+} from './types';
 import { 
   GovernmentRole,
   AuthorityDelegation,
   Decision,
   AuthorityCheckResult
-} from '../delegation/types.js';
+} from '../delegation/types';
 
 export class CabinetService {
 

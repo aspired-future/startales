@@ -5,7 +5,7 @@
 
 import { Pool } from 'pg';
 import { EventEmitter } from 'events';
-import { EntertainmentTourismKnobs, DEFAULT_ENTERTAINMENT_TOURISM_KNOBS } from './entertainmentTourismKnobs.js';
+import { EntertainmentTourismKnobs, DEFAULT_ENTERTAINMENT_TOURISM_KNOBS } from './entertainmentTourismKnobs';
 
 export interface EntertainmentTourismState {
   civilizationId: string;

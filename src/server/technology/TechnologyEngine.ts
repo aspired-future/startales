@@ -10,9 +10,9 @@ import {
   IntelligenceData, TechnologyTransfer, ReverseEngineeringProject,
   TechnologySample, AnalysisResult, TechnologyAnalyticsData, TechnologyRecommendation,
   PsychicPower, TechTreeNode, InnovationEvent, InnovationSource
-} from './types.js';
-import { DynamicTechTreeGenerator } from './DynamicTechTreeGenerator.js';
-import { InnovationEngine } from './InnovationEngine.js';
+} from './types';
+import { DynamicTechTreeGenerator } from './DynamicTechTreeGenerator';
+import { InnovationEngine } from './InnovationEngine';
 
 export class TechnologyEngine {
   private technologies: Map<string, Technology> = new Map();

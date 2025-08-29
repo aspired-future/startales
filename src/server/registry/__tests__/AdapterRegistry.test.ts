@@ -4,11 +4,11 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { AdapterRegistry, AdapterType, RegistryConfig } from '../AdapterRegistry.js';
-import { MockSecretsManager } from '../SecretsManager.js';
-import { MemoryConfigWatcher } from '../ConfigWatcher.js';
-import { BaseAdapter, AdapterDependencies } from '../../../shared/adapters/base.js';
-import { LLMAdapter } from '../../../shared/adapters/llm.js';
+import { AdapterRegistry, AdapterType, RegistryConfig } from '../AdapterRegistry';
+import { MockSecretsManager } from '../SecretsManager';
+import { MemoryConfigWatcher } from '../ConfigWatcher';
+import { BaseAdapter, AdapterDependencies } from '../../../shared/adapters/base';
+import { LLMAdapter } from '../../../shared/adapters/llm';
 
 // Mock adapter implementations
 class MockLLMAdapter implements LLMAdapter {

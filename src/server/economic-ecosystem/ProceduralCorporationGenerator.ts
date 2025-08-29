@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { CorporationTemplate, LeaderTemplate, NamePattern } from './economicEcosystemSchema.js';
+import { CorporationTemplate, LeaderTemplate, NamePattern } from './economicEcosystemSchema';
 
 export class ProceduralCorporationGenerator {
   constructor(private pool: Pool) {}

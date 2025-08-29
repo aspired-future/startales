@@ -7,13 +7,13 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { IntegrationAnalyticsEngine } from '../IntegrationAnalytics.js';
+import { IntegrationAnalyticsEngine } from '../IntegrationAnalytics';
 import { 
   IntegrationOutcome, 
   MigrationFlow, 
   ImmigrationPolicy,
   INTEGRATION_STAGES 
-} from '../types.js';
+} from '../types';
 
 describe('IntegrationAnalyticsEngine', () => {
   let analytics: IntegrationAnalyticsEngine;

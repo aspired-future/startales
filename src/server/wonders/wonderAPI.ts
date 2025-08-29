@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
-import { WonderService, WonderConstructionOptions } from './wonderService.js';
-import { WondersSchema } from '../storage/wondersSchema.js';
-import { WonderType, ResourceCost } from '../storage/wondersSchema.js';
+import { WonderService, WonderConstructionOptions } from './wonderService';
+import { WondersSchema } from '../storage/wondersSchema';
+import { WonderType, ResourceCost } from '../storage/wondersSchema';
 
 export interface WonderAPIRequest extends Request {
   body: {

@@ -5,7 +5,7 @@
  * social mobility, and behavioral patterns across the citizen population.
  */
 
-import { Citizen, PopulationMetrics, IncentiveType, IncentiveResponse } from './types.js';
+import { Citizen, PopulationMetrics, IncentiveType, IncentiveResponse } from './types';
 
 export class PopulationAnalytics {
   /**

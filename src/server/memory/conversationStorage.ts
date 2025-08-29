@@ -1,4 +1,4 @@
-import { db } from '../storage/db.js';
+import { db } from '../storage/db';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface Conversation {

@@ -4,7 +4,7 @@ import { DefenseSecretaryService } from './DefenseSecretaryService';
 import { DepartmentBudgetService } from '../treasury/DepartmentBudgetService';
 import { TreasuryService } from '../treasury/TreasuryService';
 import { WarSimulatorService } from '../military/WarSimulatorService';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const defenseRouter = Router();
 

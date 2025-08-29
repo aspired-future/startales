@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { Constitution, Amendment } from './types.js';
+import { Constitution, Amendment } from './types';
 
 export interface ConstitutionCreationParams {
   name: string;

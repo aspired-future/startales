@@ -5,7 +5,7 @@
 
 import { Pool } from 'pg';
 import { EventEmitter } from 'events';
-import { SpatialAwarenessKnobsState, DEFAULT_SPATIAL_AWARENESS_KNOBS, applySpatialAwarenessKnobsToCharacterAI } from './spatialAwarenessKnobs.js';
+import { SpatialAwarenessKnobsState, DEFAULT_SPATIAL_AWARENESS_KNOBS, applySpatialAwarenessKnobsToCharacterAI } from './spatialAwarenessKnobs';
 
 export interface GalacticPosition {
   systemId: string;

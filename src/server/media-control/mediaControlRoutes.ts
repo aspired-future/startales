@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { Pool } from 'pg';
-import { MediaControlService } from './MediaControlService.js';
+import { MediaControlService } from './MediaControlService';
 // Simple media control knobs without enhanced system for now
 const defaultMediaControlKnobs = {
   // Press Freedom and Control (1-6)

@@ -2,7 +2,7 @@
  * Logo Visual Integration - Hooks image generation into civilization and organization logo creation
  */
 
-import { EntityVisualGenerator, EntityImageResult } from './EntityVisualGenerator.js';
+import { EntityVisualGenerator, EntityImageResult } from './EntityVisualGenerator';
 
 export interface LogoData {
   id: string;

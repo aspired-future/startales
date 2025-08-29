@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Comprehensive WhoseApp Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a2e; color: #e8e8e8; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #4ecdc4; border-radius: 8px; }
+        .success { color: #4CAF50; }
+        .error { color: #F44336; }
+        .info { color: #2196F3; }
+        button { background: #4ecdc4; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #45b7aa; }
+        .output { background: #2a2a3e; padding: 10px; border-radius: 4px; margin: 10px 0; max-height: 300px; overflow-y: auto; }
+        .streaming-text { color: #4ecdc4; }
+    </style>
+</head>
+<body>
+    <h1>🔬 Comprehensive WhoseApp Test Suite</h1>
+    
+    <div class="test-section">
+        <h2>1. Backend Status Check</h2>
+        <button onclick="checkBackendStatus()">Check Backend Status</button>
+        <div id="backendStatus" class="output"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Streaming AI Response Test</h2>
+        <button onclick="testStreaming()">Test Streaming Response</button>
+        <div id="streamingResult" class="output"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Conversation Storage Test</h2>
+        <button onclick="testConversationStorage()">Test Full Conversation Flow</button>
+        <div id="storageResult" class="output"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Conversation Retrieval Test</h2>
+        <button onclick="testConversationRetrieval()">Test Conversation Loading</button>
+        <div id="retrievalResult" class="output"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Frontend Integration Test</h2>
+        <button onclick="testFrontendIntegration()">Test Frontend-Backend Integration</button>
+        <div id="integrationResult" class="output"></div>
+    </div>
+
+    <script>
+        let testConversationId = null;
+
+        async function checkBackendStatus() {
+            const result = document.getElementById('backendStatus');
+            result.innerHTML = '<span class="info">Checking backend status...</span><br>';
+            
+            try {
+                const response = await fetch('http://localhost:4000/api/ai/status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML += `<span class="success">✅ Backend is running</span><br>`;
+                    result.innerHTML += `<span class="info">Provider: ${data.provider}</span><br>`;
+                    result.innerHTML += `<span class="info">Model: ${data.config.model}</span><br>`;
+                    result.innerHTML += `<span class="info">Streaming: ${data.supportsStreaming ? '✅' : '❌'}</span><br>`;
+                } else {
+                    result.innerHTML += `<span class="error">❌ Backend error</span><br>`;
+                }
+            } catch (error) {
+                result.innerHTML += `<span class="error">❌ Backend not accessible: ${error.message}</span><br>`;
+            }
+        }
+
+        async function testStreaming() {
+            const result = document.getElementById('streamingResult');
+            result.innerHTML = '<span class="info">Testing streaming response...</span><br>';
+            
+            try {
+                const response = await fetch('http://localhost:4000/api/ai/generate-stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: "What is the current status of diplomatic relations?",
+                        character: {
+                            name: "Chief Diplomatic Officer",
+                            role: "diplomat",
+                            department: "Foreign Affairs"
+                        },
+                        options: { maxTokens: 150, temperature: 0.7 }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullResponse = '';
+
+                result.innerHTML += '<span class="streaming-text">🔄 Streaming response:</span><br>';
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                if (data.type === 'text' && data.deltaText) {
+                                    fullResponse += data.deltaText;
+                                    result.innerHTML += `<span class="streaming-text">${data.deltaText}</span>`;
+                                } else if (data.type === 'end') {
+                                    result.innerHTML += '<br><span class="success">✅ Streaming completed!</span><br>';
+                                    result.innerHTML += `<br><strong>Full response:</strong><br><span class="info">${fullResponse}</span>`;
+                                }
+                            } catch (parseError) {
+                                // Ignore parse errors for partial chunks
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                result.innerHTML += `<span class="error">❌ Streaming error: ${error.message}</span><br>`;
+            }
+        }
+
+        async function testConversationStorage() {
+            const result = document.getElementById('storageResult');
+            result.innerHTML = '<span class="info">Testing conversation storage...</span><br>';
+            
+            try {
+                // Step 1: Create conversation
+                result.innerHTML += '<span class="info">1. Creating conversation...</span><br>';
+                const createResponse = await fetch('http://localhost:4000/api/ai/create-conversation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        characterId: 'chief-diplomatic-officer',
+                        characterName: 'Chief Diplomatic Officer',
+                        characterRole: 'diplomat',
+                        characterDepartment: 'Foreign Affairs',
+                        conversationType: 'individual',
+                        title: 'Test Conversation ' + Date.now()
+                    })
+                });
+
+                const createData = await createResponse.json();
+                if (createData.success) {
+                    testConversationId = createData.conversationId;
+                    result.innerHTML += `<span class="success">✅ Conversation created: ${testConversationId}</span><br>`;
+                } else {
+                    throw new Error('Failed to create conversation');
+                }
+
+                // Step 2: Store user message
+                result.innerHTML += '<span class="info">2. Storing user message...</span><br>';
+                const userMessageResponse = await fetch('http://localhost:4000/api/ai/store-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        conversationId: testConversationId,
+                        characterId: 'user-001',
+                        characterName: 'You',
+                        characterRole: 'user',
+                        characterDepartment: 'user',
+                        senderId: 'user-001',
+                        senderName: 'You',
+                        senderRole: 'user',
+                        content: 'What is the current diplomatic situation?',
+                        messageType: 'text'
+                    })
+                });
+
+                const userMessageData = await userMessageResponse.json();
+                if (userMessageData.success) {
+                    result.innerHTML += `<span class="success">✅ User message stored: ${userMessageData.messageId}</span><br>`;
+                } else {
+                    throw new Error('Failed to store user message');
+                }
+
+                // Step 3: Store AI response
+                result.innerHTML += '<span class="info">3. Storing AI response...</span><br>';
+                const aiMessageResponse = await fetch('http://localhost:4000/api/ai/store-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        conversationId: testConversationId,
+                        characterId: 'chief-diplomatic-officer',
+                        characterName: 'Chief Diplomatic Officer',
+                        characterRole: 'diplomat',
+                        characterDepartment: 'Foreign Affairs',
+                        senderId: 'chief-diplomatic-officer',
+                        senderName: 'Chief Diplomatic Officer',
+                        senderRole: 'diplomat',
+                        content: 'The diplomatic situation with the Zephyrian Empire remains tense. We are currently negotiating trade agreements.',
+                        messageType: 'text'
+                    })
+                });
+
+                const aiMessageData = await aiMessageResponse.json();
+                if (aiMessageData.success) {
+                    result.innerHTML += `<span class="success">✅ AI message stored: ${aiMessageData.messageId}</span><br>`;
+                } else {
+                    throw new Error('Failed to store AI message');
+                }
+
+                result.innerHTML += '<span class="success">✅ Conversation storage test completed successfully!</span><br>';
+
+            } catch (error) {
+                result.innerHTML += `<span class="error">❌ Storage error: ${error.message}</span><br>`;
+            }
+        }
+
+        async function testConversationRetrieval() {
+            const result = document.getElementById('retrievalResult');
+            result.innerHTML = '<span class="info">Testing conversation retrieval...</span><br>';
+            
+            try {
+                const response = await fetch('http://localhost:4000/api/ai/conversations/chief-diplomatic-officer');
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML += `<span class="success">✅ Found ${data.conversations.length} conversations</span><br>`;
+                    
+                    data.conversations.forEach((conv, index) => {
+                        result.innerHTML += `<br><strong>Conversation ${index + 1}:</strong><br>`;
+                        result.innerHTML += `<span class="info">ID: ${conv.id}</span><br>`;
+                        result.innerHTML += `<span class="info">Title: ${conv.title}</span><br>`;
+                        result.innerHTML += `<span class="info">Character: ${conv.characterName}</span><br>`;
+                        result.innerHTML += `<span class="info">Messages: ${conv.messageCount || 0}</span><br>`;
+                        result.innerHTML += `<span class="info">Last Message: ${conv.lastMessageAt}</span><br>`;
+                    });
+                } else {
+                    result.innerHTML += `<span class="error">❌ Failed to retrieve conversations</span><br>`;
+                }
+            } catch (error) {
+                result.innerHTML += `<span class="error">❌ Retrieval error: ${error.message}</span><br>`;
+            }
+        }
+
+        async function testFrontendIntegration() {
+            const result = document.getElementById('integrationResult');
+            result.innerHTML = '<span class="info">Testing frontend-backend integration...</span><br>';
+            
+            try {
+                // Test if frontend can access backend
+                const response = await fetch('http://localhost:4000/api/ai/status');
+                if (response.ok) {
+                    result.innerHTML += `<span class="success">✅ Frontend can access backend</span><br>`;
+                } else {
+                    result.innerHTML += `<span class="error">❌ Frontend cannot access backend</span><br>`;
+                }
+
+                // Test CORS
+                const corsResponse = await fetch('http://localhost:4000/api/ai/generate-stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: "Test",
+                        character: { name: "Test", role: "test" },
+                        options: { maxTokens: 10 }
+                    })
+                });
+
+                if (corsResponse.ok) {
+                    result.innerHTML += `<span class="success">✅ CORS is working</span><br>`;
+                } else {
+                    result.innerHTML += `<span class="error">❌ CORS issue: ${corsResponse.status}</span><br>`;
+                }
+
+                result.innerHTML += `<span class="success">✅ Frontend integration test completed!</span><br>`;
+
+            } catch (error) {
+                result.innerHTML += `<span class="error">❌ Integration error: ${error.message}</span><br>`;
+            }
+        }
+    </script>
+</body>
+</html>

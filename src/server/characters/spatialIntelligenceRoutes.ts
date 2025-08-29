@@ -6,8 +6,8 @@
  */
 
 import express from 'express';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
-import { DEFAULT_SPATIAL_AWARENESS_KNOBS, SPATIAL_AWARENESS_AI_PROMPTS } from './spatialAwarenessKnobs.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
+import { DEFAULT_SPATIAL_AWARENESS_KNOBS, SPATIAL_AWARENESS_AI_PROMPTS } from './spatialAwarenessKnobs';
 
 const router = express.Router();
 

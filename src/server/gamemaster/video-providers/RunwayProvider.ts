@@ -1,4 +1,4 @@
-import { IVideoProvider, VideoGenerationRequest, VideoGenerationResponse, VideoProviderCapabilities, VideoProviderConfig } from './IVideoProvider.js';
+import { IVideoProvider, VideoGenerationRequest, VideoGenerationResponse, VideoProviderCapabilities, VideoProviderConfig } from './IVideoProvider';
 
 /**
  * Runway ML Video Generation Provider

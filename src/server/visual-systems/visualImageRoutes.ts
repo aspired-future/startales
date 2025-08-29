@@ -3,8 +3,8 @@
  */
 
 import { Router } from 'express';
-import { getImageStorageService } from './ImageStorageService.js';
-import { getPool } from '../storage/db.js';
+import { getImageStorageService } from './ImageStorageService';
+import { getPool } from '../storage/db';
 
 const router = Router();
 

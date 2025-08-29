@@ -11,18 +11,18 @@ import {
   informationClassification, 
   InformationType, 
   SecurityLevel 
-} from '../intelligence/informationClassification.js';
+} from '../intelligence/informationClassification';
 import { 
   espionageOperations, 
   SpyType, 
   OperationType 
-} from '../intelligence/espionageOperations.js';
+} from '../intelligence/espionageOperations';
 import { 
   intelligenceMarket, 
   MarketRole, 
   TransactionType, 
   MarketTier 
-} from '../intelligence/intelligenceMarket.js';
+} from '../intelligence/intelligenceMarket';
 
 const router = Router();
 

@@ -5,13 +5,13 @@
 
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { Pool } from 'pg';
-import { getPool } from '../storage/db.js';
-import { embeddingService } from '../memory/embeddingService.js';
+import { getPool } from '../storage/db';
+import { embeddingService } from '../memory/embeddingService';
 import {
   PsychologyMemoryEntry,
   MemorySearchQuery,
   MemorySearchResult
-} from './types.js';
+} from './types';
 
 export class PsychologyVectorMemory {
   private client: QdrantClient;

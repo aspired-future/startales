@@ -2,7 +2,7 @@
  * Species Visual Integration - Hooks image generation into species/race creation and management
  */
 
-import { EntityVisualGenerator, EntityImageResult } from './EntityVisualGenerator.js';
+import { EntityVisualGenerator, EntityImageResult } from './EntityVisualGenerator';
 
 export interface SpeciesData {
   id: string;

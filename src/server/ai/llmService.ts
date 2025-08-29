@@ -3,8 +3,8 @@
  * High-level service for text generation using the LLM provider system
  */
 
-import { getProvider } from '../llm/factory.js';
-import { ModelMessage, CompletionOptions, CompletionResponse } from '../llm/types.js';
+import { getProvider } from '../llm/factory';
+import { ModelMessage, CompletionOptions, CompletionResponse } from '../llm/types';
 
 export interface TextGenerationOptions {
   maxTokens?: number;

@@ -12,7 +12,7 @@ import {
   PortfolioHolding, 
   MarketEconomicFactors,
   CorporateLeader 
-} from './financialMarketsSchema.js';
+} from './financialMarketsSchema';
 
 export class FinancialMarketsService {
   constructor(private pool: Pool) {}

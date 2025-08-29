@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './EducationScreen.css';
+import '../shared/StandardDesign.css';
 import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface EducationMetrics {
@@ -27,60 +29,63 @@ interface EducationLevel {
 interface Institution {
   id: string;
   name: string;
-  type: 'pre-k' | 'elementary' | 'middle' | 'high' | 'community-college' | 'university' | 'trade-school' | 'vocational';
-  students: number;
-  teachers: number;
+  type: string;
+  publicPrivate: string;
   location: string;
   rating: number;
-  specializations: string[];
+  students: number;
+  teachers: number;
   established: number;
-  publicPrivate: 'public' | 'private';
+  specializations: string[];
 }
 
 interface Curriculum {
   level: string;
   subjects: string[];
-  coreRequirements: string[];
-  electiveOptions: string[];
-  assessmentMethods: string[];
-  graduationRequirements: string;
+  requirements: string[];
+  electives: string[];
+  assessments: string[];
 }
 
-interface Teacher {
-  id: string;
-  name: string;
-  level: string;
-  subjects: string[];
-  experience: number;
-  qualifications: string[];
-  rating: number;
-  institution: string;
+interface EducationData {
+  metrics: EducationMetrics;
+  levels: EducationLevel[];
+  institutions: Institution[];
+  curriculum: Curriculum[];
 }
 
-const EducationScreen: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [educationData, setEducationData] = useState({
-    metrics: {} as EducationMetrics,
-    levels: [] as EducationLevel[],
-    institutions: [] as Institution[],
-    curriculum: [] as Curriculum[],
-    teachers: [] as Teacher[]
-  });
-  const [loading, setLoading] = useState(true);
+// Define tabs for the header (max 5 tabs)
+const tabs: TabConfig[] = [
+  { id: 'overview', label: 'Overview', icon: '📊' },
+  { id: 'institutions', label: 'Institutions', icon: '🏫' },
+  { id: 'curriculum', label: 'Curriculum', icon: '📚' },
+  { id: 'analytics', label: 'Analytics', icon: '📈' }
+];
+
+const EducationScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext }) => {
+  const [educationData, setEducationData] = useState<EducationData | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'institutions' | 'curriculum' | 'analytics'>('overview');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchEducationData();
-  }, []);
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/education', description: 'Get education data' },
+    { method: 'GET', path: '/api/education/institutions', description: 'Get educational institutions' },
+    { method: 'GET', path: '/api/education/curriculum', description: 'Get curriculum data' }
+  ];
 
-  const fetchEducationData = async () => {
+  const fetchEducationData = useCallback(async () => {
     try {
       setLoading(true);
       // Try to fetch from API
       const response = await fetch('http://localhost:4000/api/education');
       if (response.ok) {
-        const data = await response.json();
-        setEducationData(data);
+        const result = await response.json();
+        if (result.success && result.data) {
+          setEducationData(result.data);
+        } else {
+          throw new Error('API response format error');
+        }
       } else {
         throw new Error('API not available');
       }
@@ -96,238 +101,112 @@ const EducationScreen: React.FC = () => {
           graduationRate: 94.2,
           totalBudget: 45600000000,
           averageClassSize: 22,
-          teacherStudentRatio: 1.2
+          teacherStudentRatio: 10.5
         },
         levels: [
           {
             level: 'Pre-K (Ages 3-5)',
-            students: 156789,
+            students: 157000,
             institutions: 2345,
-            teachers: 12456,
-            budget: 2300000000,
+            teachers: 12000,
+            budget: 3200000000,
             graduationRate: 99.1,
             averageAge: '4 years',
             description: 'Early childhood education focusing on social skills, basic literacy, and cognitive development'
           },
           {
             level: 'Elementary (K-5)',
-            students: 567890,
+            students: 568000,
             institutions: 3456,
-            teachers: 45678,
+            teachers: 46000,
             budget: 8900000000,
             graduationRate: 98.5,
-            averageAge: '6-11 years',
+            averageAge: '8 years',
             description: 'Foundation education covering reading, writing, mathematics, science, and social studies'
           },
           {
             level: 'Middle School (6-8)',
-            students: 345678,
-            institutions: 1789,
-            teachers: 34567,
-            budget: 6700000000,
+            students: 456000,
+            institutions: 2345,
+            teachers: 38000,
+            budget: 7200000000,
             graduationRate: 96.8,
-            averageAge: '12-14 years',
-            description: 'Transitional education with specialized subjects and preparation for high school'
+            averageAge: '12 years',
+            description: 'Transitional education with subject specialization and critical thinking development'
           },
           {
             level: 'High School (9-12)',
-            students: 456789,
-            institutions: 2134,
-            teachers: 56789,
-            budget: 12300000000,
+            students: 389000,
+            institutions: 1890,
+            teachers: 32000,
+            budget: 6800000000,
             graduationRate: 94.2,
-            averageAge: '15-18 years',
-            description: 'Advanced secondary education with college prep, career tracks, and specialized programs'
+            averageAge: '16 years',
+            description: 'Comprehensive secondary education with college and career preparation'
           },
           {
-            level: 'Community Colleges',
-            students: 234567,
-            institutions: 456,
-            teachers: 23456,
-            budget: 4500000000,
-            graduationRate: 87.3,
-            averageAge: '19-25 years',
-            description: 'Two-year institutions offering associate degrees, certificates, and transfer programs'
-          },
-          {
-            level: 'Universities',
-            students: 456789,
-            institutions: 234,
-            teachers: 45678,
-            budget: 15600000000,
-            graduationRate: 89.7,
-            averageAge: '18-22 years',
-            description: 'Four-year institutions offering bachelor\'s, master\'s, and doctoral degrees'
-          },
-          {
-            level: 'Trade Schools',
-            students: 123456,
+            level: 'Community College',
+            students: 234000,
             institutions: 567,
             teachers: 12345,
-            budget: 2800000000,
+            budget: 2300000000,
             graduationRate: 92.1,
-            averageAge: '18-35 years',
-            description: 'Specialized training in skilled trades, crafts, and technical professions'
-          },
-          {
-            level: 'Vocational Training',
-            students: 89012,
-            institutions: 345,
-            teachers: 8901,
-            budget: 1900000000,
-            graduationRate: 88.9,
-            averageAge: '20-40 years',
-            description: 'Professional certification and skill development programs'
+            averageAge: '18-30 years',
+            description: 'Specialized vocational training for specific trades and technical skills'
           }
         ],
         institutions: [
           {
-            id: 'inst-001',
-            name: 'Zephyrian Elementary Academy',
-            type: 'elementary',
-            students: 567,
-            teachers: 34,
-            location: 'New Zephyr City',
-            rating: 9.2,
-            specializations: ['STEM', 'Arts', 'Language Immersion'],
-            established: 2387,
-            publicPrivate: 'public'
-          },
-          {
-            id: 'inst-002',
-            name: 'Imperial High School of Sciences',
-            type: 'high',
-            students: 1234,
-            teachers: 89,
-            location: 'Capital District',
-            rating: 9.8,
-            specializations: ['Advanced Sciences', 'Engineering Prep', 'Research Methods'],
-            established: 2356,
-            publicPrivate: 'public'
-          },
-          {
-            id: 'inst-003',
-            name: 'Galactic University',
+            id: 'inst-1',
+            name: 'Capital University',
             type: 'university',
+            publicPrivate: 'Public',
+            location: 'Capital City',
+            rating: 9.2,
+            students: 45678,
+            teachers: 2345,
+            established: 1895,
+            specializations: ['Engineering', 'Medicine', 'Business', 'Arts']
+          },
+          {
+            id: 'inst-2',
+            name: 'Metropolitan Community College',
+            type: 'community-college',
+            publicPrivate: 'Public',
+            location: 'Metro District',
+            rating: 8.7,
             students: 23456,
             teachers: 1234,
-            location: 'University City',
-            rating: 9.5,
-            specializations: ['Liberal Arts', 'Business Administration', 'Education', 'Social Sciences'],
-            established: 2298,
-            publicPrivate: 'public'
+            established: 1965,
+            specializations: ['Technology', 'Healthcare', 'Business', 'Liberal Arts']
           },
           {
-            id: 'inst-004',
-            name: 'Starship Technical Institute',
-            type: 'trade-school',
-            students: 890,
-            teachers: 67,
-            location: 'Shipyard District',
-            rating: 9.1,
-            specializations: ['Starship Maintenance', 'Propulsion Systems', 'Navigation Technology'],
-            established: 2401,
-            publicPrivate: 'private'
-          },
-          {
-            id: 'inst-005',
-            name: 'Colonial Community College',
-            type: 'community-college',
-            students: 3456,
-            teachers: 234,
-            location: 'Frontier Settlement',
-            rating: 8.7,
-            specializations: ['Agricultural Sciences', 'Basic Engineering', 'Colonial Administration'],
-            established: 2423,
-            publicPrivate: 'public'
-          },
-          {
-            id: 'inst-006',
-            name: 'Little Stars Pre-K Center',
-            type: 'pre-k',
-            students: 123,
-            teachers: 18,
-            location: 'Residential District',
-            rating: 9.0,
-            specializations: ['Early Development', 'Social Skills', 'Creative Arts'],
-            established: 2445,
-            publicPrivate: 'private'
+            id: 'inst-3',
+            name: 'Stellar High School',
+            type: 'high',
+            publicPrivate: 'Public',
+            location: 'Stellar District',
+            rating: 8.9,
+            students: 2345,
+            teachers: 156,
+            established: 1950,
+            specializations: ['STEM', 'Arts', 'Athletics', 'College Prep']
           }
         ],
         curriculum: [
           {
-            level: 'Pre-K',
-            subjects: ['Social Skills', 'Basic Literacy', 'Numbers & Counting', 'Creative Arts', 'Physical Development', 'Science Exploration'],
-            coreRequirements: ['Social Interaction', 'Basic Communication', 'Motor Skills Development', 'Safety Awareness'],
-            electiveOptions: ['Music & Movement', 'Nature Studies', 'Second Language Exposure', 'Advanced Arts'],
-            assessmentMethods: ['Observation-Based Assessment', 'Portfolio Collection', 'Developmental Milestones', 'Parent Conferences'],
-            graduationRequirements: 'Demonstrate readiness for kindergarten through developmental milestones'
-          },
-          {
             level: 'Elementary',
-            subjects: ['Reading & Writing', 'Mathematics', 'Basic Sciences', 'Social Studies', 'Physical Education', 'Arts & Music'],
-            coreRequirements: ['Literacy Fundamentals', 'Numeracy Skills', 'Scientific Method Basics', 'Civic Awareness'],
-            electiveOptions: ['Second Language', 'Advanced Arts', 'Computer Basics', 'Environmental Studies'],
-            assessmentMethods: ['Continuous Assessment', 'Project-Based Learning', 'Standardized Testing', 'Portfolio Review'],
-            graduationRequirements: 'Demonstrate grade-level proficiency in core subjects'
+            subjects: ['Mathematics', 'Reading', 'Writing', 'Science', 'Social Studies', 'Physical Education', 'Arts'],
+            requirements: ['Core Math', 'Language Arts', 'Basic Science', 'History', 'Physical Education'],
+            electives: ['Music', 'Art', 'Computer Science', 'Foreign Language'],
+            assessments: ['Standardized Testing', 'Portfolio Assessment', 'Teacher Evaluation']
           },
           {
             level: 'High School',
-            subjects: ['Advanced Mathematics', 'Sciences (Physics, Chemistry, Biology)', 'Literature & Composition', 'History & Government', 'Foreign Languages', 'Technology & Engineering'],
-            coreRequirements: ['4 years English', '4 years Math', '3 years Science', '3 years Social Studies', '2 years Foreign Language'],
-            electiveOptions: ['Advanced Placement Courses', 'Career Technical Education', 'Fine Arts', 'Computer Science', 'Business Studies'],
-            assessmentMethods: ['Semester Exams', 'AP Testing', 'Senior Projects', 'Internship Evaluations'],
-            graduationRequirements: '24 credits minimum, including all core requirements and electives'
-          },
-          {
-            level: 'University',
-            subjects: ['Major Field Studies', 'General Education', 'Critical Thinking', 'Professional Development', 'Liberal Arts'],
-            coreRequirements: ['120 credit hours', 'Major concentration (36+ credits)', 'General education (42 credits)', 'Senior capstone'],
-            electiveOptions: ['Minor concentrations', 'Study abroad', 'Internships', 'Service learning', 'Cross-disciplinary studies'],
-            assessmentMethods: ['Course examinations', 'Papers & projects', 'Capstone project', 'Comprehensive exams'],
-            graduationRequirements: 'Complete degree requirements with minimum 2.0 GPA'
-          }
-        ],
-        teachers: [
-          {
-            id: 'teacher-001',
-            name: 'Ms. Sarah Chen',
-            level: 'Elementary',
-            subjects: ['Mathematics', 'Science', 'STEM Integration'],
-            experience: 8,
-            qualifications: ['M.Ed. Elementary Education', 'STEM Specialist', 'Math Excellence Award'],
-            rating: 9.4,
-            institution: 'Zephyrian Elementary Academy'
-          },
-          {
-            id: 'teacher-002',
-            name: 'Prof. Marcus Rodriguez',
-            level: 'High School',
-            subjects: ['Advanced Mathematics', 'Physics', 'Engineering Prep'],
-            experience: 12,
-            qualifications: ['M.S. Mathematics', 'Teaching Excellence Award', 'STEM Certification'],
-            rating: 9.2,
-            institution: 'Imperial High School of Sciences'
-          },
-          {
-            id: 'teacher-003',
-            name: 'Dr. Elena Vasquez',
-            level: 'University',
-            subjects: ['Education Theory', 'Curriculum Development', 'Teacher Training'],
-            experience: 15,
-            qualifications: ['Ph.D. Education', 'Published Author', 'Curriculum Design Expert'],
-            rating: 9.6,
-            institution: 'Galactic University'
-          },
-          {
-            id: 'teacher-004',
-            name: 'Ms. Lisa Kim',
-            level: 'Pre-K',
-            subjects: ['Early Development', 'Social Skills', 'Creative Arts'],
-            experience: 6,
-            qualifications: ['M.Ed. Early Childhood', 'Child Development Specialist', 'Arts Integration Certified'],
-            rating: 9.3,
-            institution: 'Little Stars Pre-K Center'
+            subjects: ['Advanced Mathematics', 'Literature', 'Biology', 'Chemistry', 'Physics', 'History', 'Government', 'Economics'],
+            requirements: ['Algebra I & II', 'English I-IV', 'Biology', 'Chemistry', 'US History', 'Government', 'Physical Education'],
+            electives: ['Advanced Placement', 'International Baccalaureate', 'Career Technical Education', 'Fine Arts', 'Foreign Languages'],
+            assessments: ['Standardized Testing', 'AP Exams', 'Portfolio Assessment', 'College Entrance Exams']
           }
         ]
       });
@@ -335,157 +214,322 @@ const EducationScreen: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const getInstitutionTypeIcon = (type: string) => {
-    switch (type) {
-      case 'pre-k': return '🧸';
-      case 'elementary': return '📚';
-      case 'middle': return '🎒';
-      case 'high': return '🎓';
-      case 'community-college': return '🏫';
-      case 'university': return '🏛️';
-      case 'trade-school': return '🔧';
-      case 'vocational': return '💼';
-      default: return '🏫';
-    }
-  };
+  useEffect(() => {
+    fetchEducationData();
+  }, [fetchEducationData]);
 
-  const renderOverview = () => (
-    <div className="education-overview">
-      <div className="education-metrics">
-        <div className="metric-card">
-          <div className="metric-value">{(educationData.metrics.totalStudents / 1000000).toFixed(1)}M</div>
-          <div className="metric-label">Total Students</div>
+  const renderOverview = () => {
+    if (!educationData) return null;
+    
+    return (
+      <>
+        {/* Education Overview - First card in 2-column grid */}
+        <div className="standard-panel social-theme">
+          <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📊 Education Overview</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+            <div className="standard-metric">
+              <span>Total Students</span>
+              <span className="standard-metric-value">{(educationData.metrics.totalStudents / 1000000).toFixed(1)}M</span>
+            </div>
+            <div className="standard-metric">
+              <span>Institutions</span>
+              <span className="standard-metric-value">{(educationData.metrics.totalInstitutions / 1000).toFixed(1)}K</span>
+            </div>
+            <div className="standard-metric">
+              <span>Graduation Rate</span>
+              <span className="standard-metric-value">{educationData.metrics.graduationRate}%</span>
+            </div>
+            <div className="standard-metric">
+              <span>Total Budget</span>
+              <span className="standard-metric-value">${(educationData.metrics.totalBudget / 1000000000).toFixed(1)}B</span>
+            </div>
+          </div>
+          <div className="standard-action-buttons">
+            <button className="standard-btn social-theme" onClick={() => console.log('Generate Education Report')}>Generate Report</button>
+            <button className="standard-btn social-theme" onClick={() => console.log('View Analytics')}>View Analytics</button>
+          </div>
         </div>
-        <div className="metric-card">
-          <div className="metric-value">{(educationData.metrics.totalInstitutions / 1000).toFixed(1)}K</div>
-          <div className="metric-label">Institutions</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-value">{(educationData.metrics.totalTeachers / 1000).toFixed(0)}K</div>
-          <div className="metric-label">Teachers</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-value">{educationData.metrics.literacyRate}%</div>
-          <div className="metric-label">Literacy Rate</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-value">{educationData.metrics.graduationRate}%</div>
-          <div className="metric-label">Graduation Rate</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-value">${(educationData.metrics.totalBudget / 1000000000).toFixed(1)}B</div>
-          <div className="metric-label">Total Budget</div>
-        </div>
-      </div>
 
-      <div className="education-levels-overview">
-        <h3>Education System Levels</h3>
-        <div className="levels-grid">
-          {educationData.levels.map((level, index) => (
-            <div key={index} className="level-card">
-              <h4>{level.level}</h4>
-              <p className="level-description">{level.description}</p>
-              <div className="level-stats">
-                <div className="level-stat">
-                  <span className="stat-label">Students:</span>
-                  <span className="stat-value">{(level.students / 1000).toFixed(0)}K</span>
-                </div>
-                <div className="level-stat">
-                  <span className="stat-label">Institutions:</span>
-                  <span className="stat-value">{level.institutions.toLocaleString()}</span>
-                </div>
-                <div className="level-stat">
-                  <span className="stat-label">Teachers:</span>
-                  <span className="stat-value">{(level.teachers / 1000).toFixed(0)}K</span>
-                </div>
-                <div className="level-stat">
-                  <span className="stat-label">Graduation Rate:</span>
-                  <span className="stat-value">{level.graduationRate}%</span>
+        {/* Education Levels Overview - Second card in 2-column grid */}
+        <div className="standard-panel social-theme">
+          <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🎓 Education System Levels</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+            {educationData.levels.map((level, index) => (
+              <div key={index} style={{ 
+                padding: '1rem', 
+                backgroundColor: 'rgba(16, 185, 129, 0.1)', 
+                borderRadius: '8px', 
+                border: '1px solid rgba(16, 185, 129, 0.2)' 
+              }}>
+                <h4 style={{ marginBottom: '0.5rem', color: '#10b981' }}>{level.level}</h4>
+                <p style={{ fontSize: '0.9rem', marginBottom: '1rem', color: '#a0a9ba' }}>{level.description}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', fontSize: '0.8rem' }}>
+                  <div>
+                    <span style={{ color: '#a0a9ba' }}>Students:</span>
+                    <span style={{ color: '#e0e6ed', marginLeft: '0.5rem' }}>{(level.students / 1000).toFixed(0)}K</span>
+                  </div>
+                  <div>
+                    <span style={{ color: '#a0a9ba' }}>Institutions:</span>
+                    <span style={{ color: '#e0e6ed', marginLeft: '0.5rem' }}>{level.institutions.toLocaleString()}</span>
+                  </div>
+                  <div>
+                    <span style={{ color: '#a0a9ba' }}>Teachers:</span>
+                    <span style={{ color: '#e0e6ed', marginLeft: '0.5rem' }}>{(level.teachers / 1000).toFixed(0)}K</span>
+                  </div>
+                  <div>
+                    <span style={{ color: '#a0a9ba' }}>Graduation Rate:</span>
+                    <span style={{ color: '#e0e6ed', marginLeft: '0.5rem' }}>{level.graduationRate}%</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const renderInstitutions = () => {
+    if (!educationData) return null;
+    
+    return (
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div className="standard-panel social-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🏫 Educational Institutions</h3>
+          <div className="standard-action-buttons">
+            <button className="standard-btn social-theme" onClick={() => console.log('Refresh Institutions')}>Refresh Institutions</button>
+            <button className="standard-btn social-theme" onClick={() => console.log('Add Institution')}>Add Institution</button>
+          </div>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Sector</th>
+                  <th>Location</th>
+                  <th>Rating</th>
+                  <th>Students</th>
+                  <th>Teachers</th>
+                  <th>Established</th>
+                  <th>Specializations</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {educationData.institutions.map((institution) => (
+                <tr key={institution.id}>
+                  <td><strong>{institution.name}</strong></td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: '#10b981',
+                      color: 'white'
+                    }}>
+                      {institution.type.replace('-', ' ').toUpperCase()}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: institution.publicPrivate === 'Public' ? '#4caf50' : '#ff9800',
+                      color: 'white'
+                    }}>
+                      {institution.publicPrivate}
+                    </span>
+                  </td>
+                  <td>📍 {institution.location}</td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '1.2rem' }}>⭐</span>
+                      <span>{institution.rating}</span>
+                    </div>
+                  </td>
+                  <td>{institution.students.toLocaleString()}</td>
+                  <td>{institution.teachers.toLocaleString()}</td>
+                  <td>{institution.established}</td>
+                  <td>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem' }}>
+                      {institution.specializations.slice(0, 2).map((spec, index) => (
+                        <span key={index} style={{ 
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '3px',
+                          fontSize: '0.7rem',
+                          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                          color: '#10b981'
+                        }}>
+                          {spec}
+                        </span>
+                      ))}
+                      {institution.specializations.length > 2 && (
+                        <span style={{ 
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '3px',
+                          fontSize: '0.7rem',
+                          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                          color: '#10b981'
+                        }}>
+                          +{institution.specializations.length - 2}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td>
+                    <button className="standard-btn social-theme">Details</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
+    </div>
+  );
+  };
 
-      {/* Education Charts Section */}
-      <div className="education-charts-section">
-        <div className="charts-grid">
-          <div className="chart-container">
-            <PieChart
-              data={educationData.levels.map((level, index) => ({
-                label: level.level,
-                value: level.students,
-                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3'][index]
-              }))}
-              title="🎓 Education Levels Distribution"
-              size={200}
-              showLegend={true}
-            />
+  const renderCurriculum = () => {
+    if (!educationData) return null;
+    
+    return (
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div className="standard-panel social-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📚 Curriculum Standards</h3>
+          <div className="standard-action-buttons">
+            <button className="standard-btn social-theme" onClick={() => console.log('Update Curriculum')}>Update Curriculum</button>
+            <button className="standard-btn social-theme" onClick={() => console.log('Review Standards')}>Review Standards</button>
           </div>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Level</th>
+                  <th>Core Subjects</th>
+                  <th>Requirements</th>
+                  <th>Electives</th>
+                  <th>Assessments</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {educationData.curriculum.map((curr, index) => (
+                <tr key={index}>
+                  <td><strong>{curr.level}</strong></td>
+                  <td>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem' }}>
+                      {curr.subjects.map((subject, idx) => (
+                        <span key={idx} style={{ 
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '3px',
+                          fontSize: '0.7rem',
+                          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                          color: '#10b981'
+                        }}>
+                          {subject}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem' }}>
+                      {curr.requirements.map((req, idx) => (
+                        <span key={idx} style={{ 
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '3px',
+                          fontSize: '0.7rem',
+                          backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                          color: '#3b82f6'
+                        }}>
+                          {req}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem' }}>
+                      {curr.electives.map((elective, idx) => (
+                        <span key={idx} style={{ 
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '3px',
+                          fontSize: '0.7rem',
+                          backgroundColor: 'rgba(168, 85, 247, 0.2)',
+                          color: '#a855f7'
+                        }}>
+                          {elective}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem' }}>
+                      {curr.assessments.map((assessment, idx) => (
+                        <span key={idx} style={{ 
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '3px',
+                          fontSize: '0.7rem',
+                          backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                          color: '#f59e0b'
+                        }}>
+                          {assessment}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td>
+                    <button className="standard-btn social-theme">Edit</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+  };
 
-          <div className="chart-container">
-            <LineChart
-              data={[
-                { label: '2019', value: educationData.metrics.graduationRate - 4.5 },
-                { label: '2020', value: educationData.metrics.graduationRate - 3.2 },
-                { label: '2021', value: educationData.metrics.graduationRate - 2.1 },
-                { label: '2022', value: educationData.metrics.graduationRate - 1.5 },
-                { label: '2023', value: educationData.metrics.graduationRate - 0.8 },
-                { label: '2024', value: educationData.metrics.graduationRate }
-              ]}
-              title="📈 Performance Trends (Graduation Rate)"
-              color="#4ecdc4"
-              height={250}
-              width={400}
-            />
+  const renderAnalytics = () => {
+    if (!educationData) return null;
+    
+    return (
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div className="standard-panel social-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📈 Education Analytics</h3>
+          <div className="standard-action-buttons">
+            <button className="standard-btn social-theme" onClick={() => console.log('Generate Analytics Report')}>Generate Report</button>
+            <button className="standard-btn social-theme" onClick={() => console.log('Export Data')}>Export Data</button>
           </div>
-
-          <div className="chart-container">
-            <BarChart
-              data={educationData.levels.map((level, index) => ({
-                label: level.level.split(' ')[0], // Shorten names
-                value: level.budget / 1000000000, // Convert to billions
-                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'][index]
-              }))}
-              title="💰 Funding Allocation (Billions)"
-              height={250}
-              width={400}
-              showTooltip={true}
-            />
+        
+        {/* Performance Metrics */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>📊 Performance Metrics</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+            <div className="standard-metric">
+              <span>Student Achievement</span>
+              <span className="standard-metric-value">87.3%</span>
+            </div>
+            <div className="standard-metric">
+              <span>Teacher Satisfaction</span>
+              <span className="standard-metric-value">8.4/10</span>
+            </div>
+            <div className="standard-metric">
+              <span>Parent Engagement</span>
+              <span className="standard-metric-value">76.8%</span>
+            </div>
+            <div className="standard-metric">
+              <span>Technology Integration</span>
+              <span className="standard-metric-value">92.1%</span>
+            </div>
           </div>
+        </div>
 
-          <div className="chart-container">
-            <LineChart
-              data={[
-                { label: 'Jan', value: educationData.metrics.literacyRate - 2.1 },
-                { label: 'Feb', value: educationData.metrics.literacyRate - 1.8 },
-                { label: 'Mar', value: educationData.metrics.literacyRate - 1.2 },
-                { label: 'Apr', value: educationData.metrics.literacyRate - 0.9 },
-                { label: 'May', value: educationData.metrics.literacyRate - 0.4 },
-                { label: 'Jun', value: educationData.metrics.literacyRate }
-              ]}
-              title="📚 Literacy Rate Progress"
-              color="#feca57"
-              height={250}
-              width={400}
-            />
-          </div>
-
-          <div className="chart-container">
-            <PieChart
-              data={[
-                { label: 'Public', value: educationData.institutions.filter(i => i.publicPrivate === 'public').length, color: '#4ecdc4' },
-                { label: 'Private', value: educationData.institutions.filter(i => i.publicPrivate === 'private').length, color: '#45b7aa' }
-              ]}
-              title="🏫 Public vs Private Institutions"
-              size={200}
-              showLegend={true}
-            />
-          </div>
-
+        {/* Charts */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem', marginBottom: '2rem' }}>
           <div className="chart-container">
             <BarChart
               data={[
@@ -500,437 +544,155 @@ const EducationScreen: React.FC = () => {
               showTooltip={true}
             />
           </div>
+          <div className="chart-container">
+            <LineChart
+              data={[
+                { label: '2019', value: 89.2 },
+                { label: '2020', value: 90.1 },
+                { label: '2021', value: 91.3 },
+                { label: '2022', value: 92.8 },
+                { label: '2023', value: 94.1 },
+                { label: '2024', value: 94.2 }
+              ]}
+              title="📈 Graduation Rate Progress"
+              color="#10b981"
+              height={250}
+              width={400}
+            />
+          </div>
         </div>
-      </div>
-    </div>
-  );
 
-  const renderInstitutions = () => (
-    <div className="education-institutions">
-      <div className="institutions-header">
-        <h3>Educational Institutions</h3>
-        <div className="institutions-filters">
-          <select className="filter-select">
-            <option value="">All Types</option>
-            <option value="pre-k">Pre-K</option>
-            <option value="elementary">Elementary</option>
-            <option value="middle">Middle School</option>
-            <option value="high">High School</option>
-            <option value="community-college">Community College</option>
-            <option value="university">University</option>
-            <option value="trade-school">Trade School</option>
-            <option value="vocational">Vocational</option>
-          </select>
-          <select className="filter-select">
-            <option value="">All Sectors</option>
-            <option value="public">Public</option>
-            <option value="private">Private</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="institutions-list">
-        {educationData.institutions.map((institution) => (
-          <div key={institution.id} className="institution-card">
-            <div className="institution-header">
-              <div className="institution-icon">{getInstitutionTypeIcon(institution.type)}</div>
-              <div className="institution-info">
-                <h4>{institution.name}</h4>
-                <div className="institution-details">
-                  <span className="institution-type">{institution.type.replace('-', ' ').toUpperCase()}</span>
-                  <span className="institution-sector">({institution.publicPrivate})</span>
-                  <span className="institution-location">📍 {institution.location}</span>
-                </div>
-              </div>
-              <div className="institution-rating">
-                <div className="rating-value">{institution.rating}</div>
-                <div className="rating-label">Rating</div>
-              </div>
-            </div>
-            <div className="institution-stats">
-              <div className="stat-row">
-                <span className="stat-label">Students:</span>
-                <span className="stat-value">{institution.students.toLocaleString()}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Teachers:</span>
-                <span className="stat-value">{institution.teachers.toLocaleString()}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Established:</span>
-                <span className="stat-value">{institution.established}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Student-Teacher Ratio:</span>
-                <span className="stat-value">{Math.round(institution.students / institution.teachers)}:1</span>
-              </div>
-            </div>
-            <div className="institution-specializations">
-              <div className="spec-label">Specializations:</div>
-              <div className="spec-tags">
-                {institution.specializations.map((spec, index) => (
-                  <span key={index} className="spec-tag">{spec}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderCurriculum = () => (
-    <div className="education-curriculum">
-      <h3>Curriculum Standards</h3>
-      <div className="curriculum-levels">
-        {educationData.curriculum.map((curr, index) => (
-          <div key={index} className="curriculum-card">
-            <h4>{curr.level} Curriculum</h4>
-            
-            <div className="curriculum-section">
-              <h5>📚 Core Subjects</h5>
-              <div className="subject-tags">
-                {curr.subjects.map((subject, idx) => (
-                  <span key={idx} className="subject-tag">{subject}</span>
-                ))}
-              </div>
-            </div>
-
-            <div className="curriculum-section">
-              <h5>✅ Core Requirements</h5>
-              <ul className="requirements-list">
-                {curr.coreRequirements.map((req, idx) => (
-                  <li key={idx}>{req}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="curriculum-section">
-              <h5>🎯 Elective Options</h5>
-              <div className="elective-tags">
-                {curr.electiveOptions.map((elective, idx) => (
-                  <span key={idx} className="elective-tag">{elective}</span>
-                ))}
-              </div>
-            </div>
-
-            <div className="curriculum-section">
-              <h5>📊 Assessment Methods</h5>
-              <div className="assessment-tags">
-                {curr.assessmentMethods.map((method, idx) => (
-                  <span key={idx} className="assessment-tag">{method}</span>
-                ))}
-              </div>
-            </div>
-
-            <div className="curriculum-section">
-              <h5>🎓 Graduation Requirements</h5>
-              <p className="graduation-req">{curr.graduationRequirements}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderTeachers = () => (
-    <div className="education-teachers">
-      <div className="teachers-header">
-        <h3>Teaching Staff</h3>
-        <div className="teachers-filters">
-          <select className="filter-select">
-            <option value="">All Levels</option>
-            <option value="Pre-K">Pre-K</option>
-            <option value="Elementary">Elementary</option>
-            <option value="Middle School">Middle School</option>
-            <option value="High School">High School</option>
-            <option value="University">University</option>
-          </select>
-          <select className="filter-select">
-            <option value="">All Subjects</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="Sciences">Sciences</option>
-            <option value="Language Arts">Language Arts</option>
-            <option value="Social Studies">Social Studies</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="teachers-list">
-        {educationData.teachers.map((teacher) => (
-          <div key={teacher.id} className="teacher-card">
-            <div className="teacher-header">
-              <div className="teacher-avatar">👨‍🏫</div>
-              <div className="teacher-info">
-                <h4>{teacher.name}</h4>
-                <div className="teacher-level">{teacher.level} Level</div>
-                <div className="teacher-institution">📍 {teacher.institution}</div>
-              </div>
-              <div className="teacher-rating">
-                <div className="rating-value">{teacher.rating}</div>
-                <div className="rating-label">Rating</div>
-              </div>
-            </div>
-            <div className="teacher-details">
-              <div className="teacher-subjects">
-                <span className="detail-label">Subjects:</span>
-                <div className="subject-tags">
-                  {teacher.subjects.map((subject, index) => (
-                    <span key={index} className="subject-tag">{subject}</span>
-                  ))}
-                </div>
-              </div>
-              <div className="teacher-experience">
-                <span className="detail-label">Experience:</span>
-                <span className="detail-value">{teacher.experience} years</span>
-              </div>
-              <div className="teacher-qualifications">
-                <span className="detail-label">Qualifications:</span>
-                <div className="qualification-tags">
-                  {teacher.qualifications.map((qual, index) => (
-                    <span key={index} className="qualification-tag">{qual}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderBudget = () => (
-    <div className="education-budget">
-      <h3>Education Budget Allocation</h3>
-      <div className="budget-overview">
-        <div className="budget-total">
-          <h4>Total Education Budget</h4>
-          <div className="budget-amount">${(educationData.metrics.totalBudget / 1000000000).toFixed(1)} Billion</div>
-        </div>
-      </div>
-      
-      <div className="budget-breakdown">
-        <h4>Budget by Education Level</h4>
-        <div className="budget-levels">
-          {educationData.levels.map((level, index) => (
-            <div key={index} className="budget-level">
-              <div className="budget-level-header">
-                <span className="level-name">{level.level}</span>
-                <span className="level-budget">${(level.budget / 1000000000).toFixed(1)}B</span>
-              </div>
-              <div className="budget-bar">
-                <div 
-                  className="budget-fill" 
-                  style={{ 
-                    width: `${(level.budget / educationData.metrics.totalBudget) * 100}%` 
-                  }}
-                ></div>
-              </div>
-              <div className="budget-percentage">
-                {((level.budget / educationData.metrics.totalBudget) * 100).toFixed(1)}% of total budget
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="budget-categories">
-        <h4>Budget Categories</h4>
-        <div className="categories-grid">
-          <div className="category-card">
-            <h5>👨‍🏫 Teacher Salaries</h5>
-            <div className="category-amount">$18.2B (40%)</div>
-            <p>Compensation for teaching staff across all levels</p>
-          </div>
-          <div className="category-card">
-            <h5>🏫 Infrastructure</h5>
-            <div className="category-amount">$9.1B (20%)</div>
-            <p>Building maintenance, construction, and facilities</p>
-          </div>
-          <div className="category-card">
-            <h5>📚 Materials & Technology</h5>
-            <div className="category-amount">$6.8B (15%)</div>
-            <p>Textbooks, digital resources, and educational technology</p>
-          </div>
-          <div className="category-card">
-            <h5>🚌 Transportation</h5>
-            <div className="category-amount">$4.6B (10%)</div>
-            <p>Student transportation and logistics</p>
-          </div>
-          <div className="category-card">
-            <h5>🍽️ Nutrition Programs</h5>
-            <div className="category-amount">$3.4B (7.5%)</div>
-            <p>School meals and nutrition support</p>
-          </div>
-          <div className="category-card">
-            <h5>🎯 Special Programs</h5>
-            <div className="category-amount">$3.4B (7.5%)</div>
-            <p>Special education, gifted programs, and support services</p>
+        {/* Comparative Analysis */}
+        <div>
+          <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>🌍 Comparative Analysis</h4>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Our System</th>
+                  <th>Galactic Average</th>
+                  <th>Best in Galaxy</th>
+                  <th>Performance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Literacy Rate</td>
+                  <td><strong>98.7%</strong></td>
+                  <td>94.2%</td>
+                  <td>99.1%</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: '#4caf50',
+                      color: 'white'
+                    }}>
+                      Excellent
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Graduation Rate</td>
+                  <td><strong>94.2%</strong></td>
+                  <td>89.7%</td>
+                  <td>96.8%</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: '#4caf50',
+                      color: 'white'
+                    }}>
+                      Excellent
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Teacher-Student Ratio</td>
+                  <td><strong>1:22</strong></td>
+                  <td>1:28</td>
+                  <td>1:18</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: '#4caf50',
+                      color: 'white'
+                    }}>
+                      Good
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Education Spending (% GDP)</td>
+                  <td><strong>6.2%</strong></td>
+                  <td>5.1%</td>
+                  <td>7.8%</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: '#ff9800',
+                      color: 'white'
+                    }}>
+                      Above Average
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
   );
-
-  const renderAnalytics = () => (
-    <div className="education-analytics">
-      <h3>Education System Analytics</h3>
-      
-      <div className="analytics-metrics">
-        <div className="analytics-section">
-          <h4>📈 Performance Trends</h4>
-          <div className="trend-cards">
-            <div className="trend-card positive">
-              <div className="trend-value">+2.3%</div>
-              <div className="trend-label">Graduation Rate (YoY)</div>
-            </div>
-            <div className="trend-card positive">
-              <div className="trend-value">+1.8%</div>
-              <div className="trend-label">Literacy Rate (YoY)</div>
-            </div>
-            <div className="trend-card negative">
-              <div className="trend-value">-0.5%</div>
-              <div className="trend-label">Dropout Rate (YoY)</div>
-            </div>
-            <div className="trend-card positive">
-              <div className="trend-value">+5.2%</div>
-              <div className="trend-label">Teacher Retention</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="analytics-section">
-          <h4>🎯 Key Performance Indicators</h4>
-          <div className="kpi-grid">
-            <div className="kpi-card">
-              <div className="kpi-title">Student Achievement</div>
-              <div className="kpi-value">87.3%</div>
-              <div className="kpi-description">Students meeting grade-level standards</div>
-            </div>
-            <div className="kpi-card">
-              <div className="kpi-title">Teacher Satisfaction</div>
-              <div className="kpi-value">8.4/10</div>
-              <div className="kpi-description">Average teacher satisfaction rating</div>
-            </div>
-            <div className="kpi-card">
-              <div className="kpi-title">Parent Engagement</div>
-              <div className="kpi-value">76.8%</div>
-              <div className="kpi-description">Parents actively involved in education</div>
-            </div>
-            <div className="kpi-card">
-              <div className="kpi-title">Technology Integration</div>
-              <div className="kpi-value">92.1%</div>
-              <div className="kpi-description">Classrooms with modern technology</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="analytics-section">
-          <h4>🌍 Comparative Analysis</h4>
-          <div className="comparison-table">
-            <div className="comparison-header">
-              <span>Metric</span>
-              <span>Our System</span>
-              <span>Galactic Average</span>
-              <span>Best in Galaxy</span>
-            </div>
-            <div className="comparison-row">
-              <span>Literacy Rate</span>
-              <span className="our-value">98.7%</span>
-              <span>94.2%</span>
-              <span>99.1%</span>
-            </div>
-            <div className="comparison-row">
-              <span>Graduation Rate</span>
-              <span className="our-value">94.2%</span>
-              <span>89.7%</span>
-              <span>96.8%</span>
-            </div>
-            <div className="comparison-row">
-              <span>Teacher-Student Ratio</span>
-              <span className="our-value">1:22</span>
-              <span>1:28</span>
-              <span>1:18</span>
-            </div>
-            <div className="comparison-row">
-              <span>Education Spending (% GDP)</span>
-              <span className="our-value">6.2%</span>
-              <span>5.1%</span>
-              <span>7.8%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  if (loading) {
-    return (
-      <div className="education-screen">
-        <div className="loading-state">
-          <div className="loading-spinner"></div>
-          <p>Loading education system data...</p>
-        </div>
-      </div>
-    );
-  }
+  };
 
   return (
-    <div className="education-screen">
-      <div className="screen-header">
-        <h1>🎓 Education System</h1>
-        <p>Comprehensive education management from Pre-K through higher education</p>
-        {error && <div className="error-notice">⚠️ {error}</div>}
+    <BaseScreen
+      screenId={screenId}
+      title={title}
+      icon={icon}
+      gameContext={gameContext}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchEducationData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'institutions' | 'curriculum' | 'analytics')}
+    >
+      <div className="standard-screen-container social-theme">
+        {error && <div className="error-message">Error: {error}</div>}
+        
+        <div className="standard-dashboard">
+          {!loading && !error && educationData && educationData.metrics.totalStudents > 0 ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'institutions' && renderInstitutions()}
+              {activeTab === 'curriculum' && renderCurriculum()}
+              {activeTab === 'analytics' && renderAnalytics()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading education data...' : 
+               error ? `Error: ${error}` : 
+               'No education data available'}
+            </div>
+          )}
+        </div>
       </div>
-
-      <div className="screen-tabs">
-        <button 
-          className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          📊 Overview
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'institutions' ? 'active' : ''}`}
-          onClick={() => setActiveTab('institutions')}
-        >
-          🏫 Institutions
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'curriculum' ? 'active' : ''}`}
-          onClick={() => setActiveTab('curriculum')}
-        >
-          📚 Curriculum
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'teachers' ? 'active' : ''}`}
-          onClick={() => setActiveTab('teachers')}
-        >
-          👨‍🏫 Teachers
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'budget' ? 'active' : ''}`}
-          onClick={() => setActiveTab('budget')}
-        >
-          💰 Budget
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`}
-          onClick={() => setActiveTab('analytics')}
-        >
-          📈 Analytics
-        </button>
-      </div>
-
-      <div className="screen-content">
-        {activeTab === 'overview' && renderOverview()}
-        {activeTab === 'institutions' && renderInstitutions()}
-        {activeTab === 'curriculum' && renderCurriculum()}
-        {activeTab === 'teachers' && renderTeachers()}
-        {activeTab === 'budget' && renderBudget()}
-        {activeTab === 'analytics' && renderAnalytics()}
-      </div>
-    </div>
+    </BaseScreen>
   );
 };
 

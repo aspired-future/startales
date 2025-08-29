@@ -1,5 +1,5 @@
-import { LLMProvider } from '../llm/types.js';
-import { getProvider } from '../llm/factory.js';
+import { LLMProvider } from '../llm/types';
+import { getProvider } from '../llm/factory';
 import crypto from 'crypto';
 
 export interface EmbeddingOptions {

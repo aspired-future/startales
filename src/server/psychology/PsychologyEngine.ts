@@ -17,7 +17,7 @@ import {
   PERSONALITY_ARCHETYPES,
   BEHAVIORAL_CONSTANTS,
   PSYCHOLOGY_EVENTS
-} from './types.js';
+} from './types';
 
 export class PsychologyEngine {
   private psychologicalProfiles: Map<string, PsychologicalProfile> = new Map();

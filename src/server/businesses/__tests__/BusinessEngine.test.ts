@@ -3,9 +3,9 @@
  * Sprint 7: Test suite for business creation and lifecycle management
  */
 
-import { BusinessEngine } from '../BusinessEngine.js';
-import { BusinessType, BusinessIndustry, BusinessStatus, EmploymentType } from '../types.js';
-import { Citizen } from '../../population/types.js';
+import { BusinessEngine } from '../BusinessEngine';
+import { BusinessType, BusinessIndustry, BusinessStatus, EmploymentType } from '../types';
+import { Citizen } from '../../population/types';
 
 describe('BusinessEngine', () => {
   let businessEngine: BusinessEngine;

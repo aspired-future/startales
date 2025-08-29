@@ -3,8 +3,8 @@
  * Sprint 16: Unit tests for technology acquisition and cyber warfare engine
  */
 
-import { TechnologyEngine } from '../TechnologyEngine.js';
-import { TechnologyCategory, TechnologyLevel, AcquisitionMethod, CyberOperationType } from '../types.js';
+import { TechnologyEngine } from '../TechnologyEngine';
+import { TechnologyCategory, TechnologyLevel, AcquisitionMethod, CyberOperationType } from '../types';
 
 describe('TechnologyEngine', () => {
   let engine: TechnologyEngine;

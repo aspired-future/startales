@@ -1,11 +1,11 @@
-import { bootstrapLLMProviders } from '../llm/bootstrap.js';
-import { conversationStorage } from './conversationStorage.js';
-import { aiContextService, MemoryContext, AIContextOptions } from './aiContextService.js';
+import { bootstrapLLMProviders } from '../llm/bootstrap';
+import { conversationStorage } from './conversationStorage';
+import { aiContextService, MemoryContext, AIContextOptions } from './aiContextService';
 import { 
   captureUserMessage, 
   captureAssistantMessage, 
   createContext 
-} from './messageCapture.js';
+} from './messageCapture';
 
 /**
  * Comprehensive test script for AI Context Service

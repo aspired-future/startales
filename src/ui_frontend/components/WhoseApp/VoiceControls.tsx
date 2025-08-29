@@ -111,9 +111,14 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({
     if (!isSTTSupported || !hasPermission || disabled) return;
 
     try {
+      console.log('🎤 Starting listening...');
       setError(null);
       setIsListening(true);
       setTranscript('');
+      
+      // Ensure any previous listening is stopped first
+      voiceService.stopSpeech();
+      voiceService.stopContinuousListening();
 
       if (conversationalMode) {
         // Use enhanced STT with silence detection for natural conversation
@@ -176,8 +181,24 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({
   };
 
   const stopListening = () => {
+    console.log('🔇 Stopping listening...');
     setIsListening(false);
-    // Speech recognition will stop automatically
+    setTranscript('');
+    
+    // Actually stop the voice service
+    try {
+      voiceService.stopSpeech();
+      voiceService.stopContinuousListening();
+      
+      // Cancel any ongoing speech synthesis
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      
+      console.log('✅ Listening stopped successfully');
+    } catch (error) {
+      console.error('❌ Error stopping listening:', error);
+    }
   };
 
   // Generate conversational AI response
@@ -185,46 +206,62 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({
     try {
       console.log('🤖 Generating response for:', userMessage);
       
-      // More contextual responses based on message content
-      let response = "";
-      const message = userMessage.toLowerCase();
-      
-      if (message.includes('status') && message.includes('universe')) {
-        response = "The universe? Well, from a diplomatic perspective, our galactic relations are quite complex. The outer rim territories are showing signs of unrest, and we're monitoring several trade route disruptions. What specific aspect concerns you most?";
-      } else if (message.includes('hello') || message.includes('hey') || message.includes('hi')) {
-        response = "Hello! It's good to hear from you. As your diplomatic advisor, I'm here to discuss any interstellar matters you'd like to address. What's on your mind today?";
-      } else if (message.includes('status')) {
-        response = "I can brief you on our current diplomatic status. We have ongoing negotiations with three major civilizations, and I'm tracking several emerging situations that may require your attention. Which area would you like to focus on?";
-      } else if (message.includes('trade')) {
-        response = "Trade relations are always evolving. We're seeing promising developments with the Centauri Republic, though the Vega Alliance has raised some concerns about our recent agreements. Shall we review the latest reports?";
+      // Call the backend AI service instead of using hardcoded responses
+      const response = await fetch('http://localhost:4000/api/ai/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: userMessage,
+          character: {
+            name: 'Chief Diplomatic Officer',
+            role: 'diplomat',
+            department: 'Foreign Affairs'
+          },
+          conversationHistory: [],
+          context: {
+            civilizationId: 'terran_federation' // Add civilization context
+          },
+                          options: {
+                  maxTokens: 4000,
+                  temperature: 0.7,
+                  model: 'llama3.2:1b'
+                }
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const aiResponse = data.content;
+        
+        console.log('🤖 AI Response:', aiResponse);
+        
+        if (onConversationResponse) {
+          onConversationResponse(aiResponse);
+        }
+        
+        // Speak the response with natural voice
+        if (characterId) {
+          await voiceService.textToSpeechWithEmotion(aiResponse, {
+            characterId,
+            emotion: 'calm',
+            naturalPauses: true
+          });
+        }
       } else {
-        // Fallback responses
-        const responses = [
-          "That's an intriguing point. In my experience with interstellar diplomacy, these matters often have multiple layers. What's your perspective on this?",
-          "I see. From a diplomatic standpoint, we should consider how this affects our broader galactic relationships. Tell me more about your concerns.",
-          "Interesting. As your Chief Diplomatic Officer, I think we should examine the implications carefully. What outcome are you hoping to achieve?",
-          "That's worth discussing. Given the current political climate in our sector, we need to be strategic about our next moves. What are your thoughts?"
-        ];
-        response = responses[Math.floor(Math.random() * responses.length)];
-      }
-      
-      // Simulate realistic thinking time
-      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1500));
-      
-      if (onConversationResponse) {
-        onConversationResponse(response);
-      }
-      
-      // Speak the response with natural voice
-      if (characterId) {
-        await voiceService.textToSpeechWithEmotion(response, {
-          characterId,
-          emotion: 'calm',
-          naturalPauses: true
-        });
+        console.error('❌ Failed to get AI response:', response.status);
+        // No fallback - let the user know the AI service is unavailable
+        if (onConversationResponse) {
+          onConversationResponse("AI service is currently unavailable. Please try again.");
+        }
       }
     } catch (error) {
       console.error('Failed to generate conversational response:', error);
+      // No fallback - let the user know there was an error
+      if (onConversationResponse) {
+        onConversationResponse("There was an error processing your request. Please try again.");
+      }
     }
   };
 

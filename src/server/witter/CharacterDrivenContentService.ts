@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
-import { CharacterService } from '../characters/CharacterService.js';
-import { DynamicCharacter } from '../characters/characterInterfaces.js';
-import { getGameMasterStoryEngine } from './GameMasterStoryEngine.js';
+import { CharacterService } from '../characters/CharacterService';
+import { DynamicCharacter } from '../characters/characterInterfaces';
+import { getGameMasterStoryEngine } from './GameMasterStoryEngine';
 
 export interface PersistentCharacter {
   id: string;

@@ -1,5 +1,5 @@
-import { bootstrapLLMProviders } from '../llm/bootstrap.js';
-import { embeddingService } from './embeddingService.js';
+import { bootstrapLLMProviders } from '../llm/bootstrap';
+import { embeddingService } from './embeddingService';
 
 /**
  * Test script for the embedding service

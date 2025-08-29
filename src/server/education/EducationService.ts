@@ -8,7 +8,7 @@ import {
   EducationSecretary,
   ResearchDashboard,
   EducationOverview
-} from './educationInterfaces.js';
+} from './educationInterfaces';
 
 export class EducationService {
   private pool: Pool;

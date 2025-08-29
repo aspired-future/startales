@@ -5,7 +5,7 @@
  * Manages spy networks, intelligence gathering operations, and counter-intelligence
  */
 
-import { InformationAsset, InformationType, SecurityLevel, informationClassification } from './informationClassification.js';
+import { InformationAsset, InformationType, SecurityLevel, informationClassification } from './informationClassification';
 
 export enum SpyType {
   CORPORATE_INFILTRATOR = 'CORPORATE_INFILTRATOR',

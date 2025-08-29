@@ -3,7 +3,7 @@
  * Provides hooks for capturing latency, token counts, and payload sizes
  */
 
-import { AdapterError } from './base.js';
+import { AdapterError } from './base';
 
 // Metrics Context
 export interface MetricsContext {

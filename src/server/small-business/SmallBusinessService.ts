@@ -5,7 +5,7 @@
  */
 
 import { Pool } from 'pg';
-import { SmallBusiness, DistributionNetwork, BusinessAnalytics } from './smallBusinessInterfaces.js';
+import { SmallBusiness, DistributionNetwork, BusinessAnalytics } from './smallBusinessInterfaces';
 
 export class SmallBusinessService {
   private pool: Pool;

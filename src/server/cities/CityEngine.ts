@@ -15,7 +15,7 @@ import {
   CityEngineConfig,
   DEFAULT_SPECIALIZATIONS,
   DEFAULT_GEOGRAPHIC_ADVANTAGES
-} from './types.js';
+} from './types';
 
 export class CityEngine {
   private cities: Map<string, City> = new Map();

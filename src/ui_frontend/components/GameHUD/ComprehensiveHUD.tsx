@@ -22,9 +22,11 @@ import {
 
 // Import Popup components
 import { PanelPopup } from './screens/PanelPopup';
-
+import { SettingsPopup } from './screens/SettingsPopup';
 import { MapPopup } from './screens/MapPopup';
 import { GovernmentBondsScreen } from './screens/GovernmentBondsScreen';
+import { ScoreDisplay } from './ScoreDisplay';
+import { CampaignWizard } from '../CampaignSetup/CampaignWizard';
 
 interface ComprehensiveHUDProps {
   playerId: string;
@@ -117,8 +119,15 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
   
   // Popup state management
   const [activePanelPopup, setActivePanelPopup] = useState<string | null>(null);
-
   const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
+  const [isSettingsPopupVisible, setIsSettingsPopupVisible] = useState(false);
+  const [isGameSetupWizardVisible, setIsGameSetupWizardVisible] = useState(false);
+  
+  // Score and level state
+  const [playerScore, setPlayerScore] = useState(125000);
+  const [playerLevel, setPlayerLevel] = useState(7);
+  const [playerExperience, setPlayerExperience] = useState(2400);
+  const [experienceToNext, setExperienceToNext] = useState(3000);
 
   // WhoseApp WebSocket integration for real-time updates
   const whoseAppData = useWhoseAppWebSocket({
@@ -999,13 +1008,25 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
           <span className="civilization-info">👑 Commander {playerId} | 🏛️ Terran Federation</span>
         </div>
         <div className="header-center">
-          <span className="location">📍 {gameContext.currentLocation}</span>
+          <ScoreDisplay 
+            score={playerScore}
+            level={playerLevel}
+            experience={playerExperience}
+            experienceToNext={experienceToNext}
+          />
         </div>
         <div className="header-right">
           <span className="treasury">💰 ${formatNumber(liveMetrics.treasury)}</span>
           <span className="approval">📊 {liveMetrics.approval}%</span>
           <span className="security">🛡️ {liveMetrics.securityLevel}%</span>
           <span className="alerts">🔔 {alerts.length}</span>
+          <button 
+            className="settings-btn"
+            onClick={() => setIsSettingsPopupVisible(true)}
+            title="Settings"
+          >
+            ⚙️
+          </button>
         </div>
       </div>
 
@@ -1183,8 +1204,10 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
           {activePanel === 'whoseapp' && (
             <div className="panel-screen">
               <WhoseAppMain 
-                playerId={playerId}
-                gameContext={gameContext}
+                civilizationId="terran_federation"
+                currentUserId={playerId}
+                onOpenCharacterProfile={(characterId) => console.log('Character profile requested:', characterId)}
+                onCreateAction={(action) => console.log('Action created:', action)}
               />
             </div>
           )}
@@ -1440,6 +1463,28 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
         playerId={playerId}
         isVisible={isMapPopupOpen}
         onClose={() => setIsMapPopupOpen(false)}
+      />
+
+      {/* Settings Popup */}
+      <SettingsPopup
+        playerId={playerId}
+        isVisible={isSettingsPopupVisible}
+        onClose={() => setIsSettingsPopupVisible(false)}
+        onNewGame={() => {
+          setIsSettingsPopupVisible(false);
+          setIsGameSetupWizardVisible(true);
+        }}
+      />
+
+      {/* Game Setup Wizard */}
+      <CampaignWizard
+        isVisible={isGameSetupWizardVisible}
+        onClose={() => setIsGameSetupWizardVisible(false)}
+        onComplete={(gameConfig) => {
+          console.log('New game setup:', gameConfig);
+          setIsGameSetupWizardVisible(false);
+          // Here you would initialize the new game with the config
+        }}
       />
     </div>
   );

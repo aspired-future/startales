@@ -8,7 +8,7 @@ import {
   DisputeResolution,
   NegotiationIssue,
   NegotiatorPosition
-} from './economicEcosystemSchema.js';
+} from './economicEcosystemSchema';
 
 export class TradePactsService {
   constructor(private pool: Pool) {}

@@ -1,5 +1,5 @@
-import { IVideoProvider, VideoGenerationRequest, VideoGenerationResponse, VideoProviderCapabilities, VideoProviderConfig } from './IVideoProvider.js';
-import { GoogleServiceAccountAuth } from '../../auth/GoogleServiceAccountAuth.js';
+import { IVideoProvider, VideoGenerationRequest, VideoGenerationResponse, VideoProviderCapabilities, VideoProviderConfig } from './IVideoProvider';
+import { GoogleServiceAccountAuth } from '../../auth/GoogleServiceAccountAuth';
 
 /**
  * Google VEO 3 Video Generation Provider

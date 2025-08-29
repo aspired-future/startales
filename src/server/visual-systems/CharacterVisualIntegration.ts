@@ -2,7 +2,7 @@
  * Character Visual Integration - Hooks image generation into character creation and management
  */
 
-import { EntityVisualGenerator, EntityImageResult } from './EntityVisualGenerator.js';
+import { EntityVisualGenerator, EntityImageResult } from './EntityVisualGenerator';
 
 export interface CharacterData {
   id: string;

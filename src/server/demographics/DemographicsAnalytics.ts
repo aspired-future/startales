@@ -21,7 +21,7 @@ import {
   CasualtyType,
   CasualtyCause,
   PlunderType
-} from './types.js';
+} from './types';
 
 export class DemographicsAnalytics {
   

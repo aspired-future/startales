@@ -11,9 +11,9 @@ import {
   LLMDelta,
   AdapterCapability,
   AdapterDependencies
-} from '../../shared/adapters/index.js';
-import { AnthropicProvider } from '../llm/providers/anthropic.js';
-import { ModelMessage, CompletionOptions } from '../llm/types.js';
+} from '../../shared/adapters/index';
+import { AnthropicProvider } from '../llm/providers/anthropic';
+import { ModelMessage, CompletionOptions } from '../llm/types';
 
 export class AnthropicLLMAdapter implements LLMAdapter {
   private provider: AnthropicProvider;

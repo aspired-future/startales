@@ -1,5 +1,5 @@
-import { CampaignState } from '../sim/engine.js';
-import { Policy, PolicyEngine } from '../policies/policyEngine.js';
+import { CampaignState } from '../../simulation/engine/engine';
+import { Policy, PolicyEngine } from '../policies/policyEngine';
 
 export interface AdvisorDomain {
   id: string;

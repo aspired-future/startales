@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { memoryAdminService, ConversationManagementOptions } from './memoryAdminService.js';
+import { memoryAdminService, ConversationManagementOptions } from './memoryAdminService';
 
 export const adminRouter = express.Router();
 

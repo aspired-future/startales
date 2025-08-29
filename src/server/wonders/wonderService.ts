@@ -8,7 +8,7 @@ import {
   ResourceCost, 
   WonderBenefits,
   ConstructionEvent
-} from '../storage/wondersSchema.js';
+} from '../storage/wondersSchema';
 
 export interface WonderTemplate {
   wonder_type: string;

@@ -13,10 +13,10 @@ import {
   SpeechImpact,
   SimulationEffect,
   NaturalLanguageEffect
-} from './types.js';
-import { LLMProvider, SimpleLLMProvider } from '../providers/LLMProvider.js';
-import { vectorMemory } from '../storage/VectorMemory.js';
-import { db } from '../storage/db.js';
+} from './types';
+import { LLMProvider, SimpleLLMProvider } from '../providers/LLMProvider';
+import { vectorMemory } from '../storage/VectorMemory';
+import { db } from '../storage/db';
 import { nanoid } from 'nanoid';
 
 export class LeaderSpeechEngine {

@@ -17,8 +17,8 @@ import {
   DemandLevel,
   CompetitionLevel,
   SkillImportance
-} from './types.js';
-import { Citizen } from '../population/types.js';
+} from './types';
+import { Citizen } from '../population/types';
 
 export class ProfessionEngine {
   private professions: Map<string, Profession> = new Map();

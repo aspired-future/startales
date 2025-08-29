@@ -16,7 +16,7 @@ import {
   CRIME_CATEGORIES,
   LEGAL_EVENTS,
   SENTENCING_GUIDELINES
-} from './types.js';
+} from './types';
 
 export class LegalEngine {
   private legalCases: Map<string, LegalCase> = new Map();

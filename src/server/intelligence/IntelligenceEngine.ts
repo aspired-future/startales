@@ -4,11 +4,11 @@
  */
 
 import { EventEmitter } from 'events';
-import { llmService } from '../ai/llmService.js';
-import { civilizationVectorMemory } from '../memory/civilizationVectorMemory.js';
-import { psychologyVectorMemory } from '../memory/PsychologyVectorMemory.js';
-import { aiAnalysisVectorMemory } from '../memory/AIAnalysisVectorMemory.js';
-import { witterStorage } from '../memory/witterStorage.js';
+import { llmService } from '../ai/llmService';
+import { civilizationVectorMemory } from '../memory/civilizationVectorMemory';
+import { psychologyVectorMemory } from '../memory/PsychologyVectorMemory';
+import { aiAnalysisVectorMemory } from '../memory/AIAnalysisVectorMemory';
+import { witterStorage } from '../memory/witterStorage';
 import {
   IntelligenceReport,
   IntelligenceReportType,
@@ -32,7 +32,7 @@ import {
   Benefit,
   ReportAnalytics,
   TrendIndicator
-} from './types.js';
+} from './types';
 
 export class IntelligenceEngine extends EventEmitter {
   private config: IntelligenceEngineConfig;

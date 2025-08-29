@@ -6,7 +6,7 @@ import {
   ThreatAssessment, 
   IntelligenceReport, 
   IntelligenceOversight 
-} from './intelligenceSchema.js';
+} from './intelligenceSchema';
 
 export class IntelligenceDirectorsService {
   constructor(private pool: Pool) {}

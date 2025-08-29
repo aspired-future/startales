@@ -32,7 +32,7 @@ import {
   VictoryType,
   PlayerStatistics,
   SessionStatistics
-} from './types.js';
+} from './types';
 
 export class GameModesEngine {
   private gameModes: Map<string, GameMode> = new Map();

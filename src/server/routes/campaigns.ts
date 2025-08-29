@@ -7,7 +7,7 @@ import {
   listCampaigns,
   getCampaignBranches,
   initEventSourcing
-} from '../persistence/eventSourcing.js';
+} from '../persistence/eventSourcing';
 
 const router = express.Router();
 

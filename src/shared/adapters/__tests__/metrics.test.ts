@@ -16,8 +16,8 @@ import {
   MetricsCollector,
   createMetricsContext,
   createMetricsCollector
-} from '../metrics.js';
-import { AdapterError, AdapterErrorCode } from '../base.js';
+} from '../metrics';
+import { AdapterError, AdapterErrorCode } from '../base';
 
 describe('Metrics System', () => {
   describe('MetricsTimer', () => {

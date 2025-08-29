@@ -6,9 +6,9 @@
  */
 
 import express from 'express';
-import { LegalEngine } from './LegalEngine.js';
-import { LegalAnalytics } from './LegalAnalytics.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { LegalEngine } from './LegalEngine';
+import { LegalAnalytics } from './LegalAnalytics';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

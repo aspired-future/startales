@@ -4,9 +4,9 @@
  */
 
 import { Router } from 'express';
-import { TechnologyEngine } from './TechnologyEngine.js';
-import { TechnologyAnalytics } from './TechnologyAnalytics.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { TechnologyEngine } from './TechnologyEngine';
+import { TechnologyAnalytics } from './TechnologyAnalytics';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 const technologyEngine = new TechnologyEngine();

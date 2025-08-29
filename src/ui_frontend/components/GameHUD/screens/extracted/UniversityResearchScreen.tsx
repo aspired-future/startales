@@ -1,5 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './UniversityResearchScreen.css';
+import '../shared/StandardDesign.css';
+
+interface UniversityResearchScreenProps {
+  screenId: string;
+  title: string;
+  icon: string;
+  gameContext?: any;
+}
 
 interface ResearchProject {
   id: string;
@@ -37,8 +46,21 @@ interface ResearchField {
   breakthroughs: number;
 }
 
-const UniversityResearchScreen: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+// Define tabs for the header
+const tabs: TabConfig[] = [
+  { id: 'overview', label: 'Overview', icon: '📊' },
+  { id: 'projects', label: 'Research Projects', icon: '🔬' },
+  { id: 'universities', label: 'Universities', icon: '🏛️' },
+  { id: 'collaborations', label: 'Collaborations', icon: '🤝' }
+];
+
+const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({ 
+  screenId, 
+  title, 
+  icon, 
+  gameContext 
+}) => {
+  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'universities' | 'collaborations'>('overview');
   const [researchData, setResearchData] = useState({
     projects: [] as ResearchProject[],
     universities: [] as University[],
@@ -52,11 +74,7 @@ const UniversityResearchScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchUniversityResearchData();
-  }, []);
-
-  const fetchUniversityResearchData = async () => {
+  const fetchUniversityResearchData = useCallback(async () => {
     try {
       setLoading(true);
       // Try to fetch from API
@@ -208,11 +226,41 @@ const UniversityResearchScreen: React.FC = () => {
         publications: 1189,
         citations: 12456
       });
-      setError('Using mock data - API not available');
+      // Don't set error for mock data - it's expected behavior
+      console.log('Using mock data for University Research');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchUniversityResearchData();
+  }, [fetchUniversityResearchData]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('University Research Screen State:', {
+      loading,
+      error,
+      activeTab,
+      hasData: researchData && researchData.projects.length > 0,
+      projectsCount: researchData?.projects?.length || 0,
+      universitiesCount: researchData?.universities?.length || 0,
+      fieldsCount: researchData?.fields?.length || 0
+    });
+  }, [loading, error, activeTab, researchData]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('University Research Screen State:', {
+      loading,
+      error,
+      activeTab,
+      hasData: researchData && researchData.projects.length > 0,
+      projectsCount: researchData?.projects?.length || 0,
+      researchData: researchData
+    });
+  }, [loading, error, activeTab, researchData]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -235,282 +283,440 @@ const UniversityResearchScreen: React.FC = () => {
     }
   };
 
-  const renderOverview = () => (
-    <div className="research-overview">
-      <div className="research-metrics">
-        <div className="metric-card">
-          <div className="metric-value">{researchData.activeProjects}</div>
-          <div className="metric-label">Active Projects</div>
+  // API endpoints for the screen
+  const apiEndpoints: APIEndpoint[] = [
+    { path: '/api/university-research', method: 'GET', description: 'University Research Data' },
+    { path: '/api/university-research/projects', method: 'GET', description: 'Research Projects' },
+    { path: '/api/university-research/universities', method: 'GET', description: 'Universities' },
+    { path: '/api/university-research/fields', method: 'GET', description: 'Research Fields' }
+  ];
+
+  if (loading) {
+    return (
+      <BaseScreen
+        screenId={screenId}
+        title={title}
+        icon={icon}
+        gameContext={gameContext}
+        apiEndpoints={apiEndpoints}
+        onRefresh={fetchUniversityResearchData}
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'projects' | 'universities' | 'collaborations')}
+      >
+        <div className="standard-screen-container academic-theme">
+          <div className="loading-overlay">Loading university research data...</div>
         </div>
-        <div className="metric-card">
-          <div className="metric-value">${(researchData.totalFunding / 1000000).toFixed(1)}M</div>
-          <div className="metric-label">Total Funding</div>
+      </BaseScreen>
+    );
+  }
+
+  const renderOverviewTab = () => (
+    <>
+      {/* Research Overview - First card in 2-column grid */}
+      <div className="standard-panel academic-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#9c27b0' }}>📊 Research Overview</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+          <div className="standard-metric">
+            <span>Active Projects</span>
+            <span className="standard-metric-value">{researchData.activeProjects}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Total Funding</span>
+            <span className="standard-metric-value">${(researchData.totalFunding / 1000000).toFixed(1)}M</span>
+          </div>
+          <div className="standard-metric">
+            <span>Publications</span>
+            <span className="standard-metric-value">{researchData.publications}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Citations</span>
+            <span className="standard-metric-value">{researchData.citations.toLocaleString()}</span>
+          </div>
         </div>
-        <div className="metric-card">
-          <div className="metric-value">{researchData.publications}</div>
-          <div className="metric-label">Publications</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-value">{researchData.citations.toLocaleString()}</div>
-          <div className="metric-label">Citations</div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn academic-theme" onClick={() => console.log('Generate Research Report')}>Generate Report</button>
+          <button className="standard-btn academic-theme" onClick={() => console.log('View Analytics')}>View Analytics</button>
         </div>
       </div>
 
-      <div className="research-fields-overview">
-        <h3>Research Fields</h3>
-        <div className="fields-grid">
-          {researchData.fields.map((field, index) => (
-            <div key={index} className="field-card">
-              <h4>{field.name}</h4>
-              <div className="field-stats">
-                <div className="field-stat">
-                  <span className="stat-label">Projects:</span>
-                  <span className="stat-value">{field.projects}</span>
-                </div>
-                <div className="field-stat">
-                  <span className="stat-label">Funding:</span>
-                  <span className="stat-value">${(field.funding / 1000000).toFixed(1)}M</span>
-                </div>
-                <div className="field-stat">
-                  <span className="stat-label">Publications:</span>
-                  <span className="stat-value">{field.publications}</span>
-                </div>
-                <div className="field-stat">
-                  <span className="stat-label">Breakthroughs:</span>
-                  <span className="stat-value">{field.breakthroughs}</span>
-                </div>
-              </div>
+      {/* Research Fields Overview - Second card in 2-column grid */}
+      <div className="standard-panel academic-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#9c27b0' }}>🔬 Research Fields</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+          {researchData.fields.slice(0, 4).map((field, index) => (
+            <div key={index} className="standard-metric">
+              <span>{field.name}</span>
+              <span className="standard-metric-value">{field.projects} projects</span>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </>
   );
 
-  const renderProjects = () => (
-    <div className="research-projects">
-      <div className="projects-header">
-        <h3>Active Research Projects</h3>
-        <div className="projects-filters">
-          <select className="filter-select">
-            <option value="">All Fields</option>
-            {researchData.fields.map((field, index) => (
-              <option key={index} value={field.name}>{field.name}</option>
-            ))}
-          </select>
-          <select className="filter-select">
-            <option value="">All Universities</option>
-            {researchData.universities.map((uni) => (
-              <option key={uni.id} value={uni.name}>{uni.name}</option>
-            ))}
-          </select>
+  const renderProjectsTab = () => (
+    <>
+      {/* Research Projects Overview */}
+      <div className="standard-panel academic-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#9c27b0' }}>🔬 Research Projects</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Field</th>
+                <th>University</th>
+                <th>Lead Researcher</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Funding</th>
+                <th>Publications</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData.projects.map(project => (
+                <tr key={project.id}>
+                  <td>
+                    <strong>{project.title}</strong><br />
+                    <small style={{ color: '#a0a9ba' }}>{project.duration}</small>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: '#9c27b0',
+                      color: 'white'
+                    }}>
+                      {project.field}
+                    </span>
+                  </td>
+                  <td>{project.university}</td>
+                  <td>{project.leadResearcher}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: getStatusColor(project.status),
+                      color: 'white'
+                    }}>
+                      {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ 
+                        width: '60px', 
+                        height: '8px', 
+                        backgroundColor: '#e0e0e0', 
+                        borderRadius: '4px',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{ 
+                          width: `${project.progress}%`, 
+                          height: '100%', 
+                          backgroundColor: getStatusColor(project.status)
+                        }}></div>
+                      </div>
+                      <span style={{ fontSize: '0.8rem' }}>{project.progress}%</span>
+                    </div>
+                  </td>
+                  <td>${(project.funding / 1000000).toFixed(1)}M</td>
+                  <td>{project.publications}</td>
+                  <td>
+                    <button className="standard-btn academic-theme">Details</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
-
-      <div className="projects-list">
-        {researchData.projects.map((project) => (
-          <div key={project.id} className="project-card">
-            <div className="project-header">
-              <h4>{project.title}</h4>
-              <div className="project-status" style={{ backgroundColor: getStatusColor(project.status) }}>
-                {project.status.toUpperCase()}
-              </div>
-            </div>
-            <div className="project-details">
-              <div className="project-info">
-                <div className="info-row">
-                  <span className="info-label">Field:</span>
-                  <span className="info-value">{project.field}</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">University:</span>
-                  <span className="info-value">{project.university}</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Lead Researcher:</span>
-                  <span className="info-value">{project.leadResearcher}</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Duration:</span>
-                  <span className="info-value">{project.duration}</span>
-                </div>
-              </div>
-              <div className="project-metrics">
-                <div className="metric">
-                  <span className="metric-label">Progress:</span>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${project.progress}%` }}></div>
-                    <span className="progress-text">{project.progress}%</span>
-                  </div>
-                </div>
-                <div className="metric">
-                  <span className="metric-label">Funding:</span>
-                  <span className="metric-value">${(project.funding / 1000000).toFixed(1)}M</span>
-                </div>
-                <div className="metric">
-                  <span className="metric-label">Publications:</span>
-                  <span className="metric-value">{project.publications}</span>
-                </div>
-                <div className="metric">
-                  <span className="metric-label">Citations:</span>
-                  <span className="metric-value">{project.citations}</span>
-                </div>
-              </div>
-            </div>
-            <div className="project-description">
-              <p>{project.description}</p>
-            </div>
-            {project.collaborations.length > 0 && (
-              <div className="project-collaborations">
-                <span className="collab-label">Collaborations:</span>
-                {project.collaborations.map((collab, index) => (
-                  <span key={index} className="collab-tag">{collab}</span>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
+    </>
   );
 
-  const renderUniversities = () => (
-    <div className="research-universities">
-      <h3>Research Universities</h3>
-      <div className="universities-grid">
-        {researchData.universities.map((university) => (
-          <div key={university.id} className="university-card">
-            <div className="university-header">
-              <div className="university-icon">{getUniversityTypeIcon(university.type)}</div>
-              <div className="university-info">
-                <h4>{university.name}</h4>
-                <div className="university-type">{university.type.replace('-', ' ').toUpperCase()}</div>
-              </div>
-              <div className="university-rating">
-                <div className="rating-value">{university.researchRating}</div>
-                <div className="rating-label">Rating</div>
-              </div>
-            </div>
-            <div className="university-stats">
-              <div className="stat-row">
-                <span className="stat-label">Total Funding:</span>
-                <span className="stat-value">${(university.totalFunding / 1000000).toFixed(1)}M</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Active Projects:</span>
-                <span className="stat-value">{university.activeProjects}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Faculty:</span>
-                <span className="stat-value">{university.faculty}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Graduate Students:</span>
-                <span className="stat-value">{university.graduateStudents}</span>
-              </div>
-            </div>
-            <div className="university-specializations">
-              <div className="spec-label">Specializations:</div>
-              <div className="spec-tags">
-                {university.specializations.map((spec, index) => (
-                  <span key={index} className="spec-tag">{spec}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))}
+  const renderUniversitiesTab = () => (
+    <>
+      {/* Universities Overview */}
+      <div className="standard-panel academic-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#9c27b0' }}>🏛️ Research Universities</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>University</th>
+                <th>Type</th>
+                <th>Research Rating</th>
+                <th>Total Funding</th>
+                <th>Active Projects</th>
+                <th>Faculty</th>
+                <th>Graduate Students</th>
+                <th>Specializations</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData.universities.map(university => (
+                <tr key={university.id}>
+                  <td>
+                    <strong>{university.name}</strong>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: '#9c27b0',
+                      color: 'white'
+                    }}>
+                      {university.type.replace('-', ' ').toUpperCase()}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: '#4caf50',
+                      color: 'white',
+                      fontWeight: 'bold'
+                    }}>
+                      {university.researchRating}
+                    </span>
+                  </td>
+                  <td>${(university.totalFunding / 1000000).toFixed(1)}M</td>
+                  <td>{university.activeProjects}</td>
+                  <td>{university.faculty}</td>
+                  <td>{university.graduateStudents}</td>
+                  <td>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                      {university.specializations.slice(0, 3).map((spec, i) => (
+                        <span key={i} style={{ 
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '3px',
+                          fontSize: '0.7rem',
+                          backgroundColor: '#673ab7',
+                          color: 'white'
+                        }}>
+                          {spec}
+                        </span>
+                      ))}
+                      {university.specializations.length > 3 && (
+                        <span style={{ 
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '3px',
+                          fontSize: '0.7rem',
+                          backgroundColor: '#757575',
+                          color: 'white'
+                        }}>
+                          +{university.specializations.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td>
+                    <button className="standard-btn academic-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   );
 
-  const renderCollaborations = () => (
-    <div className="research-collaborations">
-      <h3>Research Collaborations</h3>
-      <div className="collaboration-types">
-        <div className="collab-section">
-          <h4>🏛️ Government Partnerships</h4>
-          <div className="collab-list">
-            <div className="collab-item">Imperial Defense Labs - Quantum Computing & Cryptography</div>
-            <div className="collab-item">Galactic Security Council - Neural Interface Security</div>
-            <div className="collab-item">Energy Consortium - Fusion Reactor Development</div>
-            <div className="collab-item">Exploration Command - Xenobiology Studies</div>
-          </div>
-        </div>
-        <div className="collab-section">
-          <h4>🏢 Corporate Partnerships</h4>
-          <div className="collab-list">
-            <div className="collab-item">Colonial Development Corp - Atmospheric Processing</div>
-            <div className="collab-item">Starship Engineering Corps - Fusion Power Systems</div>
-            <div className="collab-item">AI Research Consortium - Neural Interfaces</div>
-            <div className="collab-item">Terraforming Initiative - Environmental Systems</div>
-          </div>
-        </div>
-        <div className="collab-section">
-          <h4>🌌 Inter-Galactic Research</h4>
-          <div className="collab-list">
-            <div className="collab-item">Centauri Research Exchange - Medical Technology</div>
-            <div className="collab-item">Vegan Science Collective - Environmental Studies</div>
-            <div className="collab-item">Sirian Physics Institute - Energy Research</div>
-            <div className="collab-item">Kepler Tech Alliance - Computer Science</div>
-          </div>
+  const renderCollaborationsTab = () => (
+    <>
+      {/* Research Collaborations Overview */}
+      <div className="standard-panel academic-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#9c27b0' }}>🤝 Research Collaborations</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Partnership Type</th>
+                <th>Organization</th>
+                <th>Research Area</th>
+                <th>University Partner</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    backgroundColor: '#2196f3',
+                    color: 'white'
+                  }}>
+                    Government
+                  </span>
+                </td>
+                <td>Imperial Defense Labs</td>
+                <td>Quantum Computing & Cryptography</td>
+                <td>Zephyrian Institute of Technology</td>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    backgroundColor: '#4caf50',
+                    color: 'white'
+                  }}>
+                    Active
+                  </span>
+                </td>
+                <td>
+                  <button className="standard-btn academic-theme">Details</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    backgroundColor: '#ff9800',
+                    color: 'white'
+                  }}>
+                    Corporate
+                  </span>
+                </td>
+                <td>Colonial Development Corp</td>
+                <td>Atmospheric Processing</td>
+                <td>New Terra University</td>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    backgroundColor: '#4caf50',
+                    color: 'white'
+                  }}>
+                    Active
+                  </span>
+                </td>
+                <td>
+                  <button className="standard-btn academic-theme">Details</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    backgroundColor: '#9c27b0',
+                    color: 'white'
+                  }}>
+                    Inter-Galactic
+                  </span>
+                </td>
+                <td>Centauri Research Exchange</td>
+                <td>Medical Technology</td>
+                <td>Centauri Medical College</td>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    backgroundColor: '#4caf50',
+                    color: 'white'
+                  }}>
+                    Active
+                  </span>
+                </td>
+                <td>
+                  <button className="standard-btn academic-theme">Details</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    backgroundColor: '#2196f3',
+                    color: 'white'
+                  }}>
+                    Government
+                  </span>
+                </td>
+                <td>Energy Consortium</td>
+                <td>Fusion Reactor Development</td>
+                <td>Imperial Energy Institute</td>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    backgroundColor: '#4caf50',
+                    color: 'white'
+                  }}>
+                    Active
+                  </span>
+                </td>
+                <td>
+                  <button className="standard-btn academic-theme">Details</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-    </div>
+    </>
   );
-
-  if (loading) {
-    return (
-      <div className="university-research-screen">
-        <div className="loading-state">
-          <div className="loading-spinner"></div>
-          <p>Loading university research data...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="university-research-screen">
-      <div className="screen-header">
-        <h1>🔬 University Research Systems</h1>
-        <p>Academic research projects, university partnerships, and scholarly collaboration</p>
-        {error && <div className="error-notice">⚠️ {error}</div>}
+    <BaseScreen
+      screenId={screenId}
+      title={title}
+      icon={icon}
+      gameContext={gameContext}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchUniversityResearchData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'projects' | 'universities' | 'collaborations')}
+    >
+      <div className="standard-screen-container academic-theme">
+        {error && <div className="error-message">Error: {error}</div>}
+        
+        <div className="standard-dashboard">
+          {!loading && researchData && researchData.projects.length > 0 ? (
+            <>
+              {activeTab === 'overview' && renderOverviewTab()}
+              
+              {/* Tab Content - Full width below cards */}
+              <div style={{ gridColumn: '1 / -1' }}>
+                {activeTab === 'projects' && renderProjectsTab()}
+                {activeTab === 'universities' && renderUniversitiesTab()}
+                {activeTab === 'collaborations' && renderCollaborationsTab()}
+              </div>
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading university research data...' : 
+               error ? `Error: ${error}` : 
+               'No research data available'}
+            </div>
+          )}
+        </div>
       </div>
-
-      <div className="screen-tabs">
-        <button 
-          className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          📊 Overview
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
-          onClick={() => setActiveTab('projects')}
-        >
-          🔬 Research Projects
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'universities' ? 'active' : ''}`}
-          onClick={() => setActiveTab('universities')}
-        >
-          🏛️ Universities
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'collaborations' ? 'active' : ''}`}
-          onClick={() => setActiveTab('collaborations')}
-        >
-          🤝 Collaborations
-        </button>
-      </div>
-
-      <div className="screen-content">
-        {activeTab === 'overview' && renderOverview()}
-        {activeTab === 'projects' && renderProjects()}
-        {activeTab === 'universities' && renderUniversities()}
-        {activeTab === 'collaborations' && renderCollaborations()}
-      </div>
-    </div>
+    </BaseScreen>
   );
 };
 

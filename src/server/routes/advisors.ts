@@ -1,6 +1,6 @@
 import express from 'express';
-import { AdvisorSystem } from '../advisors/advisorSystem.js';
-import { resumeCampaign } from '../persistence/eventSourcing.js';
+import { AdvisorSystem } from '../advisors/advisorSystem';
+import { resumeCampaign } from '../persistence/eventSourcing';
 
 const router = express.Router();
 

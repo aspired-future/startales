@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './SupremeCourtScreen.css';
 
 interface ConstitutionalReview {
@@ -64,6 +64,7 @@ interface SupremeCourtData {
 }
 
 const SupremeCourtScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext }) => {
+  const [activeTab, setActiveTab] = useState<string>('overview');
   const [supremeCourtData, setSupremeCourtData] = useState<SupremeCourtData>({
     overview: {
       pendingReviews: 3,
@@ -232,6 +233,14 @@ const SupremeCourtScreen: React.FC<ScreenProps> = ({ screenId, title, icon, game
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'reviews', label: 'Reviews', icon: '📋' },
+    { id: 'justices', label: 'Justices', icon: '👩‍⚖️' },
+    { id: 'precedents', label: 'Precedents', icon: '📚' },
+    { id: 'relations', label: 'Relations', icon: '🤝' }
+  ];
+
   const apiEndpoints: APIEndpoint[] = [
     { method: 'GET', path: '/api/supreme-court/dashboard', description: 'Get Supreme Court overview and metrics' },
     { method: 'GET', path: '/api/supreme-court/reviews', description: 'Get all constitutional reviews' },
@@ -328,6 +337,620 @@ const SupremeCourtScreen: React.FC<ScreenProps> = ({ screenId, title, icon, game
     alert('Constitutional Consultation\n\n📅 Consultation Types:\n\n🎯 Constitutional Questions:\n• Legal interpretation requests\n• Constitutional compliance review\n• Rights impact assessment\n• Implementation guidance\n\n🚨 Emergency Constitutional Review:\n• Crisis authority analysis\n• Emergency powers evaluation\n• Constitutional crisis management\n• Rapid legal guidance\n\n📊 Regular Constitutional Meetings:\n• Weekly legal briefings\n• Monthly constitutional review\n• Quarterly precedent analysis\n• Annual constitutional assessment\n\nConsultations maintain constitutional expertise while respecting leader authority.');
   };
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return renderOverviewTab();
+      case 'reviews':
+        return renderReviewsTab();
+      case 'justices':
+        return renderJusticesTab();
+      case 'precedents':
+        return renderPrecedentsTab();
+      case 'relations':
+        return renderRelationsTab();
+      default:
+        return renderOverviewTab();
+    }
+  };
+
+  const renderOverviewTab = () => (
+    <>
+      {/* Constitutional Overview */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Pending Reviews</span>
+          <span className="standard-metric-value">{supremeCourtData.overview.pendingReviews}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Leader Acceptance Rate</span>
+          <span className="standard-metric-value">{supremeCourtData.overview.leaderAcceptanceRate}%</span>
+        </div>
+        <div className="standard-metric">
+          <span>Constitutional Compliance</span>
+          <span className={`standard-metric-value ${getComplianceClass(supremeCourtData.overview.constitutionalCompliance)}`}>
+            {supremeCourtData.overview.constitutionalCompliance}/100
+          </span>
+        </div>
+        <div className="standard-metric">
+          <span>Judicial Independence</span>
+          <span className={`standard-metric-value ${getIndependenceClass(supremeCourtData.overview.judicialIndependence)}`}>
+            {supremeCourtData.overview.judicialIndependence}/100
+          </span>
+        </div>
+        <div className="standard-metric">
+          <span>Public Confidence</span>
+          <span className={`standard-metric-value ${getComplianceClass(supremeCourtData.overview.publicConfidence)}`}>
+            {supremeCourtData.overview.publicConfidence}%
+          </span>
+        </div>
+        <div className="progress-bar">
+          <div 
+            className="progress-fill" 
+            style={{ width: `${supremeCourtData.overview.constitutionalCompliance}%` }}
+          ></div>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="btn" onClick={handleReviewConstitutional}>Review Constitutional Issues</button>
+          <button className="btn btn-secondary">Court Analytics</button>
+        </div>
+        <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(79, 172, 254, 0.1)', borderRadius: '8px', fontSize: '0.9rem' }}>
+          <strong>📋 Current Cases:</strong> View active constitutional reviews in the <strong>Reviews</strong> tab<br/>
+          <strong>📚 Legal Precedents:</strong> Browse established case law in the <strong>Precedents</strong> tab
+        </div>
+      </div>
+
+      {/* Current Term Statistics */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Cases Heard This Term</span>
+          <span className="standard-metric-value">47</span>
+        </div>
+        <div className="standard-metric">
+          <span>Opinions Issued</span>
+          <span className="standard-metric-value">42</span>
+        </div>
+        <div className="standard-metric">
+          <span>Unanimous Decisions</span>
+          <span className="standard-metric-value">28</span>
+        </div>
+        <div className="standard-metric">
+          <span>Split Decisions</span>
+          <span className="standard-metric-value">14</span>
+        </div>
+        <div className="standard-metric">
+          <span>Constitutional Questions</span>
+          <span className="standard-metric-value">8</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="btn">Term Statistics</button>
+          <button className="btn btn-secondary">Case Calendar</button>
+        </div>
+      </div>
+
+      {/* Judicial Philosophy Balance */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Originalist Justices</span>
+          <span className="standard-metric-value">2</span>
+        </div>
+        <div className="standard-metric">
+          <span>Living Constitution</span>
+          <span className="standard-metric-value">2</span>
+        </div>
+        <div className="standard-metric">
+          <span>Textualist Justices</span>
+          <span className="standard-metric-value">2</span>
+        </div>
+        <div className="standard-metric">
+          <span>Pragmatist Justices</span>
+          <span className="standard-metric-value">1</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="btn">Philosophy Analysis</button>
+          <button className="btn btn-secondary">Voting Patterns</button>
+        </div>
+      </div>
+    </>
+  );
+
+  const renderReviewsTab = () => (
+    <>
+      {/* Constitutional Reviews Summary - First card in 2-column grid */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Active Reviews</span>
+          <span className="standard-metric-value">{supremeCourtData.reviews.length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Completed This Term</span>
+          <span className="standard-metric-value">12</span>
+        </div>
+        <div className="standard-metric">
+          <span>Average Review Time</span>
+          <span className="standard-metric-value">45 days</span>
+        </div>
+        <div className="standard-metric">
+          <span>Constitutional Challenges</span>
+          <span className="standard-metric-value">3</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="btn" onClick={handleCreateReview}>Create Constitutional Review</button>
+          <button className="btn btn-secondary">Review History</button>
+        </div>
+      </div>
+
+      {/* Review Types - Second card in 2-column grid */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Law Reviews</span>
+          <span className="standard-metric-value">{supremeCourtData.reviews.filter(r => r.type === 'law_review').length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Policy Analysis</span>
+          <span className="standard-metric-value">{supremeCourtData.reviews.filter(r => r.type === 'policy_analysis').length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Amendment Reviews</span>
+          <span className="standard-metric-value">{supremeCourtData.reviews.filter(r => r.type === 'amendment_review').length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Emergency Powers</span>
+          <span className="standard-metric-value">{supremeCourtData.reviews.filter(r => r.type === 'emergency_powers').length}</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="btn">Review Categories</button>
+          <button className="btn btn-secondary">Priority Queue</button>
+        </div>
+      </div>
+
+      {/* Current Reviews Table - Full width below the cards */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📋 Active Constitutional Reviews</h3>
+        <div className="standard-table-container">
+          <table className="data-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Urgency</th>
+              <th>Compliance</th>
+              <th>Confidence</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {supremeCourtData.reviews.map((review) => (
+              <tr key={review.id}>
+                <td>
+                  <strong>{review.title}</strong>
+                  <br />
+                  <small style={{ color: '#a0a9ba' }}>{review.description}</small>
+                </td>
+                <td className="status-cell">{review.type.replace('_', ' ')}</td>
+                <td className="status-cell">{review.urgency}</td>
+                <td className="status-cell" style={{ color: getComplianceColor(review.compliance) }}>
+                  {review.compliance.replace('_', ' ')}
+                </td>
+                <td className="number-cell">{review.confidence}/10</td>
+                <td className="status-cell">{review.status}</td>
+                <td className="action-cell">
+                  <button className="btn">Details</button>
+                  <button className="btn btn-secondary">Analysis</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </>
+  );
+
+  const renderJusticesTab = () => (
+    <>
+      {/* Supreme Court Justices Summary - First card in 2-column grid */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Total Justices</span>
+          <span className="standard-metric-value">{supremeCourtData.justices.length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Chief Justice</span>
+          <span className="standard-metric-value">Elena Rodriguez</span>
+        </div>
+        <div className="standard-metric">
+          <span>Average Tenure</span>
+          <span className="standard-metric-value">6.5 years</span>
+        </div>
+        <div className="standard-metric">
+          <span>Court Approval</span>
+          <span className="standard-metric-value">74.5%</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="btn" onClick={handleViewJustices}>View Court Composition</button>
+          <button className="btn btn-secondary">Justice Profiles</button>
+        </div>
+      </div>
+
+      {/* Court Composition Analysis - Second card in 2-column grid */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Conservative Leaning</span>
+          <span className="standard-metric-value">3</span>
+        </div>
+        <div className="standard-metric">
+          <span>Liberal Leaning</span>
+          <span className="standard-metric-value">2</span>
+        </div>
+        <div className="standard-metric">
+          <span>Moderate/Swing</span>
+          <span className="standard-metric-value">2</span>
+        </div>
+        <div className="standard-metric">
+          <span>Court Balance</span>
+          <span className="standard-metric-value">Slightly Conservative</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="btn">Ideological Analysis</button>
+          <button className="btn btn-secondary">Confirmation History</button>
+        </div>
+      </div>
+
+      {/* Justices Table - Full width below cards */}
+      <div className="standard-panel government-theme table-panel">
+        <div className="standard-table-container">
+          <table className="data-table">
+          <thead>
+            <tr>
+              <th>Justice</th>
+              <th>Position</th>
+              <th>Philosophy</th>
+              <th>Tenure</th>
+              <th>Approval</th>
+              <th>Specializations</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {supremeCourtData.justices.map((justice) => (
+              <tr key={justice.id}>
+                <td>
+                  <strong>{justice.name}</strong>
+                </td>
+                <td className="status-cell">
+                  {justice.isChief ? '👑 Chief Justice' : 'Associate Justice'}
+                </td>
+                <td className="status-cell" style={{ color: getPhilosophyColor(justice.philosophy) }}>
+                  {justice.philosophy.replace('_', ' ')}
+                </td>
+                <td className="number-cell">{justice.tenure} years</td>
+                <td className="number-cell">{justice.approval}%</td>
+                <td style={{ fontSize: '0.85rem' }}>
+                  {justice.specialization.join(', ')}
+                </td>
+                <td className="action-cell">
+                  <button className="btn">Profile</button>
+                  <button className="btn btn-secondary">Voting</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+
+    </>
+  );
+
+  const renderPrecedentsTab = () => (
+    <>
+      {/* Legal Precedents Summary - First card in 2-column grid */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Established Precedents</span>
+          <span className="standard-metric-value">{supremeCourtData.precedents.length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Recent Interpretations</span>
+          <span className="standard-metric-value">{supremeCourtData.interpretations.length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Constitutional Amendments</span>
+          <span className="standard-metric-value">2</span>
+        </div>
+        <div className="standard-metric">
+          <span>Landmark Cases</span>
+          <span className="standard-metric-value">8</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="btn">Precedent Database</button>
+          <button className="btn btn-secondary">Case Law Search</button>
+        </div>
+      </div>
+
+      {/* Precedent Impact Analysis - Second card in 2-column grid */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Binding Precedents</span>
+          <span className="standard-metric-value">{supremeCourtData.precedents.filter(p => p.status === 'binding').length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Persuasive Precedents</span>
+          <span className="standard-metric-value">{supremeCourtData.precedents.filter(p => p.status === 'persuasive').length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Overruled Cases</span>
+          <span className="standard-metric-value">{supremeCourtData.precedents.filter(p => p.status === 'overruled').length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Recent Citations</span>
+          <span className="standard-metric-value">156</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="btn">Impact Analysis</button>
+          <button className="btn btn-secondary">Citation History</button>
+        </div>
+      </div>
+
+      {/* Major Precedents Table - Full width below cards */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>Major Legal Precedents</h3>
+        <div className="standard-table-container">
+          <table className="data-table">
+          <thead>
+            <tr>
+              <th>Case Name</th>
+              <th>Year</th>
+              <th>Issue</th>
+              <th>Holding</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {supremeCourtData.precedents.map((precedent) => (
+              <tr key={precedent.id}>
+                <td>
+                  <strong>{precedent.caseName}</strong>
+                  <br />
+                  <small style={{ color: '#a0a9ba' }}>{precedent.impact}</small>
+                </td>
+                <td className="number-cell">{precedent.year}</td>
+                <td style={{ fontSize: '0.9rem' }}>{precedent.issue}</td>
+                <td style={{ fontSize: '0.9rem' }}>{precedent.holding}</td>
+                <td className="status-cell" style={{ 
+                  color: precedent.status === 'binding' ? '#27ae60' : 
+                         precedent.status === 'persuasive' ? '#f39c12' : '#e74c3c' 
+                }}>
+                  {precedent.status}
+                </td>
+                <td className="action-cell">
+                  <button className="btn">Opinion</button>
+                  <button className="btn btn-secondary">Citations</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      {/* Constitutional Interpretations Table */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>Constitutional Interpretations</h3>
+        <div className="standard-table-container">
+          <table className="data-table">
+          <thead>
+            <tr>
+              <th>Provision</th>
+              <th>Scope</th>
+              <th>Approach</th>
+              <th>Consensus</th>
+              <th>Application</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {supremeCourtData.interpretations.map((interpretation) => (
+              <tr key={interpretation.id}>
+                <td>
+                  <strong>{interpretation.provision}</strong>
+                </td>
+                <td style={{ fontSize: '0.9rem' }}>{interpretation.scope}</td>
+                <td style={{ fontSize: '0.9rem' }}>{interpretation.approach}</td>
+                <td className="status-cell">{interpretation.consensus}</td>
+                <td style={{ fontSize: '0.9rem' }}>{interpretation.application}</td>
+                <td className="action-cell">
+                  <button className="btn">Details</button>
+                  <button className="btn btn-secondary">Analysis</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      {/* Precedent Statistics */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Binding Precedents</span>
+          <span className="standard-metric-value">{supremeCourtData.precedents.filter(p => p.status === 'binding').length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Persuasive Authority</span>
+          <span className="standard-metric-value">{supremeCourtData.precedents.filter(p => p.status === 'persuasive').length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Overruled Cases</span>
+          <span className="standard-metric-value">{supremeCourtData.precedents.filter(p => p.status === 'overruled').length}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Recent Developments</span>
+          <span className="standard-metric-value">5</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="btn">Precedent Trends</button>
+          <button className="btn btn-secondary">Legal Evolution</button>
+        </div>
+      </div>
+    </>
+  );
+
+  const renderRelationsTab = () => (
+    <>
+      {/* Leader Authority & Constitutional Balance */}
+      <div className="standard-panel government-theme">
+        <div className="authority-grid">
+          <div className="authority-section">
+            <h4>🎯 Leader Authority</h4>
+            <ul>
+              <li>Executive power within constitutional bounds</li>
+              <li>Emergency authority with judicial oversight</li>
+              <li>Policy implementation with legal review</li>
+              <li>Final decision authority on all matters</li>
+            </ul>
+          </div>
+          <div className="authority-section">
+            <h4>⚖️ Constitutional Safeguards</h4>
+            <ul>
+              <li>Independent judicial review process</li>
+              <li>Constitutional compliance monitoring</li>
+              <li>Rights protection evaluation</li>
+              <li>Legal precedent establishment</li>
+            </ul>
+          </div>
+        </div>
+        <div className="interaction-metrics">
+          <div className="standard-metric">
+            <span>Consultations</span>
+            <span className="standard-metric-value">{supremeCourtData.interactions.consultations}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Acceptances</span>
+            <span className="standard-metric-value">{supremeCourtData.interactions.acceptances}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Modifications</span>
+            <span className="standard-metric-value">{supremeCourtData.interactions.modifications}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Overrides</span>
+            <span className="standard-metric-value">{supremeCourtData.interactions.overrides}</span>
+          </div>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="btn" onClick={handleScheduleConsultation}>Constitutional Consultation</button>
+          <button className="btn btn-secondary">Interaction History</button>
+          <button className="btn btn-success" onClick={fetchSupremeCourtData}>Update Analytics</button>
+        </div>
+      </div>
+
+      {/* Executive-Judicial Relations */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Relationship Status</span>
+          <span className="standard-metric-value">Cooperative</span>
+        </div>
+        <div className="standard-metric">
+          <span>Constitutional Disputes</span>
+          <span className="standard-metric-value">2</span>
+        </div>
+        <div className="standard-metric">
+          <span>Advisory Opinions</span>
+          <span className="standard-metric-value">7</span>
+        </div>
+        <div className="standard-metric">
+          <span>Emergency Consultations</span>
+          <span className="standard-metric-value">3</span>
+        </div>
+        <div className="standard-metric">
+          <span>Judicial Deference Rate</span>
+          <span className="standard-metric-value">78%</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="btn">Relationship Analysis</button>
+          <button className="btn btn-secondary">Dispute Resolution</button>
+        </div>
+      </div>
+
+      {/* Recent Interactions */}
+      <div className="panel">
+        <div className="metric">
+          <span>Last Consultation</span>
+          <span className="metric-value">3 days ago</span>
+        </div>
+        <div className="metric">
+          <span>Topic</span>
+          <span className="metric-value">Emergency Powers Review</span>
+        </div>
+        <div className="metric">
+          <span>Outcome</span>
+          <span className="metric-value">Recommendations Provided</span>
+        </div>
+        <div className="metric">
+          <span>Next Scheduled Meeting</span>
+          <span className="metric-value">Weekly Briefing - Tomorrow</span>
+        </div>
+        <div className="action-buttons">
+          <button className="btn">Meeting Schedule</button>
+          <button className="btn btn-secondary">Consultation Log</button>
+        </div>
+      </div>
+
+      {/* Constitutional Balance Metrics */}
+      <div className="panel">
+        <div className="metric">
+          <span>Separation of Powers Score</span>
+          <span className="metric-value">85/100</span>
+        </div>
+        <div className="metric">
+          <span>Checks & Balances Health</span>
+          <span className="metric-value">Strong</span>
+        </div>
+        <div className="metric">
+          <span>Constitutional Tension Level</span>
+          <span className="metric-value">Low</span>
+        </div>
+        <div className="metric">
+          <span>Institutional Respect</span>
+          <span className="metric-value">High</span>
+        </div>
+        <div className="action-buttons">
+          <button className="btn">Balance Assessment</button>
+          <button className="btn btn-secondary">Historical Trends</button>
+        </div>
+      </div>
+
+      {/* Communication Channels */}
+      <div className="panel">
+        <div className="metric">
+          <span>Direct Communications</span>
+          <span className="metric-value">15 this month</span>
+        </div>
+        <div className="metric">
+          <span>Formal Requests</span>
+          <span className="metric-value">8</span>
+        </div>
+        <div className="metric">
+          <span>Informal Consultations</span>
+          <span className="metric-value">7</span>
+        </div>
+        <div className="metric">
+          <span>Response Time (Avg)</span>
+          <span className="metric-value">2.3 days</span>
+        </div>
+        <div className="action-buttons">
+          <button className="btn">Communication Log</button>
+          <button className="btn btn-secondary">Protocol Guidelines</button>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <BaseScreen
       screenId={screenId}
@@ -336,192 +959,16 @@ const SupremeCourtScreen: React.FC<ScreenProps> = ({ screenId, title, icon, game
       gameContext={gameContext}
       apiEndpoints={apiEndpoints}
       onRefresh={fetchSupremeCourtData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
     >
-      <div className="supreme-court-screen-container">
+      <div className="standard-screen-container government-theme">
         {loading && <div className="loading-overlay">Loading Supreme Court data...</div>}
         {error && <div className="error-message">Error: {error}</div>}
         
-        <div className="supreme-court-dashboard">
-          {/* Constitutional Overview */}
-          <div className="panel constitutional-panel">
-            <h2>📊 Constitutional Overview</h2>
-            <div className="metric">
-              <span>Pending Reviews</span>
-              <span className="metric-value">{supremeCourtData.overview.pendingReviews}</span>
-            </div>
-            <div className="metric">
-              <span>Leader Acceptance Rate</span>
-              <span className="metric-value">{supremeCourtData.overview.leaderAcceptanceRate}%</span>
-            </div>
-            <div className="metric">
-              <span>Constitutional Compliance</span>
-              <span className={`metric-value ${getComplianceClass(supremeCourtData.overview.constitutionalCompliance)}`}>
-                {supremeCourtData.overview.constitutionalCompliance}/100
-              </span>
-            </div>
-            <div className="metric">
-              <span>Judicial Independence</span>
-              <span className={`metric-value ${getIndependenceClass(supremeCourtData.overview.judicialIndependence)}`}>
-                {supremeCourtData.overview.judicialIndependence}/100
-              </span>
-            </div>
-            <div className="metric">
-              <span>Public Confidence</span>
-              <span className={`metric-value ${getComplianceClass(supremeCourtData.overview.publicConfidence)}`}>
-                {supremeCourtData.overview.publicConfidence}%
-              </span>
-            </div>
-            <div className="progress-bar">
-              <div 
-                className="progress-fill" 
-                style={{ width: `${supremeCourtData.overview.constitutionalCompliance}%` }}
-              ></div>
-            </div>
-          </div>
-
-          {/* Constitutional Reviews */}
-          <div className="panel">
-            <h2>📋 Constitutional Reviews</h2>
-            <div className="metric">
-              <span>Awaiting Leader Decision</span>
-              <span className="metric-value">{supremeCourtData.reviews.length}</span>
-            </div>
-            {supremeCourtData.reviews.map((review) => (
-              <div key={review.id} className={`review-item review-${review.urgency}`}>
-                <strong>{review.title}</strong><br />
-                <small>{review.description}</small>
-                <div className="review-status">
-                  <span 
-                    className="status-indicator"
-                    style={{ backgroundColor: getComplianceColor(review.compliance) }}
-                  ></span>
-                  <small>{review.compliance.replace('_', ' ').toUpperCase()}</small>
-                </div>
-              </div>
-            ))}
-            <div className="action-buttons">
-              <button className="btn" onClick={handleReviewConstitutional}>Review All</button>
-              <button className="btn btn-success" onClick={handleCreateReview}>New Review</button>
-            </div>
-          </div>
-
-          {/* Supreme Court Justices */}
-          <div className="panel">
-            <h2>👩‍⚖️ Supreme Court Justices</h2>
-            <div className="metric">
-              <span>Active Justices</span>
-              <span className="metric-value">{supremeCourtData.justices.length}</span>
-            </div>
-            {supremeCourtData.justices.slice(0, 4).map((justice) => (
-              <div key={justice.id} className="justice-item">
-                <div>
-                  <strong>{justice.isChief ? 'Chief Justice' : 'Justice'} {justice.name}</strong><br />
-                  <small style={{ color: getPhilosophyColor(justice.philosophy) }}>
-                    {justice.philosophy.replace('_', ' ')} • {justice.tenure} years tenure
-                  </small>
-                </div>
-                <span className="metric-value">{justice.approval}%</span>
-              </div>
-            ))}
-            <div className="action-buttons">
-              <button className="btn" onClick={handleViewJustices}>All Justices</button>
-              <button className="btn btn-secondary">Philosophies</button>
-            </div>
-          </div>
-
-          {/* Legal Precedents */}
-          <div className="panel">
-            <h2>📚 Legal Precedents</h2>
-            <div className="metric">
-              <span>Active Precedents</span>
-              <span className="metric-value">{supremeCourtData.precedents.length}</span>
-            </div>
-            {supremeCourtData.precedents.map((precedent) => (
-              <div key={precedent.id} className="precedent-item">
-                <div>
-                  <strong>{precedent.caseName}</strong><br />
-                  <small>{precedent.issue} - {precedent.year}</small>
-                </div>
-                <span 
-                  className="status-indicator"
-                  style={{ backgroundColor: precedent.status === 'binding' ? '#27ae60' : '#f39c12' }}
-                ></span>
-              </div>
-            ))}
-            <div className="action-buttons">
-              <button className="btn">Search Precedents</button>
-              <button className="btn btn-secondary">Case Analysis</button>
-            </div>
-          </div>
-
-          {/* Constitutional Interpretations */}
-          <div className="panel">
-            <h2>📜 Constitutional Interpretations</h2>
-            <div className="metric">
-              <span>Active Interpretations</span>
-              <span className="metric-value">{supremeCourtData.interpretations.length}</span>
-            </div>
-            {supremeCourtData.interpretations.map((interpretation) => (
-              <div key={interpretation.id} className="interpretation-item">
-                <strong>{interpretation.provision}</strong><br />
-                <small>{interpretation.scope}</small>
-                <div className="interpretation-consensus">
-                  <small>{interpretation.consensus}</small>
-                </div>
-              </div>
-            ))}
-            <div className="action-buttons">
-              <button className="btn">View Interpretations</button>
-              <button className="btn btn-secondary">Constitutional Analysis</button>
-            </div>
-          </div>
-
-          {/* Leader Authority Panel */}
-          <div className="panel leader-authority-panel">
-            <h2>⚖️ Leader Authority & Constitutional Balance</h2>
-            <div className="authority-grid">
-              <div>
-                <h3>🎯 Executive Constitutional Authority</h3>
-                <div className="metric">
-                  <span>Reviews Accepted</span>
-                  <span className="metric-value">{supremeCourtData.interactions.acceptances}</span>
-                </div>
-                <div className="metric">
-                  <span>Modifications Requested</span>
-                  <span className="metric-value">{supremeCourtData.interactions.modifications}</span>
-                </div>
-                <ul style={{ listStyle: 'none', padding: 0, marginTop: '0.5rem' }}>
-                  <li>• Final constitutional authority</li>
-                  <li>• Review acceptance/modification</li>
-                  <li>• Constitutional interpretation</li>
-                  <li>• Implementation oversight</li>
-                </ul>
-              </div>
-              <div>
-                <h3>⚖️ Judicial Independence & Expertise</h3>
-                <div className="metric">
-                  <span>Constitutional Consultations</span>
-                  <span className="metric-value">{supremeCourtData.interactions.consultations}</span>
-                </div>
-                <div className="metric">
-                  <span>Override Instances</span>
-                  <span className="metric-value">{supremeCourtData.interactions.overrides}</span>
-                </div>
-                <ul style={{ listStyle: 'none', padding: 0, marginTop: '0.5rem' }}>
-                  <li>• Independent constitutional analysis</li>
-                  <li>• Expert legal interpretation</li>
-                  <li>• Precedent-based reasoning</li>
-                  <li>• Rights protection evaluation</li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="action-buttons" style={{ marginTop: '1.5rem' }}>
-              <button className="btn" onClick={handleScheduleConsultation}>Constitutional Consultation</button>
-              <button className="btn btn-secondary">Interaction History</button>
-              <button className="btn btn-success" onClick={fetchSupremeCourtData}>Update Analytics</button>
-            </div>
-          </div>
+        <div className="standard-dashboard">
+          {renderTabContent()}
         </div>
       </div>
     </BaseScreen>

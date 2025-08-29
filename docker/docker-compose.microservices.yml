@@ -1,7 +1,5 @@
 # Microservices Docker Compose Configuration
 # Scalable architecture supporting 50-10,000 players
-version: '3.8'
-
 networks:
   startales-network:
     driver: bridge

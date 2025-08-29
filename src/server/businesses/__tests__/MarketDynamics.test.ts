@@ -3,10 +3,10 @@
  * Sprint 7: Test suite for market competition and dynamics analysis
  */
 
-import { MarketDynamics } from '../MarketDynamics.js';
-import { BusinessEngine } from '../BusinessEngine.js';
-import { Business, BusinessIndustry, BusinessStatus, CompetitionLevel } from '../types.js';
-import { Citizen } from '../../population/types.js';
+import { MarketDynamics } from '../MarketDynamics';
+import { BusinessEngine } from '../BusinessEngine';
+import { Business, BusinessIndustry, BusinessStatus, CompetitionLevel } from '../types';
+import { Citizen } from '../../population/types';
 
 describe('MarketDynamics', () => {
   let marketDynamics: MarketDynamics;

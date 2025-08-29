@@ -3,7 +3,7 @@
  * Comprehensive tests for security and defense systems functionality
  */
 
-import { SecurityEngine } from '../SecurityEngine.js';
+import { SecurityEngine } from '../SecurityEngine';
 import { 
   PoliceType, 
   Jurisdiction, 
@@ -14,7 +14,7 @@ import {
   InmateType,
   IntelligenceType,
   SecuritySpecialization
-} from '../types.js';
+} from '../types';
 
 describe('SecurityEngine', () => {
   let engine: SecurityEngine;

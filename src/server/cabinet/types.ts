@@ -12,7 +12,7 @@ import {
   AuthorityLevel,
   DecisionCategory,
   DecisionImpact 
-} from '../delegation/types.js';
+} from '../delegation/types';
 
 // Cabinet Member Types
 export interface CabinetMember {

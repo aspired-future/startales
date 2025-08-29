@@ -1,4 +1,4 @@
-import { conversationCapture, CapturedMessage, ConversationContext } from './conversationMiddleware.js';
+import { conversationCapture, CapturedMessage, ConversationContext } from './conversationMiddleware';
 
 /**
  * Simple helper functions for capturing messages without middleware

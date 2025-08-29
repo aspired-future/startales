@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { BaseAdapter } from './base.js';
+import { BaseAdapter } from './base';
 
 // Common Message Types
 export interface ChatMessage {

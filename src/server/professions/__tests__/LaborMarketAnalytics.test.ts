@@ -3,10 +3,10 @@
  * Sprint 6: Test suite for labor market analysis and forecasting
  */
 
-import { LaborMarketAnalytics } from '../LaborMarketAnalytics.js';
-import { ProfessionEngine } from '../ProfessionEngine.js';
-import { Profession, Employment, LaborMarket } from '../types.js';
-import { Citizen } from '../../population/types.js';
+import { LaborMarketAnalytics } from '../LaborMarketAnalytics';
+import { ProfessionEngine } from '../ProfessionEngine';
+import { Profession, Employment, LaborMarket } from '../types';
+import { Citizen } from '../../population/types';
 
 describe('LaborMarketAnalytics', () => {
   let analytics: LaborMarketAnalytics;

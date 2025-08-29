@@ -12,8 +12,8 @@ import {
   AdapterDependencies,
   AdapterError,
   AdapterErrorCode
-} from '../../shared/adapters/index.js';
-import { createTimer } from '../../shared/adapters/metrics.js';
+} from '../../shared/adapters/index';
+import { createTimer } from '../../shared/adapters/metrics';
 
 interface WhisperConfig {
   endpoint?: string; // For AWS-hosted Whisper

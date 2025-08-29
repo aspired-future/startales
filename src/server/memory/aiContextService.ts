@@ -1,7 +1,7 @@
-import { semanticSearchService, SemanticSearchQuery } from './semanticSearch.js';
-import { conversationStorage } from './conversationStorage.js';
-import { getProvider } from '../llm/factory.js';
-import { LLMProvider, ModelMessage, CompletionOptions } from '../llm/types.js';
+import { semanticSearchService, SemanticSearchQuery } from './semanticSearch';
+import { conversationStorage } from './conversationStorage';
+import { getProvider } from '../llm/factory';
+import { LLMProvider, ModelMessage, CompletionOptions } from '../llm/types';
 
 export interface MemoryContext {
   campaignId: number;

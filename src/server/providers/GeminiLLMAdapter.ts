@@ -11,7 +11,7 @@ import {
   LLMDelta,
   AdapterCapability,
   AdapterDependencies
-} from '../../shared/adapters/index.js';
+} from '../../shared/adapters/index';
 
 export class GeminiLLMAdapter implements LLMAdapter {
   private config: Record<string, any>;

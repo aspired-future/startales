@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { Pool } from 'pg';
-import { ElectoralEngine } from './ElectoralEngine.js';
-import { ElectionContentGenerator } from '../witter/ElectionContentGenerator.js';
+import { ElectoralEngine } from './ElectoralEngine';
+import { ElectionContentGenerator } from '../witter/ElectionContentGenerator';
 
 export function createElectoralRoutes(pool: Pool): Router {
   const router = Router();

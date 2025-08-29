@@ -5,7 +5,7 @@
  * role-based permissions, delegation levels, and automated decision-making.
  */
 
-import { db } from '../storage/db.js';
+import { db } from '../storage/db';
 import { 
   GovernmentRole, 
   Permission, 
@@ -24,7 +24,7 @@ import {
   AuthorityCheckResult,
   DelegationResponse,
   DelegationSummary
-} from './types.js';
+} from './types';
 
 export class DelegationService {
   

@@ -4,7 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import { BaseAdapter, AdapterDependencies } from '../../shared/adapters/base.js';
+import { BaseAdapter, AdapterDependencies } from '../../shared/adapters/base';
 import { 
   LLMAdapter, 
   STTAdapter, 
@@ -12,14 +12,14 @@ import {
   ImageGenAdapter, 
   VideoGenAdapter, 
   EmbeddingsAdapter 
-} from '../../shared/adapters/index.js';
+} from '../../shared/adapters/index';
 
 // Import all the real adapters
-import { OllamaLLMAdapter } from '../providers/OllamaLLMAdapter.js';
-import { OpenAILLMAdapter } from '../providers/OpenAILLMAdapter.js';
-import { AnthropicLLMAdapter } from '../providers/AnthropicLLMAdapter.js';
-import { GeminiLLMAdapter } from '../providers/GeminiLLMAdapter.js';
-import { GrokLLMAdapter } from '../providers/GrokLLMAdapter.js';
+import { OllamaLLMAdapter } from '../providers/OllamaLLMAdapter';
+import { OpenAILLMAdapter } from '../providers/OpenAILLMAdapter';
+import { AnthropicLLMAdapter } from '../providers/AnthropicLLMAdapter';
+import { GeminiLLMAdapter } from '../providers/GeminiLLMAdapter';
+import { GrokLLMAdapter } from '../providers/GrokLLMAdapter';
 
 // Adapter Types
 export type AdapterType = 'llm' | 'stt' | 'tts' | 'image' | 'video' | 'embeddings';

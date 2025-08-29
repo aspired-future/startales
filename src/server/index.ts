@@ -20,7 +20,7 @@ import { createGateway } from './ws/gateway.ts';
 import { wsHub } from './ws/hub.ts';
 import { WhisperSTTProvider } from './llm/providers/whisper.ts';
 import { XTTSProvider } from './llm/providers/xtts.ts';
-// import { demoRouter } from './routes/demo.js'; // Removed - demo server deleted
+// import { demoRouter } from './routes/demo'; // Removed - demo server deleted
 import { settingsRouter } from './routes/settings.ts';
 import { encounterRouter } from './routes/encounter.ts';
 import { vezyRouter } from './routes/vezy.ts';
@@ -48,6 +48,8 @@ import communicationsRouter from './communications/communicationsRoutes.ts';
 import centralBankRouter from './central-bank/centralBankRoutes.ts';
 import { createCentralBankEnhancementsRoutes } from './central-bank/centralBankEnhancementsRoutes.ts';
 import { createSovereignWealthFundRoutes } from './sovereign-wealth-fund/sovereignWealthFundRoutes.ts';
+import aiRoutes from './ai/aiRoutes.ts';
+import { conversationMemoryService } from './memory/conversationMemoryService';
 import legislatureRouter from './legislature/legislatureRoutes.ts';
 import supremeCourtRouter from './supreme-court/supremeCourtRoutes.ts';
 import politicalPartyRouter from './political-parties/politicalPartyRoutes.ts';
@@ -162,6 +164,7 @@ app.use('/api/trade', tradeRoutesRouter);
 app.use('/api/witter', witterRouter);
 app.use('/api/memory', memoryRouter);
 app.use('/api/whoseapp', whoseappRouter);
+app.use('/api/ai', aiRoutes);
 app.use('/api/galaxy', galaxyRouter);
 app.use('/api/campaigns', campaignRoutesRouter);
 app.use('/api/schedules', scheduleRoutesRouter);
@@ -186,6 +189,14 @@ registerTTSProvider(new XTTSProvider());
 registerProvider(new OllamaProvider());
 
 await initDb();
+
+// Initialize conversation memory service
+try {
+  await conversationMemoryService.initialize();
+  console.log('✅ Conversation memory service initialized');
+} catch (error) {
+  console.error('❌ Failed to initialize conversation memory service:', error);
+}
 
 // Initialize Sim Engine Systems
 let simEngine: SimEngineOrchestrator;

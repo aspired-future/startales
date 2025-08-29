@@ -33,7 +33,7 @@ import {
   validateTTSInput,
   validateImageGenInput,
   validateEmbeddingsOptions
-} from '../index.js';
+} from '../index';
 
 // Mock adapter implementations for testing
 class MockLLMAdapter implements LLMAdapter {

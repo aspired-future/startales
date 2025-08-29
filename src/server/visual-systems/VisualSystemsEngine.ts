@@ -39,7 +39,7 @@ import {
   QualityMetrics,
   PerformanceMetrics,
   AccessibilityMetrics
-} from './types.js';
+} from './types';
 
 export class VisualSystemsEngine {
   private assets: Map<string, VisualAsset> = new Map();

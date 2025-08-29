@@ -1,7 +1,7 @@
-import { bootstrapLLMProviders } from '../llm/bootstrap.js';
-import { conversationStorage } from './conversationStorage.js';
-import { embeddingService } from './embeddingService.js';
-import { qdrantClient } from './qdrantClient.js';
+import { bootstrapLLMProviders } from '../llm/bootstrap';
+import { conversationStorage } from './conversationStorage';
+import { embeddingService } from './embeddingService';
+import { qdrantClient } from './qdrantClient';
 
 /**
  * Test script for conversation storage system

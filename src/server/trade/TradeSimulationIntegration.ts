@@ -7,7 +7,7 @@
 
 import { Pool } from 'pg';
 import { EventEmitter } from 'events';
-import { TradeEngine, TradeResource, TradePrice, TradeRoute, TradeContract, TradeAnalytics } from './tradeEngine.js';
+import { TradeEngine, TradeResource, TradePrice, TradeRoute, TradeContract, TradeAnalytics } from './tradeEngine';
 
 export interface TradeKnobs {
   // Trade Route Efficiency & Management

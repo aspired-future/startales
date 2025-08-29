@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './CabinetScreen.css';
+import '../shared/StandardDesign.css';
 
 interface CabinetMember {
   id: string;
@@ -557,552 +558,680 @@ const CabinetScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameConte
   };
 
   const renderOverview = () => (
-    <div className="cabinet-overview">
-      <div className="metrics-grid">
-        <div className="metric-card">
-          <div className="metric-icon">👥</div>
-          <div className="metric-content">
-            <div className="metric-value">{cabinetData?.members.length || 0}</div>
-            <div className="metric-label">Cabinet Members</div>
-          </div>
+    <>
+      {/* Cabinet Metrics Overview - First card in 2-column grid */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Cabinet Members</span>
+          <span className="standard-metric-value">{cabinetData?.members.length || 0}</span>
         </div>
-        
-        <div className="metric-card">
-          <div className="metric-icon">📊</div>
-          <div className="metric-content">
-            <div className="metric-value">{cabinetData?.averageApproval || 0}%</div>
-            <div className="metric-label">Avg Approval</div>
-          </div>
+        <div className="standard-metric">
+          <span>Average Approval</span>
+          <span className="standard-metric-value">{cabinetData?.averageApproval || 0}%</span>
         </div>
-        
-        <div className="metric-card">
-          <div className="metric-icon">⚡</div>
-          <div className="metric-content">
-            <div className="metric-value">{cabinetData?.cabinetEfficiency || 0}%</div>
-            <div className="metric-label">Efficiency</div>
-          </div>
+        <div className="standard-metric">
+          <span>Cabinet Efficiency</span>
+          <span className="standard-metric-value">{cabinetData?.cabinetEfficiency || 0}%</span>
         </div>
-        
-        <div className="metric-card">
-          <div className="metric-icon">📋</div>
-          <div className="metric-content">
-            <div className="metric-value">{cabinetData?.totalTasks || 0}</div>
-            <div className="metric-label">Active Tasks</div>
-          </div>
+        <div className="standard-metric">
+          <span>Active Tasks</span>
+          <span className="standard-metric-value">{cabinetData?.totalTasks || 0}</span>
         </div>
-
-        <div className="metric-card">
-          <div className="metric-icon">🤝</div>
-          <div className="metric-content">
-            <div className="metric-value">{cabinetData?.delegations?.length || 0}</div>
-            <div className="metric-label">Active Delegations</div>
-          </div>
+        <div className="standard-metric">
+          <span>Active Delegations</span>
+          <span className="standard-metric-value">{cabinetData?.delegations?.length || 0}</span>
         </div>
-
-        <div className="metric-card">
-          <div className="metric-icon">⚡</div>
-          <div className="metric-content">
-            <div className="metric-value">{cabinetData?.autoDelegationRules?.filter(r => r.autoAssign).length || 0}</div>
-            <div className="metric-label">Auto Rules</div>
-          </div>
+        <div className="standard-metric">
+          <span>Auto Rules</span>
+          <span className="standard-metric-value">{cabinetData?.autoDelegationRules?.filter(r => r.autoAssign).length || 0}</span>
         </div>
-
-        <div className="metric-card">
-          <div className="metric-icon">🏢</div>
-          <div className="metric-content">
-            <div className="metric-value">{cabinetData?.departments?.length || 0}</div>
-            <div className="metric-label">Departments</div>
-          </div>
-        </div>
-
-        <div className="metric-card">
-          <div className="metric-icon">🔄</div>
-          <div className="metric-content">
-            <div className="metric-value">{cabinetData?.departments?.filter(d => d.isDelegated).length || 0}</div>
-            <div className="metric-label">Delegated Depts</div>
-          </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme">Cabinet Report</button>
+          <button className="standard-btn government-theme">Performance Review</button>
         </div>
       </div>
 
-      <div className="cabinet-summary">
-        <h3>🏛️ Cabinet Status Summary</h3>
-        <div className="status-grid">
-          {cabinetData?.members.map(member => (
-            <div key={member.id} className="member-summary">
-              <div className="member-avatar">
-                {member.avatar ? (
-                  <img src={member.avatar} alt={member.name} />
-                ) : (
-                  <div className="avatar-placeholder">
-                    {member.name.split(' ').map(n => n[0]).join('')}
+      {/* Cabinet Performance Summary - Second card in 2-column grid */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>High Performers</span>
+          <span className="standard-metric-value">{cabinetData?.members.filter(m => m.performance.efficiency > 80).length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Needs Attention</span>
+          <span className="standard-metric-value">{cabinetData?.members.filter(m => m.performance.efficiency < 60).length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Task Completion Rate</span>
+          <span className="standard-metric-value">{cabinetData?.completedTasks ? Math.round((cabinetData.completedTasks / (cabinetData.totalTasks + cabinetData.completedTasks)) * 100) : 0}%</span>
+        </div>
+        <div className="standard-metric">
+          <span>Delegation Success</span>
+          <span className="standard-metric-value">{cabinetData?.delegations?.filter(d => d.isActive).length || 0}/{cabinetData?.delegations?.length || 0}</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme">Performance Metrics</button>
+          <button className="standard-btn government-theme">Team Analysis</button>
+        </div>
+      </div>
+
+      {/* Cabinet Members Summary - Full width below cards */}
+              <div className="standard-panel government-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>🏛️ Cabinet Members Status</h3>
+          <div className="standard-table-container">
+          <table className="standard-data-table">
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Position</th>
+              <th>Status</th>
+              <th>Approval</th>
+              <th>Tasks</th>
+              <th>Efficiency</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cabinetData?.members.map(member => (
+              <tr key={member.id}>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ 
+                      width: '32px', 
+                      height: '32px', 
+                      borderRadius: '50%', 
+                      backgroundColor: '#4facfe',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '0.8rem',
+                      fontWeight: 'bold'
+                    }}>
+                      {member.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <strong>{member.name}</strong>
                   </div>
-                )}
-                <div 
-                  className="status-indicator"
-                  style={{ backgroundColor: getStatusColor(member.status) }}
-                />
-              </div>
-              <div className="member-info">
-                <div className="member-name">{member.name}</div>
-                <div className="member-position">{member.position}</div>
-                <div className="member-stats">
-                  <span>📊 {member.approval}%</span>
-                  <span>📋 {member.currentTasks.length}</span>
-                </div>
-              </div>
-            </div>
-          ))}
+                </td>
+                <td>{member.position}</td>
+                <td>
+                  <span 
+                    style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: getStatusColor(member.status),
+                      color: 'white'
+                    }}
+                  >
+                    {member.status.toUpperCase()}
+                  </span>
+                </td>
+                <td style={{ textAlign: 'center' }}>{member.approval}%</td>
+                <td style={{ textAlign: 'center' }}>{member.currentTasks.length}</td>
+                <td style={{ textAlign: 'center' }}>{member.performance.efficiency}%</td>
+                <td style={{ textAlign: 'center' }}>
+                  <button className="standard-btn government-theme" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+                    Profile
+                  </button>
+                </td>
+              </tr>
+                      ))}
+        </tbody>
+      </table>
         </div>
       </div>
-    </div>
+    </>
   );
 
   const renderMembers = () => (
-    <div className="cabinet-members">
-      <div className="members-list">
-        {cabinetData?.members.map(member => (
-          <div 
-            key={member.id} 
-            className={`member-card ${selectedMember?.id === member.id ? 'selected' : ''}`}
-            onClick={() => setSelectedMember(member)}
-          >
-            <div className="member-header">
-              <div className="member-avatar">
-                {member.avatar ? (
-                  <img src={member.avatar} alt={member.name} />
-                ) : (
-                  <div className="avatar-placeholder">
-                    {member.name.split(' ').map(n => n[0]).join('')}
+    <>
+      {/* Cabinet Members Table */}
+              <div className="standard-panel government-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>👥 Cabinet Members</h3>
+          <div className="standard-table-container">
+          <table className="standard-data-table">
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Position</th>
+              <th>Department</th>
+              <th>Status</th>
+              <th>Approval</th>
+              <th>Experience</th>
+              <th>Efficiency</th>
+              <th>Specialties</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cabinetData?.members.map(member => (
+              <tr key={member.id}>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ 
+                      width: '32px', 
+                      height: '32px', 
+                      borderRadius: '50%', 
+                      backgroundColor: '#4facfe',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '0.8rem',
+                      fontWeight: 'bold'
+                    }}>
+                      {member.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <strong>{member.name}</strong>
                   </div>
-                )}
-                <div 
-                  className="status-indicator"
-                  style={{ backgroundColor: getStatusColor(member.status) }}
-                />
+                </td>
+                <td>{member.position}</td>
+                <td>{member.department}</td>
+                <td>
+                  <span 
+                    style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: getStatusColor(member.status),
+                      color: 'white'
+                    }}
+                  >
+                    {member.status.toUpperCase()}
+                  </span>
+                </td>
+                <td style={{ textAlign: 'center' }}>{member.approval}%</td>
+                <td style={{ textAlign: 'center' }}>{member.experience}y</td>
+                <td style={{ textAlign: 'center' }}>{member.performance.efficiency}%</td>
+                <td>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                    {member.specialties.slice(0, 2).map((specialty, index) => (
+                      <span 
+                        key={index}
+                        style={{ 
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '3px',
+                          fontSize: '0.7rem',
+                          backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                          color: '#4facfe'
+                        }}
+                      >
+                        {specialty}
+                      </span>
+                    ))}
+                    {member.specialties.length > 2 && (
+                      <span style={{ fontSize: '0.7rem', color: '#a0a9ba' }}>
+                        +{member.specialties.length - 2} more
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td style={{ textAlign: 'center' }}>
+                  <button 
+                    className="standard-btn government-theme" 
+                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+                    onClick={() => setSelectedMember(member)}
+                  >
+                    Details
+                  </button>
+                </td>
+              </tr>
+                      ))}
+        </tbody>
+      </table>
+        </div>
+      </div>
+
+      {/* Selected Member Details */}
+      {selectedMember && (
+        <div className="standard-panel government-theme">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ color: '#4facfe' }}>👤 {selectedMember.name} - {selectedMember.position}</h3>
+            <button 
+              className="standard-btn government-theme"
+              onClick={() => setSelectedMember(null)}
+              style={{ padding: '0.4rem 0.8rem' }}
+            >
+              ✕ Close
+            </button>
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+            {/* Performance Metrics */}
+            <div>
+              <h4 style={{ color: '#4facfe', marginBottom: '0.5rem' }}>📊 Performance Metrics</h4>
+              <div className="standard-metric">
+                <span>Efficiency</span>
+                <span className="standard-metric-value">{selectedMember.performance.efficiency}%</span>
               </div>
-              <div className="member-details">
-                <h4>{member.name}</h4>
-                <p>{member.position}</p>
-                <div className="member-metrics">
-                  <span>📊 {member.approval}%</span>
-                  <span>⚡ {member.performance.efficiency}%</span>
-                  <span>🎯 {member.experience}y exp</span>
-                </div>
+              <div className="standard-metric">
+                <span>Loyalty</span>
+                <span className="standard-metric-value">{selectedMember.performance.loyalty}%</span>
+              </div>
+              <div className="standard-metric">
+                <span>Popularity</span>
+                <span className="standard-metric-value">{selectedMember.performance.popularity}%</span>
               </div>
             </div>
-            
-            <div className="member-specialties">
-              {member.specialties.map(specialty => (
-                <span key={specialty} className="specialty-tag">
-                  {specialty}
-                </span>
-              ))}
-            </div>
-            
-            <div className="member-tasks">
-              <div className="tasks-header">
-                <span>📋 Tasks ({member.currentTasks.length})</span>
-              </div>
-              {member.currentTasks.slice(0, 2).map(task => (
-                <div key={task.id} className="task-preview">
-                  <div className="task-info">
-                    <span className="task-title">{task.title}</span>
+
+            {/* Current Tasks */}
+            <div>
+              <h4 style={{ color: '#4facfe', marginBottom: '0.5rem' }}>📋 Current Tasks ({selectedMember.currentTasks.length})</h4>
+              {selectedMember.currentTasks.map(task => (
+                <div key={task.id} style={{ 
+                  padding: '0.5rem', 
+                  marginBottom: '0.5rem', 
+                  backgroundColor: 'rgba(79, 172, 254, 0.05)',
+                  borderRadius: '4px',
+                  border: '1px solid rgba(79, 172, 254, 0.1)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+                    <strong style={{ fontSize: '0.9rem' }}>{task.title}</strong>
                     <span 
-                      className="task-priority"
-                      style={{ color: getPriorityColor(task.priority) }}
+                      style={{ 
+                        padding: '0.2rem 0.4rem',
+                        borderRadius: '3px',
+                        fontSize: '0.7rem',
+                        backgroundColor: getPriorityColor(task.priority),
+                        color: 'white'
+                      }}
                     >
                       {task.priority.toUpperCase()}
                     </span>
                   </div>
-                  <div className="task-progress">
-                    <div 
-                      className="progress-bar"
-                      style={{ width: `${task.progress}%` }}
-                    />
+                  <div style={{ fontSize: '0.8rem', color: '#a0a9ba' }}>
+                    Progress: {task.progress}% | Due: {new Date(task.deadline).toLocaleDateString()}
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        ))}
-      </div>
-      
-      {selectedMember && (
-        <div className="member-detail-panel">
-          <div className="detail-header">
-            <h3>{selectedMember.name}</h3>
-            <button onClick={() => setSelectedMember(null)}>✕</button>
-          </div>
-          
-          <div className="performance-charts">
-            <div className="performance-metric">
-              <label>Efficiency</label>
-              <div className="metric-bar">
-                <div 
-                  className="metric-fill"
-                  style={{ width: `${selectedMember.performance.efficiency}%` }}
-                />
-              </div>
-              <span>{selectedMember.performance.efficiency}%</span>
-            </div>
-            
-            <div className="performance-metric">
-              <label>Loyalty</label>
-              <div className="metric-bar">
-                <div 
-                  className="metric-fill"
-                  style={{ width: `${selectedMember.performance.loyalty}%` }}
-                />
-              </div>
-              <span>{selectedMember.performance.loyalty}%</span>
-            </div>
-            
-            <div className="performance-metric">
-              <label>Popularity</label>
-              <div className="metric-bar">
-                <div 
-                  className="metric-fill"
-                  style={{ width: `${selectedMember.performance.popularity}%` }}
-                />
-              </div>
-              <span>{selectedMember.performance.popularity}%</span>
-            </div>
-          </div>
-          
-          <div className="member-actions">
-            <button className="action-btn primary">📋 Assign Task</button>
-            <button className="action-btn secondary">💬 Send Message</button>
-            <button className="action-btn secondary">📊 View Reports</button>
+
+          <div className="standard-action-buttons" style={{ marginTop: '1rem' }}>
+            <button className="standard-btn government-theme">Assign Task</button>
+            <button className="standard-btn government-theme">Performance Review</button>
+            <button className="standard-btn government-theme">Contact</button>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 
   const renderDelegation = () => (
-    <div className="delegation-management">
-      <div className="delegation-header">
-        <h3>🤝 Delegation Management</h3>
-        <div className="delegation-controls">
+    <>
+      {/* Delegation Overview - First card in 2-column grid */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Active Delegations</span>
+          <span className="standard-metric-value">{cabinetData?.delegations?.filter(d => d.isActive).length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Total Delegations</span>
+          <span className="standard-metric-value">{cabinetData?.delegations?.length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Auto Rules</span>
+          <span className="standard-metric-value">{cabinetData?.autoDelegationRules?.filter(r => r.autoAssign).length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Success Rate</span>
+          <span className="standard-metric-value">{cabinetData?.delegations?.length ? Math.round((cabinetData.delegations.filter(d => d.isActive).length / cabinetData.delegations.length) * 100) : 0}%</span>
+        </div>
+        <div className="standard-action-buttons">
           <button 
-            className={`auto-toggle ${autoMode ? 'active' : ''}`}
+            className={`standard-btn government-theme ${autoMode ? 'active' : ''}`}
             onClick={toggleAutoMode}
           >
             {autoMode ? '⏸️ Auto ON' : '▶️ Auto OFF'}
           </button>
-          <button className="action-btn primary">➕ New Delegation</button>
+          <button className="standard-btn government-theme">➕ New Delegation</button>
         </div>
       </div>
 
-      <div className="delegation-tabs">
-        <div className="tab-section">
-          <h4>📋 Active Delegations</h4>
-          <div className="delegations-list">
+      {/* Delegation Rules Summary - Second card in 2-column grid */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>High Priority Rules</span>
+          <span className="standard-metric-value">{cabinetData?.autoDelegationRules?.filter(r => r.priority === 'high').length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Medium Priority Rules</span>
+          <span className="standard-metric-value">{cabinetData?.autoDelegationRules?.filter(r => r.priority === 'medium').length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Low Priority Rules</span>
+          <span className="standard-metric-value">{cabinetData?.autoDelegationRules?.filter(r => r.priority === 'low').length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Auto-Assign Enabled</span>
+          <span className="standard-metric-value">{cabinetData?.autoDelegationRules?.filter(r => r.autoAssign).length || 0}</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme">Manage Rules</button>
+          <button className="standard-btn government-theme">Rule Analytics</button>
+        </div>
+      </div>
+
+      {/* Active Delegations Table - Full width below cards */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📋 Active Delegations</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+          <thead>
+            <tr>
+              <th>Scope</th>
+              <th>Delegatee</th>
+              <th>Permissions</th>
+              <th>Status</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
             {cabinetData?.delegations?.map(delegation => (
-              <div key={delegation.id} className="delegation-card">
-                <div className="delegation-header">
-                  <div className="delegation-info">
-                    <h5>{delegation.scope}</h5>
-                    <p>👤 {cabinetData.members.find(m => m.id === delegation.delegateeId)?.name || delegation.delegateeId}</p>
-                  </div>
-                  <div className="delegation-status">
-                    <span className={`status ${delegation.isActive ? 'active' : 'inactive'}`}>
-                      {delegation.isActive ? '✅ Active' : '❌ Inactive'}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="delegation-details">
-                  <div className="delegation-permissions">
-                    <strong>Permissions:</strong>
-                    <div className="permissions-list">
-                      {delegation.permissions.map(permission => (
-                        <span key={permission} className="permission-tag">
-                          {permission.replace('-', ' ')}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="delegation-dates">
-                    <span>📅 Start: {new Date(delegation.startDate).toLocaleDateString()}</span>
-                    {delegation.endDate && (
-                      <span>📅 End: {new Date(delegation.endDate).toLocaleDateString()}</span>
+              <tr key={delegation.id}>
+                <td>
+                  <strong>{delegation.scope}</strong>
+                </td>
+                <td>{cabinetData.members.find(m => m.id === delegation.delegateeId)?.name || delegation.delegateeId}</td>
+                <td>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                    {delegation.permissions.slice(0, 3).map(permission => (
+                      <span 
+                        key={permission}
+                        style={{ 
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '3px',
+                          fontSize: '0.7rem',
+                          backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                          color: '#4facfe'
+                        }}
+                      >
+                        {permission.replace('-', ' ')}
+                      </span>
+                    ))}
+                    {delegation.permissions.length > 3 && (
+                      <span style={{ fontSize: '0.7rem', color: '#a0a9ba' }}>
+                        +{delegation.permissions.length - 3} more
+                      </span>
                     )}
                   </div>
-                </div>
-                
-                <div className="delegation-actions">
-                  <button className="action-btn small">📝 Modify</button>
+                </td>
+                <td>
+                  <span 
+                    style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: delegation.isActive ? '#27ae60' : '#e74c3c',
+                      color: 'white'
+                    }}
+                  >
+                    {delegation.isActive ? '✅ Active' : '❌ Inactive'}
+                  </span>
+                </td>
+                <td>{new Date(delegation.startDate).toLocaleDateString()}</td>
+                <td>{delegation.endDate ? new Date(delegation.endDate).toLocaleDateString() : 'Ongoing'}</td>
+                <td style={{ textAlign: 'center' }}>
+                  <button className="standard-btn government-theme" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+                    📝 Modify
+                  </button>
                   <button 
-                    className="action-btn small danger"
+                    className="standard-btn government-theme" 
+                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', backgroundColor: '#e74c3c' }}
                     onClick={() => revokeDelegation(delegation.id)}
                   >
                     🚫 Revoke
                   </button>
-                </div>
-              </div>
+                </td>
+              </tr>
             ))}
-          </div>
-        </div>
-
-        <div className="tab-section">
-          <h4>⚡ Auto-Delegation Rules</h4>
-          <div className="auto-rules-list">
-            {cabinetData?.autoDelegationRules?.map(rule => (
-              <div key={rule.id} className="auto-rule-card">
-                <div className="rule-header">
-                  <h5>{rule.taskType.replace('-', ' ').toUpperCase()}</h5>
-                  <div className="rule-toggle">
-                    <label className="switch">
-                      <input 
-                        type="checkbox" 
-                        checked={rule.autoAssign}
-                        onChange={() => {
-                          // Toggle rule logic would go here
-                        }}
-                      />
-                      <span className="slider"></span>
-                    </label>
-                  </div>
-                </div>
-                
-                <div className="rule-details">
-                  <div className="rule-info">
-                    <span className={`priority ${rule.priority}`}>
-                      {rule.priority.toUpperCase()} Priority
-                    </span>
-                    <span>👤 {cabinetData.members.find(m => m.id === rule.preferredMember)?.name || 'Any Member'}</span>
-                  </div>
-                  
-                  <div className="rule-conditions">
-                    <strong>Conditions:</strong>
-                    <ul>
-                      {rule.conditions.map((condition, index) => (
-                        <li key={index}>{condition}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          </tbody>
+        </table>
         </div>
       </div>
-    </div>
+    </>
   );
+
 
   const renderDepartments = () => (
-    <div className="departments-management">
-      <div className="departments-header">
-        <h3>🏢 Department Management</h3>
-        <div className="departments-controls">
-          <button className="action-btn primary">➕ New Department</button>
+    <>
+      {/* Department Overview - First card in 2-column grid */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Total Departments</span>
+          <span className="standard-metric-value">{cabinetData?.departments?.length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Active Departments</span>
+          <span className="standard-metric-value">{cabinetData?.departments?.filter(d => d.performance.efficiency > 70).length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Auto Mode Enabled</span>
+          <span className="standard-metric-value">{cabinetData?.departments?.filter(d => d.autoMode).length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Average Efficiency</span>
+          <span className="standard-metric-value">
+            {cabinetData?.departments?.length ? 
+              Math.round(cabinetData.departments.reduce((sum, d) => sum + d.performance.efficiency, 0) / cabinetData.departments.length) : 0}%
+          </span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme">➕ New Department</button>
+          <button className="standard-btn government-theme">Department Report</button>
         </div>
       </div>
 
-      <div className="departments-grid">
-        {cabinetData?.departments?.map(department => (
-          <div key={department.id} className="department-card">
-            <div className="department-header">
-              <div className="department-info">
-                <h4>{department.name}</h4>
-                <p>{department.description}</p>
-              </div>
-              <div className="department-status">
-                <span className={`delegation-level ${department.delegationLevel}`}>
-                  {department.delegationLevel.toUpperCase()}
-                </span>
-                <div className="auto-toggle-wrapper">
-                  <label className="switch">
-                    <input 
-                      type="checkbox" 
-                      checked={department.autoMode}
-                      onChange={() => toggleDepartmentAuto(department.id)}
-                    />
-                    <span className="slider"></span>
-                  </label>
-                  <span className="auto-label">Auto</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="department-details">
-              <div className="department-head">
-                <strong>Head:</strong> {cabinetData.members.find(m => m.id === department.head)?.name || 'Unassigned'}
-              </div>
-              
-              <div className="department-members">
-                <strong>Members:</strong> {department.members.length}
-                <div className="members-list">
-                  {department.members.slice(0, 3).map(memberId => {
-                    const member = cabinetData.members.find(m => m.id === memberId);
-                    return member ? (
-                      <span key={memberId} className="member-tag">
-                        {member.name.split(' ')[0]}
-                      </span>
-                    ) : null;
-                  })}
-                  {department.members.length > 3 && (
-                    <span className="member-tag more">+{department.members.length - 3}</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="department-permissions">
-                <strong>Permissions:</strong>
-                <div className="permissions-list">
-                  {department.permissions.map(permission => (
-                    <span key={permission} className="permission-tag">
-                      {permission.replace('-', ' ')}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="department-performance">
-                <div className="performance-metrics">
-                  <div className="metric">
-                    <label>Efficiency</label>
-                    <div className="metric-bar">
-                      <div 
-                        className="metric-fill"
-                        style={{ width: `${department.performance.efficiency}%` }}
-                      />
-                    </div>
-                    <span>{department.performance.efficiency}%</span>
-                  </div>
-                  
-                  <div className="metric">
-                    <label>Autonomy</label>
-                    <div className="metric-bar">
-                      <div 
-                        className="metric-fill"
-                        style={{ width: `${department.performance.autonomy}%` }}
-                      />
-                    </div>
-                    <span>{department.performance.autonomy}%</span>
-                  </div>
-                  
-                  <div className="metric">
-                    <label>Compliance</label>
-                    <div className="metric-bar">
-                      <div 
-                        className="metric-fill"
-                        style={{ width: `${department.performance.compliance}%` }}
-                      />
-                    </div>
-                    <span>{department.performance.compliance}%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="department-actions">
-              <button 
-                className="action-btn small"
-                onClick={() => delegateDepartment(department.id, 'full')}
-                disabled={department.isDelegated && department.delegationLevel === 'full'}
-              >
-                🔄 Full Delegation
-              </button>
-              <button 
-                className="action-btn small"
-                onClick={() => delegateDepartment(department.id, 'operational')}
-                disabled={department.isDelegated && department.delegationLevel !== 'none'}
-              >
-                ⚙️ Operational
-              </button>
-              <button className="action-btn small">📊 Analytics</button>
-              <button className="action-btn small">⚙️ Settings</button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="department-summary">
-        <h4>📈 Department Performance Summary</h4>
-        <div className="summary-stats">
-          <div className="summary-stat">
-            <span className="stat-label">Average Efficiency:</span>
-            <span className="stat-value">
-              {Math.round(
-                (cabinetData?.departments?.reduce((sum, d) => sum + d.performance.efficiency, 0) || 0) / 
-                (cabinetData?.departments?.length || 1)
-              )}%
-            </span>
-          </div>
-          <div className="summary-stat">
-            <span className="stat-label">Departments on Auto:</span>
-            <span className="stat-value">
-              {cabinetData?.departments?.filter(d => d.autoMode).length || 0} / {cabinetData?.departments?.length || 0}
-            </span>
-          </div>
-          <div className="summary-stat">
-            <span className="stat-label">Fully Delegated:</span>
-            <span className="stat-value">
-              {cabinetData?.departments?.filter(d => d.delegationLevel === 'full').length || 0}
-            </span>
-          </div>
+      {/* Department Performance Summary - Second card in 2-column grid */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>High Efficiency</span>
+          <span className="standard-metric-value">{cabinetData?.departments?.filter(d => d.performance.efficiency > 80).length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Medium Efficiency</span>
+          <span className="standard-metric-value">{cabinetData?.departments?.filter(d => d.performance.efficiency >= 60 && d.performance.efficiency <= 80).length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Low Efficiency</span>
+          <span className="standard-metric-value">{cabinetData?.departments?.filter(d => d.performance.efficiency < 60).length || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>High Autonomy</span>
+          <span className="standard-metric-value">{cabinetData?.departments?.filter(d => d.performance.autonomy > 80).length || 0}</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme">Performance Review</button>
+          <button className="standard-btn government-theme">Efficiency Report</button>
         </div>
       </div>
-    </div>
+
+      {/* Departments Table - Full width below cards */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>🏢 Department Details</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>Head</th>
+              <th>Members</th>
+              <th>Delegation Level</th>
+              <th>Efficiency</th>
+              <th>Autonomy</th>
+              <th>Compliance</th>
+              <th>Auto Mode</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cabinetData?.departments?.map(department => (
+              <tr key={department.id}>
+                <td>
+                  <strong>{department.name}</strong>
+                  <br />
+                  <small style={{ color: '#a0a9ba' }}>{department.description}</small>
+                </td>
+                <td>{cabinetData.members.find(m => m.id === department.head)?.name || 'Unassigned'}</td>
+                <td style={{ textAlign: 'center' }}>{department.members.length}</td>
+                <td>
+                  <span 
+                    style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: department.delegationLevel === 'high' ? '#27ae60' : 
+                                     department.delegationLevel === 'medium' ? '#f39c12' : '#e74c3c',
+                      color: 'white'
+                    }}
+                  >
+                    {department.delegationLevel.toUpperCase()}
+                  </span>
+                </td>
+                <td style={{ textAlign: 'center' }}>{department.performance.efficiency}%</td>
+                <td style={{ textAlign: 'center' }}>{department.performance.autonomy}%</td>
+                <td style={{ textAlign: 'center' }}>{department.performance.compliance}%</td>
+                <td style={{ textAlign: 'center' }}>
+                  <span 
+                    style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: department.autoMode ? '#27ae60' : '#e74c3c',
+                      color: 'white'
+                    }}
+                  >
+                    {department.autoMode ? 'ON' : 'OFF'}
+                  </span>
+                </td>
+                <td style={{ textAlign: 'center' }}>
+                  <button className="standard-btn government-theme" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+                    Details
+                  </button>
+                  <button 
+                    className="standard-btn government-theme" 
+                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+                    onClick={() => toggleDepartmentAuto(department.id)}
+                  >
+                    {department.autoMode ? 'Disable' : 'Enable'} Auto
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </>
   );
+
 
   const renderTasks = () => (
-    <div className="cabinet-tasks">
-      <div className="tasks-header">
-        <h3>📋 All Cabinet Tasks</h3>
-        <button className="action-btn primary">➕ New Task</button>
+    <>
+      {/* Tasks Overview */}
+      <div className="standard-panel government-theme">
+        <div className="standard-metric">
+          <span>Total Tasks</span>
+          <span className="standard-metric-value">{cabinetData?.totalTasks || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Completed Tasks</span>
+          <span className="standard-metric-value">{cabinetData?.completedTasks || 0}</span>
+        </div>
+        <div className="standard-metric">
+          <span>Overdue Tasks</span>
+          <span className="standard-metric-value">{cabinetData?.overdueTasks || 0}</span>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme">➕ New Task</button>
+          <button className="standard-btn government-theme">📊 Task Report</button>
+        </div>
       </div>
-      
-      <div className="tasks-list">
-        {cabinetData?.members.flatMap(member => 
-          member.currentTasks.map(task => ({
-            ...task,
-            assignee: member.name,
-            department: member.department
-          }))
-        ).map(task => (
-          <div key={task.id} className="task-card">
-            <div className="task-header">
-              <div className="task-title">{task.title}</div>
-              <div 
-                className="task-priority"
-                style={{ color: getPriorityColor(task.priority) }}
-              >
-                {task.priority.toUpperCase()}
-              </div>
-            </div>
-            
-            <div className="task-details">
-              <div className="task-assignee">
-                👤 {task.assignee} ({task.department})
-              </div>
-              <div className="task-deadline">
-                📅 Due: {new Date(task.deadline).toLocaleDateString()}
-              </div>
-            </div>
-            
-            <div className="task-progress">
-              <div className="progress-label">Progress: {task.progress}%</div>
-              <div className="progress-bar">
-                <div 
-                  className="progress-fill"
-                  style={{ width: `${task.progress}%` }}
-                />
-              </div>
-            </div>
-            
-            <div className="task-actions">
-              <button className="action-btn small">📝 Edit</button>
-              <button className="action-btn small">👁️ View</button>
-              <button className="action-btn small">⚡ Update</button>
-            </div>
-          </div>
-        ))}
+
+      {/* All Cabinet Tasks */}
+              <div className="standard-panel government-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📋 All Cabinet Tasks</h3>
+          <div className="standard-table-container">
+          <table className="standard-data-table">
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Assignee</th>
+              <th>Department</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Progress</th>
+              <th>Deadline</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cabinetData?.members.flatMap(member => 
+              member.currentTasks.map(task => ({
+                ...task,
+                assignee: member.name,
+                department: member.department
+              }))
+            ).map(task => (
+              <tr key={task.id}>
+                <td>
+                  <strong>{task.title}</strong>
+                </td>
+                <td>{task.assignee}</td>
+                <td>{task.department}</td>
+                <td>
+                  <span 
+                    style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: getPriorityColor(task.priority),
+                      color: 'white'
+                    }}
+                  >
+                    {task.priority.toUpperCase()}
+                  </span>
+                </td>
+                <td>
+                  <span 
+                    style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: getStatusColor(task.status),
+                      color: 'white'
+                    }}
+                  >
+                    {task.status.toUpperCase()}
+                  </span>
+                </td>
+                <td style={{ textAlign: 'center' }}>{task.progress}%</td>
+                <td>{new Date(task.deadline).toLocaleDateString()}</td>
+                <td style={{ textAlign: 'center' }}>
+                  <button className="standard-btn government-theme" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+                    Edit
+                  </button>
+                </td>
+              </tr>
+                      ))}
+        </tbody>
+      </table>
+        </div>
       </div>
-    </div>
+    </>
   );
+
+  // Define tabs for the header
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'members', label: 'Members', icon: '👥' },
+    { id: 'tasks', label: 'Tasks', icon: '📋' },
+    { id: 'delegation', label: 'Delegation', icon: '🤝' },
+    { id: 'departments', label: 'Departments', icon: '🏢' }
+  ];
 
   return (
     <BaseScreen
@@ -1115,49 +1244,28 @@ const CabinetScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameConte
       customAutoAction={toggleAutoMode}
       autoActionLabel={autoMode ? "Auto ON" : "Auto OFF"}
       autoActionActive={autoMode}
+      tabs={tabs}
+      activeTab={viewMode}
+      onTabChange={(tabId) => setViewMode(tabId as 'overview' | 'members' | 'tasks' | 'delegation' | 'departments')}
     >
-      <div className="cabinet-screen">
-        {/* View Mode Tabs */}
-        <div className="view-tabs">
-          <button 
-            className={`tab ${viewMode === 'overview' ? 'active' : ''}`}
-            onClick={() => setViewMode('overview')}
-          >
-            📊 Overview
-          </button>
-          <button 
-            className={`tab ${viewMode === 'members' ? 'active' : ''}`}
-            onClick={() => setViewMode('members')}
-          >
-            👥 Members
-          </button>
-          <button 
-            className={`tab ${viewMode === 'tasks' ? 'active' : ''}`}
-            onClick={() => setViewMode('tasks')}
-          >
-            📋 Tasks
-          </button>
-          <button 
-            className={`tab ${viewMode === 'delegation' ? 'active' : ''}`}
-            onClick={() => setViewMode('delegation')}
-          >
-            🤝 Delegation
-          </button>
-          <button 
-            className={`tab ${viewMode === 'departments' ? 'active' : ''}`}
-            onClick={() => setViewMode('departments')}
-          >
-            🏢 Departments
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="tab-content">
-          {viewMode === 'overview' && renderOverview()}
-          {viewMode === 'members' && renderMembers()}
-          {viewMode === 'tasks' && renderTasks()}
-          {viewMode === 'delegation' && renderDelegation()}
-          {viewMode === 'departments' && renderDepartments()}
+      <div className="standard-screen-container government-theme">
+        <div className="standard-dashboard">
+          {(() => {
+            switch (viewMode) {
+              case 'overview':
+                return renderOverview();
+              case 'members':
+                return renderMembers();
+              case 'tasks':
+                return renderTasks();
+              case 'delegation':
+                return renderDelegation();
+              case 'departments':
+                return renderDepartments();
+              default:
+                return renderOverview();
+            }
+          })()}
         </div>
       </div>
     </BaseScreen>

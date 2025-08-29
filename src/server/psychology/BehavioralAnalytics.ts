@@ -13,7 +13,7 @@ import {
   SocialDynamics,
   PolicyPsychologyResponse,
   BehavioralEconomicsModel
-} from './types.js';
+} from './types';
 
 export interface PsychologyAnalyticsData {
   // Population Psychology Overview

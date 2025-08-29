@@ -109,6 +109,12 @@ export interface ScreenData {
   lastUpdated: Date | null;
 }
 
+export interface TabConfig {
+  id: string;
+  label: string;
+  icon?: string;
+}
+
 interface BaseScreenProps extends ScreenProps {
   children: React.ReactNode;
   apiEndpoints?: APIEndpoint[];
@@ -117,6 +123,13 @@ interface BaseScreenProps extends ScreenProps {
   customAutoAction?: () => void;
   autoActionLabel?: string;
   autoActionActive?: boolean;
+  tabs?: TabConfig[];
+  activeTab?: string;
+  onTabChange?: (tabId: string) => void;
+  isPopup?: boolean; // Show close button when in popup mode
+  onClose?: () => void; // Close handler for popup mode
+  onTogglePopup?: () => void; // Toggle between center panel and popup mode
+  showPopupToggle?: boolean; // Show the popup toggle slider
 }
 
 export const BaseScreen: React.FC<BaseScreenProps> = ({
@@ -130,7 +143,14 @@ export const BaseScreen: React.FC<BaseScreenProps> = ({
   gameContext,
   customAutoAction,
   autoActionLabel,
-  autoActionActive
+  autoActionActive,
+  tabs,
+  activeTab,
+  onTabChange,
+  isPopup = false,
+  onClose,
+  onTogglePopup,
+  showPopupToggle = true
 }) => {
   const [screenData, setScreenData] = useState<ScreenData>({
     loading: false,
@@ -178,18 +198,49 @@ export const BaseScreen: React.FC<BaseScreenProps> = ({
 
   return (
     <div className="base-screen">
-      {/* Screen Header */}
-      <div className="screen-header">
-        <div className="screen-title">
-          <span className="screen-icon">{icon}</span>
+      {/* Screen Header - Always visible, with close button in popup mode */}
+      <div className="base-screen-header">
+        <div className="base-screen-title">
+          <span className="base-screen-icon">{icon}</span>
           <h2>{title}</h2>
         </div>
         
+        {/* Tabs (if provided) */}
+        {tabs && tabs.length > 0 && (
+          <div className="base-screen-tabs">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                className={`base-screen-tab ${activeTab === tab.id ? 'active' : ''}`}
+                onClick={() => onTabChange?.(tab.id)}
+              >
+                {tab.icon && <span className="tab-icon">{tab.icon}</span>}
+                <span className="tab-label">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        
         <div className="screen-controls">
-          {screenData.lastUpdated && (
-            <span className="last-updated">
-              Last updated: {screenData.lastUpdated.toLocaleTimeString()}
-            </span>
+          {/* Popup Toggle Slider */}
+          {showPopupToggle && onTogglePopup && (
+            <div className="popup-toggle-container">
+              <label className="popup-toggle-label">
+                <span className="toggle-text">Panel</span>
+                <div className="toggle-slider">
+                  <input 
+                    type="checkbox" 
+                    checked={isPopup} 
+                    onChange={onTogglePopup}
+                    className="toggle-input"
+                  />
+                  <span className="toggle-track">
+                    <span className="toggle-thumb"></span>
+                  </span>
+                </div>
+                <span className="toggle-text">Popup</span>
+              </label>
+            </div>
           )}
           
           <button 
@@ -217,6 +268,17 @@ export const BaseScreen: React.FC<BaseScreenProps> = ({
               (autoRefresh ? '⏸️ Auto' : '▶️ Auto')
             }
           </button>
+          
+          {/* Close button for popup mode */}
+          {isPopup && onClose && (
+            <button 
+              className="screen-action-btn close-btn"
+              onClick={onClose}
+              title="Close popup"
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 

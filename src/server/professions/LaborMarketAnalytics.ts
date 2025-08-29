@@ -15,8 +15,8 @@ import {
   ProfessionCategory,
   EmploymentStatus,
   UnemploymentReason
-} from './types.js';
-import { Citizen } from '../population/types.js';
+} from './types';
+import { Citizen } from '../population/types';
 
 export interface LaborMarketForecast {
   professionId: string;

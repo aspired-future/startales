@@ -16,7 +16,7 @@ import {
   MIGRATION_FLOW_TYPES,
   MIGRATION_SUBTYPES,
   INTEGRATION_STAGES
-} from './types.js';
+} from './types';
 
 export class MigrationEngine {
   private migrationFlows: Map<string, MigrationFlow> = new Map();

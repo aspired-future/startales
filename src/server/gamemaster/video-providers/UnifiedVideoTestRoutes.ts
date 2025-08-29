@@ -1,5 +1,5 @@
 import express from 'express';
-import { unifiedVideoService } from '../UnifiedVideoService.js';
+import { unifiedVideoService } from '../UnifiedVideoService';
 
 export const createUnifiedVideoTestRoutes = () => {
   const router = express.Router();

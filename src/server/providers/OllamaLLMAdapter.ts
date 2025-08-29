@@ -11,9 +11,9 @@ import {
   LLMDelta,
   AdapterCapability,
   AdapterDependencies
-} from '../../shared/adapters/index.js';
-import { OllamaProvider } from '../llm/providers/ollama.js';
-import { ModelMessage, CompletionOptions } from '../llm/types.js';
+} from '../../shared/adapters/index';
+import { OllamaProvider } from '../llm/providers/ollama';
+import { ModelMessage, CompletionOptions } from '../llm/types';
 
 export class OllamaLLMAdapter implements LLMAdapter {
   private provider: OllamaProvider;

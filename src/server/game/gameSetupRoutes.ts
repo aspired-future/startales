@@ -1,6 +1,6 @@
 import express from 'express';
 import { Pool } from 'pg';
-import { getGameSetupService, initializeGameSetupService } from './GameSetupService.js';
+import { getGameSetupService, initializeGameSetupService } from './GameSetupService';
 
 const router = express.Router();
 

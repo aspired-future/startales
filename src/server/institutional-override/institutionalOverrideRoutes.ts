@@ -6,8 +6,8 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { InstitutionalOverrideService } from './InstitutionalOverrideService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { InstitutionalOverrideService } from './InstitutionalOverrideService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 import { Pool } from 'pg';
 
 export function createInstitutionalOverrideRoutes(pool: Pool): Router {

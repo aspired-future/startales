@@ -3,7 +3,7 @@
  * Provides consistent error handling across all adapter types
  */
 
-import { AdapterError, AdapterErrorCode } from './base.js';
+import { AdapterError, AdapterErrorCode } from './base';
 
 // HTTP Status Code Mappings
 export const HTTP_STATUS_MAPPINGS: Record<number, AdapterErrorCode> = {

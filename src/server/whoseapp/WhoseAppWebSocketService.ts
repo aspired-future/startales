@@ -6,7 +6,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { Server } from 'http';
 import { Pool } from 'pg';
-import { CharacterService } from '../characters/CharacterService.js';
+import { CharacterService } from '../characters/CharacterService';
 
 export interface WhoseAppMessage {
   type: 'character_update' | 'new_message' | 'activity_feed' | 'status_change' | 'subscribe' | 'unsubscribe';

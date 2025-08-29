@@ -7,7 +7,7 @@ import {
   Technology, TechnologyCategory, TechnologyLevel, AcquisitionMethod,
   CivilizationTech, ResearchProject, CyberOperation, TechnologyTransfer,
   ReverseEngineeringProject, TechnologyAnalyticsData, TechnologyRecommendation
-} from './types.js';
+} from './types';
 
 export class TechnologyAnalytics {
   

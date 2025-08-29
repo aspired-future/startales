@@ -6,9 +6,9 @@
 
 import express from 'express';
 import { Pool } from 'pg';
-import { CorporateLifecycleEngine } from './CorporateLifecycleEngine.js';
-import { CorporateLifecycleService, initializeCorporateLifecycleSchema } from './corporateLifecycleSchema.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { CorporateLifecycleEngine } from './CorporateLifecycleEngine';
+import { CorporateLifecycleService, initializeCorporateLifecycleSchema } from './corporateLifecycleSchema';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

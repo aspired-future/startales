@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './CommunicationsScreen.css';
+import '../shared/StandardDesign.css';
 
 interface CommunicationsOverview {
   totalMessages: number;
@@ -118,6 +119,15 @@ const CommunicationsScreen: React.FC<ScreenProps> = ({ screenId, title, icon, ga
     { method: 'POST', path: '/api/communications/press', description: 'Schedule press conference' },
     { method: 'POST', path: '/api/communications/messages', description: 'Publish public message' },
     { method: 'PUT', path: '/api/communications/operations/:id', description: 'Update operation status' }
+  ];
+
+  // Define tabs for the header
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'leader', label: 'Leader Comms', icon: '👑' },
+    { id: 'operations', label: 'Operations', icon: '⚡' },
+    { id: 'media', label: 'Media', icon: '📺' },
+    { id: 'platforms', label: 'Platforms', icon: '🔗' }
   ];
 
   const fetchCommunicationsData = useCallback(async () => {
@@ -486,474 +496,350 @@ const CommunicationsScreen: React.FC<ScreenProps> = ({ screenId, title, icon, ga
       gameContext={gameContext}
       apiEndpoints={apiEndpoints}
       onRefresh={fetchCommunicationsData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'leader' | 'operations' | 'media' | 'platforms')}
     >
-      <div className="communications-screen">
-        <div className="view-tabs">
-          <button 
-            className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
-          >
-            📊 Overview
-          </button>
-          <button 
-            className={`tab ${activeTab === 'leader' ? 'active' : ''}`}
-            onClick={() => setActiveTab('leader')}
-          >
-            👑 Leader Comms
-          </button>
-          <button 
-            className={`tab ${activeTab === 'operations' ? 'active' : ''}`}
-            onClick={() => setActiveTab('operations')}
-          >
-            ⚡ Operations
-          </button>
-          <button 
-            className={`tab ${activeTab === 'media' ? 'active' : ''}`}
-            onClick={() => setActiveTab('media')}
-          >
-            📺 Media
-          </button>
-          <button 
-            className={`tab ${activeTab === 'platforms' ? 'active' : ''}`}
-            onClick={() => setActiveTab('platforms')}
-          >
-            🔗 Platforms
-          </button>
-        </div>
-
-        <div className="tab-content">
-          {loading && <div className="loading">Loading communications data...</div>}
-          {error && <div className="error">Error: {error}</div>}
+      <div className="standard-screen-container government-theme">
+        {loading && <div className="loading-overlay">Loading communications data...</div>}
+        {error && <div className="error-message">Error: {error}</div>}
+        
+        <div className="standard-dashboard">
           {!loading && !error && communicationsData && (
             <>
               {activeTab === 'overview' && (
-                <div className="overview-tab">
-                  <div className="overview-metrics">
-                    <div className="metric-card">
-                      <div className="metric-value">{communicationsData.overview.totalMessages.toLocaleString()}</div>
-                      <div className="metric-label">Total Messages</div>
+                <>
+                  {/* Communications Overview - First card in 2-column grid */}
+                  <div className="standard-panel government-theme">
+                    <div className="standard-metric">
+                      <span>Total Messages</span>
+                      <span className="standard-metric-value">{communicationsData.overview.totalMessages.toLocaleString()}</span>
                     </div>
-                    <div className="metric-card">
-                      <div className="metric-value">{communicationsData.overview.activeOperations}</div>
-                      <div className="metric-label">Active Operations</div>
+                    <div className="standard-metric">
+                      <span>Active Operations</span>
+                      <span className="standard-metric-value">{communicationsData.overview.activeOperations}</span>
                     </div>
-                    <div className="metric-card">
-                      <div className="metric-value">{formatNumber(communicationsData.overview.mediaReach)}</div>
-                      <div className="metric-label">Media Reach</div>
+                    <div className="standard-metric">
+                      <span>Media Reach</span>
+                      <span className="standard-metric-value">{formatNumber(communicationsData.overview.mediaReach)}</span>
                     </div>
-                    <div className="metric-card">
-                      <div className="metric-value">{communicationsData.overview.approvalRating}%</div>
-                      <div className="metric-label">Approval Rating</div>
+                    <div className="standard-metric">
+                      <span>Approval Rating</span>
+                      <span className="standard-metric-value">{communicationsData.overview.approvalRating}%</span>
                     </div>
-                    <div className="metric-card">
-                      <div className="metric-value">{communicationsData.overview.pressConferences}</div>
-                      <div className="metric-label">Press Conferences</div>
+                    <div className="standard-metric">
+                      <span>Press Conferences</span>
+                      <span className="standard-metric-value">{communicationsData.overview.pressConferences}</span>
                     </div>
-                    <div className="metric-card">
-                      <div className="metric-value">{communicationsData.overview.socialEngagement}%</div>
-                      <div className="metric-label">Social Engagement</div>
+                    <div className="standard-metric">
+                      <span>Social Engagement</span>
+                      <span className="standard-metric-value">{communicationsData.overview.socialEngagement}%</span>
                     </div>
-                    <div className="metric-card">
-                      <div className="metric-value">{communicationsData.overview.newsArticles}</div>
-                      <div className="metric-label">News Articles</div>
+                    <div className="standard-metric">
+                      <span>News Articles</span>
+                      <span className="standard-metric-value">{communicationsData.overview.newsArticles}</span>
                     </div>
-                    <div className="metric-card">
-                      <div className="metric-value">{communicationsData.overview.broadcastHours}</div>
-                      <div className="metric-label">Broadcast Hours</div>
+                    <div className="standard-metric">
+                      <span>Broadcast Hours</span>
+                      <span className="standard-metric-value">{communicationsData.overview.broadcastHours}</span>
                     </div>
+                    <div className="standard-action-buttons">
+                      <button className="standard-btn government-theme">Communications Report</button>
+                      <button className="standard-btn government-theme">Performance Review</button>
                   </div>
                 </div>
+
+                  {/* Communications Activity - Second card in 2-column grid */}
+                  <div className="standard-panel government-theme">
+                    <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📊 Communications Activity</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                      <div className="standard-metric">
+                        <span>Daily Messages</span>
+                        <span className="standard-metric-value">47</span>
+                          </div>
+                      <div className="standard-metric">
+                        <span>Response Time</span>
+                        <span className="standard-metric-value">2.3h</span>
+                        </div>
+                      <div className="standard-metric">
+                        <span>Engagement Rate</span>
+                        <span className="standard-metric-value approval-good">89%</span>
+                        </div>
+                      <div className="standard-metric">
+                        <span>Sentiment Score</span>
+                        <span className="standard-metric-value approval-good">+2.1</span>
+                        </div>
+                      </div>
+                  </div>
+                </>
               )}
 
               {activeTab === 'leader' && (
-                <div className="leader-tab">
-                  <div className="leader-communications">
-                    {communicationsData.leaderCommunications.map((comm) => (
-                      <div key={comm.id} className="leader-comm-item">
-                        <div className="comm-header">
-                          <div className="comm-title">{comm.title}</div>
-                          <div className="comm-status" style={{ color: getStatusColor(comm.status) }}>
-                            <span className="status-indicator" style={{ backgroundColor: getStatusColor(comm.status) }}></span>
-                            {comm.status.toUpperCase()}
-                          </div>
-                        </div>
-                        <div className="comm-details">
-                          <div className="comm-type">{comm.type.toUpperCase()}</div>
-                          <div className="comm-audience">Audience: {comm.audience}</div>
-                          <div className="comm-reach">Reach: {formatNumber(comm.reach)}</div>
-                          <div className="comm-date">{new Date(comm.date).toLocaleString()}</div>
-                          <div className="comm-duration">Duration: {comm.duration} minutes</div>
-                          <div className="comm-approval">Approval: {comm.approval}%</div>
-                        </div>
-                        <div className="comm-platforms">
-                          {comm.platform.map((platform, i) => (
-                            <span key={i} className="platform-tag">{platform}</span>
+                <>
+                  {/* Leader Communications Overview */}
+                  <div className="standard-panel government-theme table-panel">
+                    <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>👑 Leader Communications</h3>
+                    <div className="standard-table-container">
+                      <table className="standard-data-table">
+                        <thead>
+                          <tr>
+                            <th>Communication</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Audience</th>
+                            <th>Reach</th>
+                            <th>Status</th>
+                            <th>Approval</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {communicationsData.leaderCommunications.map((comm) => (
+                            <tr key={comm.id}>
+                              <td>
+                                <strong>{comm.title}</strong><br />
+                                <small style={{ color: '#a0a9ba' }}>Duration: {comm.duration} minutes</small>
+                              </td>
+                              <td>
+                                <span style={{ 
+                                  padding: '0.3rem 0.6rem',
+                                  borderRadius: '4px',
+                                  fontSize: '0.8rem',
+                                  backgroundColor: '#4facfe',
+                                  color: 'white'
+                                }}>
+                                  {comm.type.toUpperCase()}
+                                </span>
+                              </td>
+                              <td>{new Date(comm.date).toLocaleDateString()}</td>
+                              <td>{comm.audience}</td>
+                              <td>{formatNumber(comm.reach)}</td>
+                              <td>
+                                <span style={{ 
+                                  padding: '0.3rem 0.6rem',
+                                  borderRadius: '4px',
+                                  fontSize: '0.8rem',
+                                  backgroundColor: getStatusColor(comm.status),
+                                  color: 'white'
+                                }}>
+                                  {comm.status.toUpperCase()}
+                                </span>
+                              </td>
+                              <td>
+                                <span className="standard-metric-value approval-good">{comm.approval}%</span>
+                              </td>
+                              <td>
+                                <button className="standard-btn government-theme">Details</button>
+                              </td>
+                            </tr>
                           ))}
-                        </div>
-                      </div>
-                    ))}
+                        </tbody>
+                      </table>
                   </div>
-                  <div className="tab-actions">
-                    <button className="action-btn">Coordinate Message</button>
-                    <button className="action-btn secondary">Schedule Event</button>
-                    <button className="action-btn">Media Strategy</button>
                   </div>
-                </div>
+                </>
               )}
 
               {activeTab === 'operations' && (
-                <div className="operations-tab">
-                  <div className="active-operations">
+                <>
+                  {/* Active Operations Overview */}
+                  <div className="standard-panel government-theme table-panel">
+                    <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>⚡ Active Communications Operations</h3>
+                    <div className="standard-table-container">
+                      <table className="standard-data-table">
+                        <thead>
+                          <tr>
+                            <th>Operation</th>
+                            <th>Type</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Reach</th>
+                            <th>Budget</th>
+                            <th>Team Size</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
                     {communicationsData.activeOperations.map((op) => (
-                      <div key={op.id} className="operation-item">
-                        <div className="op-header">
-                          <div className="op-name">{op.name}</div>
-                          <div className="op-priority" style={{ color: getPriorityColor(op.priority) }}>
-                            {op.priority.toUpperCase()}
-                          </div>
-                        </div>
-                        <div className="op-details">
-                          <div className="op-type">{op.type.toUpperCase()}</div>
-                          <div className="op-status" style={{ color: getStatusColor(op.status) }}>
-                            Status: {op.status.toUpperCase()}
-                          </div>
-                          <div className="op-reach">Reach: {formatNumber(op.reach)}</div>
-                          <div className="op-budget">Budget: {formatCurrency(op.budget)}</div>
-                          <div className="op-dates">
+                            <tr key={op.id}>
+                              <td>
+                                <strong>{op.name}</strong><br />
+                                <small style={{ color: '#a0a9ba' }}>
                             {new Date(op.startDate).toLocaleDateString()} - {new Date(op.endDate).toLocaleDateString()}
-                          </div>
-                        </div>
-                        <div className="op-platforms">
-                          {op.platforms.map((platform, i) => (
-                            <span key={i} className="platform-tag">{platform}</span>
+                                </small>
+                              </td>
+                              <td>
+                                <span style={{ 
+                                  padding: '0.3rem 0.6rem',
+                                  borderRadius: '4px',
+                                  fontSize: '0.8rem',
+                                  backgroundColor: '#4facfe',
+                                  color: 'white'
+                                }}>
+                                  {op.type.toUpperCase()}
+                                </span>
+                              </td>
+                              <td>
+                                <span style={{ 
+                                  padding: '0.3rem 0.6rem',
+                                  borderRadius: '4px',
+                                  fontSize: '0.8rem',
+                                  backgroundColor: getPriorityColor(op.priority),
+                                  color: 'white'
+                                }}>
+                                  {op.priority.toUpperCase()}
+                                </span>
+                              </td>
+                              <td>
+                                <span style={{ 
+                                  padding: '0.3rem 0.6rem',
+                                  borderRadius: '4px',
+                                  fontSize: '0.8rem',
+                                  backgroundColor: getStatusColor(op.status),
+                                  color: 'white'
+                                }}>
+                                  {op.status.toUpperCase()}
+                                </span>
+                              </td>
+                              <td>{formatNumber(op.reach)}</td>
+                              <td>{formatCurrency(op.budget)}</td>
+                              <td>{op.team.length}</td>
+                              <td>
+                                <button className="standard-btn government-theme">Details</button>
+                              </td>
+                            </tr>
                           ))}
+                        </tbody>
+                      </table>
                         </div>
-                        <div className="op-team">
-                          Team: {op.team.join(', ')}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="tab-actions">
-                    <button className="action-btn">New Operation</button>
-                    <button className="action-btn urgent">Crisis Response</button>
-                    <button className="action-btn secondary">Operation Report</button>
-                  </div>
-                </div>
+                </>
               )}
 
               {activeTab === 'media' && (
-                <div className="media-tab">
-                  {/* Press Freedom Overview */}
-                  <div className="media-section">
-                    <h4>📊 Press Freedom & Media Control</h4>
-                    <div className="press-freedom-overview">
-                      <div className="freedom-metrics">
-                        <div className="metric-item">
-                          <span className="metric-label">Press Freedom Level:</span>
-                          <span className="metric-value freedom-good">75/100</span>
+                <>
+                  {/* Media Relations Overview */}
+                  <div className="standard-panel government-theme table-panel">
+                    <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📺 Media Relations</h3>
+                    <div className="standard-table-container">
+                      <table className="standard-data-table">
+                        <thead>
+                          <tr>
+                            <th>Media Outlet</th>
+                            <th>Type</th>
+                            <th>Relationship</th>
+                            <th>Reach</th>
+                            <th>Influence</th>
+                            <th>Last Contact</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {communicationsData.mediaRelations.map((media) => (
+                            <tr key={media.id}>
+                              <td>
+                                <strong>{media.outlet}</strong><br />
+                                <small style={{ color: '#a0a9ba' }}>Key Contacts: {media.keyContacts.join(', ')}</small>
+                              </td>
+                              <td>
+                                <span style={{ 
+                                  padding: '0.3rem 0.6rem',
+                                  borderRadius: '4px',
+                                  fontSize: '0.8rem',
+                                  backgroundColor: '#4facfe',
+                                  color: 'white'
+                                }}>
+                                  {media.type.toUpperCase()}
+                                </span>
+                              </td>
+                              <td>
+                                <span style={{ 
+                                  padding: '0.3rem 0.6rem',
+                                  borderRadius: '4px',
+                                  fontSize: '0.8rem',
+                                  backgroundColor: getRelationshipColor(media.relationship),
+                                  color: 'white'
+                                }}>
+                                  {media.relationship.toUpperCase()}
+                                </span>
+                              </td>
+                              <td>{formatNumber(media.reach)}</td>
+                              <td>{media.influence}/100</td>
+                              <td>{new Date(media.lastContact).toLocaleDateString()}</td>
+                              <td>
+                                <button className="standard-btn government-theme">Contact</button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                         </div>
-                        <div className="metric-item">
-                          <span className="metric-label">Media Independence:</span>
-                          <span className="metric-value freedom-fair">68%</span>
                         </div>
-                        <div className="metric-item">
-                          <span className="metric-label">Government Control:</span>
-                          <span className="metric-value control-moderate">32%</span>
-                        </div>
-                        <div className="metric-item">
-                          <span className="metric-label">Public Trust:</span>
-                          <span className="metric-value trust-good">71%</span>
-                        </div>
-                      </div>
-                      <div className="freedom-actions">
-                        <button className="action-btn primary">📈 View Detailed Report</button>
-                        <button className="action-btn secondary">⚙️ Adjust Policies</button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Media Outlets Management */}
-                  <div className="media-section">
-                    <h4>📺 Media Outlets</h4>
-                    <div className="media-outlets">
-                      <div className="outlet-item">
-                        <div className="outlet-header">
-                          <div className="outlet-info">
-                            <div className="outlet-name">Galactic News Network</div>
-                            <div className="outlet-type">Public Broadcaster</div>
-                          </div>
-                          <div className="outlet-status">
-                            <span className="status-badge active">ACTIVE</span>
-                            <span className="control-level moderate">25% Gov Control</span>
-                          </div>
-                        </div>
-                        <div className="outlet-metrics">
-                          <span className="metric">👥 50M reach</span>
-                          <span className="metric">⭐ 85% credibility</span>
-                          <span className="metric">📊 Center bias</span>
-                        </div>
-                      </div>
-
-                      <div className="outlet-item">
-                        <div className="outlet-header">
-                          <div className="outlet-info">
-                            <div className="outlet-name">Independent News Service</div>
-                            <div className="outlet-type">Private Independent</div>
-                          </div>
-                          <div className="outlet-status">
-                            <span className="status-badge active">ACTIVE</span>
-                            <span className="control-level low">0% Gov Control</span>
-                          </div>
-                        </div>
-                        <div className="outlet-metrics">
-                          <span className="metric">👥 25M reach</span>
-                          <span className="metric">⭐ 78% credibility</span>
-                          <span className="metric">📊 Left bias</span>
-                        </div>
-                      </div>
-
-                      <div className="outlet-item">
-                        <div className="outlet-header">
-                          <div className="outlet-info">
-                            <div className="outlet-name">National Information Service</div>
-                            <div className="outlet-type">State Owned</div>
-                          </div>
-                          <div className="outlet-status">
-                            <span className="status-badge active">ACTIVE</span>
-                            <span className="control-level high">100% Gov Control</span>
-                          </div>
-                        </div>
-                        <div className="outlet-metrics">
-                          <span className="metric">👥 40M reach</span>
-                          <span className="metric">⭐ 65% credibility</span>
-                          <span className="metric">📊 Right bias</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="media-actions">
-                      <button className="action-btn primary">📋 Manage Licenses</button>
-                      <button className="action-btn secondary">📊 Outlet Analytics</button>
-                    </div>
-                  </div>
-
-                  {/* Media Policies & Regulations */}
-                  <div className="media-section">
-                    <h4>📋 Media Policies & Regulations</h4>
-                    <div className="media-policies">
-                      <div className="policy-item">
-                        <div className="policy-header">
-                          <div className="policy-name">Broadcasting Licensing Act</div>
-                          <div className="policy-status active">ACTIVE</div>
-                        </div>
-                        <div className="policy-details">
-                          <span className="policy-type">Licensing</span>
-                          <span className="policy-intensity">60% Control Intensity</span>
-                          <span className="policy-compliance">95% Compliance</span>
-                        </div>
-                      </div>
-
-                      <div className="policy-item">
-                        <div className="policy-header">
-                          <div className="policy-name">National Security Information Guidelines</div>
-                          <div className="policy-status active">ACTIVE</div>
-                        </div>
-                        <div className="policy-details">
-                          <span className="policy-type">Content Regulation</span>
-                          <span className="policy-intensity">75% Control Intensity</span>
-                          <span className="policy-compliance">88% Compliance</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="policy-actions">
-                      <button className="action-btn primary">📝 New Policy</button>
-                      <button className="action-btn secondary">📊 Policy Impact</button>
-                    </div>
-                  </div>
-
-                  {/* Enhanced Press Conferences with Leader vs Press Secretary */}
-                  <div className="media-section">
-                    <h4>🎤 Press Conferences</h4>
-                    
-                    {/* Press Secretary Information */}
-                    <div className="press-secretary-info">
-                      <div className="secretary-header">
-                        <div className="secretary-details">
-                          <div className="secretary-name">Sarah Mitchell</div>
-                          <div className="secretary-title">White House Press Secretary</div>
-                        </div>
-                        <div className="secretary-stats">
-                          <span className="stat">📊 85% Effectiveness</span>
-                          <span className="stat">🎯 75% vs Leader Impact</span>
-                        </div>
-                      </div>
-                      <div className="secretary-skills">
-                        <div className="skill-item">
-                          <span className="skill-label">Communication:</span>
-                          <div className="skill-bar">
-                            <div className="skill-fill" style={{ width: '85%' }}></div>
-                          </div>
-                          <span className="skill-value">85%</span>
-                        </div>
-                        <div className="skill-item">
-                          <span className="skill-label">Media Relations:</span>
-                          <div className="skill-bar">
-                            <div className="skill-fill" style={{ width: '80%' }}></div>
-                          </div>
-                          <span className="skill-value">80%</span>
-                        </div>
-                        <div className="skill-item">
-                          <span className="skill-label">Crisis Management:</span>
-                          <div className="skill-bar">
-                            <div className="skill-fill" style={{ width: '75%' }}></div>
-                          </div>
-                          <span className="skill-value">75%</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Upcoming and Recent Press Conferences */}
-                    <div className="press-conferences">
-                      <div className="press-item scheduled">
-                        <div className="press-header">
-                          <div className="press-info">
-                            <div className="press-title">Economic Policy Briefing</div>
-                            <div className="press-presenter">
-                              <span className="presenter-type secretary">📝 Press Secretary</span>
-                              <span className="presenter-name">Sarah Mitchell</span>
-                            </div>
-                          </div>
-                          <div className="press-status scheduled">SCHEDULED</div>
-                        </div>
-                        <div className="press-details">
-                          <span className="press-date">📅 Tomorrow, 2:00 PM</span>
-                          <span className="press-duration">⏱️ 45 min</span>
-                          <span className="press-risk low">🔒 Low Risk</span>
-                          <span className="press-impact moderate">📊 Moderate Impact</span>
-                        </div>
-                        <div className="press-topics">
-                          <span className="topic-tag">Economy</span>
-                          <span className="topic-tag">Policy</span>
-                          <span className="topic-tag">Markets</span>
-                        </div>
-                      </div>
-
-                      <div className="press-item scheduled leader">
-                        <div className="press-header">
-                          <div className="press-info">
-                            <div className="press-title">Foreign Policy Address</div>
-                            <div className="press-presenter">
-                              <span className="presenter-type leader">👑 Leader Personal</span>
-                              <span className="presenter-name">President</span>
-                            </div>
-                          </div>
-                          <div className="press-status scheduled">SCHEDULED</div>
-                        </div>
-                        <div className="press-details">
-                          <span className="press-date">📅 Next Week</span>
-                          <span className="press-duration">⏱️ 30 min</span>
-                          <span className="press-risk high">⚠️ High Risk</span>
-                          <span className="press-impact high">🚀 High Impact (+25% bonus)</span>
-                        </div>
-                        <div className="press-topics">
-                          <span className="topic-tag">Foreign Policy</span>
-                          <span className="topic-tag">Diplomacy</span>
-                          <span className="topic-tag">Security</span>
-                        </div>
-                      </div>
-
-                      <div className="press-item completed">
-                        <div className="press-header">
-                          <div className="press-info">
-                            <div className="press-title">Infrastructure Update</div>
-                            <div className="press-presenter">
-                              <span className="presenter-type secretary">📝 Press Secretary</span>
-                              <span className="presenter-name">Sarah Mitchell</span>
-                            </div>
-                          </div>
-                          <div className="press-status completed">COMPLETED</div>
-                        </div>
-                        <div className="press-results">
-                          <div className="result-metrics">
-                            <div className="metric">
-                              <span className="metric-label">Questions:</span>
-                              <span className="metric-value">12/15 answered</span>
-                            </div>
-                            <div className="metric">
-                              <span className="metric-label">Coverage:</span>
-                              <span className="metric-value success">72% positive</span>
-                            </div>
-                            <div className="metric">
-                              <span className="metric-label">Approval Impact:</span>
-                              <span className="metric-value success">+2.1%</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="press-actions">
-                      <button className="action-btn primary">📅 Schedule Leader Conference</button>
-                      <button className="action-btn secondary">📝 Schedule Secretary Briefing</button>
-                      <button className="action-btn">📊 Conference Analytics</button>
-                    </div>
-                  </div>
-                </div>
+                </>
               )}
 
               {activeTab === 'platforms' && (
-                <div className="platforms-tab">
-                  <div className="platform-integrations">
+                <>
+                  {/* Platform Integrations Overview */}
+                  <div className="standard-panel government-theme table-panel">
+                    <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>🔗 Platform Integrations</h3>
+                    <div className="standard-table-container">
+                      <table className="standard-data-table">
+                        <thead>
+                          <tr>
+                            <th>Platform</th>
+                            <th>Status</th>
+                            <th>Followers</th>
+                            <th>Reach</th>
+                            <th>Engagement</th>
+                            <th>Posts Today</th>
+                            <th>API Status</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
                     {communicationsData.platformIntegrations.map((platform, i) => (
-                      <div key={i} className="platform-item">
-                        <div className="platform-header">
-                          <div className="platform-name">{platform.platform}</div>
-                          <div className="platform-status" style={{ color: getStatusColor(platform.status) }}>
-                            <span className="status-indicator" style={{ backgroundColor: getStatusColor(platform.status) }}></span>
+                            <tr key={i}>
+                              <td>
+                                <strong>{platform.platform}</strong><br />
+                                <small style={{ color: '#a0a9ba' }}>Last Post: {new Date(platform.lastPost).toLocaleTimeString()}</small>
+                              </td>
+                              <td>
+                                <span style={{ 
+                                  padding: '0.3rem 0.6rem',
+                                  borderRadius: '4px',
+                                  fontSize: '0.8rem',
+                                  backgroundColor: getStatusColor(platform.status),
+                                  color: 'white'
+                                }}>
                             {platform.status.toUpperCase()}
-                          </div>
-                        </div>
-                        <div className="platform-metrics">
-                          {platform.followers > 0 && (
-                            <div className="platform-metric">
-                              <span>Followers:</span>
-                              <span>{formatNumber(platform.followers)}</span>
-                            </div>
-                          )}
-                          <div className="platform-metric">
-                            <span>Reach:</span>
-                            <span>{formatNumber(platform.reach)}</span>
-                          </div>
-                          {platform.engagement > 0 && (
-                            <div className="platform-metric">
-                              <span>Engagement:</span>
-                              <span>{platform.engagement}%</span>
-                            </div>
-                          )}
-                          <div className="platform-metric">
-                            <span>Posts Today:</span>
-                            <span>{platform.postsToday}</span>
-                          </div>
-                          <div className="platform-metric">
-                            <span>Last Post:</span>
-                            <span>{new Date(platform.lastPost).toLocaleTimeString()}</span>
-                          </div>
-                        </div>
-                        <div className="platform-api">
-                          API Status: <span style={{ color: getStatusColor(platform.apiStatus) }}>
+                                </span>
+                              </td>
+                              <td>{platform.followers > 0 ? formatNumber(platform.followers) : 'N/A'}</td>
+                              <td>{formatNumber(platform.reach)}</td>
+                              <td>{platform.engagement > 0 ? `${platform.engagement}%` : 'N/A'}</td>
+                              <td>{platform.postsToday}</td>
+                              <td>
+                                <span style={{ 
+                                  padding: '0.3rem 0.6rem',
+                                  borderRadius: '4px',
+                                  fontSize: '0.8rem',
+                                  backgroundColor: getStatusColor(platform.apiStatus),
+                                  color: 'white'
+                                }}>
                             {platform.apiStatus.toUpperCase()}
                           </span>
-                        </div>
-                      </div>
-                    ))}
+                              </td>
+                              <td>
+                                <button className="standard-btn government-theme">Manage</button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                   </div>
-                  <div className="tab-actions">
-                    <button className="action-btn">Sync Platforms</button>
-                    <button className="action-btn secondary">Post Scheduler</button>
-                    <button className="action-btn">Analytics Report</button>
-                    <button className="action-btn secondary">Platform Settings</button>
                   </div>
-                </div>
+                </>
               )}
             </>
           )}

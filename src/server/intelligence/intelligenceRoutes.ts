@@ -1,6 +1,6 @@
 import express from 'express';
-import { getIntelligenceDirectorsService } from './IntelligenceDirectorsService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { getIntelligenceDirectorsService } from './IntelligenceDirectorsService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getPool } from '../storage/db';
 import { TreasuryService } from './TreasuryService';
 import { DepartmentBudgetService } from './DepartmentBudgetService';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const departmentBudgetRouter = Router();
 

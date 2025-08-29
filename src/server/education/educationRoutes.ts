@@ -1,7 +1,7 @@
 import express from 'express';
 import { Pool } from 'pg';
-import { getEducationService } from './EducationService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { getEducationService } from './EducationService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 
@@ -62,6 +62,185 @@ const educationKnobsData = {
 
 // Initialize Enhanced Knob System for Education
 const educationKnobSystem = new EnhancedKnobSystem(educationKnobsData);
+
+// Root education endpoint that returns all education data
+router.get('/', async (req, res) => {
+  try {
+    // Return comprehensive education data structure that matches frontend expectations
+    const educationData = {
+      metrics: {
+        totalStudents: 2456789,
+        totalInstitutions: 12456,
+        totalTeachers: 234567,
+        literacyRate: 98.7,
+        graduationRate: 94.2,
+        totalBudget: 45600000000,
+        averageClassSize: 22,
+        teacherStudentRatio: 1.2
+      },
+      levels: [
+        {
+          level: 'Pre-K (Ages 3-5)',
+          students: 156789,
+          institutions: 2345,
+          teachers: 12456,
+          budget: 2300000000,
+          graduationRate: 99.1,
+          averageAge: '4 years',
+          description: 'Early childhood education focusing on social skills, basic literacy, and cognitive development'
+        },
+        {
+          level: 'Elementary (K-5)',
+          students: 567890,
+          institutions: 3456,
+          teachers: 45678,
+          budget: 8900000000,
+          graduationRate: 98.5,
+          averageAge: '6-11 years',
+          description: 'Foundation education covering reading, writing, mathematics, science, and social studies'
+        },
+        {
+          level: 'Middle School (6-8)',
+          students: 345678,
+          institutions: 1789,
+          teachers: 34567,
+          budget: 6700000000,
+          graduationRate: 96.8,
+          averageAge: '12-14 years',
+          description: 'Transitional education with specialized subjects and preparation for high school'
+        },
+        {
+          level: 'High School (9-12)',
+          students: 456789,
+          institutions: 2134,
+          teachers: 56789,
+          budget: 12300000000,
+          graduationRate: 94.2,
+          averageAge: '15-18 years',
+          description: 'Advanced secondary education with college prep, career tracks, and specialized programs'
+        },
+        {
+          level: 'Community Colleges',
+          students: 234567,
+          institutions: 456,
+          teachers: 23456,
+          budget: 4500000000,
+          graduationRate: 87.3,
+          averageAge: '19-25 years',
+          description: 'Two-year institutions offering associate degrees, certificates, and transfer programs'
+        },
+        {
+          level: 'Universities',
+          students: 456789,
+          institutions: 234,
+          teachers: 45678,
+          budget: 15600000000,
+          graduationRate: 89.7,
+          averageAge: '18-22 years',
+          description: 'Four-year institutions offering bachelor\'s, master\'s, and doctoral degrees'
+        },
+        {
+          level: 'Trade Schools',
+          students: 123456,
+          institutions: 567,
+          teachers: 12345,
+          budget: 2300000000,
+          graduationRate: 92.1,
+          averageAge: '18-30 years',
+          description: 'Specialized vocational training for specific trades and technical skills'
+        }
+      ],
+      institutions: [
+        {
+          id: 'inst-1',
+          name: 'Capital University',
+          type: 'university',
+          publicPrivate: 'Public',
+          location: 'Capital City',
+          rating: 9.2,
+          students: 45678,
+          teachers: 2345,
+          established: 1895,
+          specializations: ['Engineering', 'Medicine', 'Business', 'Arts']
+        },
+        {
+          id: 'inst-2',
+          name: 'Metropolitan Community College',
+          type: 'community-college',
+          publicPrivate: 'Public',
+          location: 'Metro District',
+          rating: 8.7,
+          students: 23456,
+          teachers: 1234,
+          established: 1965,
+          specializations: ['Technology', 'Healthcare', 'Business', 'Liberal Arts']
+        },
+        {
+          id: 'inst-3',
+          name: 'Stellar High School',
+          type: 'high',
+          publicPrivate: 'Public',
+          location: 'Stellar District',
+          rating: 8.9,
+          students: 2345,
+          teachers: 156,
+          established: 1950,
+          specializations: ['STEM', 'Arts', 'Athletics', 'College Prep']
+        }
+      ],
+      curriculum: [
+        {
+          level: 'Elementary',
+          subjects: ['Mathematics', 'Reading', 'Writing', 'Science', 'Social Studies', 'Physical Education', 'Arts'],
+          requirements: ['Core Math', 'Language Arts', 'Basic Science', 'History', 'Physical Education'],
+          electives: ['Music', 'Art', 'Computer Science', 'Foreign Language'],
+          assessments: ['Standardized Testing', 'Portfolio Assessment', 'Teacher Evaluation']
+        },
+        {
+          level: 'High School',
+          subjects: ['Advanced Mathematics', 'Literature', 'Biology', 'Chemistry', 'Physics', 'History', 'Government', 'Economics'],
+          requirements: ['Algebra I & II', 'English I-IV', 'Biology', 'Chemistry', 'US History', 'Government', 'Physical Education'],
+          electives: ['Advanced Placement', 'International Baccalaureate', 'Career Technical Education', 'Fine Arts', 'Foreign Languages'],
+          assessments: ['Standardized Testing', 'AP Exams', 'Portfolio Assessment', 'College Entrance Exams']
+        }
+      ],
+      teachers: [
+        {
+          id: 'teacher-1',
+          name: 'Dr. Sarah Johnson',
+          level: 'University',
+          institution: 'Capital University',
+          rating: 9.1,
+          subjects: ['Mathematics', 'Statistics'],
+          experience: '15 years',
+          qualifications: ['PhD Mathematics', 'Teaching Certificate', 'Research Experience']
+        },
+        {
+          id: 'teacher-2',
+          name: 'Prof. Michael Chen',
+          level: 'High School',
+          institution: 'Stellar High School',
+          rating: 8.8,
+          subjects: ['Physics', 'Chemistry'],
+          experience: '12 years',
+          qualifications: ['Masters Physics', 'Teaching Certificate', 'STEM Specialist']
+        }
+      ]
+    };
+
+    res.json({
+      success: true,
+      data: educationData
+    });
+  } catch (error) {
+    console.error('Error fetching education data:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch education data',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
 
 // Apply education knobs to game state
 function applyEducationKnobsToGameState() {

@@ -6,12 +6,12 @@
  */
 
 import express from 'express';
-import { witterStorage } from './witterStorage.js';
-import { characterVectorMemory } from './characterVectorMemory.js';
-import { civilizationVectorMemory } from './civilizationVectorMemory.js';
-import { enhancedConversationStorage } from './conversationStorageNew.js';
-import { memoryMigrationService } from './migrationService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { witterStorage } from './witterStorage';
+import { characterVectorMemory } from './characterVectorMemory';
+import { civilizationVectorMemory } from './civilizationVectorMemory';
+import { enhancedConversationStorage } from './conversationStorageNew';
+import { memoryMigrationService } from './migrationService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

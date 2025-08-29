@@ -5,8 +5,8 @@
  * lifecycle management, decision-making, and incentive responses.
  */
 
-import { CitizenEngine } from '../CitizenEngine.js';
-import { PopulationConfig, IncentiveType } from '../types.js';
+import { CitizenEngine } from '../CitizenEngine';
+import { PopulationConfig, IncentiveType } from '../types';
 
 describe('CitizenEngine', () => {
   let engine: CitizenEngine;

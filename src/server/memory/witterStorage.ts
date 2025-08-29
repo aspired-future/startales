@@ -4,14 +4,14 @@
  */
 
 import { Pool } from 'pg';
-import { getPool } from '../storage/db.js';
+import { getPool } from '../storage/db';
 import {
   WitterPost,
   WitterComment,
   WitterInteraction,
   CreateWitterPostData,
   LegacyWittPost
-} from './types.js';
+} from './types';
 
 export class WitterStorage {
   private pool: Pool;

@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { promises as fs } from 'fs';
-import { EnvSecretsManager, FileSecretsManager, MockSecretsManager, createSecretsManager } from '../SecretsManager.js';
+import { EnvSecretsManager, FileSecretsManager, MockSecretsManager, createSecretsManager } from '../SecretsManager';
 
 describe('Secrets Manager', () => {
   describe('EnvSecretsManager', () => {

@@ -4,8 +4,8 @@
  */
 
 import { Pool } from 'pg';
-import { getPool } from '../storage/db.js';
-import { AdapterMetrics, MetricsContext } from '../../shared/adapters/metrics.js';
+import { getPool } from '../storage/db';
+import { AdapterMetrics, MetricsContext } from '../../shared/adapters/metrics';
 
 // LLM Message Metrics Interface
 export interface LLMMessageMetrics {

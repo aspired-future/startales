@@ -6,7 +6,7 @@
  */
 
 import express from 'express';
-import { VisualSystemsEngine } from './VisualSystemsEngine.js';
+import { VisualSystemsEngine } from './VisualSystemsEngine';
 import {
   VisualAssetType,
   VisualCategory,
@@ -16,8 +16,8 @@ import {
   QualityLevel,
   ConsistencyProfile,
   StyleGuide
-} from './types.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+} from './types';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

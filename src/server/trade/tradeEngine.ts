@@ -1,4 +1,4 @@
-import { CampaignState } from '../sim/engine.js';
+import { CampaignState } from '../../simulation/engine/engine';
 import { nanoid } from 'nanoid';
 
 export interface TradeResource {

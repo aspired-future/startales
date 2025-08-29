@@ -5,8 +5,8 @@
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { Pool } from 'pg';
-import { LLMMetricsDAO, migrateLLMMessagesTable, LLMMessageMetrics } from '../llmMetrics.js';
-import { MetricsContext, AdapterMetrics } from '../../../shared/adapters/metrics.js';
+import { LLMMetricsDAO, migrateLLMMessagesTable, LLMMessageMetrics } from '../llmMetrics';
+import { MetricsContext, AdapterMetrics } from '../../../shared/adapters/metrics';
 
 // Mock Pool for testing
 const mockPool = {

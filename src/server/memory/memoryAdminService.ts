@@ -1,8 +1,8 @@
-import { conversationStorage, ConversationQuery, MessageQuery } from './conversationStorage.js';
-import { qdrantClient } from './qdrantClient.js';
-import { embeddingService } from './embeddingService.js';
-import { semanticSearchService } from './semanticSearch.js';
-import { aiContextService } from './aiContextService.js';
+import { conversationStorage, ConversationQuery, MessageQuery } from './conversationStorage';
+import { qdrantClient } from './qdrantClient';
+import { embeddingService } from './embeddingService';
+import { semanticSearchService } from './semanticSearch';
+import { aiContextService } from './aiContextService';
 
 export interface SystemHealthReport {
   overall: 'healthy' | 'degraded' | 'critical';

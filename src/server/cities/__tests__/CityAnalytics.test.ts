@@ -2,8 +2,8 @@
  * Unit tests for CityAnalyticsEngine
  */
 
-import { CityAnalyticsEngine } from '../CityAnalytics.js';
-import { City, CitySpecialization, DEFAULT_SPECIALIZATIONS } from '../types.js';
+import { CityAnalyticsEngine } from '../CityAnalytics';
+import { City, CitySpecialization, DEFAULT_SPECIALIZATIONS } from '../types';
 
 describe('CityAnalyticsEngine', () => {
   let analyticsEngine: CityAnalyticsEngine;

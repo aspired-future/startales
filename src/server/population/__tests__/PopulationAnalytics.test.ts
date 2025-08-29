@@ -5,9 +5,9 @@
  * inequality metrics, and incentive impact analysis.
  */
 
-import { PopulationAnalytics } from '../PopulationAnalytics.js';
-import { CitizenEngine } from '../CitizenEngine.js';
-import { Citizen, PopulationConfig, IncentiveResponse, IncentiveType } from '../types.js';
+import { PopulationAnalytics } from '../PopulationAnalytics';
+import { CitizenEngine } from '../CitizenEngine';
+import { Citizen, PopulationConfig, IncentiveResponse, IncentiveType } from '../types';
 
 describe('PopulationAnalytics', () => {
   let analytics: PopulationAnalytics;

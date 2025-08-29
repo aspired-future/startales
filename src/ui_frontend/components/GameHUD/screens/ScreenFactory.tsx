@@ -260,7 +260,7 @@ const screenRegistry: Record<string, ScreenConfig> = {
   },
   'education': {
     component: EducationScreen,
-    title: 'Education System',
+    title: 'Education',
     icon: '🎓',
     category: 'population'
   },

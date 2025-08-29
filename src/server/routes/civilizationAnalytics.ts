@@ -4,7 +4,7 @@
  */
 
 import { Router } from 'express';
-import { civilizationMetrics } from '../analytics/civilizationMetrics.js';
+import { civilizationMetrics } from '../analytics/civilizationMetrics';
 
 const router = Router();
 

@@ -1,7 +1,7 @@
-import { IVideoProvider, IVideoProviderFactory, VideoProviderCapabilities, VideoProviderConfig } from './IVideoProvider.js';
-import { VEO3Provider } from './VEO3Provider.js';
-import { RunwayProvider } from './RunwayProvider.js';
-import { PikaProvider } from './PikaProvider.js';
+import { IVideoProvider, IVideoProviderFactory, VideoProviderCapabilities, VideoProviderConfig } from './IVideoProvider';
+import { VEO3Provider } from './VEO3Provider';
+import { RunwayProvider } from './RunwayProvider';
+import { PikaProvider } from './PikaProvider';
 
 /**
  * Factory for creating video generation providers

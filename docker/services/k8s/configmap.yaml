@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: startales-config
+  namespace: startales
+data:
+  # Database Configuration
+  POSTGRES_DB: "gtw"
+  POSTGRES_USER: "gtw"
+  DATABASE_URL: "postgres://gtw:gtw@postgres:5432/gtw"
+  
+  # Redis Configuration
+  REDIS_URL: "redis://redis:6379"
+  
+  # NATS Configuration
+  NATS_URL: "nats://nats:4222"
+  
+  # Ollama Configuration
+  OLLAMA_BASE_URL: "http://ollama:11434"
+  OLLAMA_HOST: "0.0.0.0"
+  OLLAMA_ORIGINS: "*"
+  OLLAMA_NUM_PARALLEL: "16"
+  OLLAMA_MAX_LOADED_MODELS: "8"
+  
+  # STT Configuration
+  STT_SERVICE_URL: "http://stt:8000"
+  MODEL_SIZE: "base"
+  DEVICE: "cpu"
+  LANGUAGE: "en"
+  
+  # TTS Configuration
+  TTS_SERVICE_URL: "http://tts:8000"
+  MODEL_NAME: "tts_models/en/ljspeech/tacotron2-DDC"
+  
+  # Application Configuration
+  NODE_ENV: "production"
+  MAX_CONCURRENT_PLAYERS: "500"
+  TICK_INTERVAL: "1000"
+  
+  # Monitoring
+  PROMETHEUS_URL: "http://prometheus:9090"
+  GRAFANA_URL: "http://grafana:3000"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: startales-secrets
+  namespace: startales
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: "gtw"
+  JWT_SECRET: "your-jwt-secret-here"
+  GRAFANA_PASSWORD: "admin123"
+  # Add your API keys here
+  OPENAI_API_KEY: ""
+  ANTHROPIC_API_KEY: ""
+  GOOGLE_API_KEY: ""

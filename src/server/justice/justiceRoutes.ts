@@ -7,8 +7,8 @@
 
 import express from 'express';
 import { Pool } from 'pg';
-import { JusticeSecretaryService } from './JusticeSecretaryService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { JusticeSecretaryService } from './JusticeSecretaryService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

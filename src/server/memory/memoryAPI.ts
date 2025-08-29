@@ -4,11 +4,11 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { witterStorage } from './witterStorage.js';
-import { characterVectorMemory } from './characterVectorMemory.js';
-import { civilizationVectorMemory } from './civilizationVectorMemory.js';
-import { enhancedConversationStorage } from './conversationStorageNew.js';
-import { memoryMigrationService } from './migrationService.js';
+import { witterStorage } from './witterStorage';
+import { characterVectorMemory } from './characterVectorMemory';
+import { civilizationVectorMemory } from './civilizationVectorMemory';
+import { enhancedConversationStorage } from './conversationStorageNew';
+import { memoryMigrationService } from './migrationService';
 
 const router = Router();
 

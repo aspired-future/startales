@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { CityMarket } from './economicEcosystemSchema.js';
+import { CityMarket } from './economicEcosystemSchema';
 
 export class DynamicCityGenerator {
   constructor(private pool: Pool) {}

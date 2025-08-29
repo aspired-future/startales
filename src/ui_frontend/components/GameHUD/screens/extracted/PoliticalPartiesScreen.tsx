@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './PoliticalPartiesScreen.css';
+import { BaseScreen } from '../BaseScreen';
+import { TabConfig } from '../BaseScreen';
 
 interface PoliticalPartiesScreenProps {
   screenId: string;
@@ -106,6 +108,17 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
   } | null>(null);
 
   const [activeTab, setActiveTab] = useState<'overview' | 'leadership' | 'coalitions' | 'electoral' | 'campaigns' | 'policy' | 'witter'>('overview');
+
+  // Define tabs for Political Parties
+  const politicalPartiesTabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '🏛️' },
+    { id: 'leadership', label: 'Leadership', icon: '👥' },
+    { id: 'coalitions', label: 'Coalitions', icon: '🤝' },
+    { id: 'electoral', label: 'Electoral', icon: '🗳️' },
+    { id: 'campaigns', label: 'Campaigns', icon: '📢' },
+    { id: 'policy', label: 'Policy', icon: '📋' },
+    { id: 'witter', label: 'Witter', icon: '📱' }
+  ];
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -302,6 +315,17 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
     }
   };
 
+  const getPartyTypeColor = (type: string) => {
+    switch (type) {
+      case 'progressive': return '#4facfe';
+      case 'conservative': return '#ff6b6b';
+      case 'centrist': return '#51cf66';
+      case 'libertarian': return '#ffd43b';
+      case 'nationalist': return '#ae3ec9';
+      default: return '#868e96';
+    }
+  };
+
   const handleAction = (action: string, context?: any) => {
     console.log(`Political Parties Action: ${action}`, context);
     alert(`Political Parties System: ${action}\n\nThis would ${action.toLowerCase()} in the full implementation.\n\nContext: ${JSON.stringify(context, null, 2)}`);
@@ -342,223 +366,299 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
   }
 
   const renderOverviewTab = () => (
-    <div className="overview-grid">
-      <div className="panel">
-        <h2>🏛️ Party Landscape</h2>
-        <div className="metric">
-          <span>Active Parties</span>
-          <span className="metric-value">{politicalData.metrics.activeParties}</span>
-        </div>
-        <div className="metric">
-          <span>Active Coalitions</span>
-          <span className="metric-value">{politicalData.metrics.activeCoalitions}</span>
-        </div>
-        {politicalData.parties.map(party => (
-          <div key={party.id} className={`party-item party-${party.type}`}>
-            <strong>{party.name}</strong><br />
-            <small>{party.leader} • {party.support}% support {getTrendIcon(party.trend)}</small>
-            <span className={`metric-value ${getSupportClass(party.support)}`}>{party.handle}</span>
+    <div className="standard-dashboard">
+      {/* Political Parties Overview - Full width card */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>🏛️ Political Parties Overview</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="standard-metric">
+            <span>Active Parties</span>
+            <span className="standard-metric-value">{politicalData.metrics.activeParties}</span>
           </div>
-        ))}
-        <div className="action-buttons">
-          <button className="btn" onClick={() => handleAction('View Party Profiles')}>Party Profiles</button>
-          <button className="btn btn-secondary" onClick={() => handleAction('Party Demographics')}>Demographics</button>
+          <div className="standard-metric">
+            <span>Total Seats</span>
+            <span className="standard-metric-value">{politicalData.metrics.totalSeats}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Average Approval</span>
+            <span className={`standard-metric-value ${getApprovalClass(politicalData.metrics.averageApproval)}`}>
+              {politicalData.metrics.averageApproval}%
+            </span>
+          </div>
+          <div className="standard-metric">
+            <span>Voter Turnout</span>
+            <span className="standard-metric-value">{politicalData.metrics.voterTurnout}%</span>
+          </div>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => handleAction('Party Analysis')}>Party Analysis</button>
+          <button className="standard-btn government-theme" onClick={() => handleAction('Electoral Trends')}>Electoral Trends</button>
         </div>
       </div>
 
-      <div className="panel">
-        <h2>📊 Electoral Performance</h2>
-        <div className="metric">
-          <span>Last Election (2156)</span>
-          <span className="metric-value">{politicalData.metrics.totalSeats} Seats</span>
-        </div>
-        <div className="metric">
-          <span>Voter Turnout</span>
-          <span className="metric-value">{politicalData.metrics.voterTurnout}%</span>
-        </div>
-        {politicalData.parties.map(party => (
-          <div key={party.id} className={`party-item party-${party.type}`}>
-            <div>
-              <strong>{party.name}</strong><br />
-              <small>{party.seats} seats won</small>
-            </div>
-            <span className={`metric-value ${getSupportClass(party.support)}`}>{party.voteShare}%</span>
-          </div>
-        ))}
-        <div className="action-buttons">
-          <button className="btn" onClick={() => handleAction('Electoral Trends')}>Electoral Trends</button>
-          <button className="btn btn-secondary" onClick={() => handleAction('Demographic Analysis')}>Demographic Analysis</button>
-        </div>
-      </div>
-
-      <div className="panel">
-        <h2>🤝 Political Coalitions</h2>
-        <div className="metric">
-          <span>Active Coalitions</span>
-          <span className="metric-value">{politicalData.coalitions.length}</span>
-        </div>
-        {politicalData.coalitions.map(coalition => (
-          <div key={coalition.id} className={`coalition-item coalition-${coalition.type}`}>
-            <div>
-              <strong>{coalition.name}</strong><br />
-              <small>{coalition.members.join(', ')}</small>
-            </div>
-            <span className={`metric-value ${getApprovalClass(coalition.approval)}`}>{coalition.approval}%</span>
-          </div>
-        ))}
-        <div className="metric">
-          <span>Coalition Effectiveness</span>
-          <span className="metric-value approval-good">75%</span>
-        </div>
-        <div className="progress-bar">
-          <div className="progress-fill" style={{ width: '75%' }}></div>
-        </div>
-        <div className="action-buttons">
-          <button className="btn" onClick={() => handleAction('Coalition Details')}>Coalition Details</button>
-          <button className="btn btn-success" onClick={() => handleAction('Form Coalition')}>Form Coalition</button>
+      {/* Political Parties Table - Full width */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📋 Political Parties Details</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Party</th>
+                <th>Leader</th>
+                <th>Type</th>
+                <th>Support</th>
+                <th>Approval</th>
+                <th>Seats</th>
+                <th>Trend</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {politicalData.parties.map(party => (
+                <tr key={party.id}>
+                  <td>
+                    <strong>{party.name}</strong><br />
+                    <small>{party.handle}</small>
+                  </td>
+                  <td>{party.leader}</td>
+                  <td>
+                    <span 
+                      style={{ 
+                        padding: '0.3rem 0.6rem',
+                        borderRadius: '4px',
+                        fontSize: '0.8rem',
+                        backgroundColor: getPartyTypeColor(party.type),
+                        color: 'white'
+                      }}
+                    >
+                      {party.type.charAt(0).toUpperCase() + party.type.slice(1)}
+                    </span>
+                  </td>
+                  <td>{party.support}%</td>
+                  <td>
+                    <span className={`standard-metric-value ${getApprovalClass(party.approval)}`}>
+                      {party.approval}%
+                    </span>
+                  </td>
+                  <td>{party.seats}</td>
+                  <td>
+                    <span className="trend-indicator">{getTrendIcon(party.trend)}</span>
+                  </td>
+                  <td>
+                    <button className="standard-btn government-theme" onClick={() => handleAction('View Details', party)}>
+                      Details
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 
   const renderLeadershipTab = () => (
-    <div className="leadership-grid">
-      <div className="panel">
-        <h2>👥 Party Leadership</h2>
-        <div className="metric">
-          <span>Average Approval</span>
-          <span className={`metric-value ${getApprovalClass(politicalData.metrics.averageApproval)}`}>
-            {politicalData.metrics.averageApproval}%
-          </span>
-        </div>
-        {politicalData.parties.map(party => (
-          <div key={party.id} className={`party-item party-${party.type}`}>
-            <div>
-              <strong>{party.leader}</strong><br />
-              <small>{party.description}</small>
-            </div>
-            <span className={`metric-value ${getApprovalClass(party.approval)}`}>{party.approval}%</span>
+    <div className="standard-dashboard">
+      {/* Leadership Overview - Full width card */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>👥 Party Leadership</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="standard-metric">
+            <span>Average Approval</span>
+            <span className={`standard-metric-value ${getApprovalClass(politicalData.metrics.averageApproval)}`}>
+              {politicalData.metrics.averageApproval}%
+            </span>
           </div>
-        ))}
-        <div className="action-buttons">
-          <button className="btn" onClick={() => handleAction('Leadership Analysis')}>Leadership Analysis</button>
-          <button className="btn btn-secondary" onClick={() => handleAction('Approval Trends')}>Approval Trends</button>
+          <div className="standard-metric">
+            <span>Competitiveness Index</span>
+            <span className="standard-metric-value approval-excellent">{politicalData.metrics.competitivenessIndex}/10</span>
+          </div>
+          <div className="standard-metric">
+            <span>Active Leaders</span>
+            <span className="standard-metric-value">{politicalData.parties.length}</span>
+          </div>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => handleAction('Leadership Analysis')}>Leadership Analysis</button>
+          <button className="standard-btn government-theme" onClick={() => handleAction('Approval Trends')}>Approval Trends</button>
+          <button className="standard-btn government-theme" onClick={() => handleAction('Leadership Comparison')}>Compare Leaders</button>
         </div>
       </div>
 
-      <div className="panel">
-        <h2>📈 Leadership Performance</h2>
-        <div className="metric">
-          <span>Competitiveness Index</span>
-          <span className="metric-value approval-excellent">{politicalData.metrics.competitivenessIndex}/10</span>
-        </div>
-        {politicalData.parties.map(party => (
-          <div key={party.id} className={`party-item party-${party.type}`}>
-            <div>
-              <strong>{party.name}</strong><br />
-              <small>Leadership Style & Effectiveness</small>
-            </div>
-            <div className="leadership-metrics">
-              <span className={`metric-value ${getApprovalClass(party.approval)}`}>{party.approval}%</span>
-              <span className="trend-indicator">{getTrendIcon(party.trend)}</span>
-            </div>
-          </div>
-        ))}
-        <div className="action-buttons">
-          <button className="btn" onClick={() => handleAction('Leadership Comparison')}>Compare Leaders</button>
-          <button className="btn btn-secondary" onClick={() => handleAction('Succession Planning')}>Succession Planning</button>
+      {/* Leadership Details Table - Full width */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📋 Leadership Details</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Leader</th>
+                <th>Party</th>
+                <th>Type</th>
+                <th>Approval</th>
+                <th>Leadership Style</th>
+                <th>Trend</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {politicalData.parties.map(party => (
+                <tr key={party.id}>
+                  <td>
+                    <strong>{party.leader}</strong>
+                  </td>
+                  <td>{party.name}</td>
+                  <td>
+                    <span 
+                      style={{ 
+                        padding: '0.3rem 0.6rem',
+                        borderRadius: '4px',
+                        fontSize: '0.8rem',
+                        backgroundColor: getPartyTypeColor(party.type),
+                        color: 'white'
+                      }}
+                    >
+                      {party.type.charAt(0).toUpperCase() + party.type.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`standard-metric-value ${getApprovalClass(party.approval)}`}>
+                      {party.approval}%
+                    </span>
+                  </td>
+                  <td>{party.description}</td>
+                  <td>
+                    <span className="trend-indicator">{getTrendIcon(party.trend)}</span>
+                  </td>
+                  <td>
+                    <button className="standard-btn government-theme" onClick={() => handleAction('View Leader Details', party)}>
+                      Details
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 
   const renderCoalitionsTab = () => (
-    <div className="coalitions-grid">
-      {politicalData.coalitions.map(coalition => (
-        <div key={coalition.id} className="panel">
-          <h2>🤝 {coalition.name}</h2>
-          <div className="metric">
-            <span>Type</span>
-            <span className="metric-value">{coalition.type.charAt(0).toUpperCase() + coalition.type.slice(1)}</span>
+    <div className="standard-dashboard">
+      {/* Coalitions Overview - Full width card */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>🤝 Coalitions Overview</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="standard-metric">
+            <span>Active Coalitions</span>
+            <span className="standard-metric-value">{politicalData.metrics.activeCoalitions}</span>
           </div>
-          <div className="metric">
-            <span>Public Approval</span>
-            <span className={`metric-value ${getApprovalClass(coalition.approval)}`}>{coalition.approval}%</span>
+          <div className="standard-metric">
+            <span>Coalition Effectiveness</span>
+            <span className="standard-metric-value approval-good">75%</span>
           </div>
-          <div className="coalition-members">
-            <h4>Member Parties:</h4>
-            {coalition.members.map((member, index) => (
-              <div key={index} className="member-item">
-                <span>{member}</span>
-              </div>
-            ))}
-          </div>
-          <div className="coalition-description">
-            <p>{coalition.description}</p>
-          </div>
-          <div className="action-buttons">
-            <button className="btn" onClick={() => handleAction('Coalition Details', coalition)}>View Details</button>
-            <button className="btn btn-secondary" onClick={() => handleAction('Modify Coalition', coalition)}>Modify</button>
+          <div className="standard-metric">
+            <span>Average Approval</span>
+            <span className="standard-metric-value approval-good">
+              {Math.round(politicalData.coalitions.reduce((sum, c) => sum + c.approval, 0) / politicalData.coalitions.length)}%
+            </span>
           </div>
         </div>
-      ))}
-      
-      <div className="panel">
-        <h2>➕ Coalition Management</h2>
-        <div className="metric">
-          <span>Potential Coalitions</span>
-          <span className="metric-value">4</span>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => handleAction('Coalition Details')}>Coalition Details</button>
+          <button className="standard-btn government-theme" onClick={() => handleAction('Form Coalition')}>Form Coalition</button>
         </div>
-        <div className="potential-coalitions">
-          <div className="potential-item">
-            <strong>Environmental Action Alliance</strong><br />
-            <small>Progressive + Centrist • 78% compatibility</small>
-          </div>
-          <div className="potential-item">
-            <strong>Security Coalition</strong><br />
-            <small>Conservative + Nationalist • 71% compatibility</small>
-          </div>
-          <div className="potential-item">
-            <strong>Economic Freedom Alliance</strong><br />
-            <small>Conservative + Libertarian • 85% compatibility</small>
-          </div>
-        </div>
-        <div className="action-buttons">
-          <button className="btn btn-success" onClick={() => handleAction('Form New Coalition')}>Form Coalition</button>
-          <button className="btn btn-secondary" onClick={() => handleAction('Coalition Analysis')}>Analysis</button>
+      </div>
+
+      {/* Coalitions Table - Full width */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📋 Coalitions Details</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Coalition</th>
+                <th>Type</th>
+                <th>Members</th>
+                <th>Approval</th>
+                <th>Description</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {politicalData.coalitions.map(coalition => (
+                <tr key={coalition.id}>
+                  <td>
+                    <strong>{coalition.name}</strong>
+                  </td>
+                  <td>
+                    <span 
+                      style={{ 
+                        padding: '0.3rem 0.6rem',
+                        borderRadius: '4px',
+                        fontSize: '0.8rem',
+                        backgroundColor: coalition.type === 'governing' ? '#51cf66' : 
+                                         coalition.type === 'opposition' ? '#ff6b6b' : '#ffd43b',
+                        color: 'white'
+                      }}
+                    >
+                      {coalition.type.charAt(0).toUpperCase() + coalition.type.slice(1)}
+                    </span>
+                  </td>
+                  <td>{coalition.members.join(', ')}</td>
+                  <td>
+                    <span className={`standard-metric-value ${getApprovalClass(coalition.approval)}`}>
+                      {coalition.approval}%
+                    </span>
+                  </td>
+                  <td>{coalition.description}</td>
+                  <td>
+                    <button className="standard-btn government-theme" onClick={() => handleAction('View Coalition Details', coalition)}>
+                      Details
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 
   const renderElectoralTab = () => (
-    <div className="electoral-grid">
-      <div className="panel">
-        <h2>🗳️ Electoral System</h2>
-        <div className="metric">
-          <span>Registered Voters</span>
-          <span className="metric-value">847.3M</span>
+    <div className="standard-dashboard">
+      {/* Electoral Overview - Full width card */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>🗳️ Electoral System</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="standard-metric">
+            <span>Registered Voters</span>
+            <span className="standard-metric-value">847.3M</span>
+          </div>
+          <div className="standard-metric">
+            <span>Voter Turnout</span>
+            <span className="standard-metric-value approval-good">{politicalData.metrics.voterTurnout}%</span>
+          </div>
+          <div className="standard-metric">
+            <span>Next Election</span>
+            <span className="standard-metric-value">180 days</span>
+          </div>
+          <div className="standard-metric">
+            <span>Electoral Integrity</span>
+            <span className="standard-metric-value approval-excellent">9.2/10</span>
+          </div>
         </div>
-        <div className="metric">
-          <span>Voter Turnout (Last Election)</span>
-          <span className="metric-value approval-good">{politicalData.metrics.voterTurnout}%</span>
-        </div>
-        <div className="metric">
-          <span>Next Election</span>
-          <span className="metric-value">180 days</span>
-        </div>
-        <div className="metric">
-          <span>Electoral Integrity</span>
-          <span className="metric-value approval-excellent">9.2/10</span>
-        </div>
-        <div className="action-buttons">
-          <button className="btn" onClick={() => handleAction('Electoral Oversight')}>Electoral Oversight</button>
-          <button className="btn btn-secondary" onClick={() => handleAction('Voting Analysis')}>Voting Analysis</button>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => handleAction('Electoral Oversight')}>Electoral Oversight</button>
+          <button className="standard-btn government-theme" onClick={() => handleAction('Voting Analysis')}>Voting Analysis</button>
         </div>
       </div>
 
-      <div className="panel">
-        <h2>📊 Current Polling</h2>
+      <div className="standard-panel government-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📊 Current Polling</h3>
         {politicalData.parties.map(party => (
           <div key={party.id} className={`party-item party-${party.type}`}>
             <div>
@@ -586,8 +686,8 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
         </div>
       </div>
 
-      <div className="panel">
-        <h2>🏆 Electoral History</h2>
+      <div className="standard-panel government-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>🏆 Electoral History</h3>
         {politicalData.parties.filter(party => party.electoralHistory && party.electoralHistory.length > 0).map(party => (
           <div key={party.id} className="electoral-history">
             <h4>{party.name}</h4>
@@ -616,9 +716,9 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
   );
 
   const renderCampaignsTab = () => (
-    <div className="campaigns-grid">
-      <div className="panel">
-        <h2>📢 Active Campaigns</h2>
+    <div className="standard-dashboard">
+      <div className="standard-panel government-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📢 Active Campaigns</h3>
         <div className="campaign-status">
           <div className="status-indicator active">
             <span className="status-dot"></span>
@@ -677,8 +777,8 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
         ))}
       </div>
 
-      <div className="panel">
-        <h2>🎯 Campaign Promises</h2>
+      <div className="standard-panel government-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>🎯 Campaign Promises</h3>
         {politicalData.parties.filter(party => party.campaignPromises && party.campaignPromises.length > 0).map(party => (
           <div key={party.id} className="promises-section">
             <h4>{party.name}</h4>
@@ -711,8 +811,8 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
         ))}
       </div>
 
-      <div className="panel">
-        <h2>📈 Campaign Analytics</h2>
+      <div className="standard-panel government-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📈 Campaign Analytics</h3>
         <div className="analytics-grid">
           <div className="analytics-card">
             <h5>📊 Polling Trends</h5>
@@ -754,12 +854,12 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
   );
 
   const renderPolicyTab = () => (
-    <div className="policy-grid">
-      <div className="panel">
-        <h2>📋 Policy Positions</h2>
-        <div className="metric">
+    <div className="standard-dashboard">
+      <div className="standard-panel government-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📋 Policy Positions</h3>
+        <div className="standard-metric">
           <span>Policy Areas Tracked</span>
-          <span className="metric-value">5</span>
+          <span className="standard-metric-value">5</span>
         </div>
         <div className="policy-area">
           <strong>Economic Policy</strong><br />
@@ -773,21 +873,21 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
           <strong>Security Policy</strong><br />
           <small>Progressive: Community policing (Strong) • Conservative: Strong military (Core) • Centrist: Balanced defense (Moderate) • Libertarian: Non-interventionism (Core) • Nationalist: Strong borders (Core)</small>
         </div>
-        <div className="metric">
+        <div className="standard-metric">
           <span>Position Flexibility</span>
-          <span className="metric-value approval-fair">65%</span>
+          <span className="standard-metric-value approval-fair">65%</span>
         </div>
-        <div className="action-buttons">
-          <button className="btn" onClick={() => handleAction('Policy Comparison')}>Policy Comparison</button>
-          <button className="btn btn-secondary" onClick={() => handleAction('Position Evolution')}>Position Evolution</button>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => handleAction('Policy Comparison')}>Policy Comparison</button>
+          <button className="standard-btn government-theme" onClick={() => handleAction('Position Evolution')}>Position Evolution</button>
         </div>
       </div>
 
-      <div className="panel">
-        <h2>🎯 Policy Influence</h2>
-        <div className="metric">
+      <div className="standard-panel government-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>🎯 Policy Influence</h3>
+        <div className="standard-metric">
           <span>Legislative Success Rate</span>
-          <span className="metric-value approval-fair">62%</span>
+          <span className="standard-metric-value approval-fair">62%</span>
         </div>
         {politicalData.parties.map(party => (
           <div key={party.id} className={`party-item party-${party.type}`}>
@@ -795,134 +895,117 @@ const PoliticalPartiesScreen: React.FC<PoliticalPartiesScreenProps> = ({
               <strong>{party.name}</strong><br />
               <small>Policy influence and legislative effectiveness</small>
             </div>
-            <span className={`metric-value ${getSupportClass(party.support)}`}>
+            <span className={`standard-metric-value ${getSupportClass(party.support)}`}>
               {Math.round(party.support * 2)}%
             </span>
           </div>
         ))}
-        <div className="action-buttons">
-          <button className="btn" onClick={() => handleAction('Policy Impact Analysis')}>Impact Analysis</button>
-          <button className="btn btn-secondary" onClick={() => handleAction('Legislative Tracking')}>Legislative Tracking</button>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => handleAction('Policy Impact Analysis')}>Impact Analysis</button>
+          <button className="standard-btn government-theme" onClick={() => handleAction('Legislative Tracking')}>Legislative Tracking</button>
         </div>
       </div>
     </div>
   );
 
   const renderWitterTab = () => (
-    <div className="witter-grid">
-      <div className="panel">
-        <h2>📱 Political Witter Feed</h2>
-        <div className="metric">
-          <span>Recent Political Posts</span>
-          <span className="metric-value">{politicalData.witterPosts.length}</span>
-        </div>
-        <div className="metric">
-          <span>Average Engagement</span>
-          <span className="metric-value approval-good">8.3%</span>
-        </div>
-        {politicalData.witterPosts.map(post => (
-          <div key={post.id} className={`witter-post witter-${post.type}`}>
-            <strong>{post.handle}</strong> • {post.time}<br />
-            <small>{post.content}</small>
+    <div className="standard-dashboard">
+      {/* Witter Overview - Full width card */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📱 Political Witter Feed</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="standard-metric">
+            <span>Recent Posts</span>
+            <span className="standard-metric-value">{politicalData.witterPosts.length}</span>
           </div>
-        ))}
-        <div className="action-buttons">
-          <button className="btn" onClick={() => handleAction('Full Witter Feed')}>Full Feed</button>
-          <button className="btn btn-success" onClick={() => handleAction('Create Rapid Response')}>Rapid Response</button>
+          <div className="standard-metric">
+            <span>Total Posts</span>
+            <span className="standard-metric-value">2,847</span>
+          </div>
+          <div className="standard-metric">
+            <span>Hashtag Reach</span>
+            <span className="standard-metric-value">12.4M</span>
+          </div>
+          <div className="standard-metric">
+            <span>Response Time</span>
+            <span className="standard-metric-value approval-excellent">18 min</span>
+          </div>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => handleAction('Full Witter Feed')}>Full Feed</button>
+          <button className="standard-btn government-theme" onClick={() => handleAction('Create Rapid Response')}>Rapid Response</button>
         </div>
       </div>
 
-      <div className="panel">
-        <h2>📊 Witter Analytics</h2>
-        <div className="metric">
-          <span>Total Political Posts</span>
-          <span className="metric-value">2,847</span>
-        </div>
-        <div className="metric">
-          <span>Hashtag Reach</span>
-          <span className="metric-value">12.4M</span>
-        </div>
-        <div className="metric">
-          <span>Response Time</span>
-          <span className="metric-value approval-excellent">18 min</span>
-        </div>
-        <div className="metric">
-          <span>Fact-Based Content</span>
-          <span className="metric-value approval-good">72%</span>
-        </div>
-        <div className="trending-hashtags">
-          <h4>Trending Hashtags:</h4>
-          <div className="hashtag">#InvestInOurFuture</div>
-          <div className="hashtag">#FiscalResponsibility</div>
-          <div className="hashtag">#BipartisanSuccess</div>
-          <div className="hashtag">#FreeMarkets</div>
-          <div className="hashtag">#CivilizationFirst</div>
-        </div>
-        <div className="action-buttons">
-          <button className="btn" onClick={() => handleAction('Witter Analytics')}>Full Analytics</button>
-          <button className="btn btn-secondary" onClick={() => handleAction('Sentiment Analysis')}>Sentiment Analysis</button>
+      {/* Witter Posts Table - Full width */}
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📋 Recent Political Posts</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Handle</th>
+                <th>Content</th>
+                <th>Time</th>
+                <th>Type</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {politicalData.witterPosts.map(post => (
+                <tr key={post.id}>
+                  <td>
+                    <strong>{post.handle}</strong>
+                  </td>
+                  <td style={{ maxWidth: '300px', wordWrap: 'break-word' }}>
+                    {post.content}
+                  </td>
+                  <td>{post.time}</td>
+                  <td>
+                    <span 
+                      style={{ 
+                        padding: '0.3rem 0.6rem',
+                        borderRadius: '4px',
+                        fontSize: '0.8rem',
+                        backgroundColor: getPartyTypeColor(post.type),
+                        color: 'white'
+                      }}
+                    >
+                      {post.type.charAt(0).toUpperCase() + post.type.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn government-theme" onClick={() => handleAction('View Post Details', post)}>
+                      Details
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="political-parties-screen">
-      <div className="tab-navigation">
-        <button 
-          className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          🏛️ Overview
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'leadership' ? 'active' : ''}`}
-          onClick={() => setActiveTab('leadership')}
-        >
-          👥 Leadership
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'coalitions' ? 'active' : ''}`}
-          onClick={() => setActiveTab('coalitions')}
-        >
-          🤝 Coalitions
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'electoral' ? 'active' : ''}`}
-          onClick={() => setActiveTab('electoral')}
-        >
-          🗳️ Electoral
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'campaigns' ? 'active' : ''}`}
-          onClick={() => setActiveTab('campaigns')}
-        >
-          📢 Campaigns
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'policy' ? 'active' : ''}`}
-          onClick={() => setActiveTab('policy')}
-        >
-          📋 Policy
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'witter' ? 'active' : ''}`}
-          onClick={() => setActiveTab('witter')}
-        >
-          📱 Witter
-        </button>
-      </div>
-
-      <div className="tab-content">
-        {activeTab === 'overview' && renderOverviewTab()}
-        {activeTab === 'leadership' && renderLeadershipTab()}
-        {activeTab === 'coalitions' && renderCoalitionsTab()}
-        {activeTab === 'electoral' && renderElectoralTab()}
-        {activeTab === 'campaigns' && renderCampaignsTab()}
-        {activeTab === 'policy' && renderPolicyTab()}
-        {activeTab === 'witter' && renderWitterTab()}
-      </div>
-    </div>
+    <BaseScreen
+      screenId={screenId}
+      title={title}
+      icon={icon}
+      gameContext={gameContext}
+      tabs={politicalPartiesTabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
+    >
+      {activeTab === 'overview' && renderOverviewTab()}
+      {activeTab === 'leadership' && renderLeadershipTab()}
+      {activeTab === 'coalitions' && renderCoalitionsTab()}
+      {activeTab === 'electoral' && renderElectoralTab()}
+      {activeTab === 'campaigns' && renderCampaignsTab()}
+      {activeTab === 'policy' && renderPolicyTab()}
+      {activeTab === 'witter' && renderWitterTab()}
+    </BaseScreen>
   );
 };
 

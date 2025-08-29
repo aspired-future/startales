@@ -2,7 +2,7 @@
  * Planet Visual Integration - Hooks image generation into planet creation and management
  */
 
-import { EntityVisualGenerator, EntityImageResult } from './EntityVisualGenerator.js';
+import { EntityVisualGenerator, EntityImageResult } from './EntityVisualGenerator';
 
 export interface PlanetData {
   id: string | number;

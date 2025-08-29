@@ -6,9 +6,9 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { leaderBriefingEngine } from './LeaderBriefingEngine.js';
-import { leaderSpeechEngine } from './LeaderSpeechEngine.js';
-import { decisionSupportEngine } from './DecisionSupportEngine.js';
+import { leaderBriefingEngine } from './LeaderBriefingEngine';
+import { leaderSpeechEngine } from './LeaderSpeechEngine';
+import { decisionSupportEngine } from './DecisionSupportEngine';
 import { 
   BriefingRequest, 
   SpeechRequest,
@@ -17,9 +17,9 @@ import {
   LeaderBriefing,
   LeaderSpeech,
   PendingDecision
-} from './types.js';
-import { db } from '../storage/db.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+} from './types';
+import { db } from '../storage/db';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

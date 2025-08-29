@@ -1,7 +1,7 @@
 import express from 'express';
-import { getPool } from '../storage/db.js';
-import { CommunicationsSecretaryService } from './CommunicationsSecretaryService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { getPool } from '../storage/db';
+import { CommunicationsSecretaryService } from './CommunicationsSecretaryService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

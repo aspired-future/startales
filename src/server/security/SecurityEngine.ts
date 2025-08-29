@@ -48,7 +48,7 @@ import {
   SecurityProtocol,
   SecuritySpecialization,
   ThreatSource
-} from './types.js';
+} from './types';
 
 export class SecurityEngine {
   private policeForces: Map<string, PoliceForce> = new Map();

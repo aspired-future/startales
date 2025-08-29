@@ -5,14 +5,14 @@
 
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { Pool } from 'pg';
-import { getPool } from '../storage/db.js';
-import { embeddingService } from './embeddingService.js';
+import { getPool } from '../storage/db';
+import { embeddingService } from './embeddingService';
 import {
   CivilizationMemoryEntry,
   CivilizationMemoryCollection,
   MemorySearchQuery,
   MemorySearchResult
-} from './types.js';
+} from './types';
 
 export class CivilizationVectorMemory {
   private client: QdrantClient;

@@ -6,10 +6,10 @@
 
 import express from 'express';
 import { Pool } from 'pg';
-import { SmallBusinessService } from './SmallBusinessService.js';
-import { SmallBusinessGenerator } from './SmallBusinessGenerator.js';
-import { initializeSmallBusinessSchema } from './smallBusinessSchema.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { SmallBusinessService } from './SmallBusinessService';
+import { SmallBusinessGenerator } from './SmallBusinessGenerator';
+import { initializeSmallBusinessSchema } from './smallBusinessSchema';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

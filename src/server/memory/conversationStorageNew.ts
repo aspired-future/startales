@@ -4,7 +4,7 @@
  */
 
 import { Pool } from 'pg';
-import { getPool } from '../storage/db.js';
+import { getPool } from '../storage/db';
 import {
   Conversation,
   ConversationMessage,
@@ -13,7 +13,7 @@ import {
   CreateConversationData,
   CreateMessageData,
   PrivacyRule
-} from './types.js';
+} from './types';
 
 export class EnhancedConversationStorage {
   private pool: Pool;

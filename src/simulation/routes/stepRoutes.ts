@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import { step } from '../engine/engine.js';
+import { step } from '../engine/engine';
 
 export function createStepRoutes(): express.Router {
   const router = express.Router();

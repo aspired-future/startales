@@ -1,13 +1,13 @@
-import { bootstrapLLMProviders } from '../llm/bootstrap.js';
-import { conversationStorage } from './conversationStorage.js';
-import { embeddingService } from './embeddingService.js';
-import { qdrantClient } from './qdrantClient.js';
-import { semanticSearchService, SemanticSearchQuery } from './semanticSearch.js';
+import { bootstrapLLMProviders } from '../llm/bootstrap';
+import { conversationStorage } from './conversationStorage';
+import { embeddingService } from './embeddingService';
+import { qdrantClient } from './qdrantClient';
+import { semanticSearchService, SemanticSearchQuery } from './semanticSearch';
 import { 
   captureUserMessage, 
   captureAssistantMessage, 
   createContext 
-} from './messageCapture.js';
+} from './messageCapture';
 
 /**
  * Comprehensive test script for Advanced Semantic Search

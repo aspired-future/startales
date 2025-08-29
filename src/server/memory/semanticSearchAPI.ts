@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
-import { semanticSearchService, SemanticSearchQuery } from './semanticSearch.js';
-import { conversationStorage } from './conversationStorage.js';
-import { qdrantClient } from './qdrantClient.js';
+import { semanticSearchService, SemanticSearchQuery } from './semanticSearch';
+import { conversationStorage } from './conversationStorage';
+import { qdrantClient } from './qdrantClient';
 
 export const semanticSearchRouter = express.Router();
 

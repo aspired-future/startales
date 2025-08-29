@@ -1,5 +1,5 @@
 import { Pool } from 'pg'
-import { migrateLLMMessagesTable as migrateLLMMetricsTable } from '../database/llmMetrics.js';
+import { migrateLLMMessagesTable as migrateLLMMetricsTable } from '../database/llmMetrics';
 
 let pool: Pool | null = null;
 let isPostgreSQLAvailable = true;

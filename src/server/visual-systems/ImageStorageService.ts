@@ -3,7 +3,7 @@
  */
 
 import { Pool } from 'pg';
-import { EntityImageResult } from './EntityVisualGenerator.js';
+import { EntityImageResult } from './EntityVisualGenerator';
 
 export interface StoredImage {
   id: string;

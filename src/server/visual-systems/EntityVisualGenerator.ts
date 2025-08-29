@@ -4,15 +4,15 @@
  */
 
 import { EventEmitter } from 'events';
-import { VisualSystemsEngine } from './VisualSystemsEngine.js';
+import { VisualSystemsEngine } from './VisualSystemsEngine';
 import { 
   VisualAssetType, 
   VisualCategory, 
   GenerationPrompt,
   GenerationOptions,
   GeneratedAsset 
-} from './types.js';
-import { ImageStorageService, getImageStorageService } from './ImageStorageService.js';
+} from './types';
+import { ImageStorageService, getImageStorageService } from './ImageStorageService';
 
 export interface EntityImageRequest {
   entityType: 'planet' | 'city' | 'character' | 'species' | 'logo' | 'civilization';

@@ -3,11 +3,11 @@
  * Handles migration of existing Witter data and conversations to the new memory system
  */
 
-import { witterStorage } from './witterStorage.js';
-import { characterVectorMemory } from './characterVectorMemory.js';
-import { civilizationVectorMemory } from './civilizationVectorMemory.js';
-import { enhancedConversationStorage } from './conversationStorageNew.js';
-import { MigrationResult, LegacyWittPost } from './types.js';
+import { witterStorage } from './witterStorage';
+import { characterVectorMemory } from './characterVectorMemory';
+import { civilizationVectorMemory } from './civilizationVectorMemory';
+import { enhancedConversationStorage } from './conversationStorageNew';
+import { MigrationResult, LegacyWittPost } from './types';
 
 export interface MigrationOptions {
   batchSize?: number;

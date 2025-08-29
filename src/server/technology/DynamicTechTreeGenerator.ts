@@ -8,7 +8,7 @@ import {
   TechTreeNode, TechTreeConnection, DiscoveryTrigger, HiddenCondition,
   PsychicPower, PsychicPowerCategory, PsychicAcquisitionMethod,
   InnovationSource, TechTreeNodeState
-} from './types.js';
+} from './types';
 
 export class DynamicTechTreeGenerator {
   private seed: number;

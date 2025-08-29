@@ -1,6 +1,6 @@
 import express from 'express';
-import { getFiscalSimulationService } from './FiscalSimulationService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { getFiscalSimulationService } from './FiscalSimulationService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

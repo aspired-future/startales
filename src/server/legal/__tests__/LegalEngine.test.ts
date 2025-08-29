@@ -5,8 +5,8 @@
  * courts, law enforcement, crimes, corruption cases, and legal case processing.
  */
 
-import { LegalEngine } from '../LegalEngine.js';
-import { Crime, LegalCase, CorruptionCase, Court, LawEnforcementAgency } from '../types.js';
+import { LegalEngine } from '../LegalEngine';
+import { Crime, LegalCase, CorruptionCase, Court, LawEnforcementAgency } from '../types';
 
 describe('LegalEngine', () => {
   let legalEngine: LegalEngine;

@@ -1,10 +1,10 @@
 import express from 'express';
-import WitterAIService from '../witter/WitterAIService.js';
-import DefaultGameStateProvider from '../state/GameStateProvider.js';
-import { getBusinessNewsService } from '../witter/BusinessNewsService.js';
-import { getSportsNewsService } from '../witter/SportsNewsService.js';
-import { getEnhancedAIContentService } from '../witter/EnhancedAIContentService.js';
-import { getCharacterDrivenContentService } from '../witter/CharacterDrivenContentService.js';
+import WitterAIService from '../witter/WitterAIService';
+import DefaultGameStateProvider from '../state/GameStateProvider';
+import { getBusinessNewsService } from '../witter/BusinessNewsService';
+import { getSportsNewsService } from '../witter/SportsNewsService';
+import { getEnhancedAIContentService } from '../witter/EnhancedAIContentService';
+import { getCharacterDrivenContentService } from '../witter/CharacterDrivenContentService';
 
 const router = express.Router();
 const gameStateProvider = new DefaultGameStateProvider();

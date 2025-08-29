@@ -6,11 +6,11 @@
 
 import express from 'express';
 import { Pool } from 'pg';
-import { DynamicCharacterEngine } from './DynamicCharacterEngine.js';
-import { CharacterService } from './CharacterService.js';
-import { ProceduralCharacterGenerator } from './ProceduralCharacterGenerator.js';
-import { initializeCharacterSchema } from './characterSchema.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { DynamicCharacterEngine } from './DynamicCharacterEngine';
+import { CharacterService } from './CharacterService';
+import { ProceduralCharacterGenerator } from './ProceduralCharacterGenerator';
+import { initializeCharacterSchema } from './characterSchema';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 let characterEngine: DynamicCharacterEngine;

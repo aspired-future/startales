@@ -3,9 +3,9 @@
  * Sprint 6: Test suite for profession and career management system
  */
 
-import { ProfessionEngine } from '../ProfessionEngine.js';
-import { Citizen } from '../../population/types.js';
-import { EmploymentStatus, UnemploymentReason } from '../types.js';
+import { ProfessionEngine } from '../ProfessionEngine';
+import { Citizen } from '../../population/types';
+import { EmploymentStatus, UnemploymentReason } from '../types';
 
 describe('ProfessionEngine', () => {
   let professionEngine: ProfessionEngine;

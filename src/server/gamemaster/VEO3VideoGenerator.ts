@@ -1,5 +1,5 @@
 // Using built-in fetch (Node.js 18+)
-import { videoStyleConsistency } from './VideoStyleConsistency.js';
+import { videoStyleConsistency } from './VideoStyleConsistency';
 
 interface VEO3VideoRequest {
   prompt: string;

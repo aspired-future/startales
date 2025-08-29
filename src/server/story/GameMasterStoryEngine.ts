@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
-import { getAIService } from '../ai/AIService.js';
-import { UnifiedImageGenerationService } from '../visual/UnifiedImageGenerationService.js';
+import { getAIService } from '../ai/AIService';
+import { UnifiedImageGenerationService } from '../visual/UnifiedImageGenerationService';
 
 export interface StoryEvent {
   id: string;

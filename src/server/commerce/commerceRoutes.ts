@@ -1,8 +1,8 @@
 import express from 'express';
-import { getPool } from '../storage/db.js';
-import { CommerceSecretaryService } from './CommerceSecretaryService.js';
-import { TradeEngine } from '../trade/tradeEngine.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { getPool } from '../storage/db';
+import { CommerceSecretaryService } from './CommerceSecretaryService';
+import { TradeEngine } from '../trade/tradeEngine';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

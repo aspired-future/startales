@@ -5,8 +5,8 @@
 
 import express from 'express';
 import { Pool } from 'pg';
-import MissionsService from './MissionsService.js';
-import { MISSIONS_KNOBS, MISSIONS_AI_PROMPTS } from './missionsKnobs.js';
+import MissionsService from './MissionsService';
+import { MISSIONS_KNOBS, MISSIONS_AI_PROMPTS } from './missionsKnobs';
 
 export function createMissionsRoutes(pool: Pool): express.Router {
   const router = express.Router();

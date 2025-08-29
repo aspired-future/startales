@@ -7,7 +7,7 @@ import {
   Technology, TechnologyCategory, InnovationEvent, InnovationSource,
   InnovationOutcome, InnovationTeamMember, InnovationAccident,
   CivilizationTech, PsychicPower, TechTreeNode
-} from './types.js';
+} from './types';
 
 export class InnovationEngine {
   private innovationEvents: Map<string, InnovationEvent> = new Map();

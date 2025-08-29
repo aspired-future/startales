@@ -12,8 +12,8 @@ export default defineConfig({
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } }
   ],
   webServer: {
-    command: 'npm run dev:demo',
-    url: 'http://localhost:4011/demo/hud',
+    command: 'npm run ui',
+    url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
   }
 });

@@ -10,7 +10,7 @@
  * - Historical trend analysis
  */
 
-import { db } from '../storage/db.js';
+import { db } from '../storage/db';
 
 export interface EconomicMetrics {
   giniCoefficient: number;

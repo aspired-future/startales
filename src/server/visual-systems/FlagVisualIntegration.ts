@@ -2,7 +2,7 @@
  * Flag Visual Integration - AI flag generation for player-designed civilizations
  */
 
-import { EntityVisualGenerator, EntityImageResult } from './EntityVisualGenerator.js';
+import { EntityVisualGenerator, EntityImageResult } from './EntityVisualGenerator';
 
 export interface PlayerCivilizationData {
   id: string;

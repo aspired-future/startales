@@ -1,6 +1,6 @@
 import express from 'express';
-import InflationTrackingService from './InflationTrackingService.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import InflationTrackingService from './InflationTrackingService';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 const inflationService = new InflationTrackingService();

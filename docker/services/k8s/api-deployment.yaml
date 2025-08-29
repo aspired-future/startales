@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: startales
+  labels:
+    app: api
+    component: backend
+spec:
+  replicas: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 3
+      maxUnavailable: 2
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+        component: backend
+    spec:
+      containers:
+      - name: api
+        image: startales/api:latest
+        ports:
+        - containerPort: 4000
+          name: http
+        env:
+        - name: PORT
+          value: "4000"
+        - name: MAX_CONCURRENT_PLAYERS
+          valueFrom:
+            configMapKeyRef:
+              name: startales-config
+              key: MAX_CONCURRENT_PLAYERS
+        envFrom:
+        - configMapRef:
+            name: startales-config
+        - secretRef:
+            name: startales-secrets
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 4000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+        volumeMounts:
+        - name: app-logs
+          mountPath: /app/logs
+      volumes:
+      - name: app-logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: startales
+  labels:
+    app: api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 4000
+    targetPort: 4000
+    protocol: TCP
+    name: http
+  selector:
+    app: api
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-hpa
+  namespace: startales
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api
+  minReplicas: 5
+  maxReplicas: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60

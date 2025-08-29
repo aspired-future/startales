@@ -16,7 +16,7 @@ import {
   DevelopmentPlan,
   PolicyImpactAssessment,
   BenchmarkAnalysis
-} from './economicTierInterfaces.js';
+} from './economicTierInterfaces';
 
 export class EconomicTierService {
   private pool: Pool;

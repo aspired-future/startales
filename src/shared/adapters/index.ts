@@ -4,38 +4,38 @@
  */
 
 // Base types and utilities
-export * from './base.js';
+export * from './base';
 
 // Error normalization and utilities
-export * from './errors.js';
+export * from './errors';
 
 // Metrics interfaces and utilities
-export * from './metrics.js';
+export * from './metrics';
 
 // LLM adapter
-export * from './llm.js';
+export * from './llm';
 
 // STT adapter
-export * from './stt.js';
+export * from './stt';
 
 // TTS adapter
-export * from './tts.js';
+export * from './tts';
 
 // Image generation adapter
-export * from './image.js';
+export * from './image';
 
 // Video generation adapter (feature flagged)
-export * from './video.js';
+export * from './video';
 
 // Embeddings adapter
-export * from './embeddings.js';
+export * from './embeddings';
 
 // Re-export commonly used types for convenience
 export type {
   BaseAdapter,
   AdapterCapability,
   AdapterErrorCode
-} from './base.js';
+} from './base';
 
 export type {
   LLMAdapter,
@@ -43,7 +43,7 @@ export type {
   LLMOptions,
   LLMResult,
   LLMDelta
-} from './llm.js';
+} from './llm';
 
 export type {
   STTAdapter,
@@ -51,7 +51,7 @@ export type {
   STTOptions,
   STTResult,
   STTDelta
-} from './stt.js';
+} from './stt';
 
 export type {
   TTSAdapter,
@@ -59,7 +59,7 @@ export type {
   TTSOptions,
   TTSResult,
   TTSAudioChunk
-} from './tts.js';
+} from './tts';
 
 export type {
   ImageGenAdapter,
@@ -67,7 +67,7 @@ export type {
   ImageGenOptions,
   ImageResult,
   ImageStatus
-} from './image.js';
+} from './image';
 
 export type {
   VideoGenAdapter,
@@ -75,13 +75,13 @@ export type {
   VideoGenOptions,
   VideoResult,
   VideoStatus
-} from './video.js';
+} from './video';
 
 export type {
   EmbeddingsAdapter,
   EmbeddingsOptions,
   EmbeddingsResult
-} from './embeddings.js';
+} from './embeddings';
 
 // Adapter type union
 export type AnyAdapter = 

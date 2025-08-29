@@ -1,6 +1,6 @@
 import express from 'express';
-import { gameMasterTriggerService } from './GameMasterTriggers.js';
-import { veo3VideoGenerator } from './VEO3VideoGenerator.js';
+import { gameMasterTriggerService } from './GameMasterTriggers';
+import { veo3VideoGenerator } from './VEO3VideoGenerator';
 
 export const createGameMasterTestRoutes = () => {
   const router = express.Router();

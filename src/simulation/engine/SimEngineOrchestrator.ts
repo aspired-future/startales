@@ -7,17 +7,17 @@ import { Pool } from 'pg';
 import { EventEmitter } from 'events';
 import { GovernmentTypesKnobs, GOVERNMENT_TYPES_AI_PROMPTS } from '../governance/governmentTypesKnobs';
 import { GovernmentContractsKnobs, GOVERNMENT_CONTRACTS_AI_PROMPTS } from '../governance/governmentContractsKnobs';
-import { SovereignWealthFundSimulation } from './systems/sovereignWealthFundSimulation.js';
-import { CentralBankEnhancedSimulation } from './systems/centralBankEnhancedSimulation.js';
-// import { GovernmentBondsSimulationIntegration } from '../government-bonds/GovernmentBondsSimulationIntegration.js';
-// import { PlanetaryGovernmentSimulationIntegration } from '../planetary-government/PlanetaryGovernmentSimulationIntegration.js';
-// import { InstitutionalOverrideSimulationIntegration } from '../institutional-override/InstitutionalOverrideSimulationIntegration.js';
-import { MediaControlService } from '../media-control/MediaControlService.js';
-import { GalaxySimulationIntegration } from '../galaxy/GalaxySimulationIntegration.js';
-import { SpatialIntelligenceIntegration } from '../characters/SpatialIntelligenceIntegration.js';
-import { EntertainmentTourismSimulationIntegration } from '../entertainment-tourism/EntertainmentTourismSimulationIntegration.js';
-import { TradeSimulationIntegration } from '../trade/TradeSimulationIntegration.js';
-import { EnhancedKnobsIntegration } from './EnhancedKnobsIntegration.js';
+import { SovereignWealthFundSimulation } from './systems/sovereignWealthFundSimulation';
+import { CentralBankEnhancedSimulation } from './systems/centralBankEnhancedSimulation';
+// import { GovernmentBondsSimulationIntegration } from '../government-bonds/GovernmentBondsSimulationIntegration';
+// import { PlanetaryGovernmentSimulationIntegration } from '../planetary-government/PlanetaryGovernmentSimulationIntegration';
+// import { InstitutionalOverrideSimulationIntegration } from '../institutional-override/InstitutionalOverrideSimulationIntegration';
+import { MediaControlService } from '../../server/media-control/MediaControlService';
+import { GalaxySimulationIntegration } from '../../server/galaxy/GalaxySimulationIntegration';
+import { SpatialIntelligenceIntegration } from '../../server/characters/SpatialIntelligenceIntegration';
+import { EntertainmentTourismSimulationIntegration } from '../../server/entertainment-tourism/EntertainmentTourismSimulationIntegration';
+import { TradeSimulationIntegration } from '../../server/trade/TradeSimulationIntegration';
+import { EnhancedKnobsIntegration } from './EnhancedKnobsIntegration';
 
 export interface SimulationContext {
   campaignId: string;

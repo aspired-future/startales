@@ -5,7 +5,7 @@
 
 import { Router } from 'express';
 import { Pool } from 'pg';
-import { GovernmentBondsService, BondIssuanceRequest } from './GovernmentBondsService.js';
+import { GovernmentBondsService, BondIssuanceRequest } from './GovernmentBondsService';
 
 export function createGovernmentBondsRoutes(pool: Pool): Router {
   const router = Router();

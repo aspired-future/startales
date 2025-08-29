@@ -3,12 +3,12 @@
  * Sprint 16: Unit tests for technology analytics and intelligence
  */
 
-import { TechnologyAnalytics } from '../TechnologyAnalytics.js';
+import { TechnologyAnalytics } from '../TechnologyAnalytics';
 import { 
   Technology, TechnologyCategory, TechnologyLevel, AcquisitionMethod,
   ResearchProject, CyberOperation, TechnologyTransfer, ReverseEngineeringProject,
   CivilizationTech
-} from '../types.js';
+} from '../types';
 
 describe('TechnologyAnalytics', () => {
   let analytics: TechnologyAnalytics;

@@ -6,10 +6,10 @@
  */
 
 import express from 'express';
-import { TradeEngine } from './tradeEngine.js';
-import { TradeStorage } from './tradeStorage.js';
-import { TradeSimulationIntegration } from './TradeSimulationIntegration.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+import { TradeEngine } from './tradeEngine';
+import { TradeStorage } from './tradeStorage';
+import { TradeSimulationIntegration } from './TradeSimulationIntegration';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

@@ -2,7 +2,7 @@
  * City Visual Integration - Hooks image generation into city creation and management
  */
 
-import { EntityVisualGenerator, EntityImageResult } from './EntityVisualGenerator.js';
+import { EntityVisualGenerator, EntityImageResult } from './EntityVisualGenerator';
 
 export interface CityData {
   id: string;

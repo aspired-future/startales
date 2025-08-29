@@ -6,9 +6,9 @@
  */
 
 import { Pool } from 'pg';
-import { CityEngine } from './CityEngine.js';
-import { DynamicCityGenerator } from '../economic-ecosystem/DynamicCityGenerator.js';
-import { City } from './types.js';
+import { CityEngine } from './CityEngine';
+import { DynamicCityGenerator } from '../economic-ecosystem/DynamicCityGenerator';
+import { City } from './types';
 
 export interface EmergenceCondition {
   id: string;

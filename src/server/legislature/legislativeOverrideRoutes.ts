@@ -6,7 +6,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { LegislativeOverrideService } from './LegislativeOverrideService.js';
+import { LegislativeOverrideService } from './LegislativeOverrideService';
 import { Pool } from 'pg';
 
 export function createLegislativeOverrideRoutes(pool: Pool): Router {

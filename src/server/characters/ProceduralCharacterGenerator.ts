@@ -7,7 +7,7 @@
 
 import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
-import { DynamicCharacter, CharacterTemplate } from './DynamicCharacterEngine.js';
+import { DynamicCharacter, CharacterTemplate } from './DynamicCharacterEngine';
 
 export interface CharacterGenerationContext {
   civilization_id: number;

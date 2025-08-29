@@ -7,8 +7,8 @@
  */
 
 import { Pool } from 'pg';
-import { LegalEngine } from '../legal/LegalEngine.js';
-import { LegalAnalytics } from '../legal/LegalAnalytics.js';
+import { LegalEngine } from '../legal/LegalEngine';
+import { LegalAnalytics } from '../legal/LegalAnalytics';
 import {
   JusticeOperation,
   JudicialAppointment,
@@ -16,7 +16,7 @@ import {
   AgencyOversight,
   JusticePerformanceMetrics,
   JusticeBudgetAllocation
-} from './justiceSchema.js';
+} from './justiceSchema';
 
 export class JusticeSecretaryService {
   private pool: Pool;

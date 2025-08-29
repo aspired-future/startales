@@ -14,11 +14,11 @@ import {
   ModelType,
   RecommendationType,
   PriorityLevel
-} from '../storage/analyticsSchema.js';
+} from '../storage/analyticsSchema';
 
 // Import services from other systems
-import { HouseholdService } from '../households/householdService.js';
-import { WonderService } from '../wonders/wonderService.js';
+import { HouseholdService } from '../households/householdService';
+import { WonderService } from '../wonders/wonderService';
 
 export interface MetricsCalculationResult {
   metrics: CivilizationMetrics;

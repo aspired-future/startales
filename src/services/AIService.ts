@@ -3,6 +3,8 @@
  * Provides AI functionality for various game systems
  */
 
+import http from 'http';
+
 export interface AIServiceConfig {
   provider: 'openai' | 'anthropic' | 'ollama' | 'local';
   apiKey?: string;
@@ -96,6 +98,7 @@ class OllamaService implements AIService {
   private config: AIServiceConfig;
 
   constructor(config: AIServiceConfig) {
+    console.log('🦙 OllamaService constructor called with config:', JSON.stringify(config, null, 2));
     this.config = config;
   }
 
@@ -103,22 +106,65 @@ class OllamaService implements AIService {
     const mergedConfig = { ...this.config, ...options };
     const baseUrl = mergedConfig.baseUrl || 'http://localhost:11434';
     
+    console.log('🦙 OllamaService.generateText called');
+    console.log('📍 Base URL:', baseUrl);
+    console.log('🔧 Model:', mergedConfig.model);
+    console.log('📝 Prompt length:', prompt.length);
+    
     try {
-      const response = await fetch(`${baseUrl}/api/generate`, {
+      const requestBody = {
+        model: mergedConfig.model || 'llama3.2',
+        stream: false,
+        messages: [{ role: 'user', content: prompt }],
+        options: {
+          temperature: mergedConfig.temperature || 0.7,
+          num_ctx: mergedConfig.maxTokens || 1000
+        }
+      };
+      
+      console.log('📦 Request body:', JSON.stringify(requestBody, null, 2));
+      
+      // Use Node.js http module instead of fetch to avoid tsx issues
+      const url = new URL(`${baseUrl}/api/chat`);
+      const postData = JSON.stringify(requestBody);
+      
+      const options = {
+        hostname: url.hostname,
+        port: url.port || 11434,
+        path: url.pathname,
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: mergedConfig.model || 'llama3.2',
-          prompt: prompt,
-          stream: false,
-          options: {
-            temperature: mergedConfig.temperature || 0.7,
-            num_predict: mergedConfig.maxTokens || 1000
-          }
-        })
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      };
+
+      const httpResponse = await new Promise((resolve, reject) => {
+        const req = http.request(options, (httpRes) => {
+          let data = '';
+          httpRes.on('data', (chunk) => data += chunk);
+          httpRes.on('end', () => {
+            try {
+              const jsonData = JSON.parse(data);
+              resolve({ 
+                ok: httpRes.statusCode >= 200 && httpRes.statusCode < 300,
+                status: httpRes.statusCode, 
+                statusText: httpRes.statusMessage,
+                json: () => Promise.resolve(jsonData)
+              });
+            } catch (parseError) {
+              reject(new Error(`JSON parse error: ${parseError.message}`));
+            }
+          });
+        });
+
+        req.on('error', reject);
+        req.on('timeout', () => reject(new Error('Request timeout')));
+        req.write(postData);
+        req.end();
       });
+
+      const response = httpResponse;
 
       if (!response.ok) {
         throw new Error(`Ollama API error: ${response.status} ${response.statusText}`);
@@ -127,7 +173,7 @@ class OllamaService implements AIService {
       const data = await response.json();
       
       return {
-        content: data.response,
+        content: data.message?.content || '',
         usage: {
           promptTokens: data.prompt_eval_count || 0,
           completionTokens: data.eval_count || 0,
@@ -135,8 +181,13 @@ class OllamaService implements AIService {
         }
       };
     } catch (error) {
-      console.error('Ollama API error:', error);
-      throw error;
+      console.error('🚨 Ollama API error:', error);
+      console.error('🌐 Attempted URL:', `${baseUrl}/api/chat`);
+      console.error('📋 Error message:', error?.message || 'No message');
+      console.error('🔍 Error code:', error?.code || 'No code');
+      console.error('📊 Error stack:', error?.stack || 'No stack');
+      console.error('🔧 Full error object:', JSON.stringify(error, null, 2));
+      throw new Error(`Ollama connection failed: ${error?.message || 'Unknown error'}`);
     }
   }
 
@@ -234,10 +285,10 @@ export function getAIService(config?: AIServiceConfig): AIService {
   const envConfig: AIServiceConfig = {
     provider: (process.env.AI_PROVIDER as any) || 'ollama', // Default to Ollama
     apiKey: process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY,
-    model: process.env.AI_MODEL || 'llama3.2',
+    model: 'llama3.2:1b', // Use the installed model
     maxTokens: parseInt(process.env.AI_MAX_TOKENS || '1000'),
     temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
-    baseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434'
+    baseUrl: 'http://localhost:11434' // Force localhost for now
   };
 
   const finalConfig = { ...envConfig, ...config };

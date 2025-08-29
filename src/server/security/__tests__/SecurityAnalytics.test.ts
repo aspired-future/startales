@@ -3,9 +3,9 @@
  * Tests for security analytics and reporting functionality
  */
 
-import { SecurityAnalytics } from '../SecurityAnalytics.js';
-import { SecurityEngine } from '../SecurityEngine.js';
-import { PoliceForce, NationalGuard, Prison, SecurityEvent } from '../types.js';
+import { SecurityAnalytics } from '../SecurityAnalytics';
+import { SecurityEngine } from '../SecurityEngine';
+import { PoliceForce, NationalGuard, Prison, SecurityEvent } from '../types';
 
 describe('SecurityAnalytics', () => {
   let analytics: SecurityAnalytics;

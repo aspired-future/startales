@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { aiContextService, MemoryContext, AIContextOptions, MemorySearchConfig } from './aiContextService.js';
+import { aiContextService, MemoryContext, AIContextOptions, MemorySearchConfig } from './aiContextService';
 
 export const aiContextRouter = express.Router();
 

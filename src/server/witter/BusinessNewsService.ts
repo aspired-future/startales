@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
-import { getFinancialMarketsService } from '../financial-markets/FinancialMarketsService.js';
-import { getEnhancedAIContentService } from './EnhancedAIContentService.js';
+import { getFinancialMarketsService } from '../financial-markets/FinancialMarketsService';
+import { getEnhancedAIContentService } from './EnhancedAIContentService';
 
 export interface BusinessNewsPost {
   id: string;

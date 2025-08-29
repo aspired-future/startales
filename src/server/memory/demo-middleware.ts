@@ -1,13 +1,13 @@
 import express from 'express';
-import { bootstrapLLMProviders } from '../llm/bootstrap.js';
-import { conversationStorage } from './conversationStorage.js';
-import { captureConversations } from './conversationMiddleware.js';
+import { bootstrapLLMProviders } from '../llm/bootstrap';
+import { conversationStorage } from './conversationStorage';
+import { captureConversations } from './conversationMiddleware';
 import { 
   captureUserMessage, 
   captureAssistantMessage, 
   createContext,
   getCaptureStats 
-} from './messageCapture.js';
+} from './messageCapture';
 
 /**
  * Demo Express application showing conversation capture middleware integration

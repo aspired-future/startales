@@ -6,8 +6,8 @@
  */
 
 import express from 'express';
-import { MigrationEngine } from './MigrationEngine.js';
-import { IntegrationAnalyticsEngine } from './IntegrationAnalytics.js';
+import { MigrationEngine } from './MigrationEngine';
+import { IntegrationAnalyticsEngine } from './IntegrationAnalytics';
 import { 
   MigrationFlow, 
   ImmigrationPolicy, 
@@ -15,8 +15,8 @@ import {
   MIGRATION_FLOW_TYPES,
   MIGRATION_SUBTYPES,
   INTEGRATION_STAGES
-} from './types.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+} from './types';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = express.Router();
 

@@ -1,6 +1,6 @@
-import { embeddingService } from './embeddingService.js';
-import { qdrantClient } from './qdrantClient.js';
-import { conversationStorage } from './conversationStorage.js';
+import { embeddingService } from './embeddingService';
+import { qdrantClient } from './qdrantClient';
+import { conversationStorage } from './conversationStorage';
 
 export interface ProductionConfig {
   database: {

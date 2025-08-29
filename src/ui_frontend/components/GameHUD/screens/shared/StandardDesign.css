@@ -1,0 +1,473 @@
+/* Standard Design System - Based on Supreme Court Pattern */
+
+/* Color Themes for Different Panel Types */
+:root {
+  /* Government/Political - Blue/Purple Theme */
+  --gov-primary: rgba(79, 172, 254, 0.15);
+  --gov-secondary: rgba(0, 123, 255, 0.1);
+  --gov-accent: #4facfe;
+  --gov-gradient: linear-gradient(135deg, rgba(79, 172, 254, 0.15) 0%, rgba(0, 123, 255, 0.1) 50%, rgba(79, 172, 254, 0.08) 100%);
+  
+  /* Economic/Financial - Gold/Yellow Theme */
+  --econ-primary: rgba(251, 191, 36, 0.15);
+  --econ-secondary: rgba(245, 158, 11, 0.1);
+  --econ-accent: #fbbf24;
+  --econ-gradient: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 50%, rgba(251, 191, 36, 0.08) 100%);
+  
+  /* Security/Defense - Red/Orange Theme */
+  --security-primary: rgba(239, 68, 68, 0.15);
+  --security-secondary: rgba(220, 38, 38, 0.1);
+  --security-accent: #ef4444;
+  --security-gradient: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 50%, rgba(239, 68, 68, 0.08) 100%);
+  
+  /* Research/Technology - Purple/Violet Theme */
+  --tech-primary: rgba(147, 51, 234, 0.15);
+  --tech-secondary: rgba(124, 58, 237, 0.1);
+  --tech-accent: #9333ea;
+  --tech-gradient: linear-gradient(135deg, rgba(147, 51, 234, 0.15) 0%, rgba(124, 58, 237, 0.1) 50%, rgba(147, 51, 234, 0.08) 100%);
+  
+  /* Social/Population - Green/Teal Theme */
+  --social-primary: rgba(16, 185, 129, 0.15);
+  --social-secondary: rgba(5, 150, 105, 0.1);
+  --social-accent: #10b981;
+  --social-gradient: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 50%, rgba(16, 185, 129, 0.08) 100%);
+  
+  /* Exploration/Space - Cyan/Blue Theme */
+  --space-primary: rgba(6, 182, 212, 0.15);
+  --space-secondary: rgba(8, 145, 178, 0.1);
+  --space-accent: #06b6d4;
+  --space-gradient: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(8, 145, 178, 0.1) 50%, rgba(6, 182, 212, 0.08) 100%);
+  
+  /* Common Colors */
+  --text-primary: #ffffff;
+  --text-secondary: #e0e6ed;
+  --text-muted: #a0a9ba;
+  --scrollbar-thumb: #4ecdc4;
+  --scrollbar-thumb-hover: #45b7aa;
+  --scrollbar-track: rgba(26, 26, 46, 0.5);
+}
+
+/* Standard Screen Container */
+.standard-screen-container {
+  height: 100%;
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Government Theme */
+.standard-screen-container.government-theme {
+  background: 
+    radial-gradient(ellipse at top, rgba(79, 172, 254, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(0, 123, 255, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #0a0f1a 0%, #1a1a2e 30%, #2c1810 70%, #3d2914 100%);
+}
+
+/* Economic Theme */
+.standard-screen-container.economic-theme {
+  background: 
+    radial-gradient(ellipse at top, rgba(251, 191, 36, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #0f0a05 0%, #1a1a2e 30%, #2c1810 70%, #3d2914 100%);
+}
+
+/* Security Theme */
+.standard-screen-container.security-theme {
+  background: 
+    radial-gradient(ellipse at top, rgba(239, 68, 68, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(220, 38, 38, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #1a0505 0%, #1a1a2e 30%, #2c1010 70%, #3d1414 100%);
+}
+
+/* Technology Theme */
+.standard-screen-container.technology-theme {
+  background: 
+    radial-gradient(ellipse at top, rgba(147, 51, 234, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(124, 58, 237, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #0f051a 0%, #1a1a2e 30%, #1c102c 70%, #2d143d 100%);
+}
+
+/* Social Theme */
+.standard-screen-container.social-theme {
+  background: 
+    radial-gradient(ellipse at top, rgba(16, 185, 129, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(5, 150, 105, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #051a0f 0%, #1a1a2e 30%, #102c1c 70%, #143d2d 100%);
+}
+
+/* Space Theme */
+.standard-screen-container.space-theme {
+  background: 
+    radial-gradient(ellipse at top, rgba(6, 182, 212, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(8, 145, 178, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #051a1a 0%, #1a1a2e 30%, #102c2c 70%, #143d3d 100%);
+}
+
+/* Standard Background Pattern */
+.standard-screen-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 150px,
+      rgba(255, 255, 255, 0.02) 151px,
+      rgba(255, 255, 255, 0.02) 152px
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Standard Dashboard Grid */
+.standard-dashboard {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3rem;
+  padding: 2rem;
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+  z-index: 2;
+  align-items: start;
+  grid-auto-rows: min-content;
+}
+
+/* Table panels should be full width */
+.standard-panel.table-panel {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+/* Regular metric panels should stay in the grid layout */
+.standard-panel:not(.table-panel) {
+  /* Keep default grid behavior */
+}
+
+/* Standard Scrollbar */
+.standard-dashboard::-webkit-scrollbar {
+  width: 8px;
+}
+
+.standard-dashboard::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+.standard-dashboard::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+.standard-dashboard::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Standard Panel Cards */
+.standard-panel {
+  border-radius: 16px;
+  padding: 2rem;
+  backdrop-filter: blur(25px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideIn 0.6s ease-out;
+}
+
+/* Theme-specific panel backgrounds */
+.standard-panel.government-theme {
+  background: var(--gov-gradient);
+  border-color: var(--gov-accent);
+}
+
+.standard-panel.economic-theme {
+  background: var(--econ-gradient);
+  border-color: var(--econ-accent);
+}
+
+.standard-panel.security-theme {
+  background: var(--security-gradient);
+  border-color: var(--security-accent);
+}
+
+.standard-panel.technology-theme {
+  background: var(--tech-gradient);
+  border-color: var(--tech-accent);
+}
+
+.standard-panel.social-theme {
+  background: var(--social-gradient);
+  border-color: var(--social-accent);
+}
+
+.standard-panel.space-theme {
+  background: var(--space-gradient);
+  border-color: var(--space-accent);
+}
+
+/* Panel top border accent */
+.standard-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+}
+
+.standard-panel.government-theme::before {
+  background: linear-gradient(90deg, rgba(79, 172, 254, 0.8) 0%, rgba(0, 123, 255, 0.6) 50%, rgba(79, 172, 254, 0.8) 100%);
+}
+
+.standard-panel.economic-theme::before {
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.8) 0%, rgba(245, 158, 11, 0.6) 50%, rgba(251, 191, 36, 0.8) 100%);
+}
+
+.standard-panel.security-theme::before {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.8) 0%, rgba(220, 38, 38, 0.6) 50%, rgba(239, 68, 68, 0.8) 100%);
+}
+
+.standard-panel.technology-theme::before {
+  background: linear-gradient(90deg, rgba(147, 51, 234, 0.8) 0%, rgba(124, 58, 237, 0.6) 50%, rgba(147, 51, 234, 0.8) 100%);
+}
+
+.standard-panel.social-theme::before {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.8) 0%, rgba(5, 150, 105, 0.6) 50%, rgba(16, 185, 129, 0.8) 100%);
+}
+
+.standard-panel.space-theme::before {
+  background: linear-gradient(90deg, rgba(6, 182, 212, 0.8) 0%, rgba(8, 145, 178, 0.6) 50%, rgba(6, 182, 212, 0.8) 100%);
+}
+
+/* Panel hover effects */
+.standard-panel:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 
+    0 12px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+/* Standard Metrics */
+.standard-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.standard-metric:last-child {
+  border-bottom: none;
+}
+
+.standard-metric-value {
+  font-weight: 700;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* Standard Action Buttons */
+.standard-action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.standard-btn {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Orbitron', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.standard-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.standard-btn:hover::before {
+  left: 100%;
+}
+
+.standard-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Theme-specific button styles */
+.standard-btn.government-theme {
+  background: linear-gradient(135deg, var(--gov-accent) 0%, rgba(0, 123, 255, 0.8) 100%);
+  color: white;
+}
+
+.standard-btn.economic-theme {
+  background: linear-gradient(135deg, var(--econ-accent) 0%, rgba(245, 158, 11, 0.8) 100%);
+  color: white;
+}
+
+.standard-btn.security-theme {
+  background: linear-gradient(135deg, var(--security-accent) 0%, rgba(220, 38, 38, 0.8) 100%);
+  color: white;
+}
+
+.standard-btn.technology-theme {
+  background: linear-gradient(135deg, var(--tech-accent) 0%, rgba(124, 58, 237, 0.8) 100%);
+  color: white;
+}
+
+.standard-btn.social-theme {
+  background: linear-gradient(135deg, var(--social-accent) 0%, rgba(5, 150, 105, 0.8) 100%);
+  color: white;
+}
+
+.standard-btn.space-theme {
+  background: linear-gradient(135deg, var(--space-accent) 0%, rgba(8, 145, 178, 0.8) 100%);
+  color: white;
+}
+
+/* Standard Data Tables */
+.standard-data-table {
+  width: 100%;
+  min-width: 800px; /* Ensure minimum width for readability */
+  border-collapse: collapse;
+  background: transparent;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+/* Table Container for Horizontal Scrolling */
+.standard-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  margin-top: 1rem;
+}
+
+.standard-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.standard-table-container::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+.standard-table-container::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+.standard-table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+.standard-data-table thead {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+}
+
+.standard-data-table th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 1rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.standard-data-table tbody tr {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.standard-data-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.01);
+}
+
+.standard-data-table td {
+  padding: 1rem 1.5rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 0 0 30px rgba(255, 255, 255, 0.2); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .standard-dashboard {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 1rem;
+  }
+  
+  .standard-panel {
+    padding: 1.5rem;
+  }
+  
+  .standard-metric {
+    font-size: 1rem;
+    padding: 1rem 0;
+  }
+  
+  .standard-btn {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+  }
+  
+  .standard-data-table th,
+  .standard-data-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+  }
+}

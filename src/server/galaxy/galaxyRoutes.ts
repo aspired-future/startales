@@ -6,9 +6,9 @@
  */
 
 import express from 'express';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
-import { GalaxySimulationIntegration } from './GalaxySimulationIntegration.js';
-import { DEFAULT_GALAXY_KNOBS, GALAXY_KNOBS_AI_PROMPTS } from './galaxyKnobs.js';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
+import { GalaxySimulationIntegration } from './GalaxySimulationIntegration';
+import { DEFAULT_GALAXY_KNOBS, GALAXY_KNOBS_AI_PROMPTS } from './galaxyKnobs';
 
 const router = express.Router();
 

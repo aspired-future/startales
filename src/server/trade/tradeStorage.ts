@@ -1,5 +1,5 @@
-import { initDatabase } from '../persistence/database.js';
-import { TradePrice, TradeRoute, TradeContract, TradeAnalytics } from './tradeEngine.js';
+import { initDatabase } from '../persistence/database';
+import { TradePrice, TradeRoute, TradeContract, TradeAnalytics } from './tradeEngine';
 
 /**
  * Trade storage and management using SQLite database

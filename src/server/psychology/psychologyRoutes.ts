@@ -27,16 +27,16 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { PsychologyEngine } from './PsychologyEngine.js';
-import { BehavioralAnalytics } from './BehavioralAnalytics.js';
+import { PsychologyEngine } from './PsychologyEngine';
+import { BehavioralAnalytics } from './BehavioralAnalytics';
 import { 
   PsychologicalProfile, 
   BehavioralResponse,
   IncentiveStructure,
   PolicyPsychologyResponse,
   PERSONALITY_ARCHETYPES
-} from './types.js';
-import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system.js';
+} from './types';
+import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
 const router = Router();
 

@@ -4,7 +4,7 @@
  * Unit tests for the Demographics Analytics module
  */
 
-import { DemographicsAnalytics } from '../DemographicsAnalytics.js';
+import { DemographicsAnalytics } from '../DemographicsAnalytics';
 import { 
   LifespanProfile, 
   CasualtyEvent, 
@@ -12,7 +12,7 @@ import {
   DemographicTransition,
   HealthStatus,
   CasualtyRecord
-} from '../types.js';
+} from '../types';
 
 describe('DemographicsAnalytics', () => {
   let analytics: DemographicsAnalytics;

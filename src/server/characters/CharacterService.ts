@@ -5,7 +5,7 @@
  */
 
 import { Pool } from 'pg';
-import { DynamicCharacter, CharacterTemplate, CharacterAnalytics, CharacterEvent } from './characterInterfaces.js';
+import { DynamicCharacter, CharacterTemplate, CharacterAnalytics, CharacterEvent } from './characterInterfaces';
 
 export class CharacterService {
   private pool: Pool;
