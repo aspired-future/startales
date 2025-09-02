@@ -1,857 +1,930 @@
-import React, { useState, useEffect } from 'react';
+/**
+ * Planetary Conquest Screen - Military Expansion and Territory Control
+ * 
+ * This screen focuses on planetary conquest and military expansion operations including:
+ * - Military campaigns and battle planning
+ * - Territory acquisition and control
+ * - Strategic resource management
+ * - Military intelligence and reconnaissance
+ * - Conquest analytics and performance metrics
+ * 
+ * Theme: Security (red color scheme)
+ */
+
+import React, { useState, useEffect, useCallback } from 'react';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './PlanetaryConquestScreen.css';
+import '../shared/StandardDesign.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
-interface PlanetaryConquestScreenProps {
-  screenId: string;
-  title: string;
-  icon: string;
-  gameContext?: any;
-}
-
-interface Campaign {
+interface MilitaryCampaign {
   id: string;
   name: string;
   targetPlanet: string;
-  targetSystem: string;
-  status: string;
-  progress: number;
-  defendingCiv?: string;
-  objectives: Array<{
-    name: string;
-    status: 'completed' | 'in-progress' | 'pending';
-  }>;
+  status: 'planning' | 'active' | 'completed' | 'failed' | 'cancelled';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  commander: string;
+  forces: {
+    infantry: number;
+    armor: number;
+    artillery: number;
+    airSupport: number;
+    orbitalSupport: number;
+  };
+  estimatedDuration: number;
+  startDate: string;
+  completionDate?: string;
+  casualties: {
+    friendly: number;
+    enemy: number;
+    civilian: number;
+  };
+  resources: {
+    fuel: number;
+    ammunition: number;
+    medical: number;
+    food: number;
+  };
+  strategicValue: number;
+  riskAssessment: 'low' | 'medium' | 'high' | 'extreme';
+  notes: string;
 }
 
-interface Discovery {
+interface ConquestTarget {
   id: string;
   name: string;
   system: string;
-  status: string;
-  habitability: number;
-  discoveredBy: string;
-  estimatedValue: number;
-  resources: {
-    minerals: string;
-    water: string;
-    atmosphere: string;
+  type: 'terrestrial' | 'gas_giant' | 'ice_world' | 'desert' | 'ocean' | 'volcanic';
+  population: number;
+  civilization: string;
+  defenses: {
+    planetaryShields: boolean;
+    groundForces: number;
+    orbitalDefenses: number;
+    spaceFleet: number;
   };
-  threats: string[];
+  resources: string[];
+  strategicImportance: number;
+  difficulty: 'easy' | 'moderate' | 'hard' | 'extreme';
+  estimatedResistance: number;
+  estimatedCasualties: number;
+  estimatedDuration: number;
+  status: 'unexplored' | 'scouted' | 'targeted' | 'under_attack' | 'conquered' | 'resistance';
+  lastIntelligence: string;
 }
 
-interface Merger {
+interface MilitaryForces {
   id: string;
-  planet: string;
-  system: string;
-  type: string;
-  integrationStatus: string;
-  completionDate: string;
-  populationTransfer: {
-    original: number;
-    satisfaction: number;
-  };
-  economicImpact: {
-    gdpChange: number;
-    resourceAccess: string[];
-  };
+  name: string;
+  type: 'infantry' | 'armor' | 'artillery' | 'air' | 'orbital' | 'special_forces';
+  strength: number;
+  experience: number;
+  equipment: string[];
+  location: string;
+  status: 'ready' | 'deployed' | 'training' | 'maintenance' | 'recovering';
+  commander: string;
+  specializations: string[];
+  lastTraining: string;
+  combatEfficiency: number;
 }
 
-interface Integration {
-  id: string;
-  planetId: string;
-  phase: string;
-  progress: number;
-  timeRemaining: number;
-  successProbability: number;
-  challenges: string[];
-}
-
-interface OverviewData {
-  activeCampaigns: number;
-  discoveredPlanets: number;
-  completedMergers: number;
-  activeIntegrations: number;
-  integrationMetrics: {
-    successRate: number;
-    averageIntegrationTime: number;
-    populationSatisfaction: number;
-    rebellionRisk: number;
+interface ConquestAnalytics {
+  overview: {
+    totalCampaigns: number;
+    activeCampaigns: number;
+    successfulConquests: number;
+    totalTerritories: number;
+    militaryStrength: number;
+    averageCampaignDuration: number;
   };
-  recentActivity: Array<{
+  campaignPerformance: Array<{
     date: string;
-    target: string;
+    campaignsLaunched: number;
+    campaignsCompleted: number;
+    successRate: number;
+    averageCasualties: number;
+    territoryGained: number;
+  }>;
+  targetAnalysis: Array<{
     type: string;
-    action: string;
+    count: number;
+    difficulty: string;
+    strategicValue: number;
+    estimatedResistance: number;
+  }>;
+  forceDeployment: Array<{
+    type: string;
+    totalStrength: number;
+    deployed: number;
+    ready: number;
+    efficiency: number;
   }>;
 }
 
-const PlanetaryConquestScreen: React.FC<PlanetaryConquestScreenProps> = ({ 
+interface ConquestData {
+  campaigns: MilitaryCampaign[];
+  targets: ConquestTarget[];
+  forces: MilitaryForces[];
+  analytics: ConquestAnalytics;
+}
+
+const PlanetaryConquestScreen: React.FC<ScreenProps> = ({ 
   screenId, 
   title, 
   icon, 
   gameContext 
 }) => {
-  const [conquestData, setConquestData] = useState<{
-    overview: OverviewData | null;
-    campaigns: Campaign[];
-    discoveries: Discovery[];
-    mergers: Merger[];
-    integrations: Integration[];
-  }>({
-    overview: null,
-    campaigns: [],
-    discoveries: [],
-    mergers: [],
-    integrations: []
-  });
-
-  const [activeTab, setActiveTab] = useState<'overview' | 'campaigns' | 'discoveries' | 'mergers' | 'integrations'>('overview');
+  const [conquestData, setConquestData] = useState<ConquestData | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'campaigns' | 'targets' | 'forces' | 'analytics'>('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
-  const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterPriority, setFilterPriority] = useState<string>('all');
+  const [selectedCampaign, setSelectedCampaign] = useState<MilitaryCampaign | null>(null);
 
-  useEffect(() => {
-    const fetchConquestData = async () => {
-      try {
-        setLoading(true);
-        // Try to fetch from API
-        const response = await fetch('/api/conquest/overview');
-        
-        if (!response.ok) {
-          throw new Error('API not available');
-        }
-        
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'campaigns', label: 'Campaigns', icon: '⚔️' },
+    { id: 'targets', label: 'Targets', icon: '🎯' },
+    { id: 'forces', label: 'Forces', icon: '🛡️' },
+    { id: 'analytics', label: 'Analytics', icon: '📈' }
+  ];
+
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/conquest/campaigns', description: 'Get military campaigns' },
+    { method: 'GET', path: '/api/conquest/targets', description: 'Get conquest targets' },
+    { method: 'GET', path: '/api/conquest/forces', description: 'Get military forces' }
+  ];
+
+  const formatNumber = (num: number) => {
+    if (num >= 1e9) return `${(num / 1e9).toFixed(1)}B`;
+    if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
+    if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
+    return num.toString();
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'planning': return '#3b82f6';
+      case 'active': return '#f59e0b';
+      case 'completed': return '#10b981';
+      case 'failed': return '#ef4444';
+      case 'cancelled': return '#6b7280';
+      case 'unexplored': return '#6b7280';
+      case 'scouted': return '#3b82f6';
+      case 'targeted': return '#f59e0b';
+      case 'under_attack': return '#ef4444';
+      case 'conquered': return '#10b981';
+      case 'resistance': return '#f97316';
+      case 'ready': return '#10b981';
+      case 'deployed': return '#f59e0b';
+      case 'training': return '#3b82f6';
+      case 'maintenance': return '#8b5cf6';
+      case 'recovering': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'low': return '#10b981';
+      case 'medium': return '#f59e0b';
+      case 'high': return '#f97316';
+      case 'critical': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy': return '#10b981';
+      case 'moderate': return '#f59e0b';
+      case 'hard': return '#f97316';
+      case 'extreme': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getRiskColor = (risk: string) => {
+    switch (risk) {
+      case 'low': return '#10b981';
+      case 'medium': return '#f59e0b';
+      case 'high': return '#f97316';
+      case 'extreme': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const fetchConquestData = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/conquest/campaigns');
+      if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          setConquestData(prev => ({ ...prev, overview: data.data }));
+          setConquestData(data.data);
+        } else {
+          throw new Error('API response error');
         }
-      } catch (err) {
-        console.warn('Conquest API not available, using mock data');
-        // Use comprehensive mock data
-        setConquestData({
-          overview: {
-            activeCampaigns: 3,
-            discoveredPlanets: 12,
-            completedMergers: 8,
-            activeIntegrations: 5,
-            integrationMetrics: {
-              successRate: 0.847,
-              averageIntegrationTime: 180,
-              populationSatisfaction: 0.723,
-              rebellionRisk: 0.156
-            },
-            recentActivity: [
-              {
-                date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-                target: 'Kepler-442b',
-                type: 'Campaign',
-                action: 'completed successfully'
-              },
-              {
-                date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-                target: 'Wolf-359c',
-                type: 'Discovery',
-                action: 'surveyed and claimed'
-              },
-              {
-                date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-                target: 'Proxima-b',
-                type: 'Integration',
-                action: 'phase 3 completed'
-              }
-            ]
-          },
-          campaigns: [
-            {
-              id: 'camp_001',
-              name: 'Operation Starfall',
-              targetPlanet: 'Trappist-1e',
-              targetSystem: 'Trappist-1',
-              status: 'active',
-              progress: 67,
-              defendingCiv: 'Zephyrian Empire',
-              objectives: [
-                { name: 'Establish orbital superiority', status: 'completed' },
-                { name: 'Neutralize planetary defenses', status: 'in-progress' },
-                { name: 'Secure strategic locations', status: 'pending' },
-                { name: 'Begin population integration', status: 'pending' }
-              ]
-            },
-            {
-              id: 'camp_002',
-              name: 'Liberation of Gliese-667c',
-              targetPlanet: 'Gliese-667c',
-              targetSystem: 'Gliese-667',
-              status: 'planning',
-              progress: 23,
-              objectives: [
-                { name: 'Intelligence gathering', status: 'in-progress' },
-                { name: 'Fleet mobilization', status: 'pending' },
-                { name: 'Diplomatic negotiations', status: 'pending' }
-              ]
-            },
-            {
-              id: 'camp_003',
-              name: 'Peaceful Annexation - HD 40307g',
-              targetPlanet: 'HD 40307g',
-              targetSystem: 'HD 40307',
-              status: 'active',
-              progress: 89,
-              objectives: [
-                { name: 'Cultural exchange programs', status: 'completed' },
-                { name: 'Economic integration', status: 'completed' },
-                { name: 'Political unification', status: 'in-progress' },
-                { name: 'Administrative transition', status: 'pending' }
-              ]
-            }
-          ],
-          discoveries: [
-            {
-              id: 'disc_001',
-              name: 'Kepler-186f',
-              system: 'Kepler-186',
-              status: 'surveyed',
-              habitability: 0.82,
-              discoveredBy: 'Terran Federation',
-              estimatedValue: 2400000,
-              resources: {
-                minerals: 'Rich (Rare Earth Elements)',
-                water: 'Abundant (Polar Ice Caps)',
-                atmosphere: 'Breathable (21% O2, 78% N2)'
-              },
-              threats: ['Hostile Wildlife', 'Extreme Weather Patterns']
-            },
-            {
-              id: 'disc_002',
-              name: 'TOI-715b',
-              system: 'TOI-715',
-              status: 'discovered',
-              habitability: 0.64,
-              discoveredBy: 'Martian Republic',
-              estimatedValue: 1800000,
-              resources: {
-                minerals: 'Moderate (Iron, Copper)',
-                water: 'Limited (Underground Aquifers)',
-                atmosphere: 'Thin (Requires Terraforming)'
-              },
-              threats: ['Radiation Exposure', 'Seismic Activity']
-            },
-            {
-              id: 'disc_003',
-              name: 'LHS 1140b',
-              system: 'LHS 1140',
-              status: 'claimed',
-              habitability: 0.91,
-              discoveredBy: 'Zephyrian Empire',
-              estimatedValue: 3200000,
-              resources: {
-                minerals: 'Extremely Rich (Platinum, Uranium)',
-                water: 'Vast Oceans (70% Surface)',
-                atmosphere: 'Perfect (Earth-like)'
-              },
-              threats: []
-            }
-          ],
-          mergers: [
-            {
-              id: 'merge_001',
-              planet: 'Kepler-442b',
-              system: 'Kepler-442',
-              type: 'conquest',
-              integrationStatus: 'completed',
-              completionDate: '2024-01-15',
-              populationTransfer: {
-                original: 2400000,
-                satisfaction: 0.68
-              },
-              economicImpact: {
-                gdpChange: 12.4,
-                resourceAccess: ['Titanium', 'Helium-3', 'Rare Minerals']
-              }
-            },
-            {
-              id: 'merge_002',
-              planet: 'Wolf-359c',
-              system: 'Wolf-359',
-              type: 'diplomacy',
-              integrationStatus: 'in-progress',
-              completionDate: '2024-01-08',
-              populationTransfer: {
-                original: 890000,
-                satisfaction: 0.84
-              },
-              economicImpact: {
-                gdpChange: 8.7,
-                resourceAccess: ['Agricultural Products', 'Biomass', 'Fresh Water']
-              }
-            }
-          ],
-          integrations: [
-            {
-              id: 'int_001',
-              planetId: 'Wolf-359c',
-              phase: 'Cultural Integration',
-              progress: 0.73,
-              timeRemaining: 45,
-              successProbability: 0.89,
-              challenges: ['Language Barriers', 'Religious Differences']
-            },
-            {
-              id: 'int_002',
-              planetId: 'Proxima-b',
-              phase: 'Economic Restructuring',
-              progress: 0.56,
-              timeRemaining: 78,
-              successProbability: 0.72,
-              challenges: ['Infrastructure Gaps', 'Currency Conversion', 'Trade Route Establishment']
-            },
-            {
-              id: 'int_003',
-              planetId: 'Ross-128b',
-              phase: 'Administrative Setup',
-              progress: 0.34,
-              timeRemaining: 120,
-              successProbability: 0.91,
-              challenges: ['Bureaucratic Resistance']
-            }
-          ]
-        });
-      } finally {
-        setLoading(false);
+      } else {
+        throw new Error('API not available');
       }
-    };
 
-    fetchConquestData();
+    } catch (err) {
+      console.warn('Failed to fetch conquest data:', err);
+      // Use comprehensive mock data
+      setConquestData({
+        campaigns: [
+          {
+            id: 'campaign_1',
+            name: 'Operation Desert Storm',
+            targetPlanet: 'Arrakis Prime',
+            status: 'active',
+            priority: 'high',
+            commander: 'General Alexander Kane',
+            forces: {
+              infantry: 50000,
+              armor: 2500,
+              artillery: 500,
+              airSupport: 200,
+              orbitalSupport: 15
+            },
+            estimatedDuration: 45,
+            startDate: '2393-06-01T00:00:00Z',
+            casualties: {
+              friendly: 1250,
+              enemy: 8500,
+              civilian: 300
+            },
+            resources: {
+              fuel: 15000,
+              ammunition: 25000,
+              medical: 5000,
+              food: 10000
+            },
+            strategicValue: 8.5,
+            riskAssessment: 'medium',
+            notes: 'Desert warfare conditions require specialized equipment and tactics.'
+          },
+          {
+            id: 'campaign_2',
+            name: 'Ice World Liberation',
+            targetPlanet: 'Frozen Haven',
+            status: 'planning',
+            priority: 'medium',
+            commander: 'Colonel Sarah Chen',
+            forces: {
+              infantry: 30000,
+              armor: 1500,
+              artillery: 300,
+              airSupport: 150,
+              orbitalSupport: 10
+            },
+            estimatedDuration: 30,
+            startDate: '2393-06-20T00:00:00Z',
+            casualties: {
+              friendly: 0,
+              enemy: 0,
+              civilian: 0
+            },
+            resources: {
+              fuel: 12000,
+              ammunition: 18000,
+              medical: 4000,
+              food: 8000
+            },
+            strategicValue: 6.8,
+            riskAssessment: 'low',
+            notes: 'Cold weather gear and specialized vehicles required.'
+          },
+          {
+            id: 'campaign_3',
+            name: 'Gas Giant Outpost',
+            targetPlanet: 'Jupiter Station',
+            status: 'completed',
+            priority: 'critical',
+            commander: 'Admiral Marcus Rodriguez',
+            forces: {
+              infantry: 15000,
+              armor: 500,
+              artillery: 100,
+              airSupport: 50,
+              orbitalSupport: 25
+            },
+            estimatedDuration: 15,
+            startDate: '2393-05-15T00:00:00Z',
+            completionDate: '2393-05-30T00:00:00Z',
+            casualties: {
+              friendly: 500,
+              enemy: 2000,
+              civilian: 0
+            },
+            resources: {
+              fuel: 8000,
+              ammunition: 12000,
+              medical: 2500,
+              food: 5000
+            },
+            strategicValue: 9.2,
+            riskAssessment: 'high',
+            notes: 'Successfully secured orbital control and eliminated enemy resistance.'
+          }
+        ],
+        targets: [
+          {
+            id: 'target_1',
+            name: 'Arrakis Prime',
+            system: 'Canopus',
+            type: 'desert',
+            population: 25000000,
+            civilization: 'Sand Nomads',
+            defenses: {
+              planetaryShields: true,
+              groundForces: 75000,
+              orbitalDefenses: 20,
+              spaceFleet: 45
+            },
+            resources: ['Spice', 'Minerals', 'Water'],
+            strategicImportance: 8.5,
+            difficulty: 'hard',
+            estimatedResistance: 7.5,
+            estimatedCasualties: 5000,
+            estimatedDuration: 45,
+            status: 'under_attack',
+            lastIntelligence: '2393-06-15T10:00:00Z'
+          },
+          {
+            id: 'target_2',
+            name: 'Frozen Haven',
+            system: 'Polaris',
+            type: 'ice_world',
+            population: 15000000,
+            civilization: 'Ice Miners',
+            defenses: {
+              planetaryShields: false,
+              groundForces: 45000,
+              orbitalDefenses: 15,
+              spaceFleet: 30
+            },
+            resources: ['Ice', 'Minerals', 'Hydrocarbons'],
+            strategicImportance: 6.8,
+            difficulty: 'moderate',
+            estimatedResistance: 5.2,
+            estimatedCasualties: 2500,
+            estimatedDuration: 30,
+            status: 'targeted',
+            lastIntelligence: '2393-06-14T15:30:00Z'
+          },
+          {
+            id: 'target_3',
+            name: 'Ocean World Alpha',
+            system: 'Aquarius',
+            type: 'ocean',
+            population: 35000000,
+            civilization: 'Aqua Collective',
+            defenses: {
+              planetaryShields: true,
+              groundForces: 95000,
+              orbitalDefenses: 25,
+              spaceFleet: 60
+            },
+            resources: ['Water', 'Marine Life', 'Minerals'],
+            strategicImportance: 7.8,
+            difficulty: 'extreme',
+            estimatedResistance: 9.1,
+            estimatedCasualties: 8500,
+            estimatedDuration: 60,
+            status: 'scouted',
+            lastIntelligence: '2393-06-13T12:00:00Z'
+          }
+        ],
+        forces: [
+          {
+            id: 'force_1',
+            name: '1st Terran Infantry Division',
+            type: 'infantry',
+            strength: 15000,
+            experience: 85,
+            equipment: ['Advanced Rifles', 'Body Armor', 'Combat Drones'],
+            location: 'Training Base Alpha',
+            status: 'ready',
+            commander: 'Colonel James Wilson',
+            specializations: ['Urban Warfare', 'Desert Operations', 'Counter-Insurgency'],
+            lastTraining: '2393-06-10T00:00:00Z',
+            combatEfficiency: 92
+          },
+          {
+            id: 'force_2',
+            name: '2nd Armored Regiment',
+            type: 'armor',
+            strength: 5000,
+            experience: 78,
+            equipment: ['Main Battle Tanks', 'APCs', 'Mobile Artillery'],
+            location: 'Deployed - Arrakis Prime',
+            status: 'deployed',
+            commander: 'Major Elena Vasquez',
+            specializations: ['Desert Warfare', 'Blitzkrieg Tactics', 'Armor Coordination'],
+            lastTraining: '2393-05-25T00:00:00Z',
+            combatEfficiency: 88
+          },
+          {
+            id: 'force_3',
+            name: 'Orbital Strike Group',
+            type: 'orbital',
+            strength: 2500,
+            experience: 92,
+            equipment: ['Orbital Platforms', 'Missile Systems', 'Electronic Warfare'],
+            location: 'High Orbit - Arrakis Prime',
+            status: 'deployed',
+            commander: 'Captain David Kim',
+            specializations: ['Orbital Bombardment', 'Space Superiority', 'Electronic Warfare'],
+            lastTraining: '2393-06-01T00:00:00Z',
+            combatEfficiency: 95
+          }
+        ],
+        analytics: {
+          overview: {
+            totalCampaigns: 15,
+            activeCampaigns: 3,
+            successfulConquests: 12,
+            totalTerritories: 8,
+            militaryStrength: 125000,
+            averageCampaignDuration: 35
+          },
+          campaignPerformance: [
+            { date: 'Jun 10', campaignsLaunched: 15, campaignsCompleted: 12, successRate: 80, averageCasualties: 2500, territoryGained: 8 },
+            { date: 'Jun 11', campaignsLaunched: 16, campaignsCompleted: 12, successRate: 75, averageCasualties: 2800, territoryGained: 8 },
+            { date: 'Jun 12', campaignsLaunched: 16, campaignsCompleted: 12, successRate: 75, averageCasualties: 2600, territoryGained: 8 },
+            { date: 'Jun 13', campaignsLaunched: 17, campaignsCompleted: 13, successRate: 76, averageCasualties: 2400, territoryGained: 9 },
+            { date: 'Jun 14', campaignsLaunched: 18, campaignsCompleted: 13, successRate: 72, averageCasualties: 3000, territoryGained: 9 },
+            { date: 'Jun 15', campaignsLaunched: 18, campaignsCompleted: 13, successRate: 72, averageCasualties: 2900, territoryGained: 9 }
+          ],
+          targetAnalysis: [
+            { type: 'Terrestrial', count: 8, difficulty: 'moderate', strategicValue: 7.8, estimatedResistance: 6.2 },
+            { type: 'Gas Giant', count: 3, difficulty: 'hard', strategicValue: 8.5, estimatedResistance: 7.8 },
+            { type: 'Ice World', count: 5, difficulty: 'moderate', strategicValue: 6.5, estimatedResistance: 5.4 },
+            { type: 'Desert', count: 4, difficulty: 'hard', strategicValue: 7.2, estimatedResistance: 7.1 },
+            { type: 'Ocean', count: 2, difficulty: 'extreme', strategicValue: 8.8, estimatedResistance: 9.2 },
+            { type: 'Volcanic', count: 3, difficulty: 'hard', strategicValue: 7.5, estimatedResistance: 7.3 }
+          ],
+          forceDeployment: [
+            { type: 'Infantry', totalStrength: 75000, deployed: 45000, ready: 30000, efficiency: 88 },
+            { type: 'Armor', totalStrength: 25000, deployed: 15000, ready: 10000, efficiency: 85 },
+            { type: 'Artillery', totalStrength: 15000, deployed: 8000, ready: 7000, efficiency: 82 },
+            { type: 'Air Support', totalStrength: 12000, deployed: 8000, ready: 4000, efficiency: 90 },
+            { type: 'Orbital', totalStrength: 8000, deployed: 6000, ready: 2000, efficiency: 94 },
+            { type: 'Special Forces', totalStrength: 5000, deployed: 3000, ready: 2000, efficiency: 96 }
+          ]
+        }
+      });
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const handleAction = (action: string, context?: any) => {
-    console.log(`Planetary Conquest Action: ${action}`, context);
-    alert(`Planetary Conquest System: ${action}\n\nThis would ${action.toLowerCase()} in the full implementation.\n\nContext: ${JSON.stringify(context, null, 2)}`);
-  };
+  useEffect(() => {
+    fetchConquestData();
+  }, [fetchConquestData]);
 
-  const handleNewCampaign = (campaignData: any) => {
-    console.log('Starting new campaign:', campaignData);
-    alert(`New Campaign Started!\n\nTarget: ${campaignData.targetPlanet}\nSystem: ${campaignData.targetSystem}\nType: ${campaignData.campaignType}\n\nThis would launch the campaign in the full implementation.`);
-    setShowNewCampaignModal(false);
-  };
-
-  const handleDiscovery = (discoveryData: any) => {
-    console.log('Discovering new planet:', discoveryData);
-    alert(`Planet Discovery!\n\nSystem: ${discoveryData.systemName}\nCoordinates: (${discoveryData.coordinates.x}, ${discoveryData.coordinates.y}, ${discoveryData.coordinates.z})\nDiscovered by: ${discoveryData.discovererCiv}\n\nThis would discover the planet in the full implementation.`);
-    setShowDiscoveryModal(false);
-  };
-
-  if (loading) {
-    return (
-      <div className="planetary-conquest-screen">
-        <div className="loading-state">
-          <div className="loading-spinner"></div>
-          <p>Loading conquest data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="planetary-conquest-screen">
-        <div className="error-state">
-          <h3>⚠️ Error Loading Conquest Data</h3>
-          <p>{error}</p>
-          <button onClick={() => window.location.reload()}>Retry</button>
-        </div>
-      </div>
-    );
-  }
-
-  const renderOverviewTab = () => (
-    <div className="overview-content">
-      <div className="metrics-grid">
-        <div className="metric-card">
-          <span className="metric-value">{conquestData.overview?.activeCampaigns || 0}</span>
-          <span className="metric-label">Active Campaigns</span>
-        </div>
-        <div className="metric-card">
-          <span className="metric-value">{conquestData.overview?.discoveredPlanets || 0}</span>
-          <span className="metric-label">Discovered Planets</span>
-        </div>
-        <div className="metric-card">
-          <span className="metric-value">{conquestData.overview?.completedMergers || 0}</span>
-          <span className="metric-label">Completed Mergers</span>
-        </div>
-        <div className="metric-card">
-          <span className="metric-value">{conquestData.overview?.activeIntegrations || 0}</span>
-          <span className="metric-label">Active Integrations</span>
-        </div>
-      </div>
-
-      <div className="overview-grid">
-        <div className="card">
-          <div className="card-header">
-            <span className="card-icon">📈</span>
-            <span className="card-title">Integration Metrics</span>
-          </div>
-          <div className="card-content">
-            {conquestData.overview?.integrationMetrics && (
-              <>
-                <div className="stat-row">
-                  <span className="stat-label">Success Rate</span>
-                  <span className="stat-value">{(conquestData.overview.integrationMetrics.successRate * 100).toFixed(1)}%</span>
-                </div>
-                <div className="stat-row">
-                  <span className="stat-label">Avg Integration Time</span>
-                  <span className="stat-value">{conquestData.overview.integrationMetrics.averageIntegrationTime} days</span>
-                </div>
-                <div className="stat-row">
-                  <span className="stat-label">Population Satisfaction</span>
-                  <span className="stat-value">{(conquestData.overview.integrationMetrics.populationSatisfaction * 100).toFixed(1)}%</span>
-                </div>
-                <div className="stat-row">
-                  <span className="stat-label">Rebellion Risk</span>
-                  <span className="stat-value">{(conquestData.overview.integrationMetrics.rebellionRisk * 100).toFixed(1)}%</span>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-header">
-            <span className="card-icon">📅</span>
-            <span className="card-title">Recent Activity</span>
-          </div>
-          <div className="card-content">
-            <div className="timeline">
-              {conquestData.overview?.recentActivity?.map((activity, index) => (
-                <div key={index} className="timeline-item">
-                  <div className="timeline-date">{activity.date}</div>
-                  <div className="timeline-title">{activity.target}</div>
-                  <div className="timeline-description">{activity.type} {activity.action}</div>
-                </div>
-              )) || <div className="timeline-item"><div className="timeline-description">No recent activity</div></div>}
+  const renderOverview = () => (
+    <>
+      {/* Conquest Overview - Full panel width */}
+      <div className="standard-panel security-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>⚔️ Conquest Overview</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#ef4444', marginBottom: '0.5rem' }}>
+              {conquestData?.analytics.overview.totalCampaigns || 0}
             </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Total Campaigns</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#ef4444', marginBottom: '0.5rem' }}>
+              {conquestData?.analytics.overview.activeCampaigns || 0}
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Active Campaigns</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#ef4444', marginBottom: '0.5rem' }}>
+              {conquestData?.analytics.overview.successfulConquests || 0}
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Successful Conquests</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#ef4444', marginBottom: '0.5rem' }}>
+              {formatNumber(conquestData?.analytics.overview.militaryStrength || 0)}
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Military Strength</div>
           </div>
         </div>
       </div>
 
-      <div className="actions">
-        <button className="btn" onClick={() => setShowNewCampaignModal(true)}>🚀 Start New Campaign</button>
-        <button className="btn btn-secondary" onClick={() => setShowDiscoveryModal(true)}>🔍 Discover Planet</button>
-        <button className="btn btn-success" onClick={() => handleAction('Simulate Time Passage')}>⏰ Simulate Time Passage</button>
+      {/* Active Campaigns - Full panel width */}
+      <div className="standard-panel security-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>🔥 Active Campaigns</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Campaign</th>
+                <th>Target</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Commander</th>
+                <th>Progress</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {conquestData?.campaigns.filter(c => c.status === 'active').map(campaign => (
+                <tr key={campaign.id}>
+                  <td>
+                    <div style={{ maxWidth: '200px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{campaign.name}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                        Started: {new Date(campaign.startDate).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </td>
+                  <td>{campaign.targetPlanet}</td>
+                  <td>
+                    <span style={{ 
+                      color: getStatusColor(campaign.status),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getStatusColor(campaign.status) + '20'
+                    }}>
+                      {campaign.status}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getPriorityColor(campaign.priority),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getPriorityColor(campaign.priority) + '20'
+                    }}>
+                      {campaign.priority}
+                    </span>
+                  </td>
+                  <td>{campaign.commander}</td>
+                  <td>
+                    <div style={{ width: '100px', backgroundColor: '#374151', borderRadius: '0.25rem', height: '8px' }}>
+                      <div style={{ 
+                        width: '60%', 
+                        backgroundColor: '#ef4444', 
+                        height: '100%', 
+                        borderRadius: '0.25rem' 
+                      }}></div>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>60% Complete</div>
+                  </td>
+                  <td>
+                    <button className="standard-btn security-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+
+  const renderCampaigns = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>⚔️ Military Campaigns</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('New Campaign')}>⚔️ New Campaign</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Review Plans')}>📋 Review</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Campaign Name</th>
+                <th>Target Planet</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Commander</th>
+                <th>Forces</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {conquestData?.campaigns.map(campaign => (
+                <tr key={campaign.id}>
+                  <td>
+                    <div style={{ maxWidth: '250px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{campaign.name}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                        Strategic Value: {campaign.strategicValue}/10
+                      </div>
+                    </div>
+                  </td>
+                  <td>{campaign.targetPlanet}</td>
+                  <td>
+                    <span style={{ 
+                      color: getStatusColor(campaign.status),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getStatusColor(campaign.status) + '20'
+                    }}>
+                      {campaign.status}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getPriorityColor(campaign.priority),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getPriorityColor(campaign.priority) + '20'
+                    }}>
+                      {campaign.priority}
+                    </span>
+                  </td>
+                  <td>{campaign.commander}</td>
+                  <td>
+                    <div style={{ fontSize: '0.875rem' }}>
+                      <div>Infantry: {formatNumber(campaign.forces.infantry)}</div>
+                      <div>Armor: {formatNumber(campaign.forces.armor)}</div>
+                      <div>Artillery: {formatNumber(campaign.forces.artillery)}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <button className="standard-btn security-theme">Details</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 
-  const renderCampaignsTab = () => (
-    <div className="campaigns-content">
-      <div className="actions">
-        <button className="btn" onClick={() => setShowNewCampaignModal(true)}>🚀 Start New Campaign</button>
-        <button className="btn btn-secondary" onClick={() => handleAction('Refresh Campaigns')}>🔄 Refresh</button>
-      </div>
-      <div className="campaigns-grid">
-        {conquestData.campaigns.map(campaign => (
-          <div key={campaign.id} className="card">
-            <div className="card-header">
-              <span className="card-icon">{campaign.defendingCiv ? '⚔️' : '🚀'}</span>
-              <span className="card-title">{campaign.name}</span>
-            </div>
-            <div className="card-content">
-              <div className="stat-row">
-                <span className="stat-label">Target</span>
-                <span className="stat-value">{campaign.targetPlanet}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">System</span>
-                <span className="stat-value">{campaign.targetSystem}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Status</span>
-                <span className={`status-badge status-${campaign.status}`}>{campaign.status}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Progress</span>
-                <span className="stat-value">{campaign.progress}%</span>
-              </div>
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${campaign.progress}%` }}></div>
-              </div>
-              
-              <div className="objectives-section">
-                <strong>Objectives:</strong>
-                <ul className="objectives-list">
-                  {campaign.objectives.map((obj, index) => (
-                    <li key={index} className="objective-item">
-                      <div className={`objective-status ${obj.status}`}></div>
-                      <span>{obj.name}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div className="actions">
-                <button className="btn btn-success" onClick={() => handleAction('Advance Campaign Progress', campaign)}>
-                  📈 Advance Progress
-                </button>
-                {campaign.progress >= 90 && (
-                  <button className="btn" onClick={() => handleAction('Complete Campaign', campaign)}>
-                    ✅ Complete Campaign
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderDiscoveriesTab = () => (
-    <div className="discoveries-content">
-      <div className="actions">
-        <button className="btn" onClick={() => setShowDiscoveryModal(true)}>🔍 Discover New Planet</button>
-        <button className="btn btn-secondary" onClick={() => handleAction('Refresh Discoveries')}>🔄 Refresh</button>
-      </div>
-      <div className="discoveries-grid">
-        {conquestData.discoveries.map(planet => (
-          <div key={planet.id} className="card">
-            <div className="card-header">
-              <span className="card-icon">🪐</span>
-              <span className="card-title">{planet.name}</span>
-            </div>
-            <div className="card-content">
-              <div className="stat-row">
-                <span className="stat-label">System</span>
-                <span className="stat-value">{planet.system}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Status</span>
-                <span className={`status-badge status-${planet.status}`}>{planet.status}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Habitability</span>
-                <span className="stat-value">{(planet.habitability * 100).toFixed(1)}%</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Discovered By</span>
-                <span className="stat-value">{planet.discoveredBy}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Est. Value</span>
-                <span className="stat-value">{planet.estimatedValue.toLocaleString()} credits</span>
-              </div>
-              
-              <div className="resources-section">
-                <strong>Resources:</strong>
-                <div className="stat-row">
-                  <span className="stat-label">Minerals</span>
-                  <span className="stat-value">{planet.resources.minerals}</span>
-                </div>
-                <div className="stat-row">
-                  <span className="stat-label">Water</span>
-                  <span className="stat-value">{planet.resources.water}</span>
-                </div>
-                <div className="stat-row">
-                  <span className="stat-label">Atmosphere</span>
-                  <span className="stat-value">{planet.resources.atmosphere}</span>
-                </div>
-              </div>
-              
-              {planet.threats.length > 0 && (
-                <div className="threats-section">
-                  <strong>Threats:</strong>
-                  <div className="threats-list">
-                    {planet.threats.join(', ')}
-                  </div>
-                </div>
-              )}
-              
-              <div className="actions">
-                {(planet.status === 'discovered' || planet.status === 'surveyed') && (
-                  <button className="btn" onClick={() => handleAction('Claim Planet', planet)}>
-                    🏴 Claim Planet
-                  </button>
-                )}
-                <button className="btn btn-secondary" onClick={() => handleAction('Survey Planet', planet)}>
-                  🔬 Survey
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
+  const renderTargets = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>🎯 Conquest Targets</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('New Target')}>🎯 New Target</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Scout Targets')}>🔍 Scout</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Target Name</th>
+                <th>System</th>
+                <th>Type</th>
+                <th>Population</th>
+                <th>Defenses</th>
+                <th>Difficulty</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {conquestData?.targets.map(target => (
+                <tr key={target.id}>
+                  <td>
+                    <div style={{ maxWidth: '200px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{target.name}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                        Strategic: {target.strategicImportance}/10
+                      </div>
+                    </div>
+                  </td>
+                  <td>{target.system}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: '#374151',
+                      color: '#f3f4f6'
+                    }}>
+                      {target.type.replace('_', ' ')}
+                    </span>
+                  </td>
+                  <td>{formatNumber(target.population)}</td>
+                  <td>
+                    <div style={{ fontSize: '0.875rem' }}>
+                      <div>Shields: {target.defenses.planetaryShields ? '✅' : '❌'}</div>
+                      <div>Ground: {formatNumber(target.defenses.groundForces)}</div>
+                      <div>Orbital: {target.defenses.orbitalDefenses}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getDifficultyColor(target.difficulty),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getDifficultyColor(target.difficulty) + '20'
+                    }}>
+                      {target.difficulty}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn security-theme">Analyze</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 
-  const renderMergersTab = () => (
-    <div className="mergers-content">
-      <div className="actions">
-        <button className="btn btn-secondary" onClick={() => handleAction('Refresh Mergers')}>🔄 Refresh</button>
-      </div>
-      <div className="mergers-grid">
-        {conquestData.mergers.map(merger => (
-          <div key={merger.id} className="card">
-            <div className="card-header">
-              <span className="card-icon">{merger.type === 'conquest' ? '⚔️' : '🤝'}</span>
-              <span className="card-title">{merger.planet}</span>
-            </div>
-            <div className="card-content">
-              <div className="stat-row">
-                <span className="stat-label">Type</span>
-                <span className="stat-value">{merger.type}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">System</span>
-                <span className="stat-value">{merger.system}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Integration Status</span>
-                <span className={`status-badge status-${merger.integrationStatus.replace('-', '')}`}>{merger.integrationStatus}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Completion Date</span>
-                <span className="stat-value">{merger.completionDate}</span>
-              </div>
-              
-              <div className="impact-section">
-                <strong>Population Impact:</strong>
-                <div className="stat-row">
-                  <span className="stat-label">Original Population</span>
-                  <span className="stat-value">{merger.populationTransfer.original.toLocaleString()}</span>
-                </div>
-                <div className="stat-row">
-                  <span className="stat-label">Satisfaction</span>
-                  <span className="stat-value">{(merger.populationTransfer.satisfaction * 100).toFixed(1)}%</span>
-                </div>
-              </div>
-              
-              <div className="impact-section">
-                <strong>Economic Impact:</strong>
-                <div className="stat-row">
-                  <span className="stat-label">GDP Change</span>
-                  <span className="stat-value">+{merger.economicImpact.gdpChange.toFixed(1)}%</span>
-                </div>
-                <div className="stat-row">
-                  <span className="stat-label">New Resources</span>
-                  <span className="stat-value">{merger.economicImpact.resourceAccess.length}</span>
-                </div>
-                <div className="resources-gained">
-                  {merger.economicImpact.resourceAccess.join(', ')}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+  const renderForces = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>🛡️ Military Forces</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('New Force')}>🛡️ New Force</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Train Forces')}>🎯 Train</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Force Name</th>
+                <th>Type</th>
+                <th>Strength</th>
+                <th>Status</th>
+                <th>Commander</th>
+                <th>Efficiency</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {conquestData?.forces.map(force => (
+                <tr key={force.id}>
+                  <td>
+                    <div style={{ maxWidth: '250px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{force.name}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                        Experience: {force.experience}/100
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: '#374151',
+                      color: '#f3f4f6'
+                    }}>
+                      {force.type.replace('_', ' ')}
+                    </span>
+                  </td>
+                  <td>{formatNumber(force.strength)}</td>
+                  <td>
+                    <span style={{ 
+                      color: getStatusColor(force.status),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getStatusColor(force.status) + '20'
+                    }}>
+                      {force.status}
+                    </span>
+                  </td>
+                  <td>{force.commander}</td>
+                  <td>
+                    <div style={{ width: '80px', backgroundColor: '#374151', borderRadius: '0.25rem', height: '8px' }}>
+                      <div style={{ 
+                        width: `${force.combatEfficiency}%`, 
+                        backgroundColor: '#ef4444', 
+                        height: '100%', 
+                        borderRadius: '0.25rem' 
+                      }}></div>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>{force.combatEfficiency}%</div>
+                  </td>
+                  <td>
+                    <button className="standard-btn security-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 
-  const renderIntegrationsTab = () => (
-    <div className="integrations-content">
-      <div className="actions">
-        <button className="btn btn-secondary" onClick={() => handleAction('Refresh Integrations')}>🔄 Refresh</button>
-      </div>
-      <div className="integrations-grid">
-        {conquestData.integrations.map(integration => (
-          <div key={integration.id} className="card">
-            <div className="card-header">
-              <span className="card-icon">🏗️</span>
-              <span className="card-title">{integration.planetId}</span>
-            </div>
-            <div className="card-content">
-              <div className="stat-row">
-                <span className="stat-label">Current Phase</span>
-                <span className="stat-value">{integration.phase}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Progress</span>
-                <span className="stat-value">{(integration.progress * 100).toFixed(1)}%</span>
-              </div>
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${integration.progress * 100}%` }}></div>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Time Remaining</span>
-                <span className="stat-value">{integration.timeRemaining} days</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">Success Probability</span>
-                <span className="stat-value">{(integration.successProbability * 100).toFixed(1)}%</span>
-              </div>
-              
-              {integration.challenges.length > 0 && (
-                <div className="challenges-section">
-                  <strong>Challenges:</strong>
-                  <div className="challenges-list">
-                    {integration.challenges.join(', ')}
-                  </div>
-                </div>
-              )}
-              
-              <div className="actions">
-                <button className="btn btn-success" onClick={() => handleAction('Advance Integration', integration)}>
-                  📅 Advance 1 Week
-                </button>
-                <button className="btn btn-secondary" onClick={() => handleAction('Address Challenges', integration)}>
-                  🔧 Address Challenges
-                </button>
-              </div>
-            </div>
+  const renderAnalytics = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>📊 Conquest Analytics</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div className="chart-container">
+            <LineChart
+              data={conquestData?.analytics.campaignPerformance.map(perf => ({
+                name: perf.date,
+                'Campaigns Launched': perf.campaignsLaunched,
+                'Campaigns Completed': perf.campaignsCompleted,
+                'Success Rate': perf.successRate,
+                'Average Casualties': perf.averageCasualties
+              })) || []}
+              title="Campaign Performance Trends"
+              height={300}
+              width={500}
+              showTooltip={true}
+            />
           </div>
-        ))}
+          <div className="chart-container">
+            <PieChart
+              data={conquestData?.analytics.targetAnalysis.map(target => ({
+                name: target.type,
+                value: target.count
+              })) || []}
+              title="Target Distribution by Type"
+              size={250}
+              showLegend={true}
+            />
+          </div>
+        </div>
+        <div style={{ marginTop: '2rem' }}>
+          <h4 style={{ marginBottom: '1rem', color: '#ef4444' }}>Force Deployment Analysis</h4>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Force Type</th>
+                  <th>Total Strength</th>
+                  <th>Deployed</th>
+                  <th>Ready</th>
+                  <th>Efficiency</th>
+                </tr>
+              </thead>
+              <tbody>
+                {conquestData?.analytics.forceDeployment.map(force => (
+                  <tr key={force.type}>
+                    <td>{force.type}</td>
+                    <td>{formatNumber(force.totalStrength)}</td>
+                    <td>{formatNumber(force.deployed)}</td>
+                    <td>{formatNumber(force.ready)}</td>
+                    <td>{force.efficiency}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );
 
   return (
-    <div className="planetary-conquest-screen">
-      <div className="tab-navigation">
-        <button 
-          className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          📊 Overview
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'campaigns' ? 'active' : ''}`}
-          onClick={() => setActiveTab('campaigns')}
-        >
-          ⚔️ Active Campaigns
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'discoveries' ? 'active' : ''}`}
-          onClick={() => setActiveTab('discoveries')}
-        >
-          🔍 Discoveries
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'mergers' ? 'active' : ''}`}
-          onClick={() => setActiveTab('mergers')}
-        >
-          🔄 Mergers
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'integrations' ? 'active' : ''}`}
-          onClick={() => setActiveTab('integrations')}
-        >
-          🏗️ Integrations
-        </button>
-      </div>
-
-      <div className="tab-content">
-        {activeTab === 'overview' && renderOverviewTab()}
-        {activeTab === 'campaigns' && renderCampaignsTab()}
-        {activeTab === 'discoveries' && renderDiscoveriesTab()}
-        {activeTab === 'mergers' && renderMergersTab()}
-        {activeTab === 'integrations' && renderIntegrationsTab()}
-      </div>
-
-      {/* New Campaign Modal */}
-      {showNewCampaignModal && (
-        <div className="modal active">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h2 className="modal-title">Start New Campaign</h2>
-              <button className="close-btn" onClick={() => setShowNewCampaignModal(false)}>&times;</button>
-            </div>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.target as HTMLFormElement);
-              handleNewCampaign({
-                targetSystem: formData.get('targetSystem'),
-                targetPlanet: formData.get('targetPlanet'),
-                campaignType: formData.get('campaignType'),
-                fleetSize: formData.get('fleetSize'),
-                troopCount: formData.get('troopCount')
-              });
+    <BaseScreen
+      screenId={screenId}
+      title={title}
+      icon={icon}
+      gameContext={gameContext}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchConquestData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
+    >
+      <div className="standard-screen-container security-theme">
+        <div className="standard-dashboard">
+          {!loading && !error && conquestData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'campaigns' && renderCampaigns()}
+              {activeTab === 'targets' && renderTargets()}
+              {activeTab === 'forces' && renderForces()}
+              {activeTab === 'analytics' && renderAnalytics()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
             }}>
-              <div className="form-group">
-                <label className="form-label">Target System</label>
-                <input type="text" className="form-input" name="targetSystem" placeholder="e.g., kepler-442" required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Target Planet</label>
-                <input type="text" className="form-input" name="targetPlanet" placeholder="e.g., kepler-442b" required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Campaign Type</label>
-                <select className="form-select" name="campaignType" required>
-                  <option value="conquest">Military Conquest</option>
-                  <option value="discovery">Peaceful Colonization</option>
-                  <option value="diplomacy">Diplomatic Annexation</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Fleet Size</label>
-                <input type="number" className="form-input" name="fleetSize" min="1" max="50" defaultValue="5" />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Troop Count</label>
-                <input type="number" className="form-input" name="troopCount" min="1000" max="1000000" defaultValue="50000" />
-              </div>
-              <div className="actions">
-                <button type="submit" className="btn">🚀 Launch Campaign</button>
-                <button type="button" className="btn btn-secondary" onClick={() => setShowNewCampaignModal(false)}>Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Discovery Modal */}
-      {showDiscoveryModal && (
-        <div className="modal active">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h2 className="modal-title">Discover New Planet</h2>
-              <button className="close-btn" onClick={() => setShowDiscoveryModal(false)}>&times;</button>
+              {loading ? 'Loading conquest data...' : 'No conquest data available'}
             </div>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.target as HTMLFormElement);
-              handleDiscovery({
-                systemName: formData.get('systemName'),
-                coordinates: {
-                  x: parseInt(formData.get('coordX') as string),
-                  y: parseInt(formData.get('coordY') as string),
-                  z: parseInt(formData.get('coordZ') as string)
-                },
-                discovererCiv: formData.get('discovererCiv')
-              });
-            }}>
-              <div className="form-group">
-                <label className="form-label">System Name</label>
-                <input type="text" className="form-input" name="systemName" placeholder="e.g., wolf-359" required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Coordinates X</label>
-                <input type="number" className="form-input" name="coordX" min="-50" max="50" defaultValue="0" />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Coordinates Y</label>
-                <input type="number" className="form-input" name="coordY" min="-50" max="50" defaultValue="0" />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Coordinates Z</label>
-                <input type="number" className="form-input" name="coordZ" min="-50" max="50" defaultValue="0" />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Discoverer Civilization</label>
-                <select className="form-select" name="discovererCiv" required>
-                  <option value="terran-federation">Terran Federation</option>
-                  <option value="martian-republic">Martian Republic</option>
-                  <option value="zephyrian-empire">Zephyrian Empire</option>
-                  <option value="jovian-collective">Jovian Collective</option>
-                </select>
-              </div>
-              <div className="actions">
-                <button type="submit" className="btn">🔍 Discover Planet</button>
-                <button type="button" className="btn btn-secondary" onClick={() => setShowDiscoveryModal(false)}>Cancel</button>
-              </div>
-            </form>
-          </div>
+          )}
         </div>
-      )}
-    </div>
+      </div>
+    </BaseScreen>
   );
 };
 

@@ -1,93 +1,167 @@
-import React, { useState, useEffect } from 'react';
-import BaseScreen, { ScreenProps } from '../BaseScreen';
+/**
+ * Civilization Overview Screen - High-Level Civilization Management
+ * 
+ * This screen focuses on overall civilization management and overview including:
+ * - Civilization status and metrics
+ * - Population and demographics overview
+ * - Economic and resource summary
+ * - Government and political status
+ * - Technology and development progress
+ * 
+ * Theme: Government (blue color scheme)
+ */
+
+import React, { useState, useEffect, useCallback } from 'react';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './CivilizationOverviewScreen.css';
+import '../shared/StandardDesign.css';
 import { LineChart, PieChart, BarChart } from '../../../Charts';
 
-interface CivilizationStats {
-  // Core Stats
+interface CivilizationMetrics {
+  id: string;
   name: string;
   population: number;
-  territory: number;
-  gdp: number;
-  approval: number;
-  
-  // Military & Security
-  militaryStrength: number;
-  defenseSpending: number;
-  securityLevel: number;
-  
-  // Economy
-  treasury: number;
-  debtToGDP: number;
-  tradeBalance: number;
-  unemployment: number;
-  
-  // Technology & Research
-  researchProjects: number;
-  techLevel: number;
-  innovationIndex: number;
-  
-  // Social & Culture
-  educationLevel: number;
-  healthIndex: number;
-  culturalInfluence: number;
-  
-  // Space & Galaxy
-  controlledSystems: number;
-  exploredSectors: number;
-  diplomaticRelations: number;
-  
-  // Government
-  governmentType: string;
+  growthRate: number;
+  happiness: number;
   stability: number;
-  corruption: number;
+  technology: number;
+  economy: number;
+  military: number;
+  culture: number;
+  lastUpdated: string;
 }
 
-interface CivilizationOverviewScreenProps extends ScreenProps {}
+interface PopulationData {
+  total: number;
+  growth: number;
+  density: number;
+  distribution: Array<{
+    ageGroup: string;
+    count: number;
+    percentage: number;
+  }>;
+  migration: {
+    incoming: number;
+    outgoing: number;
+    net: number;
+  };
+  urbanization: number;
+  education: number;
+  health: number;
+}
 
-const CivilizationOverviewScreen: React.FC<CivilizationOverviewScreenProps> = ({
-  screenId,
-  title,
-  icon,
-  gameContext
+interface EconomicData {
+  gdp: number;
+  growth: number;
+  inflation: number;
+  unemployment: number;
+  sectors: Array<{
+    name: string;
+    value: number;
+    percentage: number;
+    growth: number;
+  }>;
+  trade: {
+    imports: number;
+    exports: number;
+    balance: number;
+  };
+  resources: Array<{
+    name: string;
+    quantity: number;
+    value: number;
+    status: 'abundant' | 'adequate' | 'scarce' | 'critical';
+  }>;
+}
+
+interface GovernmentData {
+  type: string;
+  stability: number;
+  approval: number;
+  efficiency: number;
+  policies: Array<{
+    name: string;
+    status: 'active' | 'pending' | 'failed' | 'expired';
+    impact: 'positive' | 'negative' | 'neutral';
+    description: string;
+  }>;
+  departments: Array<{
+    name: string;
+    performance: number;
+    budget: number;
+    status: 'excellent' | 'good' | 'adequate' | 'poor';
+  }>;
+  elections: Array<{
+    type: string;
+    date: string;
+    status: 'upcoming' | 'active' | 'completed';
+    turnout: number;
+  }>;
+}
+
+interface TechnologyData {
+  overall: number;
+  research: number;
+  innovation: number;
+  adoption: number;
+  fields: Array<{
+    name: string;
+    level: number;
+    progress: number;
+    priority: 'high' | 'medium' | 'low';
+  }>;
+  projects: Array<{
+    name: string;
+    status: 'research' | 'development' | 'testing' | 'deployment';
+    progress: number;
+    funding: number;
+    expectedCompletion: string;
+  }>;
+  breakthroughs: Array<{
+    name: string;
+    date: string;
+    impact: 'major' | 'moderate' | 'minor';
+    description: string;
+  }>;
+}
+
+interface CivilizationOverviewData {
+  metrics: CivilizationMetrics;
+  population: PopulationData;
+  economy: EconomicData;
+  government: GovernmentData;
+  technology: TechnologyData;
+}
+
+const CivilizationOverviewScreen: React.FC<ScreenProps> = ({ 
+  screenId, 
+  title, 
+  icon, 
+  gameContext 
 }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'military' | 'economy' | 'technology' | 'society' | 'galaxy'>('overview');
-  const [loading, setLoading] = useState(false);
-  const [civilizationStats, setCivilizationStats] = useState<CivilizationStats>({
-    // Mock data for comprehensive civilization overview
-    name: "United Terran Federation",
-    population: 2847000000,
-    territory: 847,
-    gdp: 45600000000000,
-    approval: 73,
-    
-    militaryStrength: 85,
-    defenseSpending: 12.4,
-    securityLevel: 78,
-    
-    treasury: 2340000000000,
-    debtToGDP: 34.2,
-    tradeBalance: 156000000000,
-    unemployment: 4.2,
-    
-    researchProjects: 247,
-    techLevel: 8.7,
-    innovationIndex: 82,
-    
-    educationLevel: 91,
-    healthIndex: 88,
-    culturalInfluence: 76,
-    
-    controlledSystems: 23,
-    exploredSectors: 156,
-    diplomaticRelations: 12,
-    
-    governmentType: "Federal Republic",
-    stability: 81,
-    corruption: 23
-  });
+  const [overviewData, setOverviewData] = useState<CivilizationOverviewData | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'population' | 'economy' | 'government' | 'technology'>('overview');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedMetric, setSelectedMetric] = useState<string>('all');
 
-  const formatNumber = (num: number): string => {
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'population', label: 'Population', icon: '👥' },
+    { id: 'economy', label: 'Economy', icon: '💰' },
+    { id: 'government', label: 'Government', icon: '🏛️' },
+    { id: 'technology', label: 'Technology', icon: '🔬' }
+  ];
+
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/civilization/overview', description: 'Get civilization overview' },
+    { method: 'GET', path: '/api/civilization/metrics', description: 'Get civilization metrics' },
+    { method: 'GET', path: '/api/civilization/status', description: 'Get civilization status' }
+  ];
+
+  const formatNumber = (num: number) => {
     if (num >= 1e12) return `${(num / 1e12).toFixed(1)}T`;
     if (num >= 1e9) return `${(num / 1e9).toFixed(1)}B`;
     if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
@@ -95,466 +169,504 @@ const CivilizationOverviewScreen: React.FC<CivilizationOverviewScreenProps> = ({
     return num.toString();
   };
 
-  const getStatusColor = (value: number, threshold: { good: number; warning: number }): string => {
-    if (value >= threshold.good) return '#4caf50';
-    if (value >= threshold.warning) return '#ff9800';
-    return '#f44336';
+  const formatCurrency = (amount: number) => {
+    if (amount >= 1e12) return `$${(amount / 1e12).toFixed(1)}T`;
+    if (amount >= 1e9) return `$${(amount / 1e9).toFixed(1)}B`;
+    if (amount >= 1e6) return `$${(amount / 1e6).toFixed(1)}M`;
+    if (amount >= 1e3) return `$${(amount / 1e3).toFixed(1)}K`;
+    return `$${amount}`;
   };
 
-  const renderOverviewTab = () => (
-    <div className="overview-tab">
-      <div className="civ-header">
-        <h2>🏛️ {civilizationStats.name}</h2>
-        <div className="civ-type">{civilizationStats.governmentType}</div>
-      </div>
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'excellent': return '#10b981';
+      case 'good': return '#3b82f6';
+      case 'adequate': return '#f59e0b';
+      case 'poor': return '#ef4444';
+      case 'abundant': return '#10b981';
+      case 'adequate': return '#3b82f6';
+      case 'scarce': return '#f59e0b';
+      case 'critical': return '#ef4444';
+      case 'positive': return '#10b981';
+      case 'negative': return '#ef4444';
+      case 'neutral': return '#6b7280';
+      case 'active': return '#10b981';
+      case 'pending': return '#f59e0b';
+      case 'failed': return '#ef4444';
+      case 'expired': return '#6b7280';
+      case 'upcoming': return '#3b82f6';
+      case 'completed': return '#6b7280';
+      case 'high': return '#ef4444';
+      case 'medium': return '#f59e0b';
+      case 'low': return '#10b981';
+      case 'major': return '#10b981';
+      case 'moderate': return '#f59e0b';
+      case 'minor': return '#6b7280';
+      default: return '#6b7280';
+    }
+  };
+
+  const getPerformanceColor = (value: number) => {
+    if (value >= 80) return '#10b981';
+    if (value >= 60) return '#3b82f6';
+    if (value >= 40) return '#f59e0b';
+    return '#ef4444';
+  };
+
+  const fetchOverviewData = useCallback(async () => {
+    try {
+      setLoading(true);
       
-      <div className="stats-grid">
-        <div className="stat-category">
-          <h3>🌍 Core Statistics</h3>
-          <div className="stat-items">
-            <div className="stat-item">
-              <span className="stat-label">Population</span>
-              <span className="stat-value">{formatNumber(civilizationStats.population)}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Territory</span>
-              <span className="stat-value">{civilizationStats.territory} sectors</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">GDP</span>
-              <span className="stat-value">${formatNumber(civilizationStats.gdp)}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Approval Rating</span>
-              <span className="stat-value" style={{color: getStatusColor(civilizationStats.approval, {good: 70, warning: 50})}}>{civilizationStats.approval}%</span>
-            </div>
-          </div>
-        </div>
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/civilization/overview');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setOverviewData(data.data);
+        } else {
+          throw new Error('API response error');
+        }
+      } else {
+        throw new Error('API not available');
+      }
 
-        <div className="stat-category">
-          <h3>⚔️ Military & Security</h3>
-          <div className="stat-items">
-            <div className="stat-item">
-              <span className="stat-label">Military Strength</span>
-              <span className="stat-value" style={{color: getStatusColor(civilizationStats.militaryStrength, {good: 80, warning: 60})}}>{civilizationStats.militaryStrength}%</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Defense Spending</span>
-              <span className="stat-value">{civilizationStats.defenseSpending}% of GDP</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Security Level</span>
-              <span className="stat-value" style={{color: getStatusColor(civilizationStats.securityLevel, {good: 75, warning: 50})}}>{civilizationStats.securityLevel}%</span>
-            </div>
-          </div>
-        </div>
+    } catch (err) {
+      console.warn('Failed to fetch civilization overview data:', err);
+      // Use comprehensive mock data
+      setOverviewData({
+        metrics: {
+          id: 'civ_1',
+          name: 'Terran Federation',
+          population: 12500000000,
+          growthRate: 2.3,
+          happiness: 78,
+          stability: 85,
+          technology: 72,
+          economy: 89,
+          military: 76,
+          culture: 81,
+          lastUpdated: '2393-06-15T10:00:00Z'
+        },
+        population: {
+          total: 12500000000,
+          growth: 2.3,
+          density: 145.8,
+          distribution: [
+            { ageGroup: '0-14', count: 1875000000, percentage: 15 },
+            { ageGroup: '15-24', count: 2500000000, percentage: 20 },
+            { ageGroup: '25-54', count: 5000000000, percentage: 40 },
+            { ageGroup: '55-64', count: 1250000000, percentage: 10 },
+            { ageGroup: '65+', count: 1875000000, percentage: 15 }
+          ],
+          migration: {
+            incoming: 1250000,
+            outgoing: 875000,
+            net: 375000
+          },
+          urbanization: 78.5,
+          education: 85.2,
+          health: 88.7
+        },
+        economy: {
+          gdp: 4560000000000000,
+          growth: 3.2,
+          inflation: 2.1,
+          unemployment: 4.8,
+          sectors: [
+            { name: 'Technology', value: 912000000000000, percentage: 20, growth: 4.5 },
+            { name: 'Manufacturing', value: 820800000000000, percentage: 18, growth: 2.8 },
+            { name: 'Services', value: 1236000000000000, percentage: 27, growth: 3.8 },
+            { name: 'Agriculture', value: 456000000000000, percentage: 10, growth: 1.2 },
+            { name: 'Energy', value: 638400000000000, percentage: 14, growth: 3.1 },
+            { name: 'Other', value: 501600000000000, percentage: 11, growth: 2.5 }
+          ],
+          trade: {
+            imports: 456000000000000,
+            exports: 547200000000000,
+            balance: 91200000000000
+          },
+          resources: [
+            { name: 'Energy', quantity: 1000000, value: 456000000000000, status: 'abundant' },
+            { name: 'Minerals', quantity: 500000, value: 228000000000000, status: 'adequate' },
+            { name: 'Food', quantity: 2000000, value: 182400000000000, status: 'abundant' },
+            { name: 'Water', quantity: 1500000, value: 136800000000000, status: 'adequate' },
+            { name: 'Rare Earths', quantity: 50000, value: 91200000000000, status: 'scarce' }
+          ]
+        },
+        government: {
+          type: 'Federal Republic',
+          stability: 85,
+          approval: 72,
+          efficiency: 78,
+          policies: [
+            { name: 'Universal Healthcare', status: 'active', impact: 'positive', description: 'Comprehensive healthcare coverage for all citizens' },
+            { name: 'Green Energy Initiative', status: 'active', impact: 'positive', description: 'Transition to renewable energy sources' },
+            { name: 'Education Reform', status: 'pending', impact: 'neutral', description: 'Modernization of educational systems' },
+            { name: 'Tax Restructuring', status: 'active', impact: 'negative', description: 'New tax policies affecting middle class' }
+          ],
+          departments: [
+            { name: 'Health & Human Services', performance: 92, budget: 456000000000000, status: 'excellent' },
+            { name: 'Defense', performance: 88, budget: 638400000000000, status: 'good' },
+            { name: 'Education', performance: 85, budget: 364800000000000, status: 'good' },
+            { name: 'Transportation', performance: 78, budget: 273600000000000, status: 'adequate' },
+            { name: 'Agriculture', performance: 72, budget: 182400000000000, status: 'adequate' }
+          ],
+          elections: [
+            { type: 'Presidential', date: '2394-11-05', status: 'upcoming', turnout: 0 },
+            { type: 'Congressional', date: '2393-11-07', status: 'completed', turnout: 68.5 },
+            { type: 'Local', date: '2393-05-15', status: 'completed', turnout: 45.2 }
+          ]
+        },
+        technology: {
+          overall: 72,
+          research: 78,
+          innovation: 75,
+          adoption: 68,
+          fields: [
+            { name: 'Artificial Intelligence', level: 8, progress: 85, priority: 'high' },
+            { name: 'Quantum Computing', level: 7, progress: 72, priority: 'high' },
+            { name: 'Biotechnology', level: 8, progress: 78, priority: 'medium' },
+            { name: 'Space Technology', level: 9, progress: 92, priority: 'high' },
+            { name: 'Renewable Energy', level: 8, progress: 88, priority: 'medium' },
+            { name: 'Nanotechnology', level: 6, progress: 65, priority: 'low' }
+          ],
+          projects: [
+            { name: 'Quantum Internet', status: 'development', progress: 65, funding: 45600000000000, expectedCompletion: '2395-03-15' },
+            { name: 'AI Governance System', status: 'testing', progress: 88, funding: 22800000000000, expectedCompletion: '2393-12-01' },
+            { name: 'Space Elevator', status: 'research', progress: 45, funding: 91200000000000, expectedCompletion: '2398-06-20' },
+            { name: 'Fusion Power Grid', status: 'deployment', progress: 95, funding: 136800000000000, expectedCompletion: '2393-08-30' }
+          ],
+          breakthroughs: [
+            { name: 'Quantum Entanglement Communication', date: '2393-05-20', impact: 'major', description: 'Revolutionary communication technology' },
+            { name: 'Synthetic Organ Generation', date: '2393-04-15', impact: 'moderate', description: 'Advanced medical technology' },
+            { name: 'Space Mining Automation', date: '2393-03-10', impact: 'moderate', description: 'Automated resource extraction' }
+          ]
+        }
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-        <div className="stat-category">
-          <h3>💰 Economy</h3>
-          <div className="stat-items">
-            <div className="stat-item">
-              <span className="stat-label">Treasury</span>
-              <span className="stat-value">${formatNumber(civilizationStats.treasury)}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Debt to GDP</span>
-              <span className="stat-value" style={{color: getStatusColor(100 - civilizationStats.debtToGDP, {good: 60, warning: 40})}}>{civilizationStats.debtToGDP}%</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Trade Balance</span>
-              <span className="stat-value" style={{color: civilizationStats.tradeBalance > 0 ? '#4caf50' : '#f44336'}}>${formatNumber(civilizationStats.tradeBalance)}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Unemployment</span>
-              <span className="stat-value" style={{color: getStatusColor(100 - civilizationStats.unemployment, {good: 95, warning: 90})}}>{civilizationStats.unemployment}%</span>
-            </div>
-          </div>
-        </div>
+  useEffect(() => {
+    fetchOverviewData();
+  }, [fetchOverviewData]);
 
-        <div className="stat-category">
-          <h3>🔬 Technology & Research</h3>
-          <div className="stat-items">
-            <div className="stat-item">
-              <span className="stat-label">Active Projects</span>
-              <span className="stat-value">{civilizationStats.researchProjects}</span>
+  const renderOverview = () => (
+    <>
+      {/* Civilization Metrics - Full panel width */}
+      <div className="standard-panel government-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🏛️ Civilization Overview</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3b82f6', marginBottom: '0.5rem' }}>
+              {overviewData?.metrics.name || 'Unknown'}
             </div>
-            <div className="stat-item">
-              <span className="stat-label">Tech Level</span>
-              <span className="stat-value" style={{color: getStatusColor(civilizationStats.techLevel * 10, {good: 80, warning: 60})}}>{civilizationStats.techLevel}/10</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Innovation Index</span>
-              <span className="stat-value" style={{color: getStatusColor(civilizationStats.innovationIndex, {good: 80, warning: 60})}}>{civilizationStats.innovationIndex}/100</span>
-            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Civilization Name</div>
           </div>
-        </div>
-
-        <div className="stat-category">
-          <h3>👥 Society & Culture</h3>
-          <div className="stat-items">
-            <div className="stat-item">
-              <span className="stat-label">Education Level</span>
-              <span className="stat-value" style={{color: getStatusColor(civilizationStats.educationLevel, {good: 85, warning: 70})}}>{civilizationStats.educationLevel}%</span>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3b82f6', marginBottom: '0.5rem' }}>
+              {formatNumber(overviewData?.metrics.population || 0)}
             </div>
-            <div className="stat-item">
-              <span className="stat-label">Health Index</span>
-              <span className="stat-value" style={{color: getStatusColor(civilizationStats.healthIndex, {good: 85, warning: 70})}}>{civilizationStats.healthIndex}/100</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Cultural Influence</span>
-              <span className="stat-value" style={{color: getStatusColor(civilizationStats.culturalInfluence, {good: 75, warning: 50})}}>{civilizationStats.culturalInfluence}/100</span>
-            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Total Population</div>
           </div>
-        </div>
-
-        <div className="stat-category">
-          <h3>🌌 Galaxy & Space</h3>
-          <div className="stat-items">
-            <div className="stat-item">
-              <span className="stat-label">Controlled Systems</span>
-              <span className="stat-value">{civilizationStats.controlledSystems}</span>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3b82f6', marginBottom: '0.5rem' }}>
+              {formatCurrency(overviewData?.economy.gdp || 0)}
             </div>
-            <div className="stat-item">
-              <span className="stat-label">Explored Sectors</span>
-              <span className="stat-value">{civilizationStats.exploredSectors}</span>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Total GDP</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3b82f6', marginBottom: '0.5rem' }}>
+              {overviewData?.metrics.stability || 0}%
             </div>
-            <div className="stat-item">
-              <span className="stat-label">Diplomatic Relations</span>
-              <span className="stat-value">{civilizationStats.diplomaticRelations} active</span>
-            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Stability</div>
           </div>
         </div>
       </div>
 
-      {/* Charts Section */}
-      <div className="charts-section">
-        <div className="charts-grid">
-          <div className="chart-container">
-            <LineChart
-              data={[
-                { label: 'Jan', value: 68 },
-                { label: 'Feb', value: 71 },
-                { label: 'Mar', value: 69 },
-                { label: 'Apr', value: 73 },
-                { label: 'May', value: 75 },
-                { label: 'Jun', value: civilizationStats.approval }
-              ]}
-              title="📊 Approval Rating Trend"
-              color="#4ecdc4"
-              height={200}
-              width={350}
-            />
+      {/* Key Performance Indicators - Full panel width */}
+      <div className="standard-panel government-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>📊 Key Performance Indicators</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: getPerformanceColor(overviewData?.metrics.happiness || 0), marginBottom: '0.5rem' }}>
+              {overviewData?.metrics.happiness || 0}%
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Happiness</div>
           </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: getPerformanceColor(overviewData?.metrics.economy || 0), marginBottom: '0.5rem' }}>
+              {overviewData?.metrics.economy || 0}%
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Economy</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: getPerformanceColor(overviewData?.metrics.military || 0), marginBottom: '0.5rem' }}>
+              {overviewData?.metrics.military || 0}%
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Military</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: getPerformanceColor(overviewData?.metrics.technology || 0), marginBottom: '0.5rem' }}>
+              {overviewData?.metrics.technology || 0}%
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Technology</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: getPerformanceColor(overviewData?.metrics.culture || 0), marginBottom: '0.5rem' }}>
+              {overviewData?.metrics.culture || 0}%
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Culture</div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 
+  const renderPopulation = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>👥 Population & Demographics</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
           <div className="chart-container">
             <PieChart
-              data={[
-                { label: 'Military', value: civilizationStats.defenseSpending, color: '#ff6b6b' },
-                { label: 'Education', value: 25, color: '#4ecdc4' },
-                { label: 'Healthcare', value: 20, color: '#45b7aa' },
-                { label: 'Infrastructure', value: 18, color: '#96ceb4' },
-                { label: 'Research', value: 12, color: '#feca57' },
-                { label: 'Other', value: 100 - civilizationStats.defenseSpending - 75, color: '#ff9ff3' }
-              ]}
-              title="💰 Budget Allocation"
-              size={180}
+              data={overviewData?.population.distribution.map(group => ({
+                name: group.ageGroup,
+                value: group.count
+              })) || []}
+              title="Age Distribution"
+              size={250}
               showLegend={true}
             />
           </div>
-
-          <div className="chart-container">
-            <BarChart
-              data={[
-                { label: 'Military', value: civilizationStats.militaryStrength, color: '#ff6b6b' },
-                { label: 'Economy', value: Math.min(100, civilizationStats.gdp / 1000000), color: '#4ecdc4' },
-                { label: 'Technology', value: civilizationStats.techLevel * 10, color: '#45b7aa' },
-                { label: 'Education', value: civilizationStats.educationLevel, color: '#96ceb4' },
-                { label: 'Health', value: civilizationStats.healthIndex, color: '#feca57' }
-              ]}
-              title="🏛️ Civilization Strength"
-              height={200}
-              width={350}
-              color="#4ecdc4"
-            />
-          </div>
-
-          <div className="chart-container">
-            <LineChart
-              data={[
-                { label: 'Q1', value: Math.max(0, civilizationStats.gdp * 0.85) },
-                { label: 'Q2', value: Math.max(0, civilizationStats.gdp * 0.92) },
-                { label: 'Q3', value: Math.max(0, civilizationStats.gdp * 0.97) },
-                { label: 'Q4', value: civilizationStats.gdp }
-              ]}
-              title="📈 GDP Growth"
-              color="#feca57"
-              height={200}
-              width={350}
-            />
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#3b82f6' }}>Population Statistics</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.population.growth || 0}%
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Growth Rate</div>
+              </div>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.population.urbanization || 0}%
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Urbanization</div>
+              </div>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.population.education || 0}%
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Education Level</div>
+              </div>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.population.health || 0}%
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Health Index</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'overview':
-        return renderOverviewTab();
-      case 'military':
-        return (
-          <div className="military-tab">
-            <h3>⚔️ Military Overview</h3>
-            <div className="stats-grid">
-              <div className="stat-category">
-                <h4>🛡️ Defense Forces</h4>
-                <div className="stat-items">
-                  <div className="stat-item">
-                    <span className="stat-label">Active Personnel</span>
-                    <span className="stat-value">2.4M</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Reserve Forces</span>
-                    <span className="stat-value">8.7M</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Fleet Strength</span>
-                    <span className="stat-value">847 vessels</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Orbital Platforms</span>
-                    <span className="stat-value">23 active</span>
-                  </div>
+  const renderEconomy = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>💰 Economic Overview</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div className="chart-container">
+            <PieChart
+              data={overviewData?.economy.sectors.map(sector => ({
+                name: sector.name,
+                value: sector.value
+              })) || []}
+              title="Economic Sectors"
+              size={250}
+              showLegend={true}
+            />
+          </div>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#3b82f6' }}>Economic Indicators</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.economy.growth || 0}%
                 </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>GDP Growth</div>
               </div>
-              <div className="stat-category">
-                <h4>🚀 Space Assets</h4>
-                <div className="stat-items">
-                  <div className="stat-item">
-                    <span className="stat-label">Battlecruisers</span>
-                    <span className="stat-value">12</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Destroyers</span>
-                    <span className="stat-value">45</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Frigates</span>
-                    <span className="stat-value">156</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Support Vessels</span>
-                    <span className="stat-value">634</span>
-                  </div>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.economy.inflation || 0}%
                 </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Inflation Rate</div>
+              </div>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.economy.unemployment || 0}%
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Unemployment</div>
+              </div>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {formatCurrency(overviewData?.economy.trade.balance || 0)}
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Trade Balance</div>
               </div>
             </div>
           </div>
-        );
-      case 'economy':
-        return (
-          <div className="economy-tab">
-            <h3>💰 Economic Analysis</h3>
-            <div className="stats-grid">
-              <div className="stat-category">
-                <h4>💼 Economic Sectors</h4>
-                <div className="stat-items">
-                  <div className="stat-item">
-                    <span className="stat-label">Manufacturing</span>
-                    <span className="stat-value">34.2% of GDP</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Services</span>
-                    <span className="stat-value">28.7% of GDP</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Technology</span>
-                    <span className="stat-value">18.9% of GDP</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Space Mining</span>
-                    <span className="stat-value">12.1% of GDP</span>
-                  </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderGovernment = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🏛️ Government Status</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#3b82f6' }}>Government Metrics</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.government.stability || 0}%
                 </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Stability</div>
               </div>
-              <div className="stat-category">
-                <h4>📈 Trade & Commerce</h4>
-                <div className="stat-items">
-                  <div className="stat-item">
-                    <span className="stat-label">Export Volume</span>
-                    <span className="stat-value">$2.8T annually</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Import Volume</span>
-                    <span className="stat-value">$2.6T annually</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Trade Partners</span>
-                    <span className="stat-value">47 civilizations</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Trade Routes</span>
-                    <span className="stat-value">156 active</span>
-                  </div>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.government.approval || 0}%
                 </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Approval Rating</div>
+              </div>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.government.efficiency || 0}%
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Efficiency</div>
+              </div>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.government.type || 'Unknown'}
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Government Type</div>
               </div>
             </div>
           </div>
-        );
-      case 'technology':
-        return (
-          <div className="technology-tab">
-            <h3>🔬 Technology Status</h3>
-            <div className="stats-grid">
-              <div className="stat-category">
-                <h4>🧪 Active Research</h4>
-                <div className="stat-items">
-                  <div className="stat-item">
-                    <span className="stat-label">Quantum Computing</span>
-                    <span className="stat-value">87% complete</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Fusion Propulsion</span>
-                    <span className="stat-value">62% complete</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Neural Interfaces</span>
-                    <span className="stat-value">45% complete</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Terraforming Tech</span>
-                    <span className="stat-value">23% complete</span>
-                  </div>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#3b82f6' }}>Department Performance</h4>
+            <div className="standard-table-container">
+              <table className="standard-data-table">
+                <thead>
+                  <tr>
+                    <th>Department</th>
+                    <th>Performance</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {overviewData?.government.departments.map(dept => (
+                    <tr key={dept.name}>
+                      <td>{dept.name}</td>
+                      <td>{dept.performance}%</td>
+                      <td>
+                        <span style={{ 
+                          color: getStatusColor(dept.status),
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.875rem',
+                          backgroundColor: getStatusColor(dept.status) + '20'
+                        }}>
+                          {dept.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderTechnology = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🔬 Technology & Innovation</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#3b82f6' }}>Technology Metrics</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.technology.overall || 0}%
                 </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Overall Level</div>
               </div>
-              <div className="stat-category">
-                <h4>🏭 Research Facilities</h4>
-                <div className="stat-items">
-                  <div className="stat-item">
-                    <span className="stat-label">Government Labs</span>
-                    <span className="stat-value">47 facilities</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">University Research</span>
-                    <span className="stat-value">156 programs</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Corporate R&D</span>
-                    <span className="stat-value">289 projects</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Space Stations</span>
-                    <span className="stat-value">12 research hubs</span>
-                  </div>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.technology.research || 0}%
                 </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Research</div>
+              </div>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.technology.innovation || 0}%
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Innovation</div>
+              </div>
+              <div style={{ padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#3b82f6' }}>
+                  {overviewData?.technology.adoption || 0}%
+                </div>
+                <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Adoption</div>
               </div>
             </div>
           </div>
-        );
-      case 'society':
-        return (
-          <div className="society-tab">
-            <h3>👥 Social Metrics</h3>
-            <div className="stats-grid">
-              <div className="stat-category">
-                <h4>🎓 Education & Culture</h4>
-                <div className="stat-items">
-                  <div className="stat-item">
-                    <span className="stat-label">Literacy Rate</span>
-                    <span className="stat-value">99.7%</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Higher Education</span>
-                    <span className="stat-value">78.3%</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Cultural Centers</span>
-                    <span className="stat-value">2,847</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Art Installations</span>
-                    <span className="stat-value">15,692</span>
-                  </div>
-                </div>
-              </div>
-              <div className="stat-category">
-                <h4>🏥 Health & Welfare</h4>
-                <div className="stat-items">
-                  <div className="stat-item">
-                    <span className="stat-label">Life Expectancy</span>
-                    <span className="stat-value">127 years</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Healthcare Access</span>
-                    <span className="stat-value">100%</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Mental Health Index</span>
-                    <span className="stat-value">8.4/10</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Social Mobility</span>
-                    <span className="stat-value">High</span>
-                  </div>
-                </div>
-              </div>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#3b82f6' }}>Active Projects</h4>
+            <div className="standard-table-container">
+              <table className="standard-data-table">
+                <thead>
+                  <tr>
+                    <th>Project</th>
+                    <th>Progress</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {overviewData?.technology.projects.map(project => (
+                    <tr key={project.name}>
+                      <td>{project.name}</td>
+                      <td>{project.progress}%</td>
+                      <td>
+                        <span style={{ 
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.875rem',
+                          backgroundColor: '#374151',
+                          color: '#f3f4f6'
+                        }}>
+                          {project.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-        );
-      case 'galaxy':
-        return (
-          <div className="galaxy-tab">
-            <h3>🌌 Galactic Presence</h3>
-            <div className="stats-grid">
-              <div className="stat-category">
-                <h4>🚀 Space Territories</h4>
-                <div className="stat-items">
-                  <div className="stat-item">
-                    <span className="stat-label">Star Systems</span>
-                    <span className="stat-value">23 controlled</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Habitable Worlds</span>
-                    <span className="stat-value">67 planets</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Mining Operations</span>
-                    <span className="stat-value">156 sites</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Space Stations</span>
-                    <span className="stat-value">89 operational</span>
-                  </div>
-                </div>
-              </div>
-              <div className="stat-category">
-                <h4>🤝 Diplomatic Relations</h4>
-                <div className="stat-items">
-                  <div className="stat-item">
-                    <span className="stat-label">Allied Civilizations</span>
-                    <span className="stat-value">7 active</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Trade Agreements</span>
-                    <span className="stat-value">23 treaties</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Non-Aggression Pacts</span>
-                    <span className="stat-value">12 signed</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Embassy Networks</span>
-                    <span className="stat-value">34 locations</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      default:
-        return renderOverviewTab();
-    }
-  };
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <BaseScreen
@@ -562,52 +674,33 @@ const CivilizationOverviewScreen: React.FC<CivilizationOverviewScreenProps> = ({
       title={title}
       icon={icon}
       gameContext={gameContext}
-      onRefresh={() => setLoading(true)}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchOverviewData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
     >
-      <div className="civilization-overview-screen">
-        {/* Tab Navigation */}
-        <div className="tab-navigation">
-          <button 
-            className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
-          >
-            🏛️ Overview
-          </button>
-          <button 
-            className={`tab ${activeTab === 'military' ? 'active' : ''}`}
-            onClick={() => setActiveTab('military')}
-          >
-            ⚔️ Military
-          </button>
-          <button 
-            className={`tab ${activeTab === 'economy' ? 'active' : ''}`}
-            onClick={() => setActiveTab('economy')}
-          >
-            💰 Economy
-          </button>
-          <button 
-            className={`tab ${activeTab === 'technology' ? 'active' : ''}`}
-            onClick={() => setActiveTab('technology')}
-          >
-            🔬 Technology
-          </button>
-          <button 
-            className={`tab ${activeTab === 'society' ? 'active' : ''}`}
-            onClick={() => setActiveTab('society')}
-          >
-            👥 Society
-          </button>
-          <button 
-            className={`tab ${activeTab === 'galaxy' ? 'active' : ''}`}
-            onClick={() => setActiveTab('galaxy')}
-          >
-            🌌 Galaxy
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        <div className="tab-content-container">
-          {renderTabContent()}
+      <div className="standard-screen-container government-theme">
+        <div className="standard-dashboard">
+          {!loading && !error && overviewData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'population' && renderPopulation()}
+              {activeTab === 'economy' && renderEconomy()}
+              {activeTab === 'government' && renderGovernment()}
+              {activeTab === 'technology' && renderTechnology()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading civilization overview data...' : 'No civilization overview data available'}
+            </div>
+          )}
         </div>
       </div>
     </BaseScreen>

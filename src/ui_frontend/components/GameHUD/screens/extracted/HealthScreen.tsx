@@ -581,7 +581,7 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
   const renderOverview = () => (
     <>
       {/* Health Overview - First card in 2-column grid */}
-      <div className="standard-panel health-theme">
+      <div className="standard-panel social-theme">
         <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📊 Health Overview</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
           <div className="standard-metric">
@@ -602,13 +602,13 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
           </div>
         </div>
         <div className="standard-action-buttons">
-          <button className="standard-btn health-theme" onClick={() => console.log('Generate Health Report')}>Generate Report</button>
-          <button className="standard-btn health-theme" onClick={() => console.log('View Analytics')}>View Analytics</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Generate Health Report')}>Generate Report</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('View Analytics')}>View Analytics</button>
         </div>
       </div>
 
       {/* Health Progress Chart - Second card in 2-column grid */}
-      <div className="standard-panel health-theme">
+      <div className="standard-panel social-theme">
         <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📈 Health Trends</h3>
         <div className="chart-container">
           <LineChart
@@ -630,7 +630,7 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
 
       {/* Health Analytics - Full width below cards */}
       <div style={{ gridColumn: '1 / -1' }}>
-        <div className="standard-panel health-theme table-panel">
+        <div className="standard-panel social-theme table-panel">
           <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📊 Health Analytics</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
             <div className="chart-container">
@@ -668,11 +668,11 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
 
   const renderLeadership = () => (
     <div style={{ gridColumn: '1 / -1' }}>
-      <div className="standard-panel health-theme">
+      <div className="standard-panel social-theme">
         <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>👥 Health Leadership</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
           {/* Health Secretary */}
-          <div className="standard-panel health-theme">
+          <div className="standard-panel social-theme">
             <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>🎖️ Health Secretary</h4>
             {healthData?.secretary ? (
               <div>
@@ -717,7 +717,7 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
           </div>
 
           {/* Surgeon General */}
-          <div className="standard-panel health-theme">
+          <div className="standard-panel social-theme">
             <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>👨‍⚕️ Surgeon General</h4>
             {healthData?.surgeonGeneral ? (
               <div>
@@ -759,11 +759,11 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
 
   const renderPopulation = () => (
     <div style={{ gridColumn: '1 / -1' }}>
-      <div className="standard-panel health-theme table-panel">
+      <div className="standard-panel social-theme table-panel">
         <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🦠 Diseases</h3>
         <div className="standard-action-buttons">
-          <button className="standard-btn health-theme" onClick={() => console.log('Update Population Data')}>Update Data</button>
-          <button className="standard-btn health-theme" onClick={() => console.log('Analyze Trends')}>Analyze Trends</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Update Population Data')}>Update Data</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Analyze Trends')}>Analyze Trends</button>
         </div>
         
         {/* Population Metrics */}
@@ -827,7 +827,7 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
                   </td>
                   <td>{formatCurrency(disease.researchFunding)}</td>
                   <td>
-                    <button className="standard-btn health-theme">Details</button>
+                    <button className="standard-btn social-theme">Details</button>
                   </td>
                 </tr>
               ))}
@@ -840,11 +840,11 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
 
   const renderInfrastructure = () => (
     <div style={{ gridColumn: '1 / -1' }}>
-      <div className="standard-panel health-theme table-panel">
+      <div className="standard-panel social-theme table-panel">
         <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🏥 Healthcare Infrastructure</h3>
         <div className="standard-action-buttons">
-          <button className="standard-btn health-theme" onClick={() => console.log('Add Facility')}>Add Facility</button>
-          <button className="standard-btn health-theme" onClick={() => console.log('Update Infrastructure')}>Update Infrastructure</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Add Facility')}>Add Facility</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Update Infrastructure')}>Update Infrastructure</button>
         </div>
         <div className="standard-table-container">
           <table className="standard-data-table">
@@ -898,7 +898,7 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
                   <td>{facility.rating}/5</td>
                   <td>{formatCurrency(facility.budget)}</td>
                   <td>
-                    <button className="standard-btn health-theme">Details</button>
+                    <button className="standard-btn social-theme">Details</button>
                   </td>
                 </tr>
               ))}
@@ -911,11 +911,11 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
 
   const renderOperations = () => (
     <div style={{ gridColumn: '1 / -1' }}>
-      <div className="standard-panel health-theme table-panel">
+      <div className="standard-panel social-theme table-panel">
         <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>⚙️ Health Operations</h3>
         <div className="standard-action-buttons">
-          <button className="standard-btn health-theme" onClick={() => console.log('Create Policy')}>Create Policy</button>
-          <button className="standard-btn health-theme" onClick={() => console.log('Start Workflow')}>Start Workflow</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Create Policy')}>Create Policy</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Start Workflow')}>Start Workflow</button>
         </div>
         
         {/* Policies Table */}
@@ -962,7 +962,7 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
                     </td>
                     <td>{formatCurrency(policy.estimatedCost)}</td>
                     <td>
-                      <button className="standard-btn health-theme">Details</button>
+                      <button className="standard-btn social-theme">Details</button>
                     </td>
                   </tr>
                 ))}
@@ -1014,7 +1014,7 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
                       </div>
                     </td>
                     <td>
-                      <button className="standard-btn health-theme">Details</button>
+                      <button className="standard-btn social-theme">Details</button>
                     </td>
                   </tr>
                 ))}
@@ -1038,7 +1038,7 @@ const HealthScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContex
       activeTab={activeTab}
       onTabChange={(tabId) => setActiveTab(tabId as any)}
     >
-      <div className="standard-screen-container health-theme">
+      <div className="standard-screen-container social-theme">
         {error && <div className="error-message">Error: {error}</div>}
         
         <div className="standard-dashboard">

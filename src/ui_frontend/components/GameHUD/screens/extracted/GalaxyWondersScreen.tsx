@@ -1,419 +1,664 @@
-import React, { useState, useEffect } from 'react';
-import { BaseScreen, ScreenProps } from '../BaseScreen';
-import './GalaxyWondersScreen.css';
+/**
+ * Galaxy Wonders Screen - Galactic Wonders and Megastructures
+ * 
+ * This screen manages galactic wonders including:
+ * - Wonder templates and available projects
+ * - Construction progress and resource management
+ * - Strategic benefits and cultural impact
+ * - Construction history and achievements
+ * - Wonder maintenance and upgrades
+ * 
+ * Uses the space theme with blue color scheme for galaxy aesthetics
+ */
 
-interface GameContext {
-  currentLocation: string;
-  playerId: string;
-}
+import React, { useState, useEffect, useCallback } from 'react';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
+import './GalaxyWondersScreen.css';
+import '../shared/StandardDesign.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface WonderTemplate {
-  wonder_type: string;
-  display_name: string;
-  wonder_category: string;
-  base_cost: Record<string, number>;
-  strategic_benefits: Record<string, number>;
+  id: string;
+  name: string;
+  category: 'ancient' | 'knowledge' | 'spiritual' | 'engineering' | 'cosmic' | 'technological';
   description: string;
+  baseCost: Record<string, number>;
+  strategicBenefits: Record<string, number>;
+  constructionTime: number;
+  maintenanceCost: number;
+  prestige: number;
+  requirements: string[];
+  unlockCondition: string;
 }
 
 interface Wonder {
   id: string;
-  campaign_id: number;
-  wonder_type: string;
-  wonder_name: string;
-  construction_status: 'in_progress' | 'paused' | 'completed' | 'cancelled';
-  completion_percentage: number;
-  construction_phase: string;
-  invested_resources: Record<string, number>;
-  strategic_benefits: Record<string, number>;
-  started_at: string;
-  completed_at?: string;
+  templateId: string;
+  name: string;
+  location: string;
+  status: 'planning' | 'in_progress' | 'paused' | 'completed' | 'cancelled' | 'maintenance';
+  completionPercentage: number;
+  currentPhase: string;
+  investedResources: Record<string, number>;
+  strategicBenefits: Record<string, number>;
+  startDate: string;
+  estimatedCompletion: string;
+  actualCompletion?: string;
+  totalCost: number;
+  currentBudget: number;
+  workforce: number;
+  quality: number;
 }
 
-interface ConstructionProgress {
+interface ConstructionPhase {
   id: string;
-  wonder_id: string;
+  wonderId: string;
   phase: string;
-  progress_percentage: number;
-  resources_invested: Record<string, number>;
-  timestamp: string;
+  progressPercentage: number;
+  resourcesInvested: Record<string, number>;
+  workforce: number;
+  startDate: string;
+  estimatedCompletion: string;
+  actualCompletion?: string;
+  challenges: string[];
+  achievements: string[];
 }
 
-const GalaxyWondersScreen: React.FC<ScreenProps> = ({
-  screenId,
-  title,
-  icon,
-  gameContext
-}) => {
-  console.log('🏛️ GalaxyWondersScreen: Component rendering with gameContext:', gameContext);
+interface WonderMaintenance {
+  id: string;
+  wonderId: string;
+  type: 'routine' | 'repair' | 'upgrade' | 'expansion';
+  status: 'scheduled' | 'in_progress' | 'completed' | 'overdue';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  cost: number;
+  duration: number;
+  startDate: string;
+  completionDate?: string;
+  assignedTeam: string;
+}
 
+interface GalaxyWondersData {
+  overview: {
+    totalWonders: number;
+    completedWonders: number;
+    underConstruction: number;
+    totalPrestige: number;
+    averageQuality: number;
+    totalInvestment: number;
+    culturalImpact: number;
+    strategicValue: number;
+  };
+  templates: WonderTemplate[];
+  wonders: Wonder[];
+  constructionPhases: ConstructionPhase[];
+  maintenance: WonderMaintenance[];
+  achievements: Array<{
+    id: string;
+    name: string;
+    description: string;
+    unlocked: boolean;
+    unlockDate?: string;
+    prestige: number;
+  }>;
+}
+
+const GalaxyWondersScreen: React.FC<ScreenProps> = ({ 
+  screenId, 
+  title, 
+  icon, 
+  gameContext 
+}) => {
+  const [wondersData, setWondersData] = useState<GalaxyWondersData | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'templates' | 'construction' | 'maintenance' | 'achievements'>('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('overview');
-  
-  const [availableWonders, setAvailableWonders] = useState<WonderTemplate[]>([]);
-  const [campaignWonders, setCampaignWonders] = useState<Wonder[]>([]);
-  const [constructionHistory, setConstructionHistory] = useState<ConstructionProgress[]>([]);
 
-  const fetchWorldWondersData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '🏛️' },
+    { id: 'templates', label: 'Templates', icon: '📋' },
+    { id: 'construction', label: 'Construction', icon: '🚧' },
+    { id: 'maintenance', label: 'Maintenance', icon: '🔧' },
+    { id: 'achievements', label: 'Achievements', icon: '🏆' }
+  ];
 
-      // For now, use dummy data since the API endpoints might not be fully connected
-      const dummyTemplates: WonderTemplate[] = [
-        {
-          wonder_type: 'PYRAMIDS',
-          display_name: 'Galactic Pyramids',
-          wonder_category: 'Ancient',
-          base_cost: { stone: 10000, gold: 5000, labor: 8000 },
-          strategic_benefits: { culture: 25, tourism: 15, prestige: 30 },
-          description: 'Massive stone monuments that demonstrate architectural mastery and provide lasting cultural benefits across the galaxy.'
-        },
-        {
-          wonder_type: 'GREAT_LIBRARY',
-          display_name: 'Galactic Archive',
-          wonder_category: 'Knowledge',
-          base_cost: { stone: 6000, gold: 8000, crystals: 2000 },
-          strategic_benefits: { research: 40, education: 25, culture: 20 },
-          description: 'A vast repository of galactic knowledge that accelerates research and educational advancement across star systems.'
-        },
-        {
-          wonder_type: 'TEMPLES',
-          display_name: 'Stellar Sanctuaries',
-          wonder_category: 'Spiritual',
-          base_cost: { stone: 8000, gold: 6000, crystals: 3000 },
-          strategic_benefits: { culture: 35, happiness: 20, stability: 15 },
-          description: 'Magnificent spiritual structures that inspire galactic populations and provide guidance across the stars.'
-        },
-        {
-          wonder_type: 'COLOSSUS',
-          display_name: 'Galactic Colossus',
-          wonder_category: 'Engineering',
-          base_cost: { metal: 12000, energy: 8000, gold: 4000 },
-          strategic_benefits: { prestige: 40, defense: 20, tourism: 25 },
-          description: 'A towering metallic monument that showcases galactic engineering prowess and serves as a beacon across star systems.'
-        }
-      ];
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/wonders', description: 'Get wonders data' },
+    { method: 'GET', path: '/api/wonders/templates', description: 'Get wonder templates' },
+    { method: 'POST', path: '/api/wonders', description: 'Start wonder construction' }
+  ];
 
-      const dummyCampaignWonders: Wonder[] = [
-        {
-          id: '1',
-          campaign_id: 1,
-          wonder_type: 'PYRAMIDS',
-          wonder_name: 'Capital Pyramids',
-          construction_status: 'in_progress',
-          completion_percentage: 65.4,
-          construction_phase: 'Foundation Complete',
-          invested_resources: { stone: 6540, gold: 3270, labor: 5232 },
-          strategic_benefits: { culture: 25, tourism: 15, prestige: 30 },
-          started_at: '2024-01-15T10:30:00Z'
-        },
-        {
-          id: '2',
-          campaign_id: 1,
-          wonder_type: 'GREAT_LIBRARY',
-          wonder_name: 'Central Library',
-          construction_status: 'completed',
-          completion_percentage: 100,
-          construction_phase: 'Completed',
-          invested_resources: { stone: 6000, gold: 8000, crystals: 2000 },
-          strategic_benefits: { research: 40, education: 25, culture: 20 },
-          started_at: '2023-11-20T14:15:00Z',
-          completed_at: '2024-01-10T09:45:00Z'
-        }
-      ];
+  // Utility functions
+  const formatNumber = (value: number) => {
+    if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+    return value.toString();
+  };
 
-      const dummyHistory: ConstructionProgress[] = [
-        {
-          id: '1',
-          wonder_id: '1',
-          phase: 'Planning',
-          progress_percentage: 15.2,
-          resources_invested: { stone: 1520, gold: 760, labor: 1216 },
-          timestamp: '2024-01-15T10:30:00Z'
-        },
-        {
-          id: '2',
-          wonder_id: '1',
-          phase: 'Foundation',
-          progress_percentage: 45.8,
-          resources_invested: { stone: 3040, gold: 1520, labor: 2432 },
-          timestamp: '2024-01-20T16:20:00Z'
-        },
-        {
-          id: '3',
-          wonder_id: '1',
-          phase: 'Foundation Complete',
-          progress_percentage: 65.4,
-          resources_invested: { stone: 1980, gold: 990, labor: 1584 },
-          timestamp: '2024-01-25T11:10:00Z'
-        }
-      ];
-
-      setAvailableWonders(dummyTemplates);
-      setCampaignWonders(dummyCampaignWonders);
-      setConstructionHistory(dummyHistory);
-
-    } catch (err) {
-      console.error('Failed to fetch world wonders data:', err);
-      setError('Failed to load world wonders data. Please try again.');
-    } finally {
-      setLoading(false);
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return '#10b981';
+      case 'in_progress': return '#3b82f6';
+      case 'planning': return '#f59e0b';
+      case 'paused': return '#ef4444';
+      case 'cancelled': return '#6b7280';
+      case 'maintenance': return '#8b5cf6';
+      default: return '#6b7280';
     }
   };
 
-  useEffect(() => {
-    fetchWorldWondersData();
-  }, [gameContext]);
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'ancient': return '#f59e0b';
+      case 'knowledge': return '#3b82f6';
+      case 'spiritual': return '#8b5cf6';
+      case 'engineering': return '#ef4444';
+      case 'cosmic': return '#10b981';
+      case 'technological': return '#06b6d4';
+      default: return '#6b7280';
+    }
+  };
 
-  const renderOverviewTab = () => {
-    const completedWonders = campaignWonders.filter(w => w.construction_status === 'completed');
-    const inProgressWonders = campaignWonders.filter(w => w.construction_status === 'in_progress');
-    const totalBenefits = campaignWonders.reduce((acc, wonder) => {
-      Object.entries(wonder.strategic_benefits).forEach(([key, value]) => {
-        acc[key] = (acc[key] || 0) + value;
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return '#ef4444';
+      case 'high': return '#f59e0b';
+      case 'medium': return '#3b82f6';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const fetchWondersData = useCallback(async () => {
+    try {
+      setLoading(true);
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/wonders');
+      if (response.ok) {
+        const data = await response.json();
+        setWondersData(data);
+      } else {
+        throw new Error('API not available');
+      }
+    } catch (err) {
+      console.warn('Failed to fetch wonders data:', err);
+      // Use comprehensive mock data
+      setWondersData({
+        overview: {
+          totalWonders: 47,
+          completedWonders: 32,
+          underConstruction: 8,
+          totalPrestige: 2847,
+          averageQuality: 87.3,
+          totalInvestment: 1250000000000,
+          culturalImpact: 92.5,
+          strategicValue: 78.9
+        },
+        templates: [
+          {
+            id: 'temp-1',
+            name: 'Galactic Pyramids',
+            category: 'ancient',
+            description: 'Massive stone monuments that demonstrate architectural mastery and provide lasting cultural benefits across the galaxy.',
+            baseCost: { stone: 10000000000, gold: 5000000000, labor: 8000000000 },
+            strategicBenefits: { culture: 25, tourism: 15, prestige: 30 },
+            constructionTime: 120,
+            maintenanceCost: 50000000,
+            prestige: 100,
+            requirements: ['Advanced Masonry', 'Large Population'],
+            unlockCondition: 'Population > 1B, Culture > 50'
+          },
+          {
+            id: 'temp-2',
+            name: 'Galactic Archive',
+            category: 'knowledge',
+            description: 'A vast repository of galactic knowledge that accelerates research and educational advancement across star systems.',
+            baseCost: { stone: 6000000000, gold: 8000000000, crystals: 2000000000 },
+            strategicBenefits: { research: 40, education: 25, culture: 20 },
+            constructionTime: 90,
+            maintenanceCost: 75000000,
+            prestige: 85,
+            requirements: ['Advanced Computing', 'Research Centers'],
+            unlockCondition: 'Research > 75, Education > 60'
+          },
+          {
+            id: 'temp-3',
+            name: 'Stellar Sanctuaries',
+            category: 'spiritual',
+            description: 'Magnificent spiritual structures that inspire galactic populations and provide guidance across the stars.',
+            baseCost: { stone: 8000000000, gold: 6000000000, crystals: 3000000000 },
+            strategicBenefits: { culture: 35, happiness: 20, stability: 15 },
+            constructionTime: 75,
+            maintenanceCost: 60000000,
+            prestige: 70,
+            requirements: ['Religious Centers', 'Cultural Unity'],
+            unlockCondition: 'Happiness > 70, Stability > 80'
+          },
+          {
+            id: 'temp-4',
+            name: 'Galactic Colossus',
+            category: 'engineering',
+            description: 'A towering metallic monument that showcases galactic engineering prowess and serves as a beacon across star systems.',
+            baseCost: { metal: 12000000000, energy: 8000000000, gold: 4000000000 },
+            strategicBenefits: { prestige: 40, defense: 20, tourism: 25 },
+            constructionTime: 150,
+            maintenanceCost: 100000000,
+            prestige: 120,
+            requirements: ['Advanced Metallurgy', 'Energy Grid'],
+            unlockCondition: 'Engineering > 85, Defense > 60'
+          }
+        ],
+        wonders: [
+          {
+            id: 'wonder-1',
+            templateId: 'temp-1',
+            name: 'Galactic Pyramids of Alpha Centauri',
+            location: 'Alpha Centauri Prime',
+            status: 'completed',
+            completionPercentage: 100,
+            currentPhase: 'Operational',
+            investedResources: { stone: 10000000000, gold: 5000000000, labor: 8000000000 },
+            strategicBenefits: { culture: 25, tourism: 15, prestige: 30 },
+            startDate: '2020-03-15',
+            estimatedCompletion: '2022-03-15',
+            actualCompletion: '2022-03-15',
+            totalCost: 23000000000,
+            currentBudget: 50000000,
+            workforce: 50000,
+            quality: 95
+          },
+          {
+            id: 'wonder-2',
+            templateId: 'temp-2',
+            name: 'Galactic Archive of Vega',
+            location: 'Vega System',
+            status: 'in_progress',
+            completionPercentage: 67,
+            currentPhase: 'Knowledge Core Construction',
+            investedResources: { stone: 4000000000, gold: 5400000000, crystals: 1340000000 },
+            strategicBenefits: { research: 27, education: 17, culture: 13 },
+            startDate: '2023-06-20',
+            estimatedCompletion: '2024-09-20',
+            totalCost: 16000000000,
+            currentBudget: 3200000000,
+            workforce: 35000,
+            quality: 89
+          },
+          {
+            id: 'wonder-3',
+            templateId: 'temp-3',
+            name: 'Stellar Sanctuary of Sirius',
+            location: 'Sirius Prime',
+            status: 'planning',
+            completionPercentage: 0,
+            currentPhase: 'Design Phase',
+            investedResources: { stone: 0, gold: 0, crystals: 0 },
+            strategicBenefits: { culture: 0, happiness: 0, stability: 0 },
+            startDate: '2024-12-01',
+            estimatedCompletion: '2026-03-01',
+            totalCost: 17000000000,
+            currentBudget: 17000000000,
+            workforce: 0,
+            quality: 0
+          }
+        ],
+        constructionPhases: [
+          {
+            id: 'phase-1',
+            wonderId: 'wonder-2',
+            phase: 'Foundation',
+            progressPercentage: 100,
+            resourcesInvested: { stone: 2000000000, gold: 1000000000, crystals: 500000000 },
+            workforce: 15000,
+            startDate: '2023-06-20',
+            estimatedCompletion: '2023-09-20',
+            actualCompletion: '2023-09-20',
+            challenges: ['Unstable ground conditions'],
+            achievements: ['Completed ahead of schedule']
+          },
+          {
+            id: 'phase-2',
+            wonderId: 'wonder-2',
+            phase: 'Knowledge Core Construction',
+            progressPercentage: 67,
+            resourcesInvested: { stone: 2000000000, gold: 4400000000, crystals: 840000000 },
+            workforce: 35000,
+            startDate: '2023-09-20',
+            estimatedCompletion: '2024-06-20',
+            challenges: ['Complex AI integration', 'Data security protocols'],
+            achievements: ['AI core operational', 'Security systems active']
+          }
+        ],
+        maintenance: [
+          {
+            id: 'maint-1',
+            wonderId: 'wonder-1',
+            type: 'routine',
+            status: 'scheduled',
+            priority: 'low',
+            description: 'Annual structural integrity check and minor repairs',
+            cost: 5000000,
+            duration: 7,
+            startDate: '2024-04-01',
+            assignedTeam: 'Alpha Centauri Maintenance Crew'
+          },
+          {
+            id: 'maint-2',
+            wonderId: 'wonder-1',
+            type: 'upgrade',
+            status: 'in_progress',
+            priority: 'medium',
+            description: 'Tourism enhancement systems upgrade',
+            cost: 25000000,
+            duration: 21,
+            startDate: '2024-03-15',
+            estimatedCompletion: '2024-04-05',
+            assignedTeam: 'Tourism Enhancement Team'
+          }
+        ],
+        achievements: [
+          {
+            id: 'ach-1',
+            name: 'First Wonder',
+            description: 'Complete your first galactic wonder',
+            unlocked: true,
+            unlockDate: '2022-03-15',
+            prestige: 50
+          },
+          {
+            id: 'ach-2',
+            name: 'Wonder Architect',
+            description: 'Complete 5 galactic wonders',
+            unlocked: false,
+            prestige: 200
+          },
+          {
+            id: 'ach-3',
+            name: 'Cultural Beacon',
+            description: 'Achieve 1000 total prestige from wonders',
+            unlocked: false,
+            prestige: 500
+          }
+        ]
       });
-      return acc;
-    }, {} as Record<string, number>);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    return (
-      <div className="overview-tab">
-        <div className="tab-header">
-          <h3>🏛️ World Wonders Overview</h3>
-          <p>Monumental achievements that provide lasting benefits to your civilization</p>
-        </div>
+  useEffect(() => {
+    fetchWondersData();
+  }, [fetchWondersData]);
 
-        <div className="section">
-          <h4>Wonder Statistics</h4>
-          <div className="metrics-grid">
-            <div className="metric-card">
-              <div className="metric-icon">✅</div>
-              <div className="metric-content">
-                <div className="metric-title">Completed Wonders</div>
-                <div className="metric-value">{completedWonders.length}</div>
-                <div className="metric-description">Fully constructed monuments</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">🚧</div>
-              <div className="metric-content">
-                <div className="metric-title">In Progress</div>
-                <div className="metric-value">{inProgressWonders.length}</div>
-                <div className="metric-description">Currently under construction</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">🎯</div>
-              <div className="metric-content">
-                <div className="metric-title">Available Templates</div>
-                <div className="metric-value">{availableWonders.length}</div>
-                <div className="metric-description">Wonder types you can build</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">⭐</div>
-              <div className="metric-content">
-                <div className="metric-title">Total Prestige</div>
-                <div className="metric-value">{totalBenefits.prestige || 0}</div>
-                <div className="metric-description">Civilization prestige bonus</div>
-              </div>
-            </div>
+  const renderOverview = () => (
+    <>
+      {/* Wonders Overview - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🏛️ Galaxy Wonders Overview</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Total Wonders</span>
+            <span className="standard-metric-value">{wondersData?.overview.totalWonders}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Completed</span>
+            <span className="standard-metric-value">{wondersData?.overview.completedWonders}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Under Construction</span>
+            <span className="standard-metric-value">{wondersData?.overview.underConstruction}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Total Prestige</span>
+            <span className="standard-metric-value">{wondersData?.overview.totalPrestige}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Average Quality</span>
+            <span className="standard-metric-value">{wondersData?.overview.averageQuality}%</span>
+          </div>
+          <div className="standard-metric">
+            <span>Total Investment</span>
+            <span className="standard-metric-value">{formatNumber(wondersData?.overview.totalInvestment || 0)}</span>
           </div>
         </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn space-theme" onClick={() => console.log('Wonders Analysis')}>Wonders Analysis</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Strategic Review')}>Strategic Review</button>
+        </div>
+      </div>
 
-        <div className="section">
-          <h4>Strategic Benefits</h4>
-          <div className="benefits-grid">
-            {Object.entries(totalBenefits).map(([benefit, value]) => (
-              <div key={benefit} className="benefit-card">
-                <div className="benefit-name">{benefit.charAt(0).toUpperCase() + benefit.slice(1)}</div>
-                <div className="benefit-value">+{value}</div>
-              </div>
-            ))}
+      {/* Cultural Impact - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🌟 Cultural & Strategic Impact</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Cultural Impact</span>
+            <span className="standard-metric-value">{wondersData?.overview.culturalImpact}%</span>
+          </div>
+          <div className="standard-metric">
+            <span>Strategic Value</span>
+            <span className="standard-metric-value">{wondersData?.overview.strategicValue}%</span>
+          </div>
+          <div className="standard-metric">
+            <span>Completion Rate</span>
+            <span className="standard-metric-value">
+              {wondersData?.overview.totalWonders ? Math.round((wondersData.overview.completedWonders / wondersData.overview.totalWonders) * 100) : 0}%
+            </span>
+          </div>
+          <div className="standard-metric">
+            <span>Construction Efficiency</span>
+            <span className="standard-metric-value">
+              {wondersData?.overview.underConstruction ? Math.round((wondersData.overview.underConstruction / (wondersData.overview.totalWonders - wondersData.overview.completedWonders)) * 100) : 0}%
+            </span>
           </div>
         </div>
       </div>
-    );
-  };
 
-  const renderAvailableTab = () => {
-    return (
-      <div className="available-tab">
-        <div className="tab-header">
-          <h3>🎯 Available Wonders</h3>
-          <p>Wonder templates you can construct for your civilization</p>
+      {/* Wonders Analytics - Full panel width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div className="standard-panel space-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>📊 Wonders Analytics</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+            <div className="chart-container">
+              <PieChart
+                data={[
+                  { label: 'Completed', value: wondersData?.overview.completedWonders || 0, color: '#10b981' },
+                  { label: 'Under Construction', value: wondersData?.overview.underConstruction || 0, color: '#3b82f6' },
+                  { label: 'Planning', value: (wondersData?.overview.totalWonders || 0) - (wondersData?.overview.completedWonders || 0) - (wondersData?.overview.underConstruction || 0), color: '#f59e0b' }
+                ]}
+                title="🏛️ Wonder Status Distribution"
+                size={200}
+                showLegend={true}
+              />
+            </div>
+            <div className="chart-container">
+              <BarChart
+                data={wondersData?.wonders?.slice(0, 5).map(wonder => ({
+                  label: wonder.name.substring(0, 15) + '...',
+                  value: wonder.quality,
+                  color: wonder.status === 'completed' ? '#10b981' : '#3b82f6'
+                })) || []}
+                title="⭐ Wonder Quality Scores"
+                height={250}
+                width={400}
+                showTooltip={true}
+              />
+            </div>
+          </div>
         </div>
+      </div>
+    </>
+  );
 
-        <div className="wonders-grid">
-          {availableWonders.map((wonder) => (
-            <div key={wonder.wonder_type} className="wonder-template-card">
-              <div className="wonder-header">
-                <h4>{wonder.display_name}</h4>
-                <span className="wonder-category">{wonder.wonder_category}</span>
-              </div>
-              
-              <div className="wonder-description">
-                {wonder.description}
-              </div>
-
-              <div className="wonder-costs">
-                <h5>Construction Cost:</h5>
-                <div className="cost-list">
-                  {Object.entries(wonder.base_cost).map(([resource, amount]) => (
-                    <div key={resource} className="cost-item">
-                      <span className="resource-name">{resource}</span>
-                      <span className="resource-amount">{amount.toLocaleString()}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="wonder-benefits">
-                <h5>Strategic Benefits:</h5>
-                <div className="benefits-list">
-                  {Object.entries(wonder.strategic_benefits).map(([benefit, value]) => (
-                    <div key={benefit} className="benefit-item">
-                      <span className="benefit-name">{benefit}</span>
-                      <span className="benefit-value">+{value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <button className="start-construction-btn">
-                Start Construction
-              </button>
+  const renderTemplates = () => (
+    <>
+      {/* Wonder Templates - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>📋 Available Wonder Templates</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn space-theme" onClick={() => console.log('New Wonder')}>Start New Wonder</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Template Analysis')}>Template Analysis</button>
+        </div>
+        
+        <div className="standard-data-table">
+          <div className="table-header">
+            <span>Wonder</span>
+            <span>Category</span>
+            <span>Base Cost</span>
+            <span>Construction Time</span>
+            <span>Prestige</span>
+            <span>Strategic Benefits</span>
+            <span>Actions</span>
+          </div>
+          {wondersData?.templates?.map(template => (
+            <div key={template.id} className="table-row">
+              <span>🏛️ {template.name}</span>
+              <span style={{ color: getCategoryColor(template.category) }}>
+                {template.category.charAt(0).toUpperCase() + template.category.slice(1)}
+              </span>
+              <span>{formatNumber(Object.values(template.baseCost).reduce((a, b) => a + b, 0))}</span>
+              <span>{template.constructionTime} days</span>
+              <span>{template.prestige}</span>
+              <span>{Object.keys(template.strategicBenefits).length} benefits</span>
+              <span>
+                <button className="standard-btn space-theme" style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}>Start</button>
+              </span>
             </div>
           ))}
         </div>
       </div>
-    );
-  };
+    </>
+  );
 
-  const renderConstructionTab = () => {
-    return (
-      <div className="construction-tab">
-        <div className="tab-header">
-          <h3>🚧 Construction Projects</h3>
-          <p>Monitor ongoing wonder construction and progress</p>
+  const renderConstruction = () => (
+    <>
+      {/* Construction Progress - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🚧 Construction Progress</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn space-theme" onClick={() => console.log('Construction Report')}>Construction Report</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Resource Allocation')}>Resource Allocation</button>
         </div>
-
-        <div className="construction-projects">
-          {campaignWonders.map((wonder) => (
-            <div key={wonder.id} className="construction-card">
-              <div className="construction-header">
-                <h4>{wonder.wonder_name}</h4>
-                <span className={`status-badge ${wonder.construction_status}`}>
-                  {wonder.construction_status.replace('_', ' ').toUpperCase()}
-                </span>
-              </div>
-
-              <div className="progress-section">
-                <div className="progress-info">
-                  <span>Progress: {wonder.completion_percentage.toFixed(1)}%</span>
-                  <span>Phase: {wonder.construction_phase}</span>
-                </div>
-                <div className="progress-bar">
-                  <div 
-                    className="progress-fill" 
-                    style={{ width: `${wonder.completion_percentage}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="resources-invested">
-                <h5>Resources Invested:</h5>
-                <div className="resource-list">
-                  {Object.entries(wonder.invested_resources).map(([resource, amount]) => (
-                    <div key={resource} className="resource-item">
-                      <span className="resource-name">{resource}</span>
-                      <span className="resource-amount">{amount.toLocaleString()}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="construction-actions">
-                {wonder.construction_status === 'in_progress' && (
-                  <>
-                    <button className="action-btn invest-btn">Invest Resources</button>
-                    <button className="action-btn pause-btn">Pause Construction</button>
-                  </>
-                )}
-                {wonder.construction_status === 'paused' && (
-                  <button className="action-btn resume-btn">Resume Construction</button>
-                )}
-                {wonder.construction_status !== 'completed' && (
-                  <button className="action-btn cancel-btn">Cancel Project</button>
-                )}
-              </div>
+        
+        <div className="standard-data-table">
+          <div className="table-header">
+            <span>Wonder</span>
+            <span>Location</span>
+            <span>Status</span>
+            <span>Progress</span>
+            <span>Current Phase</span>
+            <span>Workforce</span>
+            <span>Budget</span>
+            <span>Actions</span>
+          </div>
+          {wondersData?.wonders?.map(wonder => (
+            <div key={wonder.id} className="table-row">
+              <span>🏛️ {wonder.name}</span>
+              <span>⭐ {wonder.location}</span>
+              <span style={{ color: getStatusColor(wonder.status) }}>
+                {wonder.status.replace('_', ' ')}
+              </span>
+              <span>{wonder.completionPercentage}%</span>
+              <span>{wonder.currentPhase}</span>
+              <span>{wonder.workforce.toLocaleString()}</span>
+              <span>{formatNumber(wonder.currentBudget)}</span>
+              <span>
+                <button className="standard-btn space-theme" style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}>Manage</button>
+              </span>
             </div>
           ))}
         </div>
       </div>
-    );
-  };
+    </>
+  );
 
-  const renderHistoryTab = () => {
-    return (
-      <div className="history-tab">
-        <div className="tab-header">
-          <h3>📚 Construction History</h3>
-          <p>Track the progress and milestones of your wonder construction projects</p>
+  const renderMaintenance = () => (
+    <>
+      {/* Maintenance Overview - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🔧 Wonder Maintenance</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn space-theme" onClick={() => console.log('Maintenance Schedule')}>Maintenance Schedule</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Upgrade Planning')}>Upgrade Planning</button>
         </div>
-
-        <div className="history-timeline">
-          {constructionHistory.map((entry) => {
-            const wonder = campaignWonders.find(w => w.id === entry.wonder_id);
-            return (
-              <div key={entry.id} className="history-entry">
-                <div className="history-timestamp">
-                  {new Date(entry.timestamp).toLocaleDateString()}
-                </div>
-                <div className="history-content">
-                  <h5>{wonder?.wonder_name || 'Unknown Wonder'}</h5>
-                  <p>Phase: {entry.phase}</p>
-                  <p>Progress: {entry.progress_percentage.toFixed(1)}%</p>
-                  <div className="history-resources">
-                    Resources: {Object.entries(entry.resources_invested)
-                      .map(([r, a]) => `${r}: ${a.toLocaleString()}`)
-                      .join(', ')}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="world-wonders-screen loading">
-        <div className="loading-spinner"></div>
-        <p>Loading world wonders data...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="world-wonders-screen error">
-        <div className="error-message">
-          <h3>⚠️ Error</h3>
-          <p>{error}</p>
-          <button onClick={fetchWorldWondersData} className="retry-button">
-            Retry
-          </button>
+        
+        <div className="standard-data-table">
+          <div className="table-header">
+            <span>Wonder</span>
+            <span>Maintenance Type</span>
+            <span>Status</span>
+            <span>Priority</span>
+            <span>Cost</span>
+            <span>Duration</span>
+            <span>Team</span>
+            <span>Actions</span>
+          </div>
+          {wondersData?.maintenance?.map(maint => (
+            <div key={maint.id} className="table-row">
+              <span>🏛️ {wondersData.wonders.find(w => w.id === maint.wonderId)?.name || 'Unknown'}</span>
+              <span>{maint.type.charAt(0).toUpperCase() + maint.type.slice(1)}</span>
+              <span style={{ color: getStatusColor(maint.status) }}>
+                {maint.status.replace('_', ' ')}
+              </span>
+              <span style={{ color: getPriorityColor(maint.priority) }}>
+                {maint.priority.charAt(0).toUpperCase() + maint.priority.slice(1)}
+              </span>
+              <span>{formatNumber(maint.cost)}</span>
+              <span>{maint.duration} days</span>
+              <span>{maint.assignedTeam}</span>
+              <span>
+                <button className="standard-btn space-theme" style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}>Review</button>
+              </span>
+            </div>
+          ))}
         </div>
       </div>
-    );
-  }
+    </>
+  );
+
+  const renderAchievements = () => (
+    <>
+      {/* Achievements Overview - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🏆 Wonder Achievements</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn space-theme" onClick={() => console.log('Achievement Analysis')}>Achievement Analysis</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Progress Report')}>Progress Report</button>
+        </div>
+        
+        <div className="standard-data-table">
+          <div className="table-header">
+            <span>Achievement</span>
+            <span>Description</span>
+            <span>Status</span>
+            <span>Prestige</span>
+            <span>Unlock Date</span>
+            <span>Actions</span>
+          </div>
+          {wondersData?.achievements?.map(achievement => (
+            <div key={achievement.id} className="table-row">
+              <span>🏆 {achievement.name}</span>
+              <span>{achievement.description}</span>
+              <span style={{ color: achievement.unlocked ? '#10b981' : '#6b7280' }}>
+                {achievement.unlocked ? 'Unlocked' : 'Locked'}
+              </span>
+              <span>{achievement.prestige}</span>
+              <span>{achievement.unlockDate || 'Not yet unlocked'}</span>
+              <span>
+                <button className="standard-btn space-theme" style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}>
+                  {achievement.unlocked ? 'View' : 'Progress'}
+                </button>
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <BaseScreen
@@ -421,47 +666,35 @@ const GalaxyWondersScreen: React.FC<ScreenProps> = ({
       title={title}
       icon={icon}
       gameContext={gameContext}
-      onRefresh={fetchWorldWondersData}
-      apiEndpoints={[
-        { method: 'GET', path: '/api/wonders/templates', description: 'List available wonder templates' },
-        { method: 'GET', path: '/api/wonders', description: 'List campaign wonders and status' },
-        { method: 'GET', path: '/api/wonders/history', description: 'Construction history timeline' },
-        { method: 'POST', path: '/api/wonders', description: 'Start a new wonder construction' }
-      ]}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchWondersData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
     >
-      <div className="galaxy-wonders-screen">
-        <div className="tab-navigation">
-          <button 
-            className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
-          >
-            📊 Overview
-          </button>
-          <button 
-            className={`tab-button ${activeTab === 'available' ? 'active' : ''}`}
-            onClick={() => setActiveTab('available')}
-          >
-            🎯 Available Wonders
-          </button>
-          <button 
-            className={`tab-button ${activeTab === 'construction' ? 'active' : ''}`}
-            onClick={() => setActiveTab('construction')}
-          >
-            🚧 Construction
-          </button>
-          <button 
-            className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
-            onClick={() => setActiveTab('history')}
-          >
-            📚 History
-          </button>
-        </div>
-
-        <div className="tab-content">
-          {activeTab === 'overview' && renderOverviewTab()}
-          {activeTab === 'available' && renderAvailableTab()}
-          {activeTab === 'construction' && renderConstructionTab()}
-          {activeTab === 'history' && renderHistoryTab()}
+      <div className="standard-screen-container space-theme">
+        {error && <div className="error-message">Error: {error}</div>}
+        
+        <div className="standard-dashboard">
+          {!loading && !error && wondersData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'templates' && renderTemplates()}
+              {activeTab === 'construction' && renderConstruction()}
+              {activeTab === 'maintenance' && renderMaintenance()}
+              {activeTab === 'achievements' && renderAchievements()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading wonders data...' : 'No wonders data available'}
+            </div>
+          )}
         </div>
       </div>
     </BaseScreen>

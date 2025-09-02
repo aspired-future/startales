@@ -1,1294 +1,759 @@
-import React, { useState, useEffect } from 'react';
+/**
+ * Speeches Screen - Public Speaking and Communication Management
+ * 
+ * This screen focuses on speech and communication operations including:
+ * - Speech writing and preparation
+ * - Public speaking events and scheduling
+ * - Communication strategy and messaging
+ * - Speech analytics and audience response
+ * - Media coverage and public relations
+ * 
+ * Theme: Social (green color scheme)
+ */
+
+import React, { useState, useEffect, useCallback } from 'react';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './SpeechesScreen.css';
+import '../shared/StandardDesign.css';
 import { LineChart, PieChart, BarChart } from '../../../Charts';
-
-interface SpeechesScreenProps {
-  screenId: string;
-  title: string;
-  icon: string;
-  gameContext?: any;
-}
-
-interface SpeechGenerationRequest {
-  type: string;
-  audience: string;
-  occasion: string;
-  tone: string;
-  duration: number;
-  keyMessages: string[];
-  issuesToAddress: string[];
-  deliveryMode: 'avatar' | 'teleprompter' | 'off-the-cuff';
-  styleGuide?: string;
-}
 
 interface Speech {
   id: string;
   title: string;
   speaker: string;
-  occasion: string;
+  speakerId: string;
+  event: string;
   date: string;
   duration: number;
-  status: 'draft' | 'scheduled' | 'delivered' | 'cancelled';
+  category: 'political' | 'diplomatic' | 'scientific' | 'cultural' | 'economic' | 'military';
   audience: string;
-  topic: string;
-  approvalRating?: number;
-  viewCount?: number;
-  transcript?: string;
-}
-
-interface SpeechTemplate {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  estimatedDuration: number;
-  keyPoints: string[];
+  venue: string;
+  status: 'draft' | 'scheduled' | 'delivered' | 'archived';
+  views: number;
+  positiveReactions: number;
+  negativeReactions: number;
+  neutralReactions: number;
+  mediaCoverage: number;
+  keyMessages: string[];
+  tags: string[];
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  approvalStatus: 'pending' | 'approved' | 'rejected' | 'under_review';
 }
 
 interface SpeechAnalytics {
-  totalSpeeches: number;
-  averageRating: number;
-  totalViews: number;
-  upcomingSpeeches: number;
-  popularTopics: string[];
-  engagementRate: number;
+  overview: {
+    totalSpeeches: number;
+    deliveredSpeeches: number;
+    totalViews: number;
+    totalReactions: number;
+    averageDuration: number;
+    topPerformingSpeech: string;
+  };
+  performanceTrends: Array<{
+    date: string;
+    speechesDelivered: number;
+    totalViews: number;
+    totalReactions: number;
+    averageReactions: number;
+  }>;
+  categoryBreakdown: Array<{
+    category: string;
+    speeches: number;
+    views: number;
+    reactions: number;
+    averageDuration: number;
+  }>;
+  audienceInsights: Array<{
+    audience: string;
+    size: number;
+    engagementRate: number;
+    favoriteCategory: string;
+    responsePattern: string;
+  }>;
 }
 
-const SpeechesScreen: React.FC<SpeechesScreenProps> = ({ 
+interface SpeechesData {
+  speeches: Speech[];
+  analytics: SpeechAnalytics;
+}
+
+const SpeechesScreen: React.FC<ScreenProps> = ({ 
   screenId, 
   title, 
   icon, 
   gameContext 
 }) => {
-  const [activeTab, setActiveTab] = useState<'speeches' | 'schedule' | 'templates' | 'analytics' | 'delivery'>('speeches');
-  const [speechData, setSpeechData] = useState<{
-    speeches: Speech[];
-    templates: SpeechTemplate[];
-    analytics: SpeechAnalytics;
-  }>({
-    speeches: [],
-    templates: [],
-    analytics: {
-      totalSpeeches: 0,
-      averageRating: 0,
-      totalViews: 0,
-      upcomingSpeeches: 0,
-      popularTopics: [],
-      engagementRate: 0
-    }
-  });
-
+  const [speechesData, setSpeechesData] = useState<SpeechesData | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'speeches' | 'events' | 'analytics' | 'strategy'>('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedSpeech, setSelectedSpeech] = useState<Speech | null>(null);
-  const [showNewSpeechForm, setShowNewSpeechForm] = useState(false);
-  const [generatingSpeech, setGeneratingSpeech] = useState(false);
-  const [speechForm, setSpeechForm] = useState<SpeechGenerationRequest>({
-    type: 'policy_announcement',
-    audience: 'general_public',
-    occasion: 'Press Conference',
-    tone: 'formal',
-    duration: 15,
-    keyMessages: [''],
-    issuesToAddress: [''],
-    deliveryMode: 'avatar',
-    styleGuide: 'Professional, authoritative, inspiring when appropriate'
-  });
 
-  useEffect(() => {
-    const fetchSpeechData = async () => {
-      try {
-        setLoading(true);
-        // Try to fetch from API
-        const response = await fetch('/api/speeches/overview');
-        
-        if (!response.ok) {
-          throw new Error('API not available');
-        }
-        
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'speeches', label: 'Speeches', icon: '🎤' },
+    { id: 'events', label: 'Events', icon: '📅' },
+    { id: 'analytics', label: 'Analytics', icon: '📈' },
+    { id: 'strategy', label: 'Strategy', icon: '🎯' }
+  ];
+
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/speeches', description: 'Get speeches' },
+    { method: 'POST', path: '/api/speeches', description: 'Create new speech' },
+    { method: 'PUT', path: '/api/speeches/:id', description: 'Update speech' }
+  ];
+
+  const formatNumber = (num: number) => {
+    if (num >= 1e9) return `${(num / 1e9).toFixed(1)}B`;
+    if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
+    if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
+    return num.toString();
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'political': return '#ef4444';
+      case 'diplomatic': return '#3b82f6';
+      case 'scientific': return '#10b981';
+      case 'cultural': return '#ec4899';
+      case 'economic': return '#f59e0b';
+      case 'military': return '#8b5cf6';
+      default: return '#6b7280';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'draft': return '#6b7280';
+      case 'scheduled': return '#f59e0b';
+      case 'delivered': return '#10b981';
+      case 'archived': return '#8b5cf6';
+      default: return '#6b7280';
+    }
+  };
+
+  const getApprovalColor = (status: string) => {
+    switch (status) {
+      case 'pending': return '#f59e0b';
+      case 'approved': return '#10b981';
+      case 'rejected': return '#ef4444';
+      case 'under_review': return '#3b82f6';
+      default: return '#6b7280';
+    }
+  };
+
+  const fetchSpeechesData = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/speeches');
+      if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          setSpeechData(data.data);
+          setSpeechesData(data.data);
+        } else {
+          throw new Error('API response error');
         }
-      } catch (err) {
-        console.warn('Speeches API not available, using mock data');
-        // Use comprehensive mock data
-        setSpeechData({
-          speeches: [
-            {
-              id: 'speech_001',
-              title: 'State of the Union Address',
-              speaker: 'President Sarah Chen',
-              occasion: 'Annual Address',
-              date: '2024-03-15',
-              duration: 45,
-              status: 'delivered',
-              audience: 'Civilization Citizens',
-              topic: 'Government Policy',
-              approvalRating: 87.3,
-              viewCount: 2400000,
-              transcript: 'Fellow citizens of our civilization, today we stand at a crossroads of unprecedented opportunity...'
-            },
-            {
-              id: 'speech_002',
-              title: 'Economic Recovery Plan Announcement',
-              speaker: 'Secretary of Treasury',
-              occasion: 'Press Conference',
-              date: '2024-03-22',
-              duration: 30,
-              status: 'scheduled',
-              audience: 'Media & Public',
-              topic: 'Economic Policy',
-              approvalRating: undefined,
-              viewCount: undefined
-            },
-            {
-              id: 'speech_003',
-              title: 'Space Exploration Initiative Launch',
-              speaker: 'Director of Space Agency',
-              occasion: 'Launch Event',
-              date: '2024-04-01',
-              duration: 25,
-              status: 'draft',
-              audience: 'Scientists & Engineers',
-              topic: 'Science & Technology',
-              approvalRating: undefined,
-              viewCount: undefined
-            },
-            {
-              id: 'speech_004',
-              title: 'Diplomatic Relations Update',
-              speaker: 'Secretary of State',
-              occasion: 'UN Assembly',
-              date: '2024-02-28',
-              duration: 35,
-              status: 'delivered',
-              audience: 'International Delegates',
-              topic: 'Foreign Policy',
-              approvalRating: 92.1,
-              viewCount: 1800000
-            },
-            {
-              id: 'speech_005',
-              title: 'Climate Action Summit Opening',
-              speaker: 'Environmental Secretary',
-              occasion: 'Climate Summit',
-              date: '2024-04-15',
-              duration: 20,
-              status: 'scheduled',
-              audience: 'Environmental Leaders',
-              topic: 'Environmental Policy',
-              approvalRating: undefined,
-              viewCount: undefined
-            }
-          ],
-          templates: [
-            {
-              id: 'template_001',
-              name: 'State Address Template',
-              category: 'Government',
-              description: 'Comprehensive template for annual state addresses',
-              estimatedDuration: 45,
-              keyPoints: ['Current State Overview', 'Major Achievements', 'Future Plans', 'Call to Action']
-            },
-            {
-              id: 'template_002',
-              name: 'Crisis Response Template',
-              category: 'Emergency',
-              description: 'Template for addressing national emergencies',
-              estimatedDuration: 15,
-              keyPoints: ['Situation Assessment', 'Immediate Actions', 'Public Safety', 'Next Steps']
-            },
-            {
-              id: 'template_003',
-              name: 'Policy Announcement Template',
-              category: 'Policy',
-              description: 'Standard format for new policy announcements',
-              estimatedDuration: 25,
-              keyPoints: ['Policy Overview', 'Benefits & Impact', 'Implementation Timeline', 'Public Input']
-            },
-            {
-              id: 'template_004',
-              name: 'Diplomatic Address Template',
-              category: 'Diplomacy',
-              description: 'Template for international diplomatic speeches',
-              estimatedDuration: 30,
-              keyPoints: ['Relationship Status', 'Mutual Interests', 'Cooperation Areas', 'Future Partnership']
-            }
-          ],
-          analytics: {
-            totalSpeeches: 47,
-            averageRating: 84.7,
-            totalViews: 15600000,
-            upcomingSpeeches: 8,
-            popularTopics: ['Economic Policy', 'Foreign Relations', 'Environmental Policy', 'Technology', 'Healthcare'],
-            engagementRate: 78.2
-          }
-        });
-      } finally {
-        setLoading(false);
+      } else {
+        throw new Error('API not available');
       }
-    };
 
-    fetchSpeechData();
+    } catch (err) {
+      console.warn('Failed to fetch speeches data:', err);
+      // Use comprehensive mock data
+      setSpeechesData({
+        speeches: [
+          {
+            id: 'speech_1',
+            title: 'The Future of Interstellar Cooperation',
+            speaker: 'President Sarah Chen',
+            speakerId: 'speaker_1',
+            event: 'Galactic Unity Summit',
+            date: '2393-06-20T14:00:00Z',
+            duration: 45,
+            category: 'diplomatic',
+            audience: 'Interstellar Leaders',
+            venue: 'United Galactic Assembly Hall',
+            status: 'scheduled',
+            views: 0,
+            positiveReactions: 0,
+            negativeReactions: 0,
+            neutralReactions: 0,
+            mediaCoverage: 0,
+            keyMessages: ['Unity', 'Cooperation', 'Peace', 'Progress'],
+            tags: ['Diplomacy', 'Unity', 'Summit'],
+            priority: 'critical',
+            approvalStatus: 'approved'
+          },
+          {
+            id: 'speech_2',
+            title: 'Economic Policies for the New Era',
+            speaker: 'Secretary of Economics Dr. Marcus Rodriguez',
+            speakerId: 'speaker_2',
+            event: 'Economic Policy Forum',
+            date: '2393-06-18T10:30:00Z',
+            duration: 30,
+            category: 'economic',
+            audience: 'Economic Leaders',
+            venue: 'Federal Economic Center',
+            status: 'delivered',
+            views: 890000,
+            positiveReactions: 45600,
+            negativeReactions: 8900,
+            neutralReactions: 12300,
+            mediaCoverage: 156,
+            keyMessages: ['Growth', 'Innovation', 'Stability', 'Opportunity'],
+            tags: ['Economy', 'Policy', 'Growth'],
+            priority: 'high',
+            approvalStatus: 'approved'
+          },
+          {
+            id: 'speech_3',
+            title: 'Advancements in Quantum Computing',
+            speaker: 'Dr. Elena Petrova',
+            speakerId: 'speaker_3',
+            event: 'Science & Technology Conference',
+            date: '2393-06-15T16:00:00Z',
+            duration: 60,
+            category: 'scientific',
+            audience: 'Scientists & Researchers',
+            venue: 'Galactic Science Institute',
+            status: 'delivered',
+            views: 1250000,
+            positiveReactions: 78900,
+            negativeReactions: 2340,
+            neutralReactions: 8900,
+            mediaCoverage: 234,
+            keyMessages: ['Innovation', 'Discovery', 'Future', 'Technology'],
+            tags: ['Science', 'Technology', 'Quantum'],
+            priority: 'high',
+            approvalStatus: 'approved'
+          },
+          {
+            id: 'speech_4',
+            title: 'Cultural Exchange and Understanding',
+            speaker: 'Cultural Ambassador Lisa Park',
+            speakerId: 'speaker_4',
+            event: 'Cultural Diversity Festival',
+            date: '2393-06-12T19:00:00Z',
+            duration: 25,
+            category: 'cultural',
+            audience: 'Cultural Representatives',
+            venue: 'Multicultural Center',
+            status: 'delivered',
+            views: 450000,
+            positiveReactions: 23400,
+            negativeReactions: 1200,
+            neutralReactions: 5600,
+            mediaCoverage: 89,
+            keyMessages: ['Diversity', 'Understanding', 'Harmony', 'Culture'],
+            tags: ['Culture', 'Diversity', 'Harmony'],
+            priority: 'medium',
+            approvalStatus: 'approved'
+          },
+          {
+            id: 'speech_5',
+            title: 'Defense Strategy for Galactic Security',
+            speaker: 'General Alexander Thompson',
+            speakerId: 'speaker_5',
+            event: 'Defense Council Meeting',
+            date: '2393-06-10T09:00:00Z',
+            duration: 40,
+            category: 'military',
+            audience: 'Military Leaders',
+            venue: 'Defense Command Center',
+            status: 'delivered',
+            views: 670000,
+            positiveReactions: 34500,
+            negativeReactions: 8900,
+            neutralReactions: 12300,
+            mediaCoverage: 123,
+            keyMessages: ['Security', 'Defense', 'Strategy', 'Protection'],
+            tags: ['Military', 'Defense', 'Security'],
+            priority: 'critical',
+            approvalStatus: 'approved'
+          }
+        ],
+        analytics: {
+          overview: {
+            totalSpeeches: 234,
+            deliveredSpeeches: 189,
+            totalViews: 45600000,
+            totalReactions: 2340000,
+            averageDuration: 32.5,
+            topPerformingSpeech: 'Advancements in Quantum Computing'
+          },
+          performanceTrends: [
+            { date: 'Jun 10', speechesDelivered: 3, totalViews: 890000, totalReactions: 45600, averageReactions: 15200 },
+            { date: 'Jun 11', speechesDelivered: 2, totalViews: 920000, totalReactions: 47800, averageReactions: 23900 },
+            { date: 'Jun 12', speechesDelivered: 4, totalViews: 950000, totalReactions: 51200, averageReactions: 12800 },
+            { date: 'Jun 13', speechesDelivered: 1, totalViews: 980000, totalReactions: 53400, averageReactions: 53400 },
+            { date: 'Jun 14', speechesDelivered: 3, totalViews: 1020000, totalReactions: 56700, averageReactions: 18900 },
+            { date: 'Jun 15', speechesDelivered: 2, totalViews: 1050000, totalReactions: 58900, averageReactions: 29450 }
+          ],
+          categoryBreakdown: [
+            { category: 'Political', speeches: 45, views: 8900000, reactions: 456000, averageDuration: 35.2 },
+            { category: 'Diplomatic', speeches: 34, views: 12300000, reactions: 567000, averageDuration: 42.8 },
+            { category: 'Scientific', speeches: 56, views: 15600000, reactions: 789000, averageDuration: 58.3 },
+            { category: 'Cultural', speeches: 38, views: 6700000, reactions: 234000, averageDuration: 28.7 },
+            { category: 'Economic', speeches: 42, views: 8900000, reactions: 456000, averageDuration: 31.5 },
+            { category: 'Military', speeches: 19, views: 4500000, reactions: 189000, averageDuration: 38.9 }
+          ],
+          audienceInsights: [
+            { audience: 'Interstellar Leaders', size: 89000, engagementRate: 8.7, favoriteCategory: 'Diplomatic', responsePattern: 'High engagement, formal responses' },
+            { audience: 'Economic Leaders', size: 56700, engagementRate: 7.2, favoriteCategory: 'Economic', responsePattern: 'Analytical responses, data-driven' },
+            { audience: 'Scientists & Researchers', size: 234000, engagementRate: 9.1, favoriteCategory: 'Scientific', responsePattern: 'Technical discussions, peer review' },
+            { audience: 'Cultural Representatives', size: 123000, engagementRate: 6.8, favoriteCategory: 'Cultural', responsePattern: 'Emotional responses, artistic expression' }
+          ]
+        }
+      });
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const handleAction = (action: string, context?: any) => {
-    console.log(`Speeches Action: ${action}`, context);
-    
-    if (action === 'Create New Speech') {
-      setShowNewSpeechForm(true);
-      return;
-    }
-    
-    alert(`Speeches System: ${action}\n\nThis would ${action.toLowerCase()} in the full implementation.\n\nContext: ${JSON.stringify(context, null, 2)}`);
-  };
+  useEffect(() => {
+    fetchSpeechesData();
+  }, [fetchSpeechesData]);
 
-  const addArrayItem = (field: 'keyMessages' | 'issuesToAddress') => {
-    setSpeechForm(prev => ({
-      ...prev,
-      [field]: [...prev[field], '']
-    }));
-  };
-
-  const removeArrayItem = (field: 'keyMessages' | 'issuesToAddress', index: number) => {
-    setSpeechForm(prev => ({
-      ...prev,
-      [field]: prev[field].filter((_, i) => i !== index)
-    }));
-  };
-
-  const updateArrayItem = (field: 'keyMessages' | 'issuesToAddress', index: number, value: string) => {
-    setSpeechForm(prev => ({
-      ...prev,
-      [field]: prev[field].map((item, i) => i === index ? value : item)
-    }));
-  };
-
-  const generateSpeech = async () => {
-    if (!speechForm.keyMessages.some(msg => msg.trim()) || !speechForm.issuesToAddress.some(issue => issue.trim())) {
-      alert('Please provide at least one key message and one issue to address.');
-      return;
-    }
-
-    setGeneratingSpeech(true);
-    try {
-      const requestPayload = {
-        campaignId: gameContext?.campaignId || 1,
-        tickId: gameContext?.tickId || 1,
-        leaderCharacterId: gameContext?.playerId || 'player_1',
-        type: speechForm.type,
-        audience: {
-          primary: speechForm.audience,
-          demographics: [],
-          estimatedSize: 1000000,
-          broadcastChannels: ['National TV', 'Radio', 'Internet'],
-          expectedReach: 0.8
-        },
-        occasion: speechForm.occasion,
-        keyMessages: speechForm.keyMessages.filter(msg => msg.trim()),
-        tone: speechForm.tone,
-        duration: speechForm.duration,
-        policyFocus: speechForm.issuesToAddress.filter(issue => issue.trim()),
-        currentChallenges: speechForm.issuesToAddress.filter(issue => issue.trim()),
-        styleGuide: speechForm.styleGuide,
-        inspirationalLevel: speechForm.deliveryMode === 'off-the-cuff' ? 0.8 : 0.6,
-        formalityLevel: speechForm.tone === 'formal' ? 0.8 : 0.5,
-        deliveryMode: speechForm.deliveryMode
-      };
-
-      console.log('Generating speech with payload:', requestPayload);
-
-      const response = await fetch('/api/leader/speech', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestPayload)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log('Speech generation result:', result);
-
-      if (result.success) {
-        const impactLevels = {
-          'avatar': 'Baseline (1.0x)',
-          'teleprompter': 'Enhanced (1.2x)',
-          'off-the-cuff': 'Maximum (1.5x)'
-        };
-        alert(`Speech Generated Successfully!\n\nTitle: ${result.data.title}\n\nDelivery Mode: ${speechForm.deliveryMode}\nExpected Impact: ${impactLevels[speechForm.deliveryMode]}\n\nThe speech has been added to your drafts.`);
-        setShowNewSpeechForm(false);
-        // Reset form
-        setSpeechForm({
-          type: 'policy_announcement',
-          audience: 'general_public',
-          occasion: 'Press Conference',
-          tone: 'formal',
-          duration: 15,
-          keyMessages: [''],
-          issuesToAddress: [''],
-          deliveryMode: 'avatar',
-          styleGuide: 'Professional, authoritative, inspiring when appropriate'
-        });
-        // Refresh speech data
-        // fetchSpeechData(); // Would need to be extracted to call here
-      } else {
-        throw new Error(result.error || 'Unknown error occurred');
-      }
-    } catch (error) {
-      console.error('Error generating speech:', error);
-      alert(`Error generating speech: ${error instanceof Error ? error.message : 'Unknown error'}\n\nFalling back to mock generation...`);
-      
-      // Fallback to mock generation
-      const impactLevels = {
-        'automated': 'Baseline (1.0x)',
-        'teleprompter': 'Enhanced (1.2x)',
-        'off-the-cuff': 'Maximum (1.5x)'
-      };
-      
-      const mockSpeech = {
-        title: `${speechForm.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}: ${speechForm.occasion}`,
-        content: `Mock speech content addressing: ${speechForm.issuesToAddress.filter(i => i.trim()).join(', ')}\n\nKey messages: ${speechForm.keyMessages.filter(m => m.trim()).join(', ')}\n\nDelivery mode: ${speechForm.deliveryMode}`,
-        deliveryMode: speechForm.deliveryMode,
-        expectedImpact: impactLevels[speechForm.deliveryMode]
-      };
-      
-      alert(`Mock Speech Generated!\n\nTitle: ${mockSpeech.title}\n\nDelivery Mode: ${speechForm.deliveryMode}\nExpected Impact: ${mockSpeech.expectedImpact}\n\nThis is a fallback when the API is unavailable.`);
-      setShowNewSpeechForm(false);
-    } finally {
-      setGeneratingSpeech(false);
-    }
-  };
-
-  const renderNewSpeechForm = () => (
-    <div className="new-speech-form">
-      <div className="form-header">
-        <h3>🎤 Generate New Speech</h3>
-        <button className="btn secondary" onClick={() => setShowNewSpeechForm(false)}>
-          ✕ Close
-        </button>
+  const renderOverview = () => (
+    <>
+      {/* Speeches Overview - Full panel width */}
+      <div className="standard-panel social-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📊 Speeches Overview</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Total Speeches</span>
+            <span className="standard-metric-value">{speechesData?.analytics.overview.totalSpeeches}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Delivered</span>
+            <span className="standard-metric-value">{speechesData?.analytics.overview.deliveredSpeeches}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Total Views</span>
+            <span className="standard-metric-value">{formatNumber(speechesData?.analytics.overview.totalViews || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Total Reactions</span>
+            <span className="standard-metric-value">{formatNumber(speechesData?.analytics.overview.totalReactions || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Avg Duration</span>
+            <span className="standard-metric-value">{speechesData?.analytics.overview.averageDuration} min</span>
+          </div>
+          <div className="standard-metric">
+            <span>Top Speech</span>
+            <span className="standard-metric-value">Quantum Computing</span>
+          </div>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('New Speech')}>✏️ New Speech</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('View All Speeches')}>🎤 View All</button>
+        </div>
       </div>
 
-      <div className="form-grid">
-        <div className="form-section">
-          <h4>📋 Basic Information</h4>
-          
-          <div className="form-group">
-            <label>Speech Type:</label>
-            <select 
-              value={speechForm.type} 
-              onChange={(e) => setSpeechForm(prev => ({ ...prev, type: e.target.value }))}
-            >
-              <option value="policy_announcement">Policy Announcement</option>
-              <option value="state_of_union">State of the Union</option>
-              <option value="crisis_address">Crisis Address</option>
-              <option value="economic_update">Economic Update</option>
-              <option value="diplomatic_address">Diplomatic Address</option>
-              <option value="victory_speech">Victory Speech</option>
-              <option value="rally">Rally</option>
-            </select>
-          </div>
+      {/* Category Performance - Full panel width */}
+      <div className="standard-panel social-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📈 Category Performance</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Speeches</th>
+                <th>Views</th>
+                <th>Reactions</th>
+                <th>Avg Duration</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {speechesData?.analytics.categoryBreakdown.map(category => (
+                <tr key={category.category}>
+                  <td>
+                    <span style={{ 
+                      color: getCategoryColor(category.category.toLowerCase()),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getCategoryColor(category.category.toLowerCase()) + '20'
+                    }}>
+                      {category.category}
+                    </span>
+                  </td>
+                  <td>{category.speeches}</td>
+                  <td>{formatNumber(category.views)}</td>
+                  <td>{formatNumber(category.reactions)}</td>
+                  <td>{category.averageDuration} min</td>
+                  <td>
+                    <button className="standard-btn social-theme">View</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
 
-          <div className="form-group">
-            <label>Audience:</label>
-            <select 
-              value={speechForm.audience} 
-              onChange={(e) => setSpeechForm(prev => ({ ...prev, audience: e.target.value }))}
-            >
-              <option value="general_public">General Public</option>
-              <option value="government">Government Officials</option>
-              <option value="military">Military Personnel</option>
-              <option value="business_leaders">Business Leaders</option>
-              <option value="diplomats">Diplomatic Corps</option>
-              <option value="scientists">Scientific Community</option>
-            </select>
-          </div>
+  const renderSpeeches = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🎤 Speech Management</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('New Speech')}>✏️ New Speech</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Filter Speeches')}>🔍 Filter</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Speaker</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Views</th>
+                <th>Reactions</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {speechesData?.speeches.map(speech => (
+                <tr key={speech.id}>
+                  <td>
+                    <div style={{ maxWidth: '300px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{speech.title}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{speech.event}</div>
+                    </div>
+                  </td>
+                  <td>{speech.speaker}</td>
+                  <td>
+                    <span style={{ 
+                      color: getCategoryColor(speech.category),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getCategoryColor(speech.category) + '20'
+                    }}>
+                      {speech.category}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getStatusColor(speech.status),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getStatusColor(speech.status) + '20'
+                    }}>
+                      {speech.status}
+                    </span>
+                  </td>
+                  <td>{formatNumber(speech.views)}</td>
+                  <td>
+                    <span style={{ color: speech.positiveReactions > speech.negativeReactions ? '#10b981' : speech.negativeReactions > speech.positiveReactions ? '#ef4444' : '#f59e0b' }}>
+                      {formatNumber(speech.positiveReactions + speech.negativeReactions + speech.neutralReactions)}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn social-theme">Edit</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 
-          <div className="form-group">
-            <label>Occasion:</label>
-            <input 
-              type="text" 
-              value={speechForm.occasion}
-              onChange={(e) => setSpeechForm(prev => ({ ...prev, occasion: e.target.value }))}
-              placeholder="e.g., Press Conference, State Dinner, Emergency Broadcast"
+  const renderEvents = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📅 Event Management</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('Schedule Event')}>📅 Schedule Event</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Manage Venues')}>🏛️ Venues</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Event Calendar')}>📋 Calendar</button>
+        </div>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem', marginTop: '2rem' }}>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>Upcoming Events</h4>
+            <div className="standard-table-container">
+              <table className="standard-data-table">
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Galactic Unity Summit</td>
+                    <td>Jun 20, 14:00</td>
+                    <td>
+                      <span style={{ color: '#f59e0b', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem', backgroundColor: '#f59e0b20' }}>
+                        Scheduled
+                      </span>
+                    </td>
+                    <td>
+                      <button className="standard-btn social-theme">Manage</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Economic Policy Forum</td>
+                    <td>Jun 18, 10:30</td>
+                    <td>
+                      <span style={{ color: '#10b981', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem', backgroundColor: '#10b98120' }}>
+                        Completed
+                      </span>
+                    </td>
+                    <td>
+                      <button className="standard-btn social-theme">Review</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Science Conference</td>
+                    <td>Jun 15, 16:00</td>
+                    <td>
+                      <span style={{ color: '#10b981', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem', backgroundColor: '#10b98120' }}>
+                        Completed
+                      </span>
+                    </td>
+                    <td>
+                      <button className="standard-btn social-theme">Review</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>Event Metrics</h4>
+            <div className="standard-metric-grid">
+              <div className="standard-metric">
+                <span>Events This Month</span>
+                <span className="standard-metric-value">12</span>
+              </div>
+              <div className="standard-metric">
+                <span>Avg Attendance</span>
+                <span className="standard-metric-value">2.3K</span>
+              </div>
+              <div className="standard-metric">
+                <span>Media Coverage</span>
+                <span className="standard-metric-value">89</span>
+              </div>
+              <div className="standard-metric">
+                <span>Success Rate</span>
+                <span className="standard-metric-value">94%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAnalytics = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📈 Speech Analytics</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div className="chart-container">
+            <LineChart
+              data={speechesData?.analytics.performanceTrends.map(trend => ({
+                name: trend.date,
+                'Speeches Delivered': trend.speechesDelivered,
+                'Total Views': trend.totalViews / 1000000,
+                'Total Reactions': trend.totalReactions / 1000,
+                'Average Reactions': trend.averageReactions / 1000
+              })) || []}
+              title="Speech Performance Trends"
+              height={300}
+              width={500}
+              showTooltip={true}
             />
           </div>
-
-          <div className="form-group">
-            <label>Tone:</label>
-            <select 
-              value={speechForm.tone} 
-              onChange={(e) => setSpeechForm(prev => ({ ...prev, tone: e.target.value }))}
-            >
-              <option value="formal">Formal</option>
-              <option value="casual">Casual</option>
-              <option value="inspirational">Inspirational</option>
-              <option value="somber">Somber</option>
-              <option value="urgent">Urgent</option>
-              <option value="celebratory">Celebratory</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Duration (minutes):</label>
-            <input 
-              type="number" 
-              min="5" 
-              max="60" 
-              value={speechForm.duration}
-              onChange={(e) => setSpeechForm(prev => ({ ...prev, duration: parseInt(e.target.value) || 15 }))}
+          <div className="chart-container">
+            <PieChart
+              data={speechesData?.analytics.categoryBreakdown.map(category => ({
+                name: category.category,
+                value: category.views
+              })) || []}
+              title="Views by Category"
+              size={250}
+              showLegend={true}
             />
           </div>
         </div>
-
-        <div className="form-section">
-          <h4>🎯 Key Messages</h4>
-          <p>What are the main points you want to communicate?</p>
-          
-          {speechForm.keyMessages.map((message, index) => (
-            <div key={index} className="array-input-group">
-              <input
-                type="text"
-                value={message}
-                onChange={(e) => updateArrayItem('keyMessages', index, e.target.value)}
-                placeholder={`Key message ${index + 1}`}
-              />
-              {speechForm.keyMessages.length > 1 && (
-                <button 
-                  className="btn secondary small"
-                  onClick={() => removeArrayItem('keyMessages', index)}
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          ))}
-          
-          <button 
-            className="btn secondary small"
-            onClick={() => addArrayItem('keyMessages')}
-          >
-            ➕ Add Key Message
-          </button>
-        </div>
-
-        <div className="form-section">
-          <h4>⚠️ Issues to Address</h4>
-          <p>What challenges or topics should the speech address?</p>
-          
-          {speechForm.issuesToAddress.map((issue, index) => (
-            <div key={index} className="array-input-group">
-              <input
-                type="text"
-                value={issue}
-                onChange={(e) => updateArrayItem('issuesToAddress', index, e.target.value)}
-                placeholder={`Issue ${index + 1}`}
-              />
-              {speechForm.issuesToAddress.length > 1 && (
-                <button 
-                  className="btn secondary small"
-                  onClick={() => removeArrayItem('issuesToAddress', index)}
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          ))}
-          
-          <button 
-            className="btn secondary small"
-            onClick={() => addArrayItem('issuesToAddress')}
-          >
-            ➕ Add Issue
-          </button>
-        </div>
-
-        <div className="form-section">
-          <h4>🎭 Delivery Mode</h4>
-          <p>How will this speech be delivered?</p>
-          
-          <div className="delivery-mode-selector">
-            <label className={`delivery-option ${speechForm.deliveryMode === 'avatar' ? 'selected' : ''}`}>
-              <input
-                type="radio"
-                name="deliveryMode"
-                value="avatar"
-                checked={speechForm.deliveryMode === 'avatar'}
-                onChange={(e) => setSpeechForm(prev => ({ ...prev, deliveryMode: e.target.value as 'avatar' | 'teleprompter' | 'off-the-cuff' }))}
-              />
-              <div className="option-content">
-                <div className="option-icon">🤖</div>
-                <div className="option-details">
-                  <h5>Avatar Mode</h5>
-                  <p>AI avatar delivers speech, leader not present</p>
-                  <small>Baseline impact, digital representation only</small>
-                </div>
-              </div>
-            </label>
-
-            <label className={`delivery-option ${speechForm.deliveryMode === 'teleprompter' ? 'selected' : ''}`}>
-              <input
-                type="radio"
-                name="deliveryMode"
-                value="teleprompter"
-                checked={speechForm.deliveryMode === 'teleprompter'}
-                onChange={(e) => setSpeechForm(prev => ({ ...prev, deliveryMode: e.target.value as 'avatar' | 'teleprompter' | 'off-the-cuff' }))}
-              />
-              <div className="option-content">
-                <div className="option-icon">📺</div>
-                <div className="option-details">
-                  <h5>Teleprompter</h5>
-                  <p>Prepared, polished delivery with script</p>
-                  <small>Enhanced impact, professional appearance</small>
-                </div>
-              </div>
-            </label>
-
-            <label className={`delivery-option ${speechForm.deliveryMode === 'off-the-cuff' ? 'selected' : ''}`}>
-              <input
-                type="radio"
-                name="deliveryMode"
-                value="off-the-cuff"
-                checked={speechForm.deliveryMode === 'off-the-cuff'}
-                onChange={(e) => setSpeechForm(prev => ({ ...prev, deliveryMode: e.target.value as 'avatar' | 'teleprompter' | 'off-the-cuff' }))}
-              />
-              <div className="option-content">
-                <div className="option-icon">🎤</div>
-                <div className="option-details">
-                  <h5>Off-the-Cuff</h5>
-                  <p>Spontaneous, authentic delivery</p>
-                  <small>Highest impact, shows authenticity and confidence</small>
-                </div>
-              </div>
-            </label>
+        <div style={{ marginTop: '2rem' }}>
+          <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>Performance Metrics</h4>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Current</th>
+                  <th>Target</th>
+                  <th>Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Daily Views</td>
+                  <td style={{ color: '#10b981' }}>1.05M</td>
+                  <td>1.2M</td>
+                  <td style={{ color: '#f59e0b' }}>↗️ Improving</td>
+                </tr>
+                <tr>
+                  <td>Engagement Rate</td>
+                  <td style={{ color: '#10b981' }}>5.1%</td>
+                  <td>6.0%</td>
+                  <td style={{ color: '#10b981' }}>↗️ On Track</td>
+                </tr>
+                <tr>
+                  <td>Speech Duration</td>
+                  <td style={{ color: '#10b981' }}>32.5 min</td>
+                  <td>30.0 min</td>
+                  <td style={{ color: '#f59e0b' }}>⚠️ Slightly Over</td>
+                </tr>
+                <tr>
+                  <td>Approval Rate</td>
+                  <td style={{ color: '#10b981' }}>94%</td>
+                  <td>95%</td>
+                  <td style={{ color: '#10b981' }}>✅ Near Target</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-      </div>
-
-      <div className="form-actions">
-        <button 
-          className="btn"
-          onClick={generateSpeech}
-          disabled={generatingSpeech}
-        >
-          {generatingSpeech ? '🔄 Generating...' : '🎤 Generate Speech'}
-        </button>
-        <button 
-          className="btn secondary"
-          onClick={() => setShowNewSpeechForm(false)}
-        >
-          Cancel
-        </button>
       </div>
     </div>
   );
 
-  const renderSpeechesTab = () => (
-    <div className="speeches-tab">
-      {showNewSpeechForm && renderNewSpeechForm()}
-      
-      <div className="speeches-header">
-        <h2>🎤 Speech Management</h2>
-        <p>Manage speeches, addresses, and public communications</p>
-      </div>
-
-      <div className="speeches-grid">
-        {speechData.speeches.map(speech => (
-          <div key={speech.id} className="speech-card">
-            <div className="speech-header">
-              <h3>{speech.title}</h3>
-              <div className={`speech-status ${speech.status}`}>
-                {speech.status.charAt(0).toUpperCase() + speech.status.slice(1)}
-              </div>
-            </div>
-            <div className="speech-info">
-              <div className="info-row">
-                <span className="info-label">Speaker:</span>
-                <span className="info-value">{speech.speaker}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Occasion:</span>
-                <span className="info-value">{speech.occasion}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Date:</span>
-                <span className="info-value">{speech.date}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Duration:</span>
-                <span className="info-value">{speech.duration} minutes</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Audience:</span>
-                <span className="info-value">{speech.audience}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Topic:</span>
-                <span className="info-value">{speech.topic}</span>
-              </div>
-              {speech.approvalRating && (
-                <div className="info-row">
-                  <span className="info-label">Approval:</span>
-                  <span className="info-value">{speech.approvalRating}%</span>
-                </div>
-              )}
-              {speech.viewCount && (
-                <div className="info-row">
-                  <span className="info-label">Views:</span>
-                  <span className="info-value">{speech.viewCount.toLocaleString()}</span>
-                </div>
-              )}
-            </div>
-            {speech.approvalRating && (
-              <div className="approval-bar">
-                <div className="approval-fill" style={{ width: `${speech.approvalRating}%` }}></div>
-              </div>
-            )}
-            <div className="speech-actions">
-              <button className="btn" onClick={() => handleAction('View Speech', speech.title)}>
-                📄 View
-              </button>
-              <button className="btn secondary" onClick={() => handleAction('Edit Speech', speech.title)}>
-                ✏️ Edit
-              </button>
-              {speech.status === 'draft' && (
-                <button className="btn secondary" onClick={() => handleAction('Schedule Speech', speech.title)}>
-                  📅 Schedule
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="speeches-actions">
-        <button className="btn" onClick={() => handleAction('Create New Speech')}>
-          ➕ New Speech
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Import Speech')}>
-          📥 Import
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Speech Archive')}>
-          📚 Archive
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderScheduleTab = () => (
-    <div className="schedule-tab">
-      <div className="schedule-header">
-        <h2>📅 Speech Schedule</h2>
-        <p>Upcoming speeches and scheduling management</p>
-      </div>
-
-      <div className="schedule-calendar">
-        <div className="calendar-header">
-          <h3>📆 March 2024</h3>
-          <div className="calendar-controls">
-            <button className="btn secondary" onClick={() => handleAction('Previous Month')}>
-              ← Prev
-            </button>
-            <button className="btn secondary" onClick={() => handleAction('Next Month')}>
-              Next →
-            </button>
-          </div>
-        </div>
-
-        <div className="calendar-grid">
-          <div className="calendar-day-header">Sun</div>
-          <div className="calendar-day-header">Mon</div>
-          <div className="calendar-day-header">Tue</div>
-          <div className="calendar-day-header">Wed</div>
-          <div className="calendar-day-header">Thu</div>
-          <div className="calendar-day-header">Fri</div>
-          <div className="calendar-day-header">Sat</div>
-
-          {Array.from({ length: 35 }, (_, i) => {
-            const day = i - 2; // Start from March 1st (assuming March 1st is on a Friday)
-            const isCurrentMonth = day > 0 && day <= 31;
-            const hasEvent = [15, 22].includes(day); // March 15 and 22 have speeches
-            
-            return (
-              <div key={i} className={`calendar-day ${isCurrentMonth ? 'current-month' : 'other-month'} ${hasEvent ? 'has-event' : ''}`}>
-                {isCurrentMonth && (
-                  <>
-                    <span className="day-number">{day}</span>
-                    {hasEvent && (
-                      <div className="event-indicator">
-                        {day === 15 ? '🎤 State Address' : '🎤 Economic Plan'}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="upcoming-speeches">
-        <h3>📋 Upcoming Speeches</h3>
-        <div className="upcoming-list">
-          {speechData.speeches.filter(s => s.status === 'scheduled').map(speech => (
-            <div key={speech.id} className="upcoming-item">
-              <div className="upcoming-date">
-                <div className="date-day">{new Date(speech.date).getDate()}</div>
-                <div className="date-month">{new Date(speech.date).toLocaleDateString('en', { month: 'short' })}</div>
-              </div>
-              <div className="upcoming-details">
-                <h4>{speech.title}</h4>
-                <p>{speech.speaker} • {speech.occasion}</p>
-                <p>{speech.duration} minutes • {speech.audience}</p>
-              </div>
-              <div className="upcoming-actions">
-                <button className="btn" onClick={() => handleAction('Prepare Speech', speech.title)}>
-                  📝 Prepare
-                </button>
-                <button className="btn secondary" onClick={() => handleAction('Reschedule', speech.title)}>
-                  📅 Reschedule
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="schedule-actions">
-        <button className="btn" onClick={() => handleAction('Schedule New Speech')}>
-          📅 Schedule Speech
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Venue Management')}>
-          🏛️ Venues
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Media Coordination')}>
-          📺 Media
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderTemplatesTab = () => (
-    <div className="templates-tab">
-      <div className="templates-header">
-        <h2>📝 Speech Templates</h2>
-        <p>Pre-built templates for different types of speeches</p>
-      </div>
-
-      <div className="templates-grid">
-        {speechData.templates.map(template => (
-          <div key={template.id} className="template-card">
-            <div className="template-header">
-              <h3>{template.name}</h3>
-              <div className="template-category">{template.category}</div>
-            </div>
-            <div className="template-info">
-              <p className="template-description">{template.description}</p>
-              <div className="info-row">
-                <span className="info-label">Duration:</span>
-                <span className="info-value">{template.estimatedDuration} minutes</span>
-              </div>
-              <div className="template-points">
-                <h4>Key Points:</h4>
-                <ul>
-                  {template.keyPoints.map((point, index) => (
-                    <li key={index}>{point}</li>
+  const renderStrategy = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🎯 Communication Strategy</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>Audience Insights</h4>
+            <div className="standard-table-container">
+              <table className="standard-data-table">
+                <thead>
+                  <tr>
+                    <th>Audience</th>
+                    <th>Size</th>
+                    <th>Engagement</th>
+                    <th>Favorite Category</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {speechesData?.analytics.audienceInsights.map(insight => (
+                    <tr key={insight.audience}>
+                      <td>{insight.audience}</td>
+                      <td>{formatNumber(insight.size)}</td>
+                      <td>
+                        <span style={{ color: insight.engagementRate >= 8 ? '#10b981' : insight.engagementRate >= 6 ? '#f59e0b' : '#ef4444' }}>
+                          {insight.engagementRate}%
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{ 
+                          color: getCategoryColor(insight.favoriteCategory.toLowerCase()),
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.875rem',
+                          backgroundColor: getCategoryColor(insight.favoriteCategory.toLowerCase()) + '20'
+                        }}>
+                          {insight.favoriteCategory}
+                        </span>
+                      </td>
+                    </tr>
                   ))}
-                </ul>
-              </div>
-            </div>
-            <div className="template-actions">
-              <button className="btn" onClick={() => handleAction('Use Template', template.name)}>
-                📄 Use Template
-              </button>
-              <button className="btn secondary" onClick={() => handleAction('Customize Template', template.name)}>
-                ✏️ Customize
-              </button>
+                </tbody>
+              </table>
             </div>
           </div>
-        ))}
-      </div>
-
-      <div className="templates-actions">
-        <button className="btn" onClick={() => handleAction('Create Template')}>
-          ➕ New Template
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Import Template')}>
-          📥 Import
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Template Library')}>
-          📚 Library
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderAnalyticsTab = () => (
-    <div className="analytics-tab">
-      <div className="analytics-header">
-        <h2>📊 Speech Analytics</h2>
-        <p>Performance metrics and audience engagement analysis</p>
-      </div>
-
-      <div className="analytics-stats">
-        <div className="stat-card">
-          <div className="stat-icon">🎤</div>
-          <div className="stat-content">
-            <div className="stat-value">{speechData.analytics.totalSpeeches}</div>
-            <div className="stat-label">Total Speeches</div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">⭐</div>
-          <div className="stat-content">
-            <div className="stat-value">{speechData.analytics.averageRating}%</div>
-            <div className="stat-label">Average Rating</div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">👁️</div>
-          <div className="stat-content">
-            <div className="stat-value">{(speechData.analytics.totalViews / 1000000).toFixed(1)}M</div>
-            <div className="stat-label">Total Views</div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">📅</div>
-          <div className="stat-content">
-            <div className="stat-value">{speechData.analytics.upcomingSpeeches}</div>
-            <div className="stat-label">Upcoming</div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">💬</div>
-          <div className="stat-content">
-            <div className="stat-value">{speechData.analytics.engagementRate}%</div>
-            <div className="stat-label">Engagement Rate</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Speech Charts Section */}
-      <div className="speech-charts-section">
-        <div className="charts-grid">
-          <div className="chart-container">
-            <LineChart
-              data={[
-                { label: 'Jan', value: 75 },
-                { label: 'Feb', value: 82 },
-                { label: 'Mar', value: 68 },
-                { label: 'Apr', value: 91 },
-                { label: 'May', value: 87 },
-                { label: 'Jun', value: 94 },
-                { label: 'Jul', value: 89 }
-              ]}
-              title="📈 Speech Performance Over Time"
-              color="#4ecdc4"
-              height={250}
-              width={400}
-            />
-          </div>
-
-          <div className="chart-container">
-            <PieChart
-              data={speechData.analytics.popularTopics.map((topic, index) => ({
-                label: topic,
-                value: 90 - index * 15,
-                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'][index]
-              }))}
-              title="🏷️ Topic Popularity Breakdown"
-              size={200}
-              showLegend={true}
-            />
-          </div>
-
-          <div className="chart-container">
-            <BarChart
-              data={[
-                { label: 'Engagement Rate', value: speechData.analytics.engagementRate, color: '#4ecdc4' },
-                { label: 'Average Rating', value: speechData.analytics.averageRating, color: '#45b7aa' },
-                { label: 'Completion Rate', value: 85, color: '#96ceb4' },
-                { label: 'Share Rate', value: 72, color: '#feca57' }
-              ]}
-              title="📊 Speech Metrics Comparison"
-              height={250}
-              width={400}
-              showTooltip={true}
-            />
-          </div>
-
-          <div className="chart-container">
-            <LineChart
-              data={[
-                { label: 'Q1', value: speechData.analytics.totalViews * 0.7 / 1000000 },
-                { label: 'Q2', value: speechData.analytics.totalViews * 0.8 / 1000000 },
-                { label: 'Q3', value: speechData.analytics.totalViews * 0.9 / 1000000 },
-                { label: 'Q4', value: speechData.analytics.totalViews / 1000000 }
-              ]}
-              title="👁️ Viewership Trends (Millions)"
-              color="#feca57"
-              height={250}
-              width={400}
-            />
-          </div>
-
-          <div className="chart-container">
-            <PieChart
-              data={[
-                { label: 'Live Audience', value: 45, color: '#4ecdc4' },
-                { label: 'Broadcast Views', value: 35, color: '#45b7aa' },
-                { label: 'Online Streaming', value: 20, color: '#96ceb4' }
-              ]}
-              title="📺 Audience Distribution"
-              size={200}
-              showLegend={true}
-            />
-          </div>
-
-          <div className="chart-container">
-            <BarChart
-              data={[
-                { label: 'Scheduled', value: speechData.analytics.upcomingSpeeches, color: '#4ecdc4' },
-                { label: 'Delivered', value: speechData.analytics.totalSpeeches, color: '#45b7aa' },
-                { label: 'Cancelled', value: 3, color: '#ff6b6b' },
-                { label: 'Rescheduled', value: 5, color: '#feca57' }
-              ]}
-              title="📅 Speech Status Overview"
-              height={250}
-              width={400}
-              showTooltip={true}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="analytics-actions">
-        <button className="btn" onClick={() => handleAction('Generate Analytics Report')}>
-          📋 Full Report
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Audience Analysis')}>
-          👥 Audience
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Performance Trends')}>
-          📈 Trends
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderDeliveryTab = () => (
-    <div className="delivery-tab">
-      <div className="delivery-header">
-        <h2>🎯 Speech Delivery</h2>
-        <p>Live speech delivery and teleprompter system</p>
-      </div>
-
-      <div className="delivery-modes-comparison">
-        <h3>📊 Delivery Mode Impact Comparison</h3>
-        <div className="comparison-grid three-modes">
-          <div className="mode-comparison avatar-mode">
-            <div className="mode-header">
-              <div className="mode-icon">🤖</div>
-              <h4>Avatar Mode</h4>
-            </div>
-            <div className="impact-metrics">
-              <div className="metric">
-                <span className="metric-label">Authenticity:</span>
-                <div className="metric-bar">
-                  <div className="metric-fill" style={{ width: '40%', backgroundColor: '#F44336' }}></div>
-                </div>
-                <span className="metric-value">40%</span>
-              </div>
-              <div className="metric">
-                <span className="metric-label">Professionalism:</span>
-                <div className="metric-bar">
-                  <div className="metric-fill" style={{ width: '70%', backgroundColor: '#FF9800' }}></div>
-                </div>
-                <span className="metric-value">70%</span>
-              </div>
-              <div className="metric">
-                <span className="metric-label">Public Trust:</span>
-                <div className="metric-bar">
-                  <div className="metric-fill" style={{ width: '50%', backgroundColor: '#FF9800' }}></div>
-                </div>
-                <span className="metric-value">50%</span>
-              </div>
-              <div className="metric">
-                <span className="metric-label">Overall Impact:</span>
-                <div className="metric-bar">
-                  <div className="metric-fill" style={{ width: '50%', backgroundColor: '#FF9800' }}></div>
-                </div>
-                <span className="metric-value">50% (1.0x)</span>
-              </div>
-            </div>
-            <div className="mode-benefits">
-              <h5>Benefits:</h5>
-              <ul>
-                <li>No preparation time required</li>
-                <li>Leader can focus on other tasks</li>
-                <li>Consistent digital representation</li>
-                <li>Available 24/7 for communications</li>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>Strategic Recommendations</h4>
+            <div style={{ 
+              padding: '1rem', 
+              backgroundColor: 'rgba(16, 185, 129, 0.1)', 
+              borderRadius: '0.5rem',
+              border: '1px solid rgba(16, 185, 129, 0.3)'
+            }}>
+              <h5 style={{ color: '#10b981', marginBottom: '0.5rem' }}>Key Insights:</h5>
+              <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#10b981' }}>
+                <li>Scientific speeches have highest engagement (9.1%)</li>
+                <li>Diplomatic speeches are longest but well-received</li>
+                <li>Economic content drives policy discussions</li>
+                <li>Cultural speeches have niche but loyal audience</li>
+                <li>Military speeches require careful messaging</li>
               </ul>
             </div>
-          </div>
-
-          <div className="mode-comparison teleprompter-mode">
-            <div className="mode-header">
-              <div className="mode-icon">📺</div>
-              <h4>Teleprompter Mode</h4>
-            </div>
-            <div className="impact-metrics">
-              <div className="metric">
-                <span className="metric-label">Authenticity:</span>
-                <div className="metric-bar">
-                  <div className="metric-fill" style={{ width: '65%', backgroundColor: '#FF9800' }}></div>
-                </div>
-                <span className="metric-value">65%</span>
-              </div>
-              <div className="metric">
-                <span className="metric-label">Professionalism:</span>
-                <div className="metric-bar">
-                  <div className="metric-fill" style={{ width: '95%', backgroundColor: '#4CAF50' }}></div>
-                </div>
-                <span className="metric-value">95%</span>
-              </div>
-              <div className="metric">
-                <span className="metric-label">Public Trust:</span>
-                <div className="metric-bar">
-                  <div className="metric-fill" style={{ width: '75%', backgroundColor: '#2196F3' }}></div>
-                </div>
-                <span className="metric-value">75%</span>
-              </div>
-              <div className="metric">
-                <span className="metric-label">Overall Impact:</span>
-                <div className="metric-bar">
-                  <div className="metric-fill" style={{ width: '60%', backgroundColor: '#2196F3' }}></div>
-                </div>
-                <span className="metric-value">60% (1.2x)</span>
-              </div>
-            </div>
-            <div className="mode-benefits">
-              <h5>Benefits:</h5>
-              <ul>
-                <li>Polished, error-free delivery</li>
-                <li>Consistent messaging</li>
-                <li>Professional appearance</li>
-                <li>Leader engagement with content</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="mode-comparison off-the-cuff-mode">
-            <div className="mode-header">
-              <div className="mode-icon">🎤</div>
-              <h4>Off-the-Cuff Mode</h4>
-            </div>
-            <div className="impact-metrics">
-              <div className="metric">
-                <span className="metric-label">Authenticity:</span>
-                <div className="metric-bar">
-                  <div className="metric-fill" style={{ width: '95%', backgroundColor: '#4CAF50' }}></div>
-                </div>
-                <span className="metric-value">95%</span>
-              </div>
-              <div className="metric">
-                <span className="metric-label">Professionalism:</span>
-                <div className="metric-bar">
-                  <div className="metric-fill" style={{ width: '70%', backgroundColor: '#FF9800' }}></div>
-                </div>
-                <span className="metric-value">70%</span>
-              </div>
-              <div className="metric">
-                <span className="metric-label">Public Trust:</span>
-                <div className="metric-bar">
-                  <div className="metric-fill" style={{ width: '90%', backgroundColor: '#4CAF50' }}></div>
-                </div>
-                <span className="metric-value">90%</span>
-              </div>
-              <div className="metric">
-                <span className="metric-label">Overall Impact:</span>
-                <div className="metric-bar">
-                  <div className="metric-fill" style={{ width: '75%', backgroundColor: '#4CAF50' }}></div>
-                </div>
-                <span className="metric-value">75% (1.5x)</span>
-              </div>
-            </div>
-            <div className="mode-benefits">
-              <h5>Benefits:</h5>
-              <ul>
-                <li>Highest authenticity and relatability</li>
-                <li>Shows confidence and competence</li>
-                <li>Strongest emotional connection</li>
-                <li>Maximum simulation impact</li>
+            <div style={{ marginTop: '1rem' }}>
+              <h5 style={{ color: '#10b981', marginBottom: '0.5rem' }}>Strategic Actions:</h5>
+              <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#10b981' }}>
+                <li>Increase scientific content frequency</li>
+                <li>Optimize diplomatic speech length</li>
+                <li>Develop economic policy series</li>
+                <li>Expand cultural programming</li>
+                <li>Enhance military communication training</li>
               </ul>
             </div>
           </div>
         </div>
       </div>
-
-      <div className="delivery-system">
-        <div className="teleprompter-card">
-          <h3>📺 Teleprompter</h3>
-          <div className="teleprompter-screen">
-            <div className="teleprompter-text">
-              <p>Fellow citizens of our civilization, today we stand at a crossroads of unprecedented opportunity...</p>
-              <p>Our economic recovery plan will create millions of jobs across all sectors...</p>
-              <p>Together, we will build a stronger, more prosperous future for all...</p>
-            </div>
-          </div>
-          <div className="teleprompter-controls">
-            <button className="btn secondary" onClick={() => handleAction('Slow Down')}>
-              ⏪ Slower
-            </button>
-            <button className="btn" onClick={() => handleAction('Play/Pause')}>
-              ⏯️ Play/Pause
-            </button>
-            <button className="btn secondary" onClick={() => handleAction('Speed Up')}>
-              ⏩ Faster
-            </button>
-          </div>
-        </div>
-
-        <div className="delivery-tools">
-          <div className="tool-card">
-            <h4>🎤 Audio Check</h4>
-            <div className="audio-levels">
-              <div className="level-bar">
-                <div className="level-fill" style={{ width: '75%' }}></div>
-              </div>
-              <span>75%</span>
-            </div>
-            <button className="btn secondary" onClick={() => handleAction('Test Audio')}>
-              🔊 Test
-            </button>
-          </div>
-
-          <div className="tool-card">
-            <h4>📹 Camera Setup</h4>
-            <div className="camera-preview">
-              <div className="preview-placeholder">📹 Camera Preview</div>
-            </div>
-            <button className="btn secondary" onClick={() => handleAction('Adjust Camera')}>
-              📷 Adjust
-            </button>
-          </div>
-
-          <div className="tool-card">
-            <h4>⏱️ Timer</h4>
-            <div className="speech-timer">
-              <div className="timer-display">00:00</div>
-              <div className="timer-target">Target: 45:00</div>
-            </div>
-            <button className="btn secondary" onClick={() => handleAction('Start Timer')}>
-              ⏱️ Start
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="live-feedback">
-        <h3>📊 Live Feedback</h3>
-        <div className="feedback-metrics">
-          <div className="feedback-item">
-            <span className="feedback-label">Audience Engagement</span>
-            <div className="feedback-bar">
-              <div className="feedback-fill" style={{ width: '82%', backgroundColor: '#4CAF50' }}></div>
-            </div>
-            <span className="feedback-value">82%</span>
-          </div>
-          <div className="feedback-item">
-            <span className="feedback-label">Speaking Pace</span>
-            <div className="feedback-bar">
-              <div className="feedback-fill" style={{ width: '65%', backgroundColor: '#FF9800' }}></div>
-            </div>
-            <span className="feedback-value">Optimal</span>
-          </div>
-          <div className="feedback-item">
-            <span className="feedback-label">Voice Clarity</span>
-            <div className="feedback-bar">
-              <div className="feedback-fill" style={{ width: '90%', backgroundColor: '#4CAF50' }}></div>
-            </div>
-            <span className="feedback-value">Excellent</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="delivery-actions">
-        <button className="btn" onClick={() => handleAction('Start Live Speech')}>
-          🔴 Go Live
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Practice Mode')}>
-          🎭 Practice
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Record Speech')}>
-          📹 Record
-        </button>
-      </div>
     </div>
   );
-
-  if (loading) {
-    return (
-      <div className="speeches-screen">
-        <div className="loading-state">
-          <div className="loading-spinner"></div>
-          <p>Loading speeches data...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="speeches-screen">
-      <div className="tab-navigation">
-        <button 
-          className={`tab-btn ${activeTab === 'speeches' ? 'active' : ''}`}
-          onClick={() => setActiveTab('speeches')}
-        >
-          🎤 Speeches
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'schedule' ? 'active' : ''}`}
-          onClick={() => setActiveTab('schedule')}
-        >
-          📅 Schedule
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'templates' ? 'active' : ''}`}
-          onClick={() => setActiveTab('templates')}
-        >
-          📝 Templates
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`}
-          onClick={() => setActiveTab('analytics')}
-        >
-          📊 Analytics
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'delivery' ? 'active' : ''}`}
-          onClick={() => setActiveTab('delivery')}
-        >
-          🎯 Delivery
-        </button>
+    <BaseScreen
+      screenId={screenId}
+      title={title}
+      icon={icon}
+      gameContext={gameContext}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchSpeechesData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
+    >
+      <div className="standard-screen-container social-theme">
+        <div className="standard-dashboard">
+          {!loading && !error && speechesData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'speeches' && renderSpeeches()}
+              {activeTab === 'events' && renderEvents()}
+              {activeTab === 'analytics' && renderAnalytics()}
+              {activeTab === 'strategy' && renderStrategy()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading speeches data...' : 'No speeches data available'}
+            </div>
+          )}
+        </div>
       </div>
-
-      <div className="tab-content">
-        {activeTab === 'speeches' && renderSpeechesTab()}
-        {activeTab === 'schedule' && renderScheduleTab()}
-        {activeTab === 'templates' && renderTemplatesTab()}
-        {activeTab === 'analytics' && renderAnalyticsTab()}
-        {activeTab === 'delivery' && renderDeliveryTab()}
-      </div>
-    </div>
+    </BaseScreen>
   );
 };
 

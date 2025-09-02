@@ -1,17 +1,8 @@
-/**
- * Defense Screen - Defense Policy, Strategic Planning, and National Security Coordination
- * 
- * This screen focuses on high-level defense policy, strategic planning, and coordination
- * between civilian leadership and military services. It's distinct from:
- * - Military Screen: Operational military units, fleets, bases
- * - Joint Chiefs Screen: Military command hierarchy and service leadership
- */
-
 import React, { useState, useCallback, useEffect } from 'react';
-import { BaseScreen } from '../BaseScreen';
-import { ScreenProps } from '../ScreenFactory';
-import { APIEndpoint } from '../BaseScreen';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './DefenseScreen.css';
+import '../shared/StandardDesign.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface DefensePolicy {
   strategic_doctrine: string;
@@ -85,26 +76,76 @@ interface DefenseData {
 
 const DefenseScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext }) => {
   const [defenseData, setDefenseData] = useState<DefenseData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'policy' | 'planning' | 'threats' | 'budget' | 'cooperation'>('policy');
 
-  const apiEndpoints: APIEndpoint[] = [
-    { method: 'GET', path: '/api/defense/dashboard', description: 'Get defense dashboard data' },
-    { method: 'GET', path: '/api/defense/policy', description: 'Get defense policy framework' },
-    { method: 'GET', path: '/api/defense/strategic-planning', description: 'Get strategic planning data' },
-    { method: 'GET', path: '/api/defense/threat-assessment', description: 'Get threat assessment reports' },
-    { method: 'PUT', path: '/api/defense/policy', description: 'Update defense policy' },
-    { method: 'POST', path: '/api/defense/strategic-review', description: 'Initiate strategic review' }
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'policy', label: 'Policy', icon: '📋' },
+    { id: 'planning', label: 'Planning', icon: '🗺️' },
+    { id: 'threats', label: 'Threats', icon: '⚠️' },
+    { id: 'budget', label: 'Budget', icon: '💰' },
+    { id: 'cooperation', label: 'Cooperation', icon: '🤝' }
   ];
+
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/defense', description: 'Get defense data' }
+  ];
+
+  // Utility functions
+  const formatCurrency = (value: number) => {
+    if (value >= 1e12) return `$${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `$${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `$${(value / 1e3).toFixed(0)}K`;
+    return `$${value}`;
+  };
+
+  const formatNumber = (value: number) => {
+    if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+    return value.toString();
+  };
+
+  const formatPercentage = (value: number) => {
+    return `${(value * 100).toFixed(1)}%`;
+  };
+
+  const getThreatLevelColor = (level: number) => {
+    if (level >= 0.8) return '#ef4444';
+    if (level >= 0.6) return '#f59e0b';
+    if (level >= 0.4) return '#fbbf24';
+    return '#10b981';
+  };
+
+  const getPriorityColor = (priority: number) => {
+    if (priority >= 0.8) return '#ef4444';
+    if (priority >= 0.6) return '#f59e0b';
+    if (priority >= 0.4) return '#fbbf24';
+    return '#10b981';
+  };
 
   const fetchDefenseData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-
-      // Mock data for now - replace with actual API calls
-      const mockData: DefenseData = {
+      
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/defense');
+      if (response.ok) {
+        const data = await response.json();
+        setDefenseData(data);
+      } else {
+        throw new Error('API not available');
+      }
+    } catch (err) {
+      console.warn('Failed to fetch defense data:', err);
+      // Use comprehensive mock data
+      setDefenseData({
         defensePolicy: {
           strategic_doctrine: 'Defensive Deterrence',
           threat_assessment_level: 0.4,
@@ -140,11 +181,6 @@ const DefenseScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameConte
               region: 'Core Worlds',
               threat_level: 0.2,
               primary_concerns: ['Cyber Attacks', 'Economic Espionage']
-            },
-            {
-              region: 'Border Systems',
-              threat_level: 0.5,
-              primary_concerns: ['Smuggling', 'Illegal Immigration', 'Arms Trafficking']
             }
           ],
           emerging_threats: [
@@ -153,18 +189,6 @@ const DefenseScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameConte
               probability: 0.7,
               impact: 0.9,
               timeline: '5-10 years'
-            },
-            {
-              type: 'Space-based Weapons',
-              probability: 0.5,
-              impact: 0.8,
-              timeline: '10-15 years'
-            },
-            {
-              type: 'Quantum Computing Attacks',
-              probability: 0.6,
-              impact: 0.7,
-              timeline: '3-7 years'
             }
           ]
         },
@@ -173,381 +197,348 @@ const DefenseScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameConte
           authority_level: 0.85,
           active_initiatives: [
             'Force Modernization Program',
-            'Cyber Defense Enhancement',
-            'Alliance Strengthening Initiative'
+            'Cyber Defense Enhancement'
           ],
           recent_decisions: [
             {
-              decision: 'Approved new cyber warfare doctrine',
-              date: '2024-08-20',
-              impact: 'Enhanced digital defense capabilities'
-            },
-            {
-              decision: 'Authorized joint training exercises',
-              date: '2024-08-18',
-              impact: 'Improved inter-service cooperation'
+              decision: 'Increase Cyber Warfare Budget',
+              date: '2024-02-14',
+              impact: 'Enhanced cyber defense capabilities'
             }
           ]
         },
         budgetAllocation: {
-          total_defense_budget: 45000000000,
-          personnel_costs: 18000000000,
-          operations_maintenance: 13500000000,
-          procurement: 9000000000,
-          research_development: 3600000000,
-          military_construction: 900000000
+          total_defense_budget: 85000000000,
+          personnel_costs: 45000000000,
+          operations_maintenance: 25000000000,
+          procurement: 12000000000,
+          research_development: 2500000000,
+          military_construction: 500000000
         },
         internationalCooperation: {
-          active_alliances: ['Galactic Defense Alliance', 'Core Worlds Security Pact', 'Outer Rim Cooperation Treaty'],
-          defense_agreements: 12,
+          active_alliances: ['Vega Federation', 'Alpha Centauri Pact'],
+          defense_agreements: 15,
           joint_exercises: 8,
-          technology_sharing_programs: 5
+          technology_sharing_programs: 12
         }
-      };
-
-      setDefenseData(mockData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load defense data');
+      });
     } finally {
       setLoading(false);
     }
-  }, [gameContext]);
+  }, []);
 
   useEffect(() => {
     fetchDefenseData();
   }, [fetchDefenseData]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      notation: 'compact',
-      maximumFractionDigits: 1
-    }).format(amount);
-  };
-
-  const formatPercentage = (value: number) => {
-    return `${(value * 100).toFixed(1)}%`;
-  };
-
-  const renderPolicyTab = () => (
-    <div className="policy-tab">
-      <div className="policy-grid">
-        <div className="policy-card">
-          <h3>🎯 Strategic Doctrine</h3>
-          <div className="doctrine-display">
-            <div className="current-doctrine">{defenseData?.defensePolicy.strategic_doctrine}</div>
-            <p>Current defense posture and strategic approach</p>
+  // Render functions for each tab
+  const renderPolicy = () => (
+    <>
+      {/* Defense Policy Overview - Full panel width */}
+      <div className="standard-panel security-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>📋 Defense Policy Framework</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Strategic Doctrine</span>
+            <span className="standard-metric-value">{defenseData?.defensePolicy.strategic_doctrine}</span>
           </div>
-          <div className="policy-metrics">
-            <div className="metric">
-              <span>Threat Assessment Level</span>
-              <div className="progress-bar">
-                <div 
-                  className="progress-fill" 
-                  style={{ width: `${(defenseData?.defensePolicy.threat_assessment_level || 0) * 100}%` }}
-                />
-              </div>
-              <span>{formatPercentage(defenseData?.defensePolicy.threat_assessment_level || 0)}</span>
-            </div>
-            <div className="metric">
-              <span>Defense Spending (% of GDP)</span>
-              <div className="spending-display">
-                {formatPercentage(defenseData?.defensePolicy.defense_spending_ratio || 0)}
-              </div>
-            </div>
+          <div className="standard-metric">
+            <span>Threat Assessment</span>
+            <span className="standard-metric-value">{formatPercentage(defenseData?.defensePolicy.threat_assessment_level || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Defense Spending</span>
+            <span className="standard-metric-value">{formatPercentage(defenseData?.defensePolicy.defense_spending_ratio || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>International Engagement</span>
+            <span className="standard-metric-value">{formatPercentage(defenseData?.defensePolicy.international_engagement_level || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Technology Priority</span>
+            <span className="standard-metric-value">{formatPercentage(defenseData?.defensePolicy.technology_modernization_priority || 0)}</span>
           </div>
         </div>
-
-        <div className="policy-card">
-          <h3>🌐 International Engagement</h3>
-          <div className="engagement-metrics">
-            <div className="metric">
-              <span>Engagement Level</span>
-              <div className="progress-bar">
-                <div 
-                  className="progress-fill" 
-                  style={{ width: `${(defenseData?.defensePolicy.international_engagement_level || 0) * 100}%` }}
-                />
-              </div>
-              <span>{formatPercentage(defenseData?.defensePolicy.international_engagement_level || 0)}</span>
-            </div>
-            <div className="metric">
-              <span>Technology Modernization Priority</span>
-              <div className="progress-bar">
-                <div 
-                  className="progress-fill" 
-                  style={{ width: `${(defenseData?.defensePolicy.technology_modernization_priority || 0) * 100}%` }}
-                />
-              </div>
-              <span>{formatPercentage(defenseData?.defensePolicy.technology_modernization_priority || 0)}</span>
-            </div>
-          </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Policy Analysis')}>Policy Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Update Policy')}>Update Policy</button>
         </div>
+      </div>
 
-        <div className="policy-card">
-          <h3>👤 Defense Secretary Authority</h3>
-          <div className="secretary-info">
-            <div className="secretary-name">{defenseData?.defenseSecretaryAuthority.name}</div>
-            <div className="authority-level">
-              Authority Level: {formatPercentage(defenseData?.defenseSecretaryAuthority.authority_level || 0)}
-            </div>
-            <div className="active-initiatives">
-              <h4>Active Initiatives:</h4>
-              <ul>
-                {defenseData?.defenseSecretaryAuthority.active_initiatives.map((initiative, index) => (
-                  <li key={index}>{initiative}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
+      {/* Defense Secretary Authority - Full panel width */}
+      <div className="standard-panel security-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>👤 Defense Secretary Authority</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Secretary</th>
+                <th>Authority Level</th>
+                <th>Active Initiatives</th>
+                <th>Recent Decisions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>{defenseData?.defenseSecretaryAuthority.name}</strong></td>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem', 
+                    borderRadius: '4px', 
+                    fontSize: '0.8rem', 
+                    backgroundColor: getPriorityColor(defenseData?.defenseSecretaryAuthority.authority_level || 0), 
+                    color: 'white' 
+                  }}>
+                    {formatPercentage(defenseData?.defenseSecretaryAuthority.authority_level || 0)}
+                  </span>
+                </td>
+                <td>{defenseData?.defenseSecretaryAuthority.active_initiatives?.length || 0} initiatives</td>
+                <td>{defenseData?.defenseSecretaryAuthority.recent_decisions?.length || 0} decisions</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+
+  const renderPlanning = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>🗺️ Strategic Planning</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Planning Analysis')}>Planning Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Strategy Review')}>Strategy Review</button>
+        </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Capability</th>
+                <th>Priority Level</th>
+                <th>Development Status</th>
+                <th>Target Force</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Air Superiority</strong></td>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem', 
+                    borderRadius: '4px', 
+                    fontSize: '0.8rem', 
+                    backgroundColor: getPriorityColor(defenseData?.strategicPlanning.capability_development_priorities.air_superiority || 0), 
+                    color: 'white' 
+                  }}>
+                    {formatPercentage(defenseData?.strategicPlanning.capability_development_priorities.air_superiority || 0)}
+                  </span>
+                </td>
+                <td>High Priority</td>
+                <td>{formatNumber(defenseData?.strategicPlanning.force_structure_planning.active_force_target || 0)}</td>
+                <td>
+                  <button className="standard-btn security-theme">Manage</button>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Cyber Warfare</strong></td>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem', 
+                    borderRadius: '4px', 
+                    fontSize: '0.8rem', 
+                    backgroundColor: getPriorityColor(defenseData?.strategicPlanning.capability_development_priorities.cyber_warfare || 0), 
+                    color: 'white' 
+                  }}>
+                    {formatPercentage(defenseData?.strategicPlanning.capability_development_priorities.cyber_warfare || 0)}
+                  </span>
+                </td>
+                <td>Critical Priority</td>
+                <td>{formatNumber(defenseData?.strategicPlanning.force_structure_planning.civilian_support_target || 0)}</td>
+                <td>
+                  <button className="standard-btn security-theme">Manage</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 
-  const renderPlanningTab = () => (
-    <div className="planning-tab">
-      <div className="planning-grid">
-        <div className="planning-card">
-          <h3>📋 Force Structure Planning</h3>
-          <div className="force-targets">
-            <div className="target-item">
-              <span>Active Forces</span>
-              <span>{defenseData?.strategicPlanning.force_structure_planning.active_force_target.toLocaleString()}</span>
-            </div>
-            <div className="target-item">
-              <span>Reserve Forces</span>
-              <span>{defenseData?.strategicPlanning.force_structure_planning.reserve_force_target.toLocaleString()}</span>
-            </div>
-            <div className="target-item">
-              <span>Civilian Support</span>
-              <span>{defenseData?.strategicPlanning.force_structure_planning.civilian_support_target.toLocaleString()}</span>
-            </div>
-          </div>
+  const renderThreats = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>⚠️ Threat Assessment</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Threat Analysis')}>Threat Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Risk Assessment')}>Risk Assessment</button>
         </div>
-
-        <div className="planning-card">
-          <h3>🎯 Capability Development Priorities</h3>
-          <div className="capabilities-grid">
-            {Object.entries(defenseData?.strategicPlanning.capability_development_priorities || {}).map(([capability, priority]) => (
-              <div key={capability} className="capability-item">
-                <span className="capability-name">
-                  {capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                </span>
-                <div className="priority-bar">
-                  <div 
-                    className="priority-fill" 
-                    style={{ width: `${priority * 100}%` }}
-                  />
-                </div>
-                <span className="priority-value">{formatPercentage(priority)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="planning-card">
-          <h3>🔄 Strategic Review Cycle</h3>
-          <div className="review-info">
-            <div className="cycle-duration">
-              <span>Review Cycle:</span>
-              <span>{defenseData?.strategicPlanning.defense_strategy_review_cycle} years</span>
-            </div>
-            <div className="next-review">
-              <span>Next Review:</span>
-              <span>2027</span>
-            </div>
-            <button className="btn primary">Initiate Strategic Review</button>
-          </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Region/Threat</th>
+                <th>Level</th>
+                <th>Probability</th>
+                <th>Impact</th>
+                <th>Timeline</th>
+                <th>Primary Concerns</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {defenseData?.threatAssessment.regional_threats?.map((threat, index) => (
+                <tr key={`regional-${index}`}>
+                  <td><strong>{threat.region}</strong></td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getThreatLevelColor(threat.threat_level), 
+                      color: 'white' 
+                    }}>
+                      {formatPercentage(threat.threat_level)}
+                    </span>
+                  </td>
+                  <td>N/A</td>
+                  <td>N/A</td>
+                  <td>Ongoing</td>
+                  <td>{threat.primary_concerns.slice(0, 2).join(', ')}</td>
+                  <td>
+                    <button className="standard-btn security-theme">Monitor</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 
-  const renderThreatsTab = () => (
-    <div className="threats-tab">
-      <div className="threats-grid">
-        <div className="threat-card">
-          <h3>🌍 Global Threat Level</h3>
-          <div className="global-threat">
-            <div className="threat-gauge">
-              <div 
-                className="threat-level" 
-                style={{ 
-                  width: `${(defenseData?.threatAssessment.global_threat_level || 0) * 100}%`,
-                  backgroundColor: defenseData?.threatAssessment.global_threat_level && defenseData.threatAssessment.global_threat_level > 0.7 ? '#ff4444' : 
-                                   defenseData?.threatAssessment.global_threat_level && defenseData.threatAssessment.global_threat_level > 0.4 ? '#ffaa00' : '#44ff44'
-                }}
-              />
-            </div>
-            <span>{formatPercentage(defenseData?.threatAssessment.global_threat_level || 0)}</span>
-          </div>
+  const renderBudget = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>💰 Budget Allocation</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Budget Analysis')}>Budget Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Allocation Review')}>Allocation Review</button>
         </div>
-
-        <div className="threat-card">
-          <h3>🗺️ Regional Threats</h3>
-          <div className="regional-threats">
-            {defenseData?.threatAssessment.regional_threats.map((threat, index) => (
-              <div key={index} className="regional-threat">
-                <div className="threat-header">
-                  <span className="region-name">{threat.region}</span>
-                  <span className="threat-level">{formatPercentage(threat.threat_level)}</span>
-                </div>
-                <div className="threat-concerns">
-                  {threat.primary_concerns.map((concern, idx) => (
-                    <span key={idx} className="concern-tag">{concern}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="threat-card">
-          <h3>🚨 Emerging Threats</h3>
-          <div className="emerging-threats">
-            {defenseData?.threatAssessment.emerging_threats.map((threat, index) => (
-              <div key={index} className="emerging-threat">
-                <div className="threat-type">{threat.type}</div>
-                <div className="threat-metrics">
-                  <div className="metric">
-                    <span>Probability:</span>
-                    <span>{formatPercentage(threat.probability)}</span>
-                  </div>
-                  <div className="metric">
-                    <span>Impact:</span>
-                    <span>{formatPercentage(threat.impact)}</span>
-                  </div>
-                  <div className="metric">
-                    <span>Timeline:</span>
-                    <span>{threat.timeline}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderBudgetTab = () => (
-    <div className="budget-tab">
-      <div className="budget-grid">
-        <div className="budget-card">
-          <h3>💰 Total Defense Budget</h3>
-          <div className="total-budget">
-            {formatCurrency(defenseData?.budgetAllocation.total_defense_budget || 0)}
-          </div>
-        </div>
-
-        <div className="budget-card">
-          <h3>📊 Budget Allocation</h3>
-          <div className="allocation-breakdown">
-            <div className="allocation-item">
-              <span>Personnel Costs</span>
-              <span>{formatCurrency(defenseData?.budgetAllocation.personnel_costs || 0)}</span>
-              <span>{formatPercentage((defenseData?.budgetAllocation.personnel_costs || 0) / (defenseData?.budgetAllocation.total_defense_budget || 1))}</span>
-            </div>
-            <div className="allocation-item">
-              <span>Operations & Maintenance</span>
-              <span>{formatCurrency(defenseData?.budgetAllocation.operations_maintenance || 0)}</span>
-              <span>{formatPercentage((defenseData?.budgetAllocation.operations_maintenance || 0) / (defenseData?.budgetAllocation.total_defense_budget || 1))}</span>
-            </div>
-            <div className="allocation-item">
-              <span>Procurement</span>
-              <span>{formatCurrency(defenseData?.budgetAllocation.procurement || 0)}</span>
-              <span>{formatPercentage((defenseData?.budgetAllocation.procurement || 0) / (defenseData?.budgetAllocation.total_defense_budget || 1))}</span>
-            </div>
-            <div className="allocation-item">
-              <span>Research & Development</span>
-              <span>{formatCurrency(defenseData?.budgetAllocation.research_development || 0)}</span>
-              <span>{formatPercentage((defenseData?.budgetAllocation.research_development || 0) / (defenseData?.budgetAllocation.total_defense_budget || 1))}</span>
-            </div>
-            <div className="allocation-item">
-              <span>Military Construction</span>
-              <span>{formatCurrency(defenseData?.budgetAllocation.military_construction || 0)}</span>
-              <span>{formatPercentage((defenseData?.budgetAllocation.military_construction || 0) / (defenseData?.budgetAllocation.total_defense_budget || 1))}</span>
-            </div>
-          </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Percentage</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Personnel Costs</strong></td>
+                <td>{formatCurrency(defenseData?.budgetAllocation.personnel_costs || 0)}</td>
+                <td>{formatPercentage((defenseData?.budgetAllocation.personnel_costs || 0) / (defenseData?.budgetAllocation.total_defense_budget || 1))}</td>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem', 
+                    borderRadius: '4px', 
+                    fontSize: '0.8rem', 
+                    backgroundColor: '#10b981', 
+                    color: 'white' 
+                  }}>
+                    Approved
+                  </span>
+                </td>
+                <td>
+                  <button className="standard-btn security-theme">Review</button>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Operations & Maintenance</strong></td>
+                <td>{formatCurrency(defenseData?.budgetAllocation.operations_maintenance || 0)}</td>
+                <td>{formatPercentage((defenseData?.budgetAllocation.operations_maintenance || 0) / (defenseData?.budgetAllocation.total_defense_budget || 1))}</td>
+                <td>
+                  <span style={{ 
+                    padding: '0.3rem 0.6rem', 
+                    borderRadius: '4px', 
+                    fontSize: '0.8rem', 
+                    backgroundColor: '#10b981', 
+                    color: 'white' 
+                  }}>
+                    Approved
+                  </span>
+                </td>
+                <td>
+                  <button className="standard-btn security-theme">Review</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 
-  const renderCooperationTab = () => (
-    <div className="cooperation-tab">
-      <div className="cooperation-grid">
-        <div className="cooperation-card">
-          <h3>🤝 Active Alliances</h3>
-          <div className="alliances-list">
-            {defenseData?.internationalCooperation.active_alliances.map((alliance, index) => (
-              <div key={index} className="alliance-item">
-                <span className="alliance-name">{alliance}</span>
-                <span className="alliance-status">Active</span>
-              </div>
-            ))}
-          </div>
+  const renderCooperation = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>🤝 International Cooperation</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Cooperation Analysis')}>Cooperation Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Alliance Review')}>Alliance Review</button>
         </div>
-
-        <div className="cooperation-card">
-          <h3>📋 Cooperation Metrics</h3>
-          <div className="cooperation-metrics">
-            <div className="metric-item">
-              <span>Defense Agreements</span>
-              <span>{defenseData?.internationalCooperation.defense_agreements}</span>
-            </div>
-            <div className="metric-item">
-              <span>Joint Exercises</span>
-              <span>{defenseData?.internationalCooperation.joint_exercises}</span>
-            </div>
-            <div className="metric-item">
-              <span>Technology Sharing Programs</span>
-              <span>{defenseData?.internationalCooperation.technology_sharing_programs}</span>
-            </div>
-          </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Alliance</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Agreements</th>
+                <th>Joint Exercises</th>
+                <th>Technology Sharing</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {defenseData?.internationalCooperation.active_alliances?.map((alliance, index) => (
+                <tr key={index}>
+                  <td><strong>{alliance}</strong></td>
+                  <td>Defense Pact</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: '#10b981', 
+                      color: 'white' 
+                    }}>
+                      Active
+                    </span>
+                  </td>
+                  <td>{defenseData?.internationalCooperation.defense_agreements || 0}</td>
+                  <td>{defenseData?.internationalCooperation.joint_exercises || 0}</td>
+                  <td>{defenseData?.internationalCooperation.technology_sharing_programs || 0}</td>
+                  <td>
+                    <button className="standard-btn security-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
-
-  if (loading) {
-    return (
-      <BaseScreen
-        screenId={screenId}
-        title={title}
-        icon={icon}
-        gameContext={gameContext}
-        apiEndpoints={apiEndpoints}
-        onRefresh={fetchDefenseData}
-      >
-        <div className="loading-state">
-          <div className="loading-spinner" />
-          <p>Loading defense data...</p>
-        </div>
-      </BaseScreen>
-    );
-  }
-
-  if (error) {
-    return (
-      <BaseScreen
-        screenId={screenId}
-        title={title}
-        icon={icon}
-        gameContext={gameContext}
-        apiEndpoints={apiEndpoints}
-        onRefresh={fetchDefenseData}
-      >
-        <div className="error-state">
-          <h3>⚠️ Error Loading Defense Data</h3>
-          <p>{error}</p>
-          <button onClick={fetchDefenseData}>Retry</button>
-        </div>
-      </BaseScreen>
-    );
-  }
 
   return (
     <BaseScreen
@@ -557,54 +548,33 @@ const DefenseScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameConte
       gameContext={gameContext}
       apiEndpoints={apiEndpoints}
       onRefresh={fetchDefenseData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
     >
-      <div className="defense-screen">
-        <div className="screen-header">
-          <h1>🏰 Defense Policy & Strategic Planning</h1>
-          <p>National Defense Strategy • Policy Coordination • Strategic Planning</p>
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="view-tabs">
-          <button 
-            className={`tab ${activeTab === 'policy' ? 'active' : ''}`}
-            onClick={() => setActiveTab('policy')}
-          >
-            📋 Policy
-          </button>
-          <button 
-            className={`tab ${activeTab === 'planning' ? 'active' : ''}`}
-            onClick={() => setActiveTab('planning')}
-          >
-            🎯 Planning
-          </button>
-          <button 
-            className={`tab ${activeTab === 'threats' ? 'active' : ''}`}
-            onClick={() => setActiveTab('threats')}
-          >
-            🚨 Threats
-          </button>
-          <button 
-            className={`tab ${activeTab === 'budget' ? 'active' : ''}`}
-            onClick={() => setActiveTab('budget')}
-          >
-            💰 Budget
-          </button>
-          <button 
-            className={`tab ${activeTab === 'cooperation' ? 'active' : ''}`}
-            onClick={() => setActiveTab('cooperation')}
-          >
-            🤝 Cooperation
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        <div className="tab-content">
-          {activeTab === 'policy' && renderPolicyTab()}
-          {activeTab === 'planning' && renderPlanningTab()}
-          {activeTab === 'threats' && renderThreatsTab()}
-          {activeTab === 'budget' && renderBudgetTab()}
-          {activeTab === 'cooperation' && renderCooperationTab()}
+      <div className="standard-screen-container security-theme">
+        {error && <div className="error-message">Error: {error}</div>}
+        
+        <div className="standard-dashboard">
+          {!loading && !error && defenseData ? (
+            <>
+              {activeTab === 'policy' && renderPolicy()}
+              {activeTab === 'planning' && renderPlanning()}
+              {activeTab === 'threats' && renderThreats()}
+              {activeTab === 'budget' && renderBudget()}
+              {activeTab === 'cooperation' && renderCooperation()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading defense data...' : 'No defense data available'}
+            </div>
+          )}
         </div>
       </div>
     </BaseScreen>

@@ -17,13 +17,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './JointChiefsScreen.css';
 import '../shared/StandardDesign.css';
-
-interface JointChiefsScreenProps {
-  screenId: string;
-  title: string;
-  icon: string;
-  gameContext?: any;
-}
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface JointChief {
   id: string;
@@ -81,16 +75,7 @@ interface ReadinessMetrics {
   totalBudget: string;
 }
 
-// Define tabs for the header
-const tabs: TabConfig[] = [
-  { id: 'overview', label: 'Overview', icon: '⭐' },
-  { id: 'leadership', label: 'Military Leadership', icon: '👨‍✈️' },
-  { id: 'operations', label: 'Operations', icon: '🎯' },
-  { id: 'strategic', label: 'Strategic', icon: '📋' },
-  { id: 'recommendations', label: 'Recommendations', icon: '💡' }
-];
-
-const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({ 
+const JointChiefsScreen: React.FC<ScreenProps> = ({ 
   screenId, 
   title, 
   icon, 
@@ -103,40 +88,88 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
     operations: JointOperation[];
     recommendations: CommandRecommendation[];
     metrics: ReadinessMetrics;
-  }>({
-    chiefs: [],
-    services: [],
-    strategicPlans: [],
-    operations: [],
-    recommendations: [],
-    metrics: {
-      overallReadiness: 0,
-      totalPersonnel: 0,
-      activeUnits: 0,
-      totalBudget: '$0'
-    }
-  });
+  } | null>(null);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'leadership' | 'operations' | 'strategic' | 'recommendations'>('overview');
+
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '⭐' },
+    { id: 'leadership', label: 'Leadership', icon: '👨‍✈️' },
+    { id: 'operations', label: 'Operations', icon: '🎯' },
+    { id: 'strategic', label: 'Strategic', icon: '📋' },
+    { id: 'recommendations', label: 'Recommendations', icon: '💡' }
+  ];
+
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/joint-chiefs', description: 'Get joint chiefs data' }
+  ];
+
+  // Utility functions
+  const formatNumber = (value: number) => {
+    if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+    return value.toString();
+  };
+
+  const getReadinessColor = (readiness: string) => {
+    switch (readiness) {
+      case 'high': return '#10b981';
+      case 'moderate': return '#fbbf24';
+      case 'low': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return '#ef4444';
+      case 'medium': return '#f59e0b';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getUrgencyColor = (urgency: string) => {
+    switch (urgency) {
+      case 'urgent': return '#ef4444';
+      case 'high': return '#f59e0b';
+      case 'medium': return '#fbbf24';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return '#10b981';
+      case 'approved': return '#fbbf24';
+      case 'planning': return '#f59e0b';
+      case 'completed': return '#6b7280';
+      default: return '#6b7280';
+    }
+  };
 
   const fetchJointChiefsData = useCallback(async () => {
     try {
       setLoading(true);
-      // Try to fetch from API
-      const response = await fetch('/api/joint-chiefs/');
+      setError(null);
       
-      if (!response.ok) {
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/joint-chiefs');
+      if (response.ok) {
+        const data = await response.json();
+        setJointChiefsData(data);
+      } else {
         throw new Error('API not available');
       }
-      
-      const data = await response.json();
-      if (data.success) {
-        setJointChiefsData(data.data);
-      }
     } catch (err) {
-      console.warn('Joint Chiefs API not available, using mock data');
+      console.warn('Failed to fetch joint chiefs data:', err);
       // Use comprehensive mock data
       setJointChiefsData({
         chiefs: [
@@ -186,151 +219,98 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
             service: 'Space Force'
           }
         ],
-                  services: [
-            {
-              id: 'army',
-              name: 'Army',
-              code: 'ARMY',
-              personnel: 150000,
-              activeUnits: 45,
-              readiness: 'high',
-              chief: 'General Robert Hayes'
-            },
-            {
-              id: 'navy',
-              name: 'Navy',
-              code: 'NAVY',
-              personnel: 120000,
-              activeUnits: 35,
-              readiness: 'high',
-              chief: 'Admiral Lisa Rodriguez'
-            },
-            {
-              id: 'airforce',
-              name: 'Air Force',
-              code: 'AIR',
-              personnel: 100000,
-              activeUnits: 40,
-              readiness: 'moderate',
-              chief: 'General David Kim'
-            },
-            {
-              id: 'spaceforce',
-              name: 'Space Force',
-              code: 'SPACE',
-              personnel: 50000,
-              activeUnits: 25,
-              readiness: 'high',
-              chief: 'General Maria Volkov'
-            },
-            {
-              id: 'marines',
-              name: 'Marines',
-              code: 'MARINE',
-              personnel: 80000,
-              activeUnits: 20,
-              readiness: 'high',
-              chief: 'General James Thompson'
-            },
-            {
-              id: 'cyberforce',
-              name: 'Cyber Force',
-              code: 'CYBER',
-              personnel: 75000,
-              activeUnits: 30,
-              readiness: 'high',
-              chief: 'General Alex Chen'
-            }
-          ],
+        services: [
+          {
+            id: 'army',
+            name: 'Army',
+            code: 'ARMY',
+            personnel: 150000,
+            activeUnits: 45,
+            readiness: 'high',
+            chief: 'General Robert Hayes'
+          },
+          {
+            id: 'navy',
+            name: 'Navy',
+            code: 'NAVY',
+            personnel: 120000,
+            activeUnits: 38,
+            readiness: 'high',
+            chief: 'Admiral Lisa Rodriguez'
+          },
+          {
+            id: 'space-force',
+            name: 'Space Force',
+            code: 'SPACE',
+            personnel: 45000,
+            activeUnits: 12,
+            readiness: 'moderate',
+            chief: 'General Maria Volkov'
+          }
+        ],
         strategicPlans: [
           {
             id: 'plan_001',
-            name: 'Operation Stellar Shield',
+            name: 'Enhanced Space Defense Initiative',
             priority: 'high',
-            description: 'Comprehensive orbital defense network',
-            timeline: '18 months',
+            description: 'Develop advanced orbital defense systems',
+            timeline: '5 years',
             leadService: 'Space Force',
-            status: 'Under Review'
+            status: 'In Progress'
           },
           {
             id: 'plan_002',
-            name: 'Joint Readiness Enhancement',
-            priority: 'medium',
-            description: 'Inter-service coordination improvement',
-            timeline: '12 months',
-            leadService: 'Army',
-            status: 'Draft'
-          },
-          {
-            id: 'plan_003',
-            name: 'Cyber Defense Modernization',
+            name: 'Joint Cyber Warfare Program',
             priority: 'high',
-            description: 'Advanced cyber warfare capabilities',
-            timeline: '24 months',
-            leadService: 'Air Force',
-            status: 'Approved'
+            description: 'Establish unified cyber defense capabilities',
+            timeline: '3 years',
+            leadService: 'All Services',
+            status: 'Planning'
           }
         ],
         operations: [
           {
             id: 'op_001',
-            name: 'Exercise Thunder Strike',
+            name: 'Operation Sentinel',
             status: 'active',
-            description: 'Multi-service training exercise',
-            personnel: 15000,
-            command: 'Army',
-            location: 'Sector 7'
+            description: 'Border security and patrol operations',
+            personnel: 25000,
+            command: 'Joint Task Force Alpha',
+            location: 'Border Regions'
           },
           {
             id: 'op_002',
             name: 'Operation Deep Space',
             status: 'planning',
-            description: 'Long-range reconnaissance mission',
-            personnel: 2500,
-            command: 'Space Force',
-            location: 'Outer Rim'
-          },
-          {
-            id: 'op_003',
-            name: 'Maritime Guardian',
-            status: 'approved',
-            description: 'Naval patrol and security operation',
-            personnel: 8000,
-            command: 'Navy',
-            location: 'Sector 12'
+            description: 'Deep space exploration and defense',
+            personnel: 15000,
+            command: 'Space Command',
+            location: 'Outer Solar System'
           }
         ],
         recommendations: [
           {
             id: 'rec_001',
-            title: 'Enhanced Cyber Defense Initiative',
+            title: 'Increase Space Force Budget',
             urgency: 'high',
-            description: 'Strengthen cyber warfare capabilities across all services',
-            from: 'General Kim (Air Force)',
-            to: 'Defense Secretary'
+            description: 'Allocate additional funding for space defense systems',
+            from: 'General Maria Volkov',
+            to: 'Joint Chiefs Council'
           },
           {
             id: 'rec_002',
-            title: 'Joint Training Facility Expansion',
+            title: 'Enhance Cyber Training',
             urgency: 'medium',
-            description: 'Expand multi-service training capabilities',
-            from: 'General Sterling (Chairman)',
-            to: 'Leader'
-          },
-          {
-            id: 'rec_003',
-            title: 'Personnel Exchange Program',
-            urgency: 'low',
-            description: 'Cross-service personnel development initiative',
-            from: 'Admiral Chen (Vice Chairman)',
-            to: 'Joint Chiefs'
+            description: 'Implement comprehensive cyber warfare training program',
+            from: 'Admiral Sarah Chen',
+            to: 'All Service Chiefs'
           }
         ],
         metrics: {
-          overallReadiness: 3.2,
-          totalPersonnel: 520000,
-          activeUnits: 165,
-          totalBudget: '$110B'
+          overallReadiness: 87,
+          totalPersonnel: 315000,
+          activeUnits: 95,
+          totalBudget: '$45.2B'
         }
       });
     } finally {
@@ -342,223 +322,47 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
     fetchJointChiefsData();
   }, [fetchJointChiefsData]);
 
-  const handleAction = (action: string, context?: any) => {
-    console.log(`Joint Chiefs Action: ${action}`, context);
-    alert(`Joint Chiefs System: ${action}\n\nThis would ${action.toLowerCase()} in the full implementation.\n\nContext: ${JSON.stringify(context, null, 2)}`);
-  };
-
-  const getReadinessColor = (readiness: string) => {
-    switch (readiness) {
-      case 'high': return '#51cf66';
-      case 'moderate': return '#ffd43b';
-      case 'low': return '#ff6b6b';
-      default: return '#868e96';
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return '#ff6b6b';
-      case 'medium': return '#ffd43b';
-      case 'low': return '#51cf66';
-      default: return '#868e96';
-    }
-  };
-
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'urgent': return '#ff6b6b';
-      case 'high': return '#ff922b';
-      case 'medium': return '#ffd43b';
-      case 'low': return '#51cf66';
-      default: return '#868e96';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return '#51cf66';
-      case 'approved': return '#4facfe';
-      case 'planning': return '#ffd43b';
-      case 'completed': return '#868e96';
-      default: return '#868e96';
-    }
-  };
-
-  // API endpoints for the screen
-  const apiEndpoints: APIEndpoint[] = [
-    { name: 'Joint Chiefs Data', endpoint: '/api/joint-chiefs/', method: 'GET' },
-    { name: 'Strategic Plans', endpoint: '/api/joint-chiefs/strategic-plans', method: 'GET' },
-    { name: 'Operations', endpoint: '/api/joint-chiefs/operations', method: 'GET' },
-    { name: 'Recommendations', endpoint: '/api/joint-chiefs/recommendations', method: 'GET' }
-  ];
-
-  // Screen data for BaseScreen
-  const screenData = {
-    title: 'Joint Chiefs of Staff',
-    subtitle: 'Military Command Hierarchy • Strategic Planning • Joint Operations',
-    lastUpdated: new Date().toISOString()
-  };
-
-  if (loading) {
-    return (
-      <BaseScreen
-        screenId={screenId}
-        title={title}
-        icon={icon}
-        screenData={screenData}
-        apiEndpoints={apiEndpoints}
-        onRefresh={fetchJointChiefsData}
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'leadership' | 'operations' | 'strategic' | 'recommendations')}
-      >
-        <div className="standard-screen-container government-theme">
-          <div className="loading-overlay">Loading Joint Chiefs data...</div>
-        </div>
-      </BaseScreen>
-    );
-  }
-
-  if (error) {
-    return (
-      <BaseScreen
-        screenId={screenId}
-        title={title}
-        icon={icon}
-        screenData={screenData}
-        apiEndpoints={apiEndpoints}
-        onRefresh={fetchJointChiefsData}
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'leadership' | 'operations' | 'strategic' | 'recommendations')}
-      >
-        <div className="standard-screen-container government-theme">
-          <div className="error-message">Error: {error}</div>
-        </div>
-      </BaseScreen>
-    );
-  }
-
-  const renderOverviewTab = () => (
+  // Render functions for each tab
+  const renderOverview = () => (
     <>
-      {/* Military Readiness Overview - First card in 2-column grid */}
-      <div className="standard-panel government-theme">
-        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>⭐ Military Readiness Overview</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+      {/* Military Readiness Overview - Full panel width */}
+      <div className="standard-panel security-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>⭐ Military Readiness Overview</h3>
+        <div className="standard-metric-grid">
           <div className="standard-metric">
             <span>Overall Readiness</span>
-            <span className="standard-metric-value">{jointChiefsData.metrics.overallReadiness}</span>
+            <span className="standard-metric-value">{jointChiefsData?.metrics?.overallReadiness || 0}%</span>
           </div>
           <div className="standard-metric">
             <span>Total Personnel</span>
-            <span className="standard-metric-value">{(jointChiefsData.metrics.totalPersonnel / 1000).toFixed(0)}K</span>
+            <span className="standard-metric-value">{formatNumber(jointChiefsData?.metrics?.totalPersonnel || 0)}</span>
           </div>
           <div className="standard-metric">
             <span>Active Units</span>
-            <span className="standard-metric-value">{jointChiefsData.metrics.activeUnits}</span>
+            <span className="standard-metric-value">{jointChiefsData?.metrics?.activeUnits || 0}</span>
           </div>
           <div className="standard-metric">
             <span>Total Budget</span>
-            <span className="standard-metric-value">{jointChiefsData.metrics.totalBudget}</span>
+            <span className="standard-metric-value">{jointChiefsData?.metrics?.totalBudget || '$0'}</span>
           </div>
-        </div>
-        <div className="standard-action-buttons">
-          <button className="standard-btn government-theme" onClick={() => handleAction('Generate Readiness Report')}>Generate Report</button>
-          <button className="standard-btn government-theme" onClick={() => handleAction('View Analytics')}>View Analytics</button>
-        </div>
-      </div>
-
-      {/* Command Structure Overview - Second card in 2-column grid */}
-      <div className="standard-panel government-theme">
-        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>👨‍✈️ Command Structure</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
           <div className="standard-metric">
             <span>Joint Chiefs</span>
-            <span className="standard-metric-value">{jointChiefsData.chiefs.length}</span>
+            <span className="standard-metric-value">{jointChiefsData?.chiefs?.length || 0}</span>
           </div>
           <div className="standard-metric">
             <span>Military Services</span>
-            <span className="standard-metric-value">{jointChiefsData.services.length}</span>
-          </div>
-          <div className="standard-metric">
-            <span>Active Operations</span>
-            <span className="standard-metric-value">{jointChiefsData.operations.filter(op => op.status === 'active').length}</span>
-          </div>
-          <div className="standard-metric">
-            <span>Pending Recommendations</span>
-            <span className="standard-metric-value">{jointChiefsData.recommendations.length}</span>
+            <span className="standard-metric-value">{jointChiefsData?.services?.length || 0}</span>
           </div>
         </div>
-      </div>
-    </>
-  );
-
-  const renderLeadershipTab = () => (
-    <>
-      {/* Joint Chiefs Overview */}
-      <div className="standard-panel government-theme table-panel">
-        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>👨‍✈️ Joint Chiefs of Staff</h3>
-        <div className="standard-table-container">
-          <table className="standard-data-table">
-            <thead>
-              <tr>
-                <th>Chief</th>
-                <th>Position</th>
-                <th>Service</th>
-                <th>Years of Service</th>
-                <th>Specializations</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {jointChiefsData.chiefs.map(chief => (
-                <tr key={chief.id}>
-                  <td>
-                    <strong>{chief.name}</strong><br />
-                    <small style={{ color: '#a0a9ba' }}>{chief.rank}</small>
-                  </td>
-                  <td>{chief.position}</td>
-                  <td>
-                    <span style={{ 
-                      padding: '0.3rem 0.6rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      backgroundColor: '#4facfe',
-                      color: 'white'
-                    }}>
-                      {chief.service}
-                    </span>
-                  </td>
-                  <td>{chief.yearsOfService} years</td>
-                  <td>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
-                      {chief.specializations.map((spec, i) => (
-                        <span key={i} style={{ 
-                          padding: '0.2rem 0.4rem',
-                          borderRadius: '3px',
-                          fontSize: '0.7rem',
-                          backgroundColor: '#2a5298',
-                          color: 'white'
-                        }}>
-                          {spec}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td>
-                    <button className="standard-btn government-theme">Details</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Generate Readiness Report')}>Generate Report</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('View Analytics')}>View Analytics</button>
         </div>
       </div>
 
-      {/* Military Services Overview */}
-      <div className="standard-panel government-theme table-panel">
-        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>🛡️ Military Services</h3>
+      {/* Command Structure - Full panel width */}
+      <div className="standard-panel security-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>👨‍✈️ Command Structure</h3>
         <div className="standard-table-container">
           <table className="standard-data-table">
             <thead>
@@ -573,38 +377,26 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
               </tr>
             </thead>
             <tbody>
-              {jointChiefsData.services.map(service => (
+              {jointChiefsData?.services?.map(service => (
                 <tr key={service.id}>
-                  <td>
-                    <strong>{service.name}</strong>
-                  </td>
-                  <td>
-                    <span style={{ 
-                      padding: '0.3rem 0.6rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      backgroundColor: '#4facfe',
-                      color: 'white'
-                    }}>
-                      {service.code}
-                    </span>
-                  </td>
-                  <td>{service.personnel.toLocaleString()}</td>
+                  <td><strong>{service.name}</strong></td>
+                  <td>{service.code}</td>
+                  <td>{formatNumber(service.personnel)}</td>
                   <td>{service.activeUnits}</td>
                   <td>
                     <span style={{ 
-                      padding: '0.3rem 0.6rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      backgroundColor: getReadinessColor(service.readiness),
-                      color: 'white'
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getReadinessColor(service.readiness), 
+                      color: 'white' 
                     }}>
                       {service.readiness.charAt(0).toUpperCase() + service.readiness.slice(1)}
                     </span>
                   </td>
                   <td>{service.chief}</td>
                   <td>
-                    <button className="standard-btn government-theme">Manage</button>
+                    <button className="standard-btn security-theme">Manage</button>
                   </td>
                 </tr>
               ))}
@@ -612,14 +404,120 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
           </table>
         </div>
       </div>
+
+      {/* Joint Chiefs Analytics - Full panel width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div className="standard-panel security-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>📈 Joint Chiefs Analytics</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+            <div className="chart-container">
+              <BarChart
+                data={jointChiefsData?.services?.map(service => ({
+                  label: service.name,
+                  value: service.personnel / 1000, // Convert to thousands
+                  color: getReadinessColor(service.readiness)
+                }))}
+                title="👥 Service Personnel (Thousands)"
+                height={250}
+                width={400}
+                showTooltip={true}
+              />
+            </div>
+            <div className="chart-container">
+              <PieChart
+                data={jointChiefsData?.chiefs?.map((chief, index) => ({
+                  label: chief.service,
+                  value: 1,
+                  color: ['#ef4444', '#f59e0b', '#fbbf24', '#10b981', '#6b7280'][index % 5]
+                }))}
+                title="👨‍✈️ Joint Chiefs by Service"
+                size={200}
+                showLegend={true}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 
-  const renderOperationsTab = () => (
-    <>
-      {/* Joint Operations Overview */}
-      <div className="standard-panel government-theme table-panel">
-        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>🎯 Joint Operations</h3>
+  const renderLeadership = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>👨‍✈️ Joint Chiefs of Staff</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Leadership Analysis')}>Leadership Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Command Review')}>Command Review</button>
+        </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Chief</th>
+                <th>Position</th>
+                <th>Service</th>
+                <th>Years of Service</th>
+                <th>Specializations</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {jointChiefsData?.chiefs?.map(chief => (
+                <tr key={chief.id}>
+                  <td>
+                    <strong>{chief.name}</strong><br />
+                    <small style={{ color: '#a0a9ba' }}>{chief.rank}</small>
+                  </td>
+                  <td>{chief.position}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      backgroundColor: '#ef4444',
+                      color: 'white'
+                    }}>
+                      {chief.service}
+                    </span>
+                  </td>
+                  <td>{chief.yearsOfService} years</td>
+                  <td>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                      {chief.specializations.slice(0, 2).map((spec, i) => (
+                        <span key={i} style={{ 
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '3px',
+                          fontSize: '0.7rem',
+                          backgroundColor: '#f59e0b',
+                          color: 'white'
+                        }}>
+                          {spec}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td>
+                    <button className="standard-btn security-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderOperations = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>🎯 Joint Operations</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Operations Analysis')}>Operations Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Mission Planning')}>Mission Planning</button>
+        </div>
+        
         <div className="standard-table-container">
           <table className="standard-data-table">
             <thead>
@@ -634,28 +532,26 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
               </tr>
             </thead>
             <tbody>
-              {jointChiefsData.operations.map(operation => (
+              {jointChiefsData?.operations?.map(operation => (
                 <tr key={operation.id}>
-                  <td>
-                    <strong>{operation.name}</strong>
-                  </td>
+                  <td><strong>{operation.name}</strong></td>
                   <td>
                     <span style={{ 
-                      padding: '0.3rem 0.6rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      backgroundColor: getStatusColor(operation.status),
-                      color: 'white'
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(operation.status), 
+                      color: 'white' 
                     }}>
                       {operation.status.charAt(0).toUpperCase() + operation.status.slice(1)}
                     </span>
                   </td>
                   <td>{operation.description}</td>
-                  <td>{operation.personnel.toLocaleString()}</td>
+                  <td>{formatNumber(operation.personnel)}</td>
                   <td>{operation.command}</td>
                   <td>{operation.location}</td>
                   <td>
-                    <button className="standard-btn government-theme">Details</button>
+                    <button className="standard-btn security-theme">Manage</button>
                   </td>
                 </tr>
               ))}
@@ -663,14 +559,18 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 
-  const renderStrategicTab = () => (
-    <>
-      {/* Strategic Plans Overview */}
-      <div className="standard-panel government-theme table-panel">
-        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>📋 Strategic Plans</h3>
+  const renderStrategic = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>📋 Strategic Planning</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Strategic Analysis')}>Strategic Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Plan Review')}>Plan Review</button>
+        </div>
+        
         <div className="standard-table-container">
           <table className="standard-data-table">
             <thead>
@@ -685,18 +585,16 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
               </tr>
             </thead>
             <tbody>
-              {jointChiefsData.strategicPlans.map(plan => (
+              {jointChiefsData?.strategicPlans?.map(plan => (
                 <tr key={plan.id}>
-                  <td>
-                    <strong>{plan.name}</strong>
-                  </td>
+                  <td><strong>{plan.name}</strong></td>
                   <td>
                     <span style={{ 
-                      padding: '0.3rem 0.6rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      backgroundColor: getPriorityColor(plan.priority),
-                      color: 'white'
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getPriorityColor(plan.priority), 
+                      color: 'white' 
                     }}>
                       {plan.priority.charAt(0).toUpperCase() + plan.priority.slice(1)}
                     </span>
@@ -704,19 +602,9 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
                   <td>{plan.description}</td>
                   <td>{plan.timeline}</td>
                   <td>{plan.leadService}</td>
+                  <td>{plan.status}</td>
                   <td>
-                    <span style={{ 
-                      padding: '0.3rem 0.6rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      backgroundColor: '#4facfe',
-                      color: 'white'
-                    }}>
-                      {plan.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="standard-btn government-theme">Review</button>
+                    <button className="standard-btn security-theme">Manage</button>
                   </td>
                 </tr>
               ))}
@@ -724,14 +612,18 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 
-  const renderRecommendationsTab = () => (
-    <>
-      {/* Command Recommendations Overview */}
-      <div className="standard-panel government-theme table-panel">
-        <h3 style={{ marginBottom: '1rem', color: '#4facfe' }}>💡 Command Recommendations</h3>
+  const renderRecommendations = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>💡 Command Recommendations</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Recommendations Analysis')}>Recommendations Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Review All')}>Review All</button>
+        </div>
+        
         <div className="standard-table-container">
           <table className="standard-data-table">
             <thead>
@@ -745,18 +637,16 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
               </tr>
             </thead>
             <tbody>
-              {jointChiefsData.recommendations.map(recommendation => (
+              {jointChiefsData?.recommendations?.map(recommendation => (
                 <tr key={recommendation.id}>
-                  <td>
-                    <strong>{recommendation.title}</strong>
-                  </td>
+                  <td><strong>{recommendation.title}</strong></td>
                   <td>
                     <span style={{ 
-                      padding: '0.3rem 0.6rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      backgroundColor: getUrgencyColor(recommendation.urgency),
-                      color: 'white'
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getUrgencyColor(recommendation.urgency), 
+                      color: 'white' 
                     }}>
                       {recommendation.urgency.charAt(0).toUpperCase() + recommendation.urgency.slice(1)}
                     </span>
@@ -765,7 +655,7 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
                   <td>{recommendation.from}</td>
                   <td>{recommendation.to}</td>
                   <td>
-                    <button className="standard-btn government-theme">Review</button>
+                    <button className="standard-btn security-theme">Review</button>
                   </td>
                 </tr>
               ))}
@@ -773,7 +663,7 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 
   return (
@@ -781,30 +671,35 @@ const JointChiefsScreen: React.FC<JointChiefsScreenProps> = ({
       screenId={screenId}
       title={title}
       icon={icon}
-      screenData={screenData}
+      gameContext={gameContext}
       apiEndpoints={apiEndpoints}
       onRefresh={fetchJointChiefsData}
       tabs={tabs}
       activeTab={activeTab}
-      onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'chiefs' | 'services' | 'operations' | 'strategic' | 'recommendations')}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
     >
-      <div className="standard-screen-container government-theme">
-        {loading && <div className="loading-overlay">Loading Joint Chiefs data...</div>}
+      <div className="standard-screen-container security-theme">
         {error && <div className="error-message">Error: {error}</div>}
         
         <div className="standard-dashboard">
-          {!loading && !error && jointChiefsData && (
+          {!loading && !error && jointChiefsData ? (
             <>
-              {activeTab === 'overview' && renderOverviewTab()}
-              
-                             {/* Tab Content - Full width below cards */}
-               <div style={{ gridColumn: '1 / -1' }}>
-                 {activeTab === 'leadership' && renderLeadershipTab()}
-                 {activeTab === 'operations' && renderOperationsTab()}
-                 {activeTab === 'strategic' && renderStrategicTab()}
-                 {activeTab === 'recommendations' && renderRecommendationsTab()}
-               </div>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'leadership' && renderLeadership()}
+              {activeTab === 'operations' && renderOperations()}
+              {activeTab === 'strategic' && renderStrategic()}
+              {activeTab === 'recommendations' && renderRecommendations()}
             </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading joint chiefs data...' : 'No joint chiefs data available'}
+            </div>
           )}
         </div>
       </div>

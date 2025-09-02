@@ -1,1036 +1,744 @@
+/**
+ * Story Screen - Narrative Content and Story Management
+ * 
+ * This screen focuses on story and narrative operations including:
+ * - Story creation and management
+ * - Content publishing and distribution
+ * - Story analytics and performance
+ * - Content moderation and curation
+ * - Audience engagement and feedback
+ * 
+ * Theme: Social (green color scheme)
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './StoryScreen.css';
+import '../shared/StandardDesign.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
-interface StoryEvent {
+interface Story {
   id: string;
   title: string;
-  description: string;
-  type: 'story' | 'crisis' | 'achievement' | 'discovery' | 'plot_twist' | 'climax' | 'challenge';
-  storyArc: string;
-  visualContent?: string; // AI-generated image URL
-  videoContent?: string; // AI-generated video URL
-  audioNarration?: string; // Audio file URL for TTS narration
-  dramaticNarration: string; // TTS-ready dramatic text with stage directions
-  cinematicDescription: string; // Rich visual description for image/video generation
-  timestamp: Date;
-  requiresResponse: boolean;
-  playerChoices?: StoryChoice[];
-  consequences?: string[];
-  missionIds?: string[];
-  characterIds?: string[];
-  urgency: 'low' | 'medium' | 'high' | 'critical';
-  storyPhase: 'setup' | 'rising_action' | 'climax' | 'falling_action' | 'resolution';
-  mediaGenerated: boolean;
-}
-
-interface StoryChoice {
-  id: string;
-  text: string;
-  consequences: string[];
-  missionTriggers?: string[];
-  characterReactions?: { characterId: string; reaction: string }[];
-}
-
-interface StoryArc {
-  id: string;
-  title: string;
-  description: string;
-  theme: string;
-  currentPhase: 'setup' | 'rising_action' | 'climax' | 'falling_action' | 'resolution';
-  startDate: Date;
-  estimatedDuration: number;
-  events: StoryEvent[];
-  characters: string[];
-  missions: string[];
-  playerChoices: { eventId: string; choiceId: string; timestamp: Date }[];
-}
-
-interface GameMasterMessage {
-  id: string;
-  type: 'story_update' | 'plot_twist' | 'challenge' | 'mission_briefing' | 'character_message';
-  title: string;
+  author: string;
+  authorId: string;
   content: string;
-  sender: 'Game Master' | string;
-  timestamp: Date;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  relatedEventId?: string;
-  relatedMissionId?: string;
-  requiresAction: boolean;
-  actionOptions?: { id: string; text: string; outcome: string }[];
+  summary: string;
+  category: 'news' | 'fiction' | 'history' | 'science' | 'politics' | 'culture';
+  civilization: string;
+  publishDate: string;
+  lastUpdated: string;
+  status: 'draft' | 'published' | 'archived' | 'featured';
+  views: number;
+  likes: number;
+  shares: number;
+  comments: number;
+  readingTime: number;
+  tags: string[];
+  featured: boolean;
+  priority: 'low' | 'medium' | 'high' | 'critical';
 }
 
-interface StoryScreenProps {
-  screenId: string;
-  title: string;
-  icon: string;
-  gameContext: {
-    currentLocation?: string;
-    currentActivity?: string;
-    recentEvents?: string[];
-    civilizationId?: string;
+interface StoryAnalytics {
+  overview: {
+    totalStories: number;
+    publishedStories: number;
+    totalViews: number;
+    totalEngagement: number;
+    averageReadingTime: number;
+    topPerformingStory: string;
   };
+  performanceTrends: Array<{
+    date: string;
+    storiesPublished: number;
+    totalViews: number;
+    totalEngagement: number;
+    averageViews: number;
+  }>;
+  categoryBreakdown: Array<{
+    category: string;
+    stories: number;
+    views: number;
+    engagement: number;
+    averageReadingTime: number;
+  }>;
+  audienceInsights: Array<{
+    civilization: string;
+    readers: number;
+    favoriteCategory: string;
+    engagementRate: number;
+    readingHabits: string;
+  }>;
 }
 
-const StoryScreen: React.FC<StoryScreenProps> = ({
-  screenId,
-  title,
-  icon,
-  gameContext
+interface StoryData {
+  stories: Story[];
+  analytics: StoryAnalytics;
+}
+
+const StoryScreen: React.FC<ScreenProps> = ({ 
+  screenId, 
+  title, 
+  icon, 
+  gameContext 
 }) => {
-  const [activeTab, setActiveTab] = useState<'current' | 'arcs' | 'messages' | 'choices'>('current');
-  const [storyEvents, setStoryEvents] = useState<StoryEvent[]>([]);
-  const [storyArcs, setStoryArcs] = useState<StoryArc[]>([]);
-  const [gameMasterMessages, setGameMasterMessages] = useState<GameMasterMessage[]>([]);
+  const [storyData, setStoryData] = useState<StoryData | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'stories' | 'publishing' | 'analytics' | 'insights'>('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<StoryEvent | null>(null);
-  const [isPlayingNarration, setIsPlayingNarration] = useState<string | null>(null);
-  const [currentSpeech, setCurrentSpeech] = useState<SpeechSynthesisUtterance | null>(null);
-  const [showCinematicView, setShowCinematicView] = useState<string | null>(null);
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [selectedStory, setSelectedStory] = useState<Story | null>(null);
 
-  const civilizationId = gameContext?.civilizationId || '1';
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'stories', label: 'Stories', icon: '📖' },
+    { id: 'publishing', label: 'Publishing', icon: '✏️' },
+    { id: 'analytics', label: 'Analytics', icon: '📈' },
+    { id: 'insights', label: 'Insights', icon: '🔍' }
+  ];
 
-  useEffect(() => {
-    fetchStoryData();
-    // Set up real-time updates
-    const interval = setInterval(fetchStoryData, 30000); // Update every 30 seconds
-    return () => clearInterval(interval);
-  }, [civilizationId]);
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/stories', description: 'Get stories' },
+    { method: 'POST', path: '/api/stories', description: 'Create new story' },
+    { method: 'PUT', path: '/api/stories/:id', description: 'Update story' }
+  ];
+
+  const formatNumber = (num: number) => {
+    if (num >= 1e9) return `${(num / 1e9).toFixed(1)}B`;
+    if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
+    if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
+    return num.toString();
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'news': return '#ef4444';
+      case 'fiction': return '#8b5cf6';
+      case 'history': return '#f59e0b';
+      case 'science': return '#10b981';
+      case 'politics': return '#3b82f6';
+      case 'culture': return '#ec4899';
+      default: return '#6b7280';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'draft': return '#6b7280';
+      case 'published': return '#10b981';
+      case 'archived': return '#f59e0b';
+      case 'featured': return '#8b5cf6';
+      default: return '#6b7280';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'low': return '#10b981';
+      case 'medium': return '#f59e0b';
+      case 'high': return '#f97316';
+      case 'critical': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
 
   const fetchStoryData = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
       
-      // Record that player is viewing story screen
-      recordPlayerActivity('story_screen_view', 'Player opened story screen');
-      
-      // Try to fetch story events from API
-      try {
-        const eventsResponse = await fetch(`/api/story/events/${civilizationId}`);
-        if (eventsResponse.ok) {
-          const eventsData = await eventsResponse.json();
-          setStoryEvents(eventsData.events || []);
-          console.log('✅ Story events loaded from API:', eventsData.events?.length || 0);
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/stories');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setStoryData(data.data);
         } else {
-          throw new Error('API not available');
+          throw new Error('API response error');
         }
-      } catch (apiError) {
-        console.warn('📖 Story API not available, using enhanced mock data');
-        // Use enhanced mock data with proper TTS narration
-        setStoryEvents(getMockStoryEvents());
+      } else {
+        throw new Error('API not available');
       }
-      
-      // Try to fetch story arcs from API
-      try {
-        const arcsResponse = await fetch(`/api/story/arcs/${civilizationId}`);
-        if (arcsResponse.ok) {
-          const arcsData = await arcsResponse.json();
-          setStoryArcs(arcsData.arcs || []);
-          console.log('✅ Story arcs loaded from API:', arcsData.arcs?.length || 0);
-        } else {
-          throw new Error('API not available');
-        }
-      } catch (apiError) {
-        console.warn('📖 Story arcs API not available, using mock data');
-        setStoryArcs(getMockStoryArcs());
-      }
-      
-      // Set up Game Master messages
-      setGameMasterMessages([
-        {
-          id: 'msg1',
-          type: 'story_update',
-          title: '🎭 The Story Begins',
-          content: 'Welcome to your galactic saga! I am your Game Master, and I will guide you through an epic story filled with choices, challenges, and consequences. Your civilization\'s destiny awaits...',
-          sender: 'Game Master',
-          timestamp: new Date(Date.now() - 300000),
-          priority: 'high',
-          requiresAction: false
-        },
-        {
-          id: 'msg2',
-          type: 'plot_twist',
-          title: '⚡ Unexpected Development',
-          content: 'The ancient signals you\'ve been monitoring have suddenly intensified. Something is awakening in the galactic core, and it\'s aware of your presence...',
-          sender: 'Game Master',
-          timestamp: new Date(Date.now() - 120000),
-          priority: 'urgent',
-          requiresAction: true,
-          actionOptions: [
-            { id: 'investigate', text: 'Send investigation fleet', outcome: 'High risk, high reward' },
-            { id: 'prepare', text: 'Prepare defenses', outcome: 'Safer, but reactive' },
-            { id: 'diplomatic', text: 'Attempt communication', outcome: 'Unknown consequences' }
+
+    } catch (err) {
+      console.warn('Failed to fetch story data:', err);
+      // Use comprehensive mock data
+      setStoryData({
+        stories: [
+          {
+            id: 'story_1',
+            title: 'The Quantum Revolution: How AI is Transforming Galactic Governance',
+            author: 'Dr. Elena Petrova',
+            authorId: 'author_1',
+            content: 'In the vast expanse of the galaxy, artificial intelligence has emerged as the defining technology of our era. From automated governance systems to predictive policy analysis, AI is reshaping how civilizations interact and make decisions...',
+            summary: 'An exploration of AI governance systems and their impact on interstellar politics and decision-making.',
+            category: 'science',
+            civilization: 'Terran Federation',
+            publishDate: '2393-06-15T08:00:00Z',
+            lastUpdated: '2393-06-15T08:00:00Z',
+            status: 'published',
+            views: 1250000,
+            likes: 45600,
+            shares: 12300,
+            comments: 8900,
+            readingTime: 8,
+            tags: ['AI', 'Governance', 'Technology', 'Politics'],
+            featured: true,
+            priority: 'high'
+          },
+          {
+            id: 'story_2',
+            title: 'The Great Trade War: Economic Tensions Between Star Systems',
+            author: 'Senator James Thompson',
+            authorId: 'author_2',
+            content: 'As the galaxy expands and new colonies emerge, economic tensions between star systems have reached unprecedented levels. Trade disputes, resource competition, and market manipulation threaten the fragile peace...',
+            summary: 'Analysis of economic tensions and trade disputes affecting galactic stability and prosperity.',
+            category: 'politics',
+            civilization: 'Terran Federation',
+            publishDate: '2393-06-14T10:30:00Z',
+            lastUpdated: '2393-06-14T10:30:00Z',
+            status: 'published',
+            views: 890000,
+            likes: 23400,
+            shares: 6700,
+            comments: 4500,
+            readingTime: 6,
+            tags: ['Trade', 'Economy', 'Politics', 'Diplomacy'],
+            featured: false,
+            priority: 'medium'
+          },
+          {
+            id: 'story_3',
+            title: 'Lost in the Void: The Mystery of the Disappearing Colonies',
+            author: 'Captain Sarah Chen',
+            authorId: 'author_3',
+            content: 'Deep in the unexplored regions of the galaxy, entire colonies have vanished without a trace. No distress signals, no debris, no explanation. As exploration teams investigate these disappearances...',
+            summary: 'A thrilling investigation into the mysterious disappearances of remote galactic colonies.',
+            category: 'fiction',
+            civilization: 'Terran Federation',
+            publishDate: '2393-06-13T14:15:00Z',
+            lastUpdated: '2393-06-13T14:15:00Z',
+            status: 'published',
+            views: 2100000,
+            likes: 78900,
+            shares: 23400,
+            comments: 15600,
+            readingTime: 12,
+            tags: ['Mystery', 'Exploration', 'Colonies', 'Adventure'],
+            featured: true,
+            priority: 'high'
+          },
+          {
+            id: 'story_4',
+            title: 'Ancient Artifacts: Uncovering the Secrets of Pre-Space Civilizations',
+            author: 'Dr. Marcus Rodriguez',
+            authorId: 'author_4',
+            content: 'Archaeological discoveries across multiple star systems suggest that advanced civilizations existed long before humanity reached the stars. These ancient artifacts contain technology and knowledge...',
+            summary: 'Archaeological findings reveal evidence of advanced pre-space civilizations and their mysterious technology.',
+            category: 'history',
+            civilization: 'Terran Federation',
+            publishDate: '2393-06-12T09:45:00Z',
+            lastUpdated: '2393-06-12T09:45:00Z',
+            status: 'published',
+            views: 670000,
+            likes: 18900,
+            shares: 4500,
+            comments: 3200,
+            readingTime: 10,
+            tags: ['Archaeology', 'Ancient Civilizations', 'Technology', 'Discovery'],
+            featured: false,
+            priority: 'medium'
+          },
+          {
+            id: 'story_5',
+            title: 'Cultural Fusion: How Different Civilizations Shape Galactic Society',
+            author: 'Cultural Anthropologist Lisa Park',
+            authorId: 'author_5',
+            content: 'As the galaxy becomes more interconnected, cultural exchange between civilizations has created a rich tapestry of traditions, beliefs, and artistic expressions. This cultural fusion...',
+            summary: 'Exploration of cultural exchange and fusion between different galactic civilizations.',
+            category: 'culture',
+            civilization: 'Terran Federation',
+            publishDate: '2393-06-11T16:20:00Z',
+            lastUpdated: '2393-06-11T16:20:00Z',
+            status: 'published',
+            views: 450000,
+            likes: 12300,
+            shares: 3200,
+            comments: 2100,
+            readingTime: 7,
+            tags: ['Culture', 'Anthropology', 'Society', 'Diversity'],
+            featured: false,
+            priority: 'low'
+          }
+        ],
+        analytics: {
+          overview: {
+            totalStories: 1547,
+            publishedStories: 1234,
+            totalViews: 45600000,
+            totalEngagement: 2340000,
+            averageReadingTime: 8.5,
+            topPerformingStory: 'The Quantum Revolution: How AI is Transforming Galactic Governance'
+          },
+          performanceTrends: [
+            { date: 'Jun 10', storiesPublished: 12, totalViews: 890000, totalEngagement: 45600, averageViews: 74167 },
+            { date: 'Jun 11', storiesPublished: 15, totalViews: 920000, totalEngagement: 47800, averageViews: 61333 },
+            { date: 'Jun 12', storiesPublished: 18, totalViews: 950000, totalEngagement: 51200, averageViews: 52778 },
+            { date: 'Jun 13', storiesPublished: 14, totalViews: 980000, totalEngagement: 53400, averageViews: 70000 },
+            { date: 'Jun 14', storiesPublished: 16, totalViews: 1020000, totalEngagement: 56700, averageViews: 63750 },
+            { date: 'Jun 15', storiesPublished: 13, totalViews: 1050000, totalEngagement: 58900, averageViews: 80769 }
+          ],
+          categoryBreakdown: [
+            { category: 'News', stories: 456, views: 18900000, engagement: 890000, averageReadingTime: 5.2 },
+            { category: 'Science', stories: 234, views: 12300000, engagement: 567000, averageReadingTime: 8.7 },
+            { category: 'Politics', stories: 189, views: 8900000, engagement: 456000, averageReadingTime: 6.8 },
+            { category: 'Fiction', stories: 345, views: 15600000, engagement: 789000, averageReadingTime: 12.3 },
+            { category: 'History', stories: 167, views: 6700000, engagement: 234000, averageReadingTime: 9.1 },
+            { category: 'Culture', stories: 156, views: 4500000, engagement: 189000, averageReadingTime: 7.4 }
+          ],
+          audienceInsights: [
+            { civilization: 'Terran Federation', readers: 890000, favoriteCategory: 'Science', engagementRate: 8.7, readingHabits: 'Evening readers' },
+            { civilization: 'Vega Alliance', readers: 567000, favoriteCategory: 'Politics', engagementRate: 7.2, readingHabits: 'Morning readers' },
+            { civilization: 'Centauri Republic', readers: 234000, favoriteCategory: 'History', engagementRate: 6.8, readingHabits: 'Weekend readers' },
+            { civilization: 'Andromeda Empire', readers: 123000, favoriteCategory: 'Culture', engagementRate: 5.9, readingHabits: 'Lunch break readers' }
           ]
         }
-      ]);
-      
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching story data:', err);
-      setError('Failed to load story data');
-      // Fallback to mock data even on error
-      setStoryEvents(getMockStoryEvents());
-      setStoryArcs(getMockStoryArcs());
-      
-      // Use enhanced mock data as fallback
-      setStoryEvents([
-        {
-          id: 'event1',
-          title: 'The Galactic Convergence Begins',
-          description: 'Ancient signals from the galaxy\'s core have been detected by your deep space monitoring stations. The patterns suggest an artificial origin, but the technology appears far beyond current understanding.',
-          dramaticNarration: '[MYSTERIOUS TONE] Deep in the void of space, your monitoring stations have detected something... extraordinary. [PAUSE] Energy signatures unlike anything in our databases pulse from the galactic core. [RISING TENSION] The patterns suggest artificial origin, but the technology... [WHISPER] appears far beyond current understanding. [DRAMATIC PAUSE] What ancient intelligence stirs in the heart of our galaxy?',
-          cinematicDescription: 'A vast galactic core pulsing with mysterious energy, ancient alien technology awakening in deep space, monitoring stations detecting strange signals, dramatic cosmic vista with swirling nebulae and distant stars',
-          visualContent: 'https://picsum.photos/seed/futuristic-galactic-core-mysterious-energy-ancient-technology-cosmic-awakening/800/450',
-          type: 'discovery',
-          storyArc: 'arc1',
-          timestamp: new Date(Date.now() - 600000),
-          requiresResponse: true,
-          playerChoices: [
-            {
-              id: 'investigate',
-              text: 'Launch immediate investigation mission',
-              consequences: ['High resource cost', 'Potential major discovery', 'Risk to exploration teams']
-            },
-            {
-              id: 'monitor',
-              text: 'Continue monitoring and gather more data',
-              consequences: ['Lower cost', 'Delayed progress', 'Safer approach']
-            },
-            {
-              id: 'ignore',
-              text: 'Focus on internal development instead',
-              consequences: ['No immediate cost', 'Missed opportunity', 'Unknown future consequences']
-            }
-          ],
-          urgency: 'high',
-          storyPhase: 'setup',
-          mediaGenerated: true
-        },
-        {
-          id: 'event2',
-          title: 'The Mysterious Artifact',
-          description: 'Your archaeological teams have uncovered what appears to be technology from an extinct civilization. The artifact pulses with an unknown energy signature that seems to resonate with the signals from the galactic core.',
-          dramaticNarration: '[SUDDEN REVELATION] Your archaeological teams have made a discovery that will change everything! [DRAMATIC GASP] An artifact of impossible design, pulsing with energy that defies all known physics. [OMINOUS TONE] And it\'s responding... to the signals from the galactic core. [WHISPER] What have we awakened?',
-          cinematicDescription: 'Ancient alien artifact glowing with mysterious energy, archaeological dig site, scientists in awe, artifact resonating with cosmic signals, dramatic lighting and shadows',
-          visualContent: 'https://picsum.photos/seed/futuristic-ancient-alien-artifact-glowing-energy-archaeological-discovery-cosmic-resonance/800/450',
-          videoContent: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
-          type: 'plot_twist',
-          storyArc: 'arc1',
-          timestamp: new Date(Date.now() - 300000),
-          requiresResponse: true,
-          urgency: 'critical',
-          storyPhase: 'rising_action',
-          mediaGenerated: true
-        }
-      ]);
-      
-      setStoryArcs([
-        {
-          id: 'arc1',
-          title: 'The Galactic Convergence',
-          description: 'Ancient signals from the galaxy\'s core suggest a long-dormant civilization is awakening. Your choices will determine whether this leads to enlightenment or catastrophe.',
-          theme: 'ancient_mystery',
-          currentPhase: 'rising_action',
-          startDate: new Date(Date.now() - 86400000),
-          estimatedDuration: 45,
-          events: [],
-          characters: [],
-          missions: [],
-          playerChoices: []
-        }
-      ]);
+      });
     } finally {
       setLoading(false);
     }
-  }, [civilizationId]);
+  }, []);
 
-  const recordPlayerActivity = async (activityType: string, details?: string) => {
-    try {
-      await fetch('/api/witter/record-activity', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          civilizationId: parseInt(civilizationId),
-          activityType,
-          details
-        })
-      });
-    } catch (error) {
-      console.warn('Could not record player activity:', error);
-    }
-  };
+  useEffect(() => {
+    fetchStoryData();
+  }, [fetchStoryData]);
 
-  const handlePlayerChoice = async (eventId: string, choiceId: string) => {
-    try {
-      // Record the player choice activity
-      recordPlayerActivity('story_choice', `Selected choice ${choiceId} for event ${eventId}`);
-      
-      const response = await fetch('/api/story/respond', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          civilizationId: parseInt(civilizationId),
-          eventId,
-          choiceId
-        })
-      });
-
-      if (response.ok) {
-        // Refresh story data to see consequences
-        await fetchStoryData();
-        setSelectedEvent(null);
-      }
-    } catch (error) {
-      console.error('Error submitting choice:', error);
-    }
-  };
-
-  const initializeStory = async () => {
-    try {
-      const response = await fetch('/api/story/initialize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          civilizationId: parseInt(civilizationId),
-          gameTheme: 'space_opera'
-        })
-      });
-
-      if (response.ok) {
-        await fetchStoryData();
-      }
-    } catch (error) {
-      console.error('Error initializing story:', error);
-    }
-  };
-
-  // Mock data functions
-  const getMockStoryEvents = (): StoryEvent[] => [
-    {
-      id: 'event1',
-      title: 'The Awakening Signal',
-      description: 'Ancient transmissions detected from the galactic core reveal signs of a dormant civilization stirring to life.',
-      type: 'discovery',
-      storyArc: 'arc1',
-      visualContent: 'https://picsum.photos/seed/futuristic-galactic-core-ancient-alien-signals-cosmic-awakening/800/450',
-      videoContent: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
-      dramaticNarration: 'Deep in the cosmic void, ancient signals pierce the darkness. Something that has slept for millennia is awakening. The very fabric of space trembles with anticipation as your civilization stands on the precipice of discovery.',
-      cinematicDescription: 'A vast cosmic vista showing pulsing energy waves emanating from the galactic core, with mysterious ancient structures becoming visible through swirling nebulae',
-      timestamp: new Date(Date.now() - 3600000),
-      requiresResponse: true,
-      playerChoices: [
-        {
-          id: 'investigate',
-          text: 'Send deep space probe to investigate',
-          consequences: ['High risk discovery mission', 'Potential first contact'],
-          missionTriggers: ['probe_mission_001']
-        },
-        {
-          id: 'observe',
-          text: 'Monitor from safe distance',
-          consequences: ['Gather intelligence safely', 'May miss opportunity'],
-        },
-        {
-          id: 'prepare',
-          text: 'Prepare planetary defenses',
-          consequences: ['Defensive posture', 'Shows caution to unknown entities']
-        }
-      ],
-      urgency: 'high',
-      storyPhase: 'rising_action',
-      mediaGenerated: true
-    },
-    {
-      id: 'event2',
-      title: 'The Diplomatic Overture',
-      description: 'A mysterious alien delegation arrives at the edge of your solar system, broadcasting messages of peace and ancient knowledge.',
-      type: 'story',
-      storyArc: 'arc1',
-      visualContent: 'https://picsum.photos/seed/futuristic-alien-crystalline-ships-peaceful-delegation-space-station-aurora/800/450',
-      dramaticNarration: 'The stars themselves seem to hold their breath as graceful vessels of unknown design glide through the void. Their message echoes across space and time: "We come bearing gifts of knowledge and warnings of what lies ahead." The fate of your civilization hangs in the balance of this first contact.',
-      cinematicDescription: 'Elegant alien ships with crystalline structures approaching a space station, with Earth visible in the background, aurora-like energy patterns dancing between the vessels',
-      timestamp: new Date(Date.now() - 1800000),
-      requiresResponse: true,
-      playerChoices: [
-        {
-          id: 'welcome',
-          text: 'Welcome them with open arms',
-          consequences: ['Gain alien technology', 'Risk cultural contamination'],
-          characterReactions: [
-            { characterId: 'ambassador_chen', reaction: 'Enthusiastic support for peaceful contact' }
-          ]
-        },
-        {
-          id: 'cautious',
-          text: 'Proceed with diplomatic caution',
-          consequences: ['Balanced approach', 'Slower progress but safer'],
-        }
-      ],
-      urgency: 'medium',
-      storyPhase: 'rising_action',
-      mediaGenerated: true
-    },
-    {
-      id: 'event3',
-      title: 'The Shadow Conspiracy',
-      description: 'Intelligence reports suggest a faction within your own government is secretly communicating with hostile alien forces.',
-      type: 'crisis',
-      storyArc: 'arc2',
-      visualContent: 'https://picsum.photos/seed/futuristic-government-conspiracy-holographic-aliens-dark-corridors-surveillance/800/450',
-      dramaticNarration: 'In the shadows of power, betrayal festers like a cancer. Your most trusted advisors may harbor dark secrets. The enemy may already be within your walls. Trust no one. Question everything. For the very soul of your civilization is at stake.',
-      cinematicDescription: 'Dark government corridors with shadowy figures in secret meetings, holographic alien symbols glowing ominously, surveillance screens showing encrypted communications',
-      timestamp: new Date(Date.now() - 900000),
-      requiresResponse: true,
-      playerChoices: [
-        {
-          id: 'investigate_internal',
-          text: 'Launch internal investigation',
-          consequences: ['Uncover the truth', 'Risk political instability'],
-          missionTriggers: ['investigation_mission_002']
-        },
-        {
-          id: 'surveillance',
-          text: 'Increase surveillance secretly',
-          consequences: ['Gather evidence quietly', 'May alert conspirators']
-        }
-      ],
-      urgency: 'critical',
-      storyPhase: 'climax',
-      mediaGenerated: true
-    }
-  ];
-
-  const getMockStoryArcs = (): StoryArc[] => [
-    {
-      id: 'arc1',
-      title: 'First Contact Protocol',
-      description: 'The discovery of ancient alien signals leads to first contact with an advanced civilization, forever changing the course of galactic history.',
-      theme: 'Discovery and Diplomacy',
-      currentPhase: 'rising_action',
-      startDate: new Date(Date.now() - 7200000),
-      estimatedDuration: 30,
-      events: ['event1', 'event2'],
-      characters: ['ambassador_chen', 'scientist_rodriguez'],
-      missions: ['probe_mission_001'],
-      playerChoices: [
-        { eventId: 'event1', choiceId: 'investigate', timestamp: new Date(Date.now() - 3000000) }
-      ]
-    },
-    {
-      id: 'arc2',
-      title: 'The Enemy Within',
-      description: 'A conspiracy threatens to tear apart your civilization from within, as alien infiltrators work to undermine your government.',
-      theme: 'Betrayal and Espionage',
-      currentPhase: 'climax',
-      startDate: new Date(Date.now() - 3600000),
-      estimatedDuration: 20,
-      events: ['event3'],
-      characters: ['director_shadow', 'agent_nova'],
-      missions: ['investigation_mission_002'],
-      playerChoices: []
-    }
-  ];
-
-  // TTS and Media Functions
-  const processDramaticText = (text: string): string => {
-    // Remove stage directions in brackets and asterisks
-    let processedText = text
-      .replace(/\[.*?\]/g, '') // Remove [stage directions]
-      .replace(/\*.*?\*/g, '') // Remove *stage directions*
-      .replace(/\.\.\./g, '... ') // Add space after ellipsis for natural pauses
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .trim();
-    
-    // Add natural pauses for dramatic effect
-    processedText = processedText
-      .replace(/\./g, '. ') // Pause after sentences
-      .replace(/,/g, ', ') // Slight pause after commas
-      .replace(/;/g, '; ') // Pause after semicolons
-      .replace(/:/g, ': ') // Pause after colons
-      .replace(/\?/g, '? ') // Pause after questions
-      .replace(/!/g, '! '); // Pause after exclamations
-    
-    return processedText;
-  };
-
-  const playDramaticNarration = (event: StoryEvent) => {
-    // Record player activity
-    recordPlayerActivity('story_narration_play', `Played narration for event: ${event.title}`);
-    
-    if (isPlayingNarration === event.id) {
-      stopNarration();
-      return;
-    }
-
-    stopNarration(); // Stop any current narration
-
-    if ('speechSynthesis' in window) {
-      // Process the dramatic narration for optimal TTS
-      const processedText = processDramaticText(event.dramaticNarration);
-      console.log('🎭 Processing narration:', event.title);
-      console.log('📝 Original:', event.dramaticNarration);
-      console.log('🎤 Processed:', processedText);
-      
-      const utterance = new SpeechSynthesisUtterance(processedText);
-      
-      // Configure voice for Hollywood cinematic effect
-      utterance.rate = 0.75; // Slightly slower for cinematic gravitas
-      utterance.pitch = 0.85; // Rich, authoritative pitch
-      utterance.volume = 1.0; // Full volume for impact
-      
-      // Enhanced voice selection for Hollywood-style narration
-      const selectCinematicVoice = () => {
-        const voices = speechSynthesis.getVoices();
-        console.log('🎬 Available voices:', voices.map(v => `${v.name} (${v.lang})`));
-        
-        // Priority order for cinematic, Hollywood-style voices (avoid robotic ones)
-        const cinematicVoice = voices.find(voice => 
-          // Prefer natural, expressive voices
-          voice.name.includes('Daniel') ||     // macOS - rich, natural voice
-          voice.name.includes('Samantha') ||   // macOS - expressive female voice
-          voice.name.includes('Alex') ||       // macOS - natural male voice
-          voice.name.includes('Victoria') ||   // Windows - expressive female
-          voice.name.includes('David') ||      // Windows - natural male
-          voice.name.includes('Zira') ||       // Windows - clear female
-          voice.name.includes('Mark') ||       // Windows - natural male
-          voice.name.includes('Hazel') ||      // Natural British accent
-          voice.name.includes('Karen') ||      // Natural Australian accent
-          voice.name.includes('Moira') ||      // Natural Irish accent
-          voice.name.includes('Tessa')         // Natural South African accent
-        ) || voices.find(voice => 
-          // Fallback: any natural-sounding English voice (avoid Microsoft voices that sound robotic)
-          voice.lang.startsWith('en') && 
-          !voice.name.toLowerCase().includes('microsoft') &&
-          !voice.name.toLowerCase().includes('cortana') &&
-          !voice.name.toLowerCase().includes('speech')
-        ) || voices.find(voice => 
-          // Last resort: any English voice
-          voice.lang.startsWith('en-US') || voice.lang.startsWith('en-GB')
-        ) || voices[0]; // Final fallback
-        
-        if (cinematicVoice) {
-          utterance.voice = cinematicVoice;
-          console.log('🎬 Selected cinematic voice:', cinematicVoice.name, cinematicVoice.lang);
-        } else {
-          console.log('🎬 Using default voice (no cinematic voice found)');
-        }
-      };
-
-      // Handle voice loading
-      if (speechSynthesis.getVoices().length > 0) {
-        selectCinematicVoice();
-      } else {
-        speechSynthesis.onvoiceschanged = selectCinematicVoice;
-      }
-
-      utterance.onstart = () => {
-        setIsPlayingNarration(event.id);
-        console.log('🎭 Starting dramatic narration:', event.title);
-      };
-
-      utterance.onend = () => {
-        setIsPlayingNarration(null);
-        setCurrentSpeech(null);
-        console.log('🎭 Narration complete for:', event.title);
-      };
-
-      utterance.onerror = (error) => {
-        console.error('🎭 TTS Error:', error);
-        setIsPlayingNarration(null);
-        setCurrentSpeech(null);
-      };
-
-      setCurrentSpeech(utterance);
-      speechSynthesis.speak(utterance);
-    } else {
-      alert('🎭 Speech synthesis not supported. Please use a modern browser for the full dramatic experience.');
-    }
-  };
-
-  const stopNarration = () => {
-    if (currentSpeech) {
-      speechSynthesis.cancel();
-      setCurrentSpeech(null);
-    }
-    setIsPlayingNarration(null);
-  };
-
-  const openCinematicView = (event: StoryEvent) => {
-    setShowCinematicView(event.id);
-  };
-
-  const closeCinematicView = () => {
-    setShowCinematicView(null);
-    stopNarration();
-  };
-
-  const getEventIcon = (type: string) => {
-    switch (type) {
-      case 'story': return '📖';
-      case 'crisis': return '⚠️';
-      case 'achievement': return '🏆';
-      case 'discovery': return '🔍';
-      case 'plot_twist': return '⚡';
-      case 'climax': return '🔥';
-      case 'challenge': return '⚔️';
-      default: return '📋';
-    }
-  };
-
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'critical': return '#ff4444';
-      case 'high': return '#ff8800';
-      case 'medium': return '#ffaa00';
-      case 'low': return '#44aa44';
-      default: return '#888888';
-    }
-  };
-
-  const getPhaseColor = (phase: string) => {
-    switch (phase) {
-      case 'setup': return '#4ecdc4';
-      case 'rising_action': return '#ffa726';
-      case 'climax': return '#ef5350';
-      case 'falling_action': return '#ab47bc';
-      case 'resolution': return '#66bb6a';
-      default: return '#888888';
-    }
-  };
-
-  const renderCurrentStoryTab = () => (
-    <div className="current-story-tab">
-      <div className="story-header">
-        <h3>🎭 Current Story Events</h3>
-        <div className="story-info">
-          <span className="shared-indicator">🌐 Shared with all players</span>
-          <button className="initialize-btn" onClick={initializeStory}>
-            Initialize New Story
-          </button>
-        </div>
-      </div>
-      
-      {storyEvents.length === 0 ? (
-        <div className="no-events">
-          <div className="empty-state">
-            <h4>📚 No Active Story</h4>
-            <p>Your galactic saga awaits! Click "Initialize New Story" to begin your epic journey.</p>
+  const renderOverview = () => (
+    <>
+      {/* Stories Overview - Full panel width */}
+      <div className="standard-panel social-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📊 Stories Overview</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Total Stories</span>
+            <span className="standard-metric-value">{storyData?.analytics.overview.totalStories}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Published Stories</span>
+            <span className="standard-metric-value">{storyData?.analytics.overview.publishedStories}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Total Views</span>
+            <span className="standard-metric-value">{formatNumber(storyData?.analytics.overview.totalViews || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Total Engagement</span>
+            <span className="standard-metric-value">{formatNumber(storyData?.analytics.overview.totalEngagement || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Avg Reading Time</span>
+            <span className="standard-metric-value">{storyData?.analytics.overview.averageReadingTime} min</span>
+          </div>
+          <div className="standard-metric">
+            <span>Top Story</span>
+            <span className="standard-metric-value">AI Governance</span>
           </div>
         </div>
-      ) : (
-        <div className="story-events-list">
-          {storyEvents.map(event => (
-            <div 
-              key={event.id} 
-              className={`story-event ${event.type} ${event.urgency}`}
-              onClick={() => setSelectedEvent(event)}
-            >
-              <div className="event-header">
-                <div className="event-title-section">
-                  <span className="event-icon">{getEventIcon(event.type)}</span>
-                  <span className="event-title">{event.title}</span>
-                  <span 
-                    className="urgency-badge"
-                    style={{ backgroundColor: getUrgencyColor(event.urgency) }}
-                  >
-                    {event.urgency.toUpperCase()}
-                  </span>
-                </div>
-                <div className="event-meta">
-                  <span 
-                    className="story-phase"
-                    style={{ color: getPhaseColor(event.storyPhase) }}
-                  >
-                    {event.storyPhase.replace('_', ' ').toUpperCase()}
-                  </span>
-                  <span className="event-time">
-                    {new Date(event.timestamp).toLocaleTimeString()}
-                  </span>
-                </div>
-              </div>
-              
-              {/* Visual Media */}
-              {(event.visualContent || event.videoContent) && (
-                <div className="event-media">
-                  {event.videoContent ? (
-                    <video 
-                      className="event-video"
-                      poster={event.visualContent}
-                      controls
-                      preload="metadata"
-                    >
-                      <source src={event.videoContent} type="video/mp4" />
-                      Your browser does not support video playback.
-                    </video>
-                  ) : event.visualContent && (
-                    <img 
-                      src={event.visualContent} 
-                      alt={event.title}
-                      className="event-image"
-                      onClick={() => openCinematicView(event)}
-                    />
-                  )}
-                  
-                  <div className="media-controls">
-                    <button 
-                      className={`narration-btn ${isPlayingNarration === event.id ? 'playing' : ''}`}
-                      onClick={() => playDramaticNarration(event)}
-                      title="Play dramatic narration"
-                    >
-                      {isPlayingNarration === event.id ? '🔊 Stop Narration' : '🎭 Play Narration'}
-                    </button>
-                    
-                    {(event.visualContent || event.videoContent) && (
-                      <button 
-                        className="cinematic-btn"
-                        onClick={() => openCinematicView(event)}
-                        title="View in cinematic mode"
-                      >
-                        🎬 Cinematic View
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="event-description">
-                {event.description}
-              </div>
-
-              {/* Dramatic Narration - Voice Only */}
-              <div className="dramatic-narration">
-                <div className="narration-header">
-                  <button 
-                    className={`narration-toggle ${isPlayingNarration === event.id ? 'playing' : ''}`}
-                    onClick={() => playDramaticNarration(event)}
-                  >
-                    {isPlayingNarration === event.id ? '⏹️' : '▶️'}
-                  </button>
-                </div>
-                <div className="narration-text">
-                  {event.dramaticNarration}
-                </div>
-              </div>
-              
-              {event.requiresResponse && (
-                <div className="response-indicator">
-                  <span className="response-badge">⚡ Requires Decision</span>
-                </div>
-              )}
-              
-              {event.consequences && event.consequences.length > 0 && (
-                <div className="consequences">
-                  <strong>Consequences:</strong>
-                  <ul>
-                    {event.consequences.map((consequence, index) => (
-                      <li key={index}>{consequence}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          ))}
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('New Story')}>✏️ New Story</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('View All Stories')}>📖 View All</button>
         </div>
-      )}
+      </div>
+
+      {/* Category Performance - Full panel width */}
+      <div className="standard-panel social-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📈 Category Performance</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Stories</th>
+                <th>Views</th>
+                <th>Engagement</th>
+                <th>Avg Reading Time</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {storyData?.analytics.categoryBreakdown.map(category => (
+                <tr key={category.category}>
+                  <td>
+                    <span style={{ 
+                      color: getCategoryColor(category.category.toLowerCase()),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getCategoryColor(category.category.toLowerCase()) + '20'
+                    }}>
+                      {category.category}
+                    </span>
+                  </td>
+                  <td>{category.stories}</td>
+                  <td>{formatNumber(category.views)}</td>
+                  <td>{formatNumber(category.engagement)}</td>
+                  <td>{category.averageReadingTime} min</td>
+                  <td>
+                    <button className="standard-btn social-theme">View</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+
+  const renderStories = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📖 Story Management</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('New Story')}>✏️ New Story</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Filter Stories')}>🔍 Filter</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Views</th>
+                <th>Engagement</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {storyData?.stories.map(story => (
+                <tr key={story.id}>
+                  <td>
+                    <div style={{ maxWidth: '300px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{story.title}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{story.summary}</div>
+                    </div>
+                  </td>
+                  <td>{story.author}</td>
+                  <td>
+                    <span style={{ 
+                      color: getCategoryColor(story.category),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getCategoryColor(story.category) + '20'
+                    }}>
+                      {story.category}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getStatusColor(story.status),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getStatusColor(story.status) + '20'
+                    }}>
+                      {story.status}
+                    </span>
+                  </td>
+                  <td>{formatNumber(story.views)}</td>
+                  <td>
+                    <span style={{ color: story.engagement >= 10000 ? '#10b981' : story.engagement >= 5000 ? '#f59e0b' : '#ef4444' }}>
+                      {formatNumber(story.likes + story.shares + story.comments)}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn social-theme">Edit</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 
-  const renderStoryArcsTab = () => (
-    <div className="story-arcs-tab">
-      <h3>📚 Active Story Arcs</h3>
-      
-      {storyArcs.length === 0 ? (
-        <div className="no-arcs">
-          <p>No active story arcs. Initialize a story to begin your saga!</p>
+  const renderPublishing = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>✏️ Publishing & Content Management</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('Create Story')}>📝 Create Story</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Review Drafts')}>📋 Review Drafts</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Content Calendar')}>📅 Calendar</button>
         </div>
-      ) : (
-        <div className="story-arcs-list">
-          {storyArcs.map(arc => (
-            <div key={arc.id} className="story-arc-card">
-              <div className="arc-header">
-                <h4>{arc.title}</h4>
-                <div className="arc-meta">
-                  <span 
-                    className="arc-phase"
-                    style={{ color: getPhaseColor(arc.currentPhase) }}
-                  >
-                    {arc.currentPhase.replace('_', ' ').toUpperCase()}
-                  </span>
-                  <span className="arc-theme">{arc.theme}</span>
-                </div>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem', marginTop: '2rem' }}>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>Content Status</h4>
+            <div className="standard-table-container">
+              <table className="standard-data-table">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Count</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Drafts</td>
+                    <td>23</td>
+                    <td>
+                      <button className="standard-btn social-theme">Review</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Pending Review</td>
+                    <td>12</td>
+                    <td>
+                      <button className="standard-btn social-theme">Approve</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Scheduled</td>
+                    <td>8</td>
+                    <td>
+                      <button className="standard-btn social-theme">Edit</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Archived</td>
+                    <td>156</td>
+                    <td>
+                      <button className="standard-btn social-theme">Restore</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>Publishing Metrics</h4>
+            <div className="standard-metric-grid">
+              <div className="standard-metric">
+                <span>Stories This Week</span>
+                <span className="standard-metric-value">15</span>
               </div>
-              
-              <div className="arc-description">
-                {arc.description}
+              <div className="standard-metric">
+                <span>Avg Publish Time</span>
+                <span className="standard-metric-value">2.3 days</span>
               </div>
-              
-              <div className="arc-progress">
-                <div className="progress-info">
-                  <span>Events: {arc.events.length}</span>
-                  <span>Duration: {arc.estimatedDuration} days</span>
-                  <span>Started: {new Date(arc.startDate).toLocaleDateString()}</span>
-                </div>
-                
-                <div className="phase-progress">
-                  <div className="phase-bar">
-                    <div 
-                      className="phase-fill"
-                      style={{ 
-                        width: `${(arc.events.length / (arc.estimatedDuration / 3)) * 100}%`,
-                        backgroundColor: getPhaseColor(arc.currentPhase)
-                      }}
-                    />
-                  </div>
-                </div>
+              <div className="standard-metric">
+                <span>Editorial Queue</span>
+                <span className="standard-metric-value">8</span>
+              </div>
+              <div className="standard-metric">
+                <span>Quality Score</span>
+                <span className="standard-metric-value">8.7/10</span>
               </div>
             </div>
-          ))}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 
-  const renderGameMasterMessagesTab = () => (
-    <div className="game-master-messages-tab">
-      <h3>🎭 Game Master Communications</h3>
-      
-      <div className="messages-list">
-        {gameMasterMessages.map(message => (
-          <div key={message.id} className={`gm-message ${message.priority}`}>
-            <div className="message-header">
-              <div className="message-title">
-                <span className="message-icon">
-                  {message.type === 'plot_twist' ? '⚡' : 
-                   message.type === 'challenge' ? '⚔️' : 
-                   message.type === 'mission_briefing' ? '📋' : '🎭'}
-                </span>
-                <span className="message-title-text">{message.title}</span>
-              </div>
-              <div className="message-meta">
-                <span className="message-sender">{message.sender}</span>
-                <span className="message-time">
-                  {new Date(message.timestamp).toLocaleTimeString()}
-                </span>
-              </div>
-            </div>
-            
-            <div className="message-content">
-              {message.content}
-            </div>
-            
-            {message.requiresAction && message.actionOptions && (
-              <div className="action-options">
-                <h5>Choose your response:</h5>
-                <div className="action-buttons">
-                  {message.actionOptions.map(option => (
-                    <button 
-                      key={option.id}
-                      className="action-btn"
-                      onClick={() => {
-                        // Handle action selection
-                        console.log('Selected action:', option.id);
-                      }}
-                    >
-                      <span className="action-text">{option.text}</span>
-                      <span className="action-outcome">{option.outcome}</span>
-                    </button>
+  const renderAnalytics = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📈 Story Analytics</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div className="chart-container">
+            <LineChart
+              data={storyData?.analytics.performanceTrends.map(trend => ({
+                name: trend.date,
+                'Stories Published': trend.storiesPublished,
+                'Total Views': trend.totalViews / 1000000,
+                'Total Engagement': trend.totalEngagement / 1000,
+                'Average Views': trend.averageViews / 1000
+              })) || []}
+              title="Publishing Performance Trends"
+              height={300}
+              width={500}
+              showTooltip={true}
+            />
+          </div>
+          <div className="chart-container">
+            <PieChart
+              data={storyData?.analytics.categoryBreakdown.map(category => ({
+                name: category.category,
+                value: category.views
+              })) || []}
+              title="Views by Category"
+              size={250}
+              showLegend={true}
+            />
+          </div>
+        </div>
+        <div style={{ marginTop: '2rem' }}>
+          <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>Performance Metrics</h4>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Current</th>
+                  <th>Target</th>
+                  <th>Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Daily Views</td>
+                  <td style={{ color: '#10b981' }}>1.05M</td>
+                  <td>1.2M</td>
+                  <td style={{ color: '#f59e0b' }}>↗️ Improving</td>
+                </tr>
+                <tr>
+                  <td>Engagement Rate</td>
+                  <td style={{ color: '#10b981' }}>5.1%</td>
+                  <td>6.0%</td>
+                  <td style={{ color: '#10b981' }}>↗️ On Track</td>
+                </tr>
+                <tr>
+                  <td>Reading Time</td>
+                  <td style={{ color: '#10b981' }}>8.5 min</td>
+                  <td>8.0 min</td>
+                  <td style={{ color: '#10b981' }}>✅ Exceeding</td>
+                </tr>
+                <tr>
+                  <td>Story Completion</td>
+                  <td style={{ color: '#f59e0b' }}>72%</td>
+                  <td>75%</td>
+                  <td style={{ color: '#ef4444' }}>↘️ Declining</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderInsights = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🔍 Audience Insights</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>Civilization Reading Patterns</h4>
+            <div className="standard-table-container">
+              <table className="standard-data-table">
+                <thead>
+                  <tr>
+                    <th>Civilization</th>
+                    <th>Readers</th>
+                    <th>Favorite Category</th>
+                    <th>Engagement Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {storyData?.analytics.audienceInsights.map(insight => (
+                    <tr key={insight.civilization}>
+                      <td>{insight.civilization}</td>
+                      <td>{formatNumber(insight.readers)}</td>
+                      <td>
+                        <span style={{ 
+                          color: getCategoryColor(insight.favoriteCategory.toLowerCase()),
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.875rem',
+                          backgroundColor: getCategoryColor(insight.favoriteCategory.toLowerCase()) + '20'
+                        }}>
+                          {insight.favoriteCategory}
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{ color: insight.engagementRate >= 8 ? '#10b981' : insight.engagementRate >= 6 ? '#f59e0b' : '#ef4444' }}>
+                          {insight.engagementRate}%
+                        </span>
+                      </td>
+                    </tr>
                   ))}
-                </div>
-              </div>
-            )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderPlayerChoicesTab = () => (
-    <div className="player-choices-tab">
-      <h3>🎯 Your Decisions</h3>
-      
-      <div className="choices-summary">
-        <p>Track the consequences of your choices and their impact on the story.</p>
-      </div>
-      
-      {selectedEvent && selectedEvent.playerChoices && (
-        <div className="active-choice">
-          <h4>Current Decision: {selectedEvent.title}</h4>
-          <div className="choice-options">
-            {selectedEvent.playerChoices.map(choice => (
-              <button
-                key={choice.id}
-                className="choice-btn"
-                onClick={() => handlePlayerChoice(selectedEvent.id, choice.id)}
-              >
-                <div className="choice-text">{choice.text}</div>
-                <div className="choice-consequences">
-                  <strong>Consequences:</strong>
-                  <ul>
-                    {choice.consequences.map((consequence, index) => (
-                      <li key={index}>{consequence}</li>
-                    ))}
-                  </ul>
-                </div>
-              </button>
-            ))}
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>Content Strategy Insights</h4>
+            <div style={{ 
+              padding: '1rem', 
+              backgroundColor: 'rgba(16, 185, 129, 0.1)', 
+              borderRadius: '0.5rem',
+              border: '1px solid rgba(16, 185, 129, 0.3)'
+            }}>
+              <h5 style={{ color: '#10b981', marginBottom: '0.5rem' }}>Key Findings:</h5>
+              <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#10b981' }}>
+                <li>Science content has highest engagement (8.7%)</li>
+                <li>Fiction stories have longest reading time (12.3 min)</li>
+                <li>News content drives daily traffic</li>
+                <li>Cultural stories have niche but loyal audience</li>
+                <li>Politics content peaks during election cycles</li>
+              </ul>
+            </div>
+            <div style={{ marginTop: '1rem' }}>
+              <h5 style={{ color: '#10b981', marginBottom: '0.5rem' }}>Recommendations:</h5>
+              <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#10b981' }}>
+                <li>Increase science content production</li>
+                <li>Develop serial fiction series</li>
+                <li>Optimize news publishing schedule</li>
+                <li>Expand cultural coverage</li>
+                <li>Plan political content calendar</li>
+              </ul>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
-
-  if (loading) {
-    return (
-      <div className="story-screen loading">
-        <div className="loading-spinner"></div>
-        <p>Loading your galactic saga...</p>
-      </div>
-    );
-  }
 
   return (
-    <div className="story-screen">
-      <div className="screen-header">
-        <div className="header-title">
-          <span className="screen-icon">{icon}</span>
-          <h2>{title}</h2>
-        </div>
-        <div className="story-status">
-          <span className="active-arcs">
-            {storyArcs.length} Active Arc{storyArcs.length !== 1 ? 's' : ''}
-          </span>
-          <span className="recent-events">
-            {storyEvents.length} Recent Event{storyEvents.length !== 1 ? 's' : ''}
-          </span>
+    <BaseScreen
+      screenId={screenId}
+      title={title}
+      icon={icon}
+      gameContext={gameContext}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchStoryData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
+    >
+      <div className="standard-screen-container social-theme">
+        <div className="standard-dashboard">
+          {!loading && !error && storyData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'stories' && renderStories()}
+              {activeTab === 'publishing' && renderPublishing()}
+              {activeTab === 'analytics' && renderAnalytics()}
+              {activeTab === 'insights' && renderInsights()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading story data...' : 'No story data available'}
+            </div>
+          )}
         </div>
       </div>
-
-      <div className="tab-navigation">
-        <button 
-          className={`tab-btn ${activeTab === 'current' ? 'active' : ''}`}
-          onClick={() => setActiveTab('current')}
-        >
-          📖 Current Story
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'arcs' ? 'active' : ''}`}
-          onClick={() => setActiveTab('arcs')}
-        >
-          📚 Story Arcs
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
-          onClick={() => setActiveTab('messages')}
-        >
-          🎭 Game Master
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'choices' ? 'active' : ''}`}
-          onClick={() => setActiveTab('choices')}
-        >
-          🎯 Your Choices
-        </button>
-      </div>
-
-      <div className="tab-content">
-        {activeTab === 'current' && renderCurrentStoryTab()}
-        {activeTab === 'arcs' && renderStoryArcsTab()}
-        {activeTab === 'messages' && renderGameMasterMessagesTab()}
-        {activeTab === 'choices' && renderPlayerChoicesTab()}
-      </div>
-
-      {error && (
-        <div className="error-message">
-          <p>⚠️ {error}</p>
-          <button onClick={fetchStoryData}>Retry</button>
-        </div>
-      )}
-
-      {/* Cinematic View Modal */}
-      {showCinematicView && (
-        <div className="cinematic-modal" onClick={closeCinematicView}>
-          <div className="cinematic-content" onClick={(e) => e.stopPropagation()}>
-            {(() => {
-              const cinematicEvent = storyEvents.find(e => e.id === showCinematicView);
-              if (!cinematicEvent) return null;
-
-              return (
-                <>
-                  <div className="cinematic-header">
-                    <h2>{cinematicEvent.title}</h2>
-                    <button className="close-cinematic" onClick={closeCinematicView}>✕</button>
-                  </div>
-                  
-                  <div className="cinematic-media">
-                    {cinematicEvent.videoContent ? (
-                      <video 
-                        className="cinematic-video"
-                        controls
-                        autoPlay
-                        poster={cinematicEvent.visualContent}
-                      >
-                        <source src={cinematicEvent.videoContent} type="video/mp4" />
-                      </video>
-                    ) : cinematicEvent.visualContent && (
-                      <img 
-                        src={cinematicEvent.visualContent} 
-                        alt={cinematicEvent.title}
-                        className="cinematic-image"
-                      />
-                    )}
-                  </div>
-
-                  <div className="cinematic-narration">
-                    <div className="narration-controls">
-                      <button 
-                        className={`cinematic-narration-btn ${isPlayingNarration === cinematicEvent.id ? 'playing' : ''}`}
-                        onClick={() => playDramaticNarration(cinematicEvent)}
-                      >
-                        {isPlayingNarration === cinematicEvent.id ? '🔊 Stop Narration' : '🎭 Play Dramatic Narration'}
-                      </button>
-                    </div>
-                    
-                    <div className="cinematic-narration-text">
-                      {cinematicEvent.dramaticNarration}
-                    </div>
-                  </div>
-
-                  {cinematicEvent.requiresResponse && cinematicEvent.playerChoices && (
-                    <div className="cinematic-choices">
-                      <h3>Your Decision:</h3>
-                      <div className="cinematic-choice-buttons">
-                        {cinematicEvent.playerChoices.map(choice => (
-                          <button
-                            key={choice.id}
-                            className="cinematic-choice-btn"
-                            onClick={() => {
-                              handlePlayerChoice(cinematicEvent.id, choice.id);
-                              closeCinematicView();
-                            }}
-                          >
-                            <div className="choice-text">{choice.text}</div>
-                            <div className="choice-preview">
-                              {choice.consequences.slice(0, 2).join(', ')}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </>
-              );
-            })()}
-          </div>
-        </div>
-      )}
-    </div>
+    </BaseScreen>
   );
 };
 

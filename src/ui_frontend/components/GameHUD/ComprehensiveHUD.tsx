@@ -950,7 +950,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     { id: 'migration', name: 'Migration', icon: '🚶', category: 'population' },
     { id: 'professions', name: 'Professions', icon: '💼', category: 'population' },
     { id: 'education', name: 'Education', icon: '🎓', category: 'population' },
-    { id: 'health', name: 'Health & Welfare', icon: '🏥', category: 'population' },
+    { id: 'health', name: 'Health', icon: '🏥', category: 'population' },
     { id: 'household-economics', name: 'Households', icon: '🏠', category: 'population' },
     { id: 'entertainment-tourism', name: 'Culture', icon: '🎭', category: 'population' },
     
@@ -976,6 +976,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     { id: 'galaxy-data', name: 'Galaxy Data', icon: '🌌', category: 'galaxy' },
     { id: 'conquest', name: 'Conquest', icon: '⚔️', category: 'galaxy' },
     { id: 'exploration', name: 'Exploration', icon: '🚀', category: 'galaxy' },
+    { id: 'missions', name: 'Missions', icon: '🎯', category: 'galaxy' },
     { id: 'world-wonders', name: 'Galaxy Wonders', icon: '🏛️', category: 'galaxy' },
     { id: 'visual-systems', name: 'Visuals', icon: '🎨', category: 'galaxy' },
     
@@ -1077,7 +1078,7 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
                 </button>
                 <button 
                   className="nav-item"
-                  onClick={() => setActivePanel('missions')}
+                  onClick={() => setActivePanelPopup('missions')}
                 >
                   🎯 Missions
                 </button>

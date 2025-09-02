@@ -1,978 +1,845 @@
+/**
+ * Institutional Override Screen - Emergency Powers and Constitutional Override
+ * 
+ * This screen focuses on emergency powers and constitutional override mechanisms including:
+ * - Emergency declarations and crisis management
+ * - Constitutional override procedures and safeguards
+ * - Emergency powers delegation and oversight
+ * - Crisis response coordination and monitoring
+ * - Constitutional restoration and normalization
+ * 
+ * Theme: Government (blue color scheme)
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
-import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './InstitutionalOverrideScreen.css';
+import '../shared/StandardDesign.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
-interface InstitutionalOverride {
+interface EmergencyDeclaration {
   id: string;
-  institutionType: 'legislature' | 'central_bank' | 'supreme_court';
-  targetDecisionId: string;
-  targetDecisionTitle: string;
-  campaignId: number;
-  leaderCharacterId: string;
-  originalDecision: string;
-  originalReasoning?: string;
-  overrideDecision: 'approve' | 'reject' | 'modify' | 'suspend';
-  overrideReason: string;
-  overrideJustification: string;
+  type: 'national_emergency' | 'constitutional_crisis' | 'civil_unrest' | 'external_threat' | 'economic_collapse';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  status: 'active' | 'resolved' | 'escalating' | 'deescalating';
+  declaredAt: string;
+  declaredBy: string;
+  authority: string;
+  description: string;
+  affectedRegions: string[];
+  estimatedDuration: string;
   constitutionalBasis: string;
-  legalPrecedent?: string;
-  modifications?: string;
-  implementationNotes?: string;
-  
-  // Political Consequences
-  politicalCost: number;
-  publicApprovalImpact: number;
-  institutionalTrustImpact: number;
-  partyRelationsImpact: Record<string, number>;
-  
-  // Constitutional & Legal
-  constitutionalityScore: number;
-  separationOfPowersImpact: number;
-  judicialIndependenceImpact?: number;
-  monetaryAuthorityImpact?: number;
-  
-  // Status & Timeline
-  effectiveDate: string;
-  expirationDate?: string;
-  status: 'pending' | 'active' | 'challenged' | 'upheld' | 'reversed' | 'expired';
-  challengeDetails?: {
-    challenger: string;
-    challengeReason: string;
-    challengeDate: string;
-    resolution?: string;
-    resolutionDate?: string;
-  };
-  
-  createdAt: string;
-  updatedAt: string;
+  overrideLevel: 'partial' | 'full' | 'targeted';
+  safeguards: string[];
+  oversightMechanisms: string[];
+  restorationCriteria: string[];
 }
 
-interface OverrideAnalysis {
-  institutionType: 'legislature' | 'central_bank' | 'supreme_court';
-  politicalFeasibility: number;
-  constitutionalValidity: number;
-  publicSupportEstimate: number;
-  institutionalTrustImpact: number;
-  separationOfPowersRisk: number;
-  politicalCostAssessment: number;
-  recommendedAction: 'proceed' | 'modify' | 'abandon';
-  riskFactors: string[];
-  supportingArguments: string[];
-  potentialChallenges: string[];
-  institutionalSpecificRisks: string[];
-  precedentAnalysis: string[];
-}
-
-interface EligibleDecision {
+interface OverrideProcedure {
   id: string;
-  title: string;
-  institutionType: 'legislature' | 'central_bank' | 'supreme_court';
-  decisionType: string;
-  status: string;
-  dateDecided: string;
-  summary: string;
-  canOverride: boolean;
-  overrideRisk: 'low' | 'medium' | 'high' | 'critical';
+  name: string;
+  type: 'executive_order' | 'emergency_legislation' | 'constitutional_amendment' | 'judicial_review' | 'military_authority';
+  status: 'proposed' | 'active' | 'reviewed' | 'expired' | 'challenged';
+  proposedAt: string;
+  enactedAt: string;
+  expiresAt: string;
+  authority: string;
+  scope: 'limited' | 'moderate' | 'extensive' | 'comprehensive';
+  constitutionalImpact: 'minimal' | 'moderate' | 'significant' | 'major';
+  justification: string;
+  opposition: string[];
+  support: string[];
+  legalChallenges: string[];
+  oversightCommittees: string[];
 }
 
-interface InstitutionalTrustMetrics {
-  institutionType: 'legislature' | 'central_bank' | 'supreme_court';
-  publicTrustRating: number;
-  expertTrustRating: number;
-  internationalTrustRating: number;
-  independencePerception: number;
-  effectivenessRating: number;
-  overrideImpactCumulative: number;
-  totalOverrides: number;
-  successfulChallenges: number;
-  lastOverrideDate?: string;
+interface EmergencyPower {
+  id: string;
+  name: string;
+  category: 'executive' | 'legislative' | 'judicial' | 'military' | 'economic';
+  status: 'granted' | 'active' | 'suspended' | 'revoked';
+  grantedAt: string;
+  expiresAt: string;
+  authority: string;
+  scope: string;
+  limitations: string[];
+  oversightRequirements: string[];
+  reportingFrequency: string;
+  renewalCriteria: string[];
+  revocationTriggers: string[];
 }
 
-interface SeparationOfPowersMetrics {
-  executivePowerIndex: number;
-  legislativeIndependenceIndex: number;
-  judicialIndependenceIndex: number;
-  monetaryIndependenceIndex: number;
-  constitutionalBalanceScore: number;
-  democraticHealthIndex: number;
-  totalInstitutionalOverrides: number;
-  overrideFrequency30d: number;
-  crisisSeverityLevel: 'none' | 'low' | 'medium' | 'high' | 'critical';
-}
-
-interface InstitutionalOverrideData {
-  overview: {
-    totalOverrides: number;
-    activeOverrides: number;
-    challengedOverrides: number;
-    successRate: number;
-    averagePoliticalCost: number;
-    averageTrustImpact: number;
-    constitutionalBalanceScore: number;
-    democraticHealthIndex: number;
+interface CrisisResponse {
+  id: string;
+  crisisType: string;
+  status: 'active' | 'contained' | 'resolved' | 'escalating';
+  declaredAt: string;
+  responseLevel: 'alpha' | 'beta' | 'gamma' | 'delta';
+  affectedSystems: string[];
+  responseTeams: Array<{
+    name: string;
+    leader: string;
+    status: 'deployed' | 'standby' | 'returning';
+    effectiveness: number;
+  }>;
+  resourceAllocation: {
+    personnel: number;
+    funding: number;
+    equipment: string[];
   };
-  overrides: InstitutionalOverride[];
-  eligibleDecisions: EligibleDecision[];
-  trustMetrics: InstitutionalTrustMetrics[];
-  separationMetrics: SeparationOfPowersMetrics;
-
+  timeline: Array<{
+    phase: string;
+    status: 'completed' | 'in_progress' | 'planned';
+    completionDate: string;
+  }>;
 }
 
-const InstitutionalOverrideScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext }) => {
-  const [data, setData] = useState<InstitutionalOverrideData | null>(null);
+interface OverrideData {
+  emergencyDeclarations: EmergencyDeclaration[];
+  overrideProcedures: OverrideProcedure[];
+  emergencyPowers: EmergencyPower[];
+  crisisResponses: CrisisResponse[];
+  analytics: {
+    totalEmergencies: number;
+    activeOverrides: number;
+    averageResponseTime: number;
+    constitutionalCompliance: number;
+    emergencyTypes: Array<{ type: string; count: number; percentage: number }>;
+    overrideLevels: Array<{ level: string; count: number; percentage: number }>;
+    responseEffectiveness: Array<{ level: string; count: number; percentage: number }>;
+    restorationTrends: Array<{
+      date: string;
+      activeEmergencies: number;
+      resolvedEmergencies: number;
+      newDeclarations: number;
+    }>;
+  };
+}
+
+const InstitutionalOverrideScreen: React.FC<ScreenProps> = ({ 
+  screenId, 
+  title, 
+  icon, 
+  gameContext 
+}) => {
+  const [overrideData, setOverrideData] = useState<OverrideData | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'emergencies' | 'procedures' | 'powers' | 'analytics'>('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'active' | 'eligible' | 'analysis' | 'trust'>('overview');
-  const [selectedInstitution, setSelectedInstitution] = useState<'all' | 'legislature' | 'central_bank' | 'supreme_court'>('all');
-  const [selectedDecision, setSelectedDecision] = useState<EligibleDecision | null>(null);
-  const [overrideAnalysis, setOverrideAnalysis] = useState<OverrideAnalysis | null>(null);
-  const [showOverrideModal, setShowOverrideModal] = useState(false);
-  const [overrideFormData, setOverrideFormData] = useState({
-    overrideDecision: 'approve' as 'approve' | 'reject' | 'modify' | 'suspend',
-    overrideReason: '',
-    overrideJustification: '',
-    constitutionalBasis: '',
-    legalPrecedent: '',
-    modifications: '',
-    implementationNotes: ''
-  });
+  const [selectedEmergency, setSelectedEmergency] = useState<EmergencyDeclaration | null>(null);
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterType, setFilterType] = useState<string>('all');
 
-  const endpoints: APIEndpoint[] = [
-    {
-      url: '/api/institutional-override/stats/1',
-      key: 'stats'
-    },
-    {
-      url: '/api/institutional-override/leader/leader-1?campaignId=1',
-      key: 'overrides'
-    },
-    {
-      url: '/api/institutional-override/trust-metrics/1',
-      key: 'trustMetrics'
-    },
-    {
-      url: '/api/institutional-override/separation-powers/1',
-      key: 'separationMetrics'
-    },
-
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'emergencies', label: 'Emergencies', icon: '🚨' },
+    { id: 'procedures', label: 'Procedures', icon: '⚖️' },
+    { id: 'powers', label: 'Powers', icon: '🔐' },
+    { id: 'analytics', label: 'Analytics', icon: '📈' }
   ];
 
-  const loadData = useCallback(async () => {
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/institutional-override/emergencies', description: 'Get emergency declarations' },
+    { method: 'GET', path: '/api/institutional-override/procedures', description: 'Get override procedures' },
+    { method: 'GET', path: '/api/institutional-override/powers', description: 'Get emergency powers' }
+  ];
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'low': return '#10b981';
+      case 'medium': return '#f59e0b';
+      case 'high': return '#f97316';
+      case 'critical': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return '#ef4444';
+      case 'resolved': return '#10b981';
+      case 'escalating': return '#f97316';
+      case 'deescalating': return '#3b82f6';
+      default: return '#6b7280';
+    }
+  };
+
+  const getOverrideLevelColor = (level: string) => {
+    switch (level) {
+      case 'partial': return '#10b981';
+      case 'full': return '#ef4444';
+      case 'targeted': return '#f59e0b';
+      default: return '#6b7280';
+    }
+  };
+
+  const getResponseLevelColor = (level: string) => {
+    switch (level) {
+      case 'alpha': return '#10b981';
+      case 'beta': return '#f59e0b';
+      case 'gamma': return '#f97316';
+      case 'delta': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const fetchOverrideData = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
       
-      const responses = await Promise.allSettled(
-        endpoints.map(endpoint => 
-          fetch(`http://localhost:4000${endpoint.url}`)
-            .then(res => res.json())
-            .then(data => ({ key: endpoint.key, data }))
-        )
-      );
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/institutional-override/emergencies');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setOverrideData(data.data);
+        } else {
+          throw new Error('API response error');
+        }
+      } else {
+        throw new Error('API not available');
+      }
 
-      const successfulResponses = responses
-        .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
-        .map(result => result.value);
-
-      // Mock data structure for demonstration
-      const mockData: InstitutionalOverrideData = {
-        overview: {
-          totalOverrides: 12,
-          activeOverrides: 3,
-          challengedOverrides: 1,
-          successRate: 83.3,
-          averagePoliticalCost: 24.5,
-          averageTrustImpact: -8.2,
-          constitutionalBalanceScore: 78.5,
-          democraticHealthIndex: 82.1
-        },
-        overrides: [
-          {
-            id: '1',
-            institutionType: 'legislature',
-            targetDecisionId: 'leg-bill-2024-15',
-            targetDecisionTitle: 'Infrastructure Investment Act',
-            campaignId: 1,
-            leaderCharacterId: 'leader-1',
-            originalDecision: 'rejected',
-            originalReasoning: 'Insufficient funding sources identified',
-            overrideDecision: 'approve',
-            overrideReason: 'Critical national infrastructure needs',
-            overrideJustification: 'Executive authority to ensure national competitiveness and economic growth',
-            constitutionalBasis: 'Article II executive powers and national defense clause',
-            legalPrecedent: 'Similar infrastructure overrides in 2019 and 2021',
-            modifications: 'Reduced scope to focus on critical transportation networks',
-            implementationNotes: 'Phased rollout over 3 years with quarterly reviews',
-            politicalCost: 18.5,
-            publicApprovalImpact: -3.2,
-            institutionalTrustImpact: -5.1,
-            partyRelationsImpact: { 'opposition': -12, 'coalition': 8 },
-            constitutionalityScore: 85.2,
-            separationOfPowersImpact: 15.3,
-            effectiveDate: '2025-08-20T10:00:00Z',
-            status: 'active',
-            createdAt: '2025-08-20T09:30:00Z',
-            updatedAt: '2025-08-20T10:00:00Z'
-          },
-          {
-            id: '2',
-            institutionType: 'central_bank',
-            targetDecisionId: 'cb-rate-2024-08',
-            targetDecisionTitle: 'Interest Rate Increase to 5.5%',
-            campaignId: 1,
-            leaderCharacterId: 'leader-1',
-            originalDecision: 'approved',
-            originalReasoning: 'Inflation control measures',
-            overrideDecision: 'modify',
-            overrideReason: 'Economic growth concerns during election period',
-            overrideJustification: 'Executive responsibility for economic stability and employment',
-            constitutionalBasis: 'Executive oversight of monetary policy during national emergencies',
-            legalPrecedent: 'Emergency monetary interventions of 2020',
-            modifications: 'Reduce increase to 4.75% with gradual implementation',
-            implementationNotes: 'Monitor economic indicators weekly',
-            politicalCost: 35.2,
-            publicApprovalImpact: 12.1,
-            institutionalTrustImpact: -15.8,
-            partyRelationsImpact: { 'business_coalition': 15, 'labor_coalition': -8 },
-            constitutionalityScore: 65.4,
-            separationOfPowersImpact: 28.7,
-            monetaryAuthorityImpact: -22.3,
-            effectiveDate: '2025-08-18T14:00:00Z',
-            status: 'challenged',
-            challengeDetails: {
-              challenger: 'Central Bank Independence Coalition',
-              challengeReason: 'Violation of monetary policy independence',
-              challengeDate: '2025-08-19T09:00:00Z'
-            },
-            createdAt: '2025-08-18T13:30:00Z',
-            updatedAt: '2025-08-19T09:00:00Z'
-          },
-          {
-            id: '3',
-            institutionType: 'supreme_court',
-            targetDecisionId: 'sc-case-2024-42',
-            targetDecisionTitle: 'Constitutional Review of Emergency Powers Act',
-            campaignId: 1,
-            leaderCharacterId: 'leader-1',
-            originalDecision: 'unconstitutional',
-            originalReasoning: 'Excessive executive power concentration',
-            overrideDecision: 'suspend',
-            overrideReason: 'National security emergency requires immediate action',
-            overrideJustification: 'Wartime executive powers and national defense imperatives',
-            constitutionalBasis: 'Article II Commander-in-Chief powers during national emergency',
-            legalPrecedent: 'Wartime executive actions precedents',
-            modifications: 'Temporary 90-day suspension pending legislative review',
-            implementationNotes: 'Subject to congressional oversight and judicial review',
-            politicalCost: 68.9,
-            publicApprovalImpact: -18.5,
-            institutionalTrustImpact: -35.2,
-            partyRelationsImpact: { 'opposition': -45, 'coalition': -15 },
-            constitutionalityScore: 35.8,
-            separationOfPowersImpact: 75.4,
-            judicialIndependenceImpact: -42.1,
-            effectiveDate: '2025-08-15T16:00:00Z',
-            expirationDate: '2025-11-15T16:00:00Z',
-            status: 'active',
-            createdAt: '2025-08-15T15:30:00Z',
-            updatedAt: '2025-08-15T16:00:00Z'
-          }
-        ],
-        eligibleDecisions: [
-          {
-            id: 'leg-bill-2024-18',
-            title: 'Healthcare Reform Amendment',
-            institutionType: 'legislature',
-            decisionType: 'legislative_bill',
-            status: 'rejected',
-            dateDecided: '2025-08-21',
-            summary: 'Comprehensive healthcare system reform with universal coverage provisions',
-            canOverride: true,
-            overrideRisk: 'medium'
-          },
-          {
-            id: 'cb-policy-2024-12',
-            title: 'Quantitative Easing Program Termination',
-            institutionType: 'central_bank',
-            decisionType: 'monetary_policy',
-            status: 'approved',
-            dateDecided: '2025-08-20',
-            summary: 'Ending current QE program and beginning balance sheet normalization',
-            canOverride: true,
-            overrideRisk: 'high'
-          },
-          {
-            id: 'sc-case-2024-45',
-            title: 'Executive Surveillance Powers Review',
-            institutionType: 'supreme_court',
-            decisionType: 'constitutional_review',
-            status: 'pending_decision',
-            dateDecided: '2025-08-22',
-            summary: 'Constitutional review of expanded executive surveillance authorities',
-            canOverride: false,
-            overrideRisk: 'critical'
-          }
-        ],
-        trustMetrics: [
-          {
-            institutionType: 'legislature',
-            publicTrustRating: 68.5,
-            expertTrustRating: 72.1,
-            internationalTrustRating: 78.9,
-            independencePerception: 65.2,
-            effectivenessRating: 71.8,
-            overrideImpactCumulative: -12.5,
-            totalOverrides: 8,
-            successfulChallenges: 1,
-            lastOverrideDate: '2025-08-20'
-          },
-          {
-            institutionType: 'central_bank',
-            publicTrustRating: 58.2,
-            expertTrustRating: 62.8,
-            internationalTrustRating: 55.4,
-            independencePerception: 45.9,
-            effectivenessRating: 68.7,
-            overrideImpactCumulative: -28.9,
-            totalOverrides: 3,
-            successfulChallenges: 1,
-            lastOverrideDate: '2025-08-18'
-          },
-          {
-            institutionType: 'supreme_court',
-            publicTrustRating: 42.1,
-            expertTrustRating: 38.5,
-            internationalTrustRating: 35.8,
-            independencePerception: 28.4,
-            effectivenessRating: 52.3,
-            overrideImpactCumulative: -45.8,
-            totalOverrides: 1,
-            successfulChallenges: 0,
-            lastOverrideDate: '2025-08-15'
-          }
-        ],
-        separationMetrics: {
-          executivePowerIndex: 78.5,
-          legislativeIndependenceIndex: 65.2,
-          judicialIndependenceIndex: 28.4,
-          monetaryIndependenceIndex: 45.9,
-          constitutionalBalanceScore: 54.5,
-          democraticHealthIndex: 62.8,
-          totalInstitutionalOverrides: 12,
-          overrideFrequency30d: 3,
-          crisisSeverityLevel: 'medium'
-        },
-
-      };
-
-
-
-      setData(mockData);
     } catch (err) {
-      setError('Failed to load institutional override data');
-      console.error('Error loading data:', err);
+      console.warn('Failed to fetch override data:', err);
+      // Use comprehensive mock data
+      setOverrideData({
+        emergencyDeclarations: [
+          {
+            id: 'emergency_1',
+            type: 'national_emergency',
+            severity: 'high',
+            status: 'active',
+            declaredAt: '2393-06-15T08:00:00Z',
+            declaredBy: 'President Sarah Chen',
+            authority: 'Emergency Powers Act of 2180',
+            description: 'Civil unrest following economic instability requires immediate government intervention and emergency powers.',
+            affectedRegions: ['Earth', 'Mars Colonies', 'Luna'],
+            estimatedDuration: '30 days',
+            constitutionalBasis: 'Article 12, Section 3 - Emergency Powers Clause',
+            overrideLevel: 'partial',
+            safeguards: ['Judicial Review', 'Legislative Oversight', 'Public Reporting'],
+            oversightMechanisms: ['Emergency Oversight Committee', 'Constitutional Court Review'],
+            restorationCriteria: ['Stability restored', 'Economic indicators normalized', 'Public safety assured']
+          },
+          {
+            id: 'emergency_2',
+            type: 'external_threat',
+            severity: 'critical',
+            status: 'escalating',
+            declaredAt: '2393-06-14T16:30:00Z',
+            declaredBy: 'Joint Chiefs of Staff',
+            authority: 'Defense Emergency Protocol',
+            description: 'Unidentified space vessels detected in outer system requiring military response and emergency powers.',
+            affectedRegions: ['Outer System', 'Asteroid Belt', 'Jupiter Colonies'],
+            estimatedDuration: 'Indefinite',
+            constitutionalBasis: 'Article 8, Section 1 - Defense Powers',
+            overrideLevel: 'full',
+            safeguards: ['Military Oversight', 'Civilian Review Board', 'International Notification'],
+            oversightMechanisms: ['Defense Committee', 'Security Council'],
+            restorationCriteria: ['Threat neutralized', 'Space security restored', 'International cooperation confirmed']
+          }
+        ],
+        overrideProcedures: [
+          {
+            id: 'procedure_1',
+            name: 'Emergency Economic Stabilization Order',
+            type: 'executive_order',
+            status: 'active',
+            proposedAt: '2393-06-15T08:00:00Z',
+            enactedAt: '2393-06-15T08:15:00Z',
+            expiresAt: '2393-07-15T08:15:00Z',
+            authority: 'President Sarah Chen',
+            scope: 'moderate',
+            constitutionalImpact: 'moderate',
+            justification: 'Economic crisis requires immediate intervention to prevent market collapse and civil unrest.',
+            opposition: ['Civil Liberties Union', 'Constitutional Scholars Association'],
+            support: ['Economic Council', 'Federal Reserve', 'Major Banks'],
+            legalChallenges: ['Pending Supreme Court Review'],
+            oversightCommittees: ['Economic Oversight Committee', 'Constitutional Review Board']
+          },
+          {
+            id: 'procedure_2',
+            name: 'Defense Emergency Protocol Activation',
+            type: 'military_authority',
+            status: 'active',
+            proposedAt: '2393-06-14T16:30:00Z',
+            enactedAt: '2393-06-14T16:45:00Z',
+            expiresAt: '2393-09-14T16:45:00Z',
+            authority: 'Joint Chiefs of Staff',
+            scope: 'extensive',
+            constitutionalImpact: 'significant',
+            justification: 'External threat requires full military mobilization and emergency powers.',
+            opposition: ['Peace Alliance', 'Civil Rights Coalition'],
+            support: ['Defense Department', 'Security Council', 'Intelligence Agencies'],
+            legalChallenges: ['Constitutional Court Review Pending'],
+            oversightCommittees: ['Defense Oversight Committee', 'Security Council']
+          }
+        ],
+        emergencyPowers: [
+          {
+            id: 'power_1',
+            name: 'Economic Intervention Authority',
+            category: 'executive',
+            status: 'active',
+            grantedAt: '2393-06-15T08:15:00Z',
+            expiresAt: '2393-07-15T08:15:00Z',
+            authority: 'President Sarah Chen',
+            scope: 'Market regulation, price controls, emergency funding allocation',
+            limitations: ['Cannot nationalize private property', 'Must report to Congress weekly'],
+            oversightRequirements: ['Daily economic reports', 'Weekly congressional briefings'],
+            reportingFrequency: 'Daily',
+            renewalCriteria: ['Continued crisis conditions', 'Congressional approval'],
+            revocationTriggers: ['Crisis resolution', 'Constitutional violation', 'Congressional override']
+          },
+          {
+            id: 'power_2',
+            name: 'Military Mobilization Authority',
+            category: 'military',
+            status: 'active',
+            grantedAt: '2393-06-14T16:45:00Z',
+            expiresAt: '2393-09-14T16:45:00Z',
+            authority: 'Joint Chiefs of Staff',
+            scope: 'Full military deployment, weapons authorization, strategic planning',
+            limitations: ['Cannot declare war without congressional approval', 'Must respect civilian authority'],
+            oversightRequirements: ['Daily military reports', 'Civilian oversight board'],
+            reportingFrequency: 'Daily',
+            renewalCriteria: ['Continued threat', 'Congressional approval'],
+            revocationTriggers: ['Threat neutralization', 'Constitutional violation', 'Presidential order']
+          }
+        ],
+        crisisResponses: [
+          {
+            id: 'response_1',
+            crisisType: 'Economic Instability',
+            status: 'active',
+            declaredAt: '2393-06-15T08:00:00Z',
+            responseLevel: 'gamma',
+            affectedSystems: ['Financial Markets', 'Banking System', 'Trade Networks'],
+            responseTeams: [
+              { name: 'Economic Stabilization Team', leader: 'Dr. Marcus Rodriguez', status: 'deployed', effectiveness: 85 },
+              { name: 'Market Intervention Team', leader: 'Sarah Williams', status: 'deployed', effectiveness: 78 },
+              { name: 'Public Communication Team', leader: 'Jennifer Kim', status: 'standby', effectiveness: 92 }
+            ],
+            resourceAllocation: {
+              personnel: 150,
+              funding: 50000000000,
+              equipment: ['Economic Modeling Systems', 'Communication Networks', 'Emergency Funds']
+            },
+            timeline: [
+              { phase: 'Crisis Assessment', status: 'completed', completionDate: '2393-06-15T10:00:00Z' },
+              { phase: 'Emergency Response', status: 'in_progress', completionDate: '2393-06-20T00:00:00Z' },
+              { phase: 'Stabilization', status: 'planned', completionDate: '2393-07-01T00:00:00Z' },
+              { phase: 'Recovery Planning', status: 'planned', completionDate: '2393-07-15T00:00:00Z' }
+            ]
+          },
+          {
+            id: 'response_2',
+            crisisType: 'External Threat',
+            status: 'escalating',
+            declaredAt: '2393-06-14T16:30:00Z',
+            responseLevel: 'delta',
+            affectedSystems: ['Space Defense', 'Military Infrastructure', 'Intelligence Networks'],
+            responseTeams: [
+              { name: 'Space Defense Team', leader: 'Admiral James Wilson', status: 'deployed', effectiveness: 95 },
+              { name: 'Intelligence Analysis Team', leader: 'Dr. Elena Vasquez', status: 'deployed', effectiveness: 88 },
+              { name: 'Diplomatic Response Team', leader: 'Ambassador Robert Chen', status: 'deployed', effectiveness: 82 }
+            ],
+            resourceAllocation: {
+              personnel: 500,
+              funding: 200000000000,
+              equipment: ['Space Defense Systems', 'Intelligence Networks', 'Diplomatic Channels']
+            },
+            timeline: [
+              { phase: 'Threat Assessment', status: 'completed', completionDate: '2393-06-14T18:00:00Z' },
+              { phase: 'Defense Mobilization', status: 'in_progress', completionDate: '2393-06-16T00:00:00Z' },
+              { phase: 'Strategic Response', status: 'planned', completionDate: '2393-06-20T00:00:00Z' },
+              { phase: 'Threat Neutralization', status: 'planned', completionDate: '2393-07-01T00:00:00Z' }
+            ]
+          }
+        ],
+        analytics: {
+          totalEmergencies: 2,
+          activeOverrides: 2,
+          averageResponseTime: 15,
+          constitutionalCompliance: 87,
+          emergencyTypes: [
+            { type: 'National Emergency', count: 1, percentage: 50.0 },
+            { type: 'External Threat', count: 1, percentage: 50.0 }
+          ],
+          overrideLevels: [
+            { level: 'Partial', count: 1, percentage: 50.0 },
+            { level: 'Full', count: 1, percentage: 50.0 }
+          ],
+          responseEffectiveness: [
+            { level: 'High (80-100%)', count: 1, percentage: 50.0 },
+            { level: 'Medium (60-79%)', count: 1, percentage: 50.0 }
+          ],
+          restorationTrends: [
+            { date: 'Jun 10', activeEmergencies: 0, resolvedEmergencies: 0, newDeclarations: 0 },
+            { date: 'Jun 11', activeEmergencies: 0, resolvedEmergencies: 0, newDeclarations: 0 },
+            { date: 'Jun 12', activeEmergencies: 0, resolvedEmergencies: 0, newDeclarations: 0 },
+            { date: 'Jun 13', activeEmergencies: 0, resolvedEmergencies: 0, newDeclarations: 0 },
+            { date: 'Jun 14', activeEmergencies: 1, resolvedEmergencies: 0, newDeclarations: 1 },
+            { date: 'Jun 15', activeEmergencies: 2, resolvedEmergencies: 0, newDeclarations: 1 }
+          ]
+        }
+      });
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    fetchOverrideData();
+  }, [fetchOverrideData]);
 
-  const handleAnalyzeOverride = async (decision: EligibleDecision, overrideType: string) => {
-    try {
-      const response = await fetch(
-        `http://localhost:4000/api/institutional-override/analyze/${decision.institutionType}/${decision.id}?campaignId=1&leaderCharacterId=leader-1&overrideType=${overrideType}`
-      );
-      const result = await response.json();
-      
-      if (result.success) {
-        setOverrideAnalysis(result.data.analysis);
-        setSelectedDecision(decision);
-        setShowOverrideModal(true);
-      }
-    } catch (error) {
-      console.error('Error analyzing override:', error);
-    }
-  };
-
-  const handleExecuteOverride = async () => {
-    if (!selectedDecision || !overrideAnalysis) return;
-
-    try {
-      const response = await fetch('http://localhost:4000/api/institutional-override/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          institutionType: selectedDecision.institutionType,
-          targetDecisionId: selectedDecision.id,
-          campaignId: 1,
-          leaderCharacterId: 'leader-1',
-          ...overrideFormData
-        })
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setShowOverrideModal(false);
-        setSelectedDecision(null);
-        setOverrideAnalysis(null);
-        loadData(); // Refresh data
-      }
-    } catch (error) {
-      console.error('Error executing override:', error);
-    }
-  };
-
-  const getInstitutionIcon = (type: string) => {
-    switch (type) {
-      case 'legislature': return '🏛️';
-      case 'central_bank': return '🏦';
-      case 'supreme_court': return '⚖️';
-      default: return '🏛️';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return '#4CAF50';
-      case 'challenged': return '#FF9800';
-      case 'reversed': return '#F44336';
-      case 'expired': return '#9E9E9E';
-      default: return '#2196F3';
-    }
-  };
-
-  const getRiskColor = (risk: string) => {
-    switch (risk) {
-      case 'low': return '#4CAF50';
-      case 'medium': return '#FF9800';
-      case 'high': return '#FF5722';
-      case 'critical': return '#F44336';
-      default: return '#9E9E9E';
-    }
-  };
-
-  if (loading) {
-    return (
-      <BaseScreen screenId={screenId} title={title} icon={icon} endpoints={endpoints}>
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading institutional override data...</p>
+  const renderOverview = () => (
+    <>
+      {/* Emergency Overview - Full panel width */}
+      <div className="standard-panel government-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🚨 Emergency & Override Overview</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3b82f6', marginBottom: '0.5rem' }}>
+              {overrideData?.analytics.totalEmergencies || 0}
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Active Emergencies</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3b82f6', marginBottom: '0.5rem' }}>
+              {overrideData?.analytics.activeOverrides || 0}
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Active Overrides</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3b82f6', marginBottom: '0.5rem' }}>
+              {overrideData?.analytics.averageResponseTime || 0}m
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Avg Response Time</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3b82f6', marginBottom: '0.5rem' }}>
+              {overrideData?.analytics.constitutionalCompliance || 0}%
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Constitutional Compliance</div>
+          </div>
         </div>
-      </BaseScreen>
-    );
-  }
+      </div>
 
-  if (error || !data) {
-    return (
-      <BaseScreen screenId={screenId} title={title} icon={icon} endpoints={endpoints}>
-        <div className="error-container">
-          <p>Error: {error || 'No data available'}</p>
-          <button onClick={loadData} className="retry-button">Retry</button>
+      {/* Active Emergencies - Full panel width */}
+      <div className="standard-panel government-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🚨 Active Emergency Declarations</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Declared By</th>
+                <th>Override Level</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {overrideData?.emergencyDeclarations.filter(emergency => emergency.status === 'active' || emergency.status === 'escalating').map(emergency => (
+                <tr key={emergency.id}>
+                  <td>
+                    <div style={{ maxWidth: '200px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{emergency.type.replace('_', ' ').toUpperCase()}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                        {emergency.description.substring(0, 100)}...
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getSeverityColor(emergency.severity),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getSeverityColor(emergency.severity) + '20'
+                    }}>
+                      {emergency.severity}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getStatusColor(emergency.status),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getStatusColor(emergency.status) + '20'
+                    }}>
+                      {emergency.status}
+                    </span>
+                  </td>
+                  <td>{emergency.declaredBy}</td>
+                  <td>
+                    <span style={{ 
+                      color: getOverrideLevelColor(emergency.overrideLevel),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getOverrideLevelColor(emergency.overrideLevel) + '20'
+                    }}>
+                      {emergency.overrideLevel}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn government-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </BaseScreen>
-    );
-  }
+      </div>
+    </>
+  );
+
+  const renderEmergencies = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🚨 Emergency Declarations</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => console.log('New Emergency')}>🚨 New Emergency</button>
+          <button className="standard-btn government-theme" onClick={() => console.log('Review Emergencies')}>🔍 Review</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Declared At</th>
+                <th>Authority</th>
+                <th>Override Level</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {overrideData?.emergencyDeclarations.map(emergency => (
+                <tr key={emergency.id}>
+                  <td>
+                    <div style={{ maxWidth: '200px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{emergency.type.replace('_', ' ').toUpperCase()}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                        {emergency.description.substring(0, 80)}...
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getSeverityColor(emergency.severity),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getSeverityColor(emergency.severity) + '20'
+                    }}>
+                      {emergency.severity}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getStatusColor(emergency.status),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getStatusColor(emergency.status) + '20'
+                    }}>
+                      {emergency.status}
+                    </span>
+                  </td>
+                  <td>{formatDate(emergency.declaredAt)}</td>
+                  <td>{emergency.authority}</td>
+                  <td>
+                    <span style={{ 
+                      color: getOverrideLevelColor(emergency.overrideLevel),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getOverrideLevelColor(emergency.overrideLevel) + '20'
+                    }}>
+                      {emergency.overrideLevel}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn government-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderProcedures = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>⚖️ Override Procedures</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => console.log('New Procedure')}>⚖️ New Procedure</button>
+          <button className="standard-btn government-theme" onClick={() => console.log('Review Procedures')}>🔍 Review</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Procedure Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Scope</th>
+                <th>Constitutional Impact</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {overrideData?.overrideProcedures.map(procedure => (
+                <tr key={procedure.id}>
+                  <td>
+                    <div style={{ maxWidth: '250px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{procedure.name}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                        {procedure.justification.substring(0, 80)}...
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: '#374151',
+                      color: '#f3f4f6'
+                    }}>
+                      {procedure.type.replace('_', ' ')}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getStatusColor(procedure.status),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getStatusColor(procedure.status) + '20'
+                    }}>
+                      {procedure.status}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: '#374151',
+                      color: '#f3f4f6'
+                    }}>
+                      {procedure.scope}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: procedure.constitutionalImpact === 'minimal' ? '#10b981' : 
+                             procedure.constitutionalImpact === 'moderate' ? '#f59e0b' : 
+                             procedure.constitutionalImpact === 'significant' ? '#f97316' : '#ef4444',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: (procedure.constitutionalImpact === 'minimal' ? '#10b981' : 
+                                     procedure.constitutionalImpact === 'moderate' ? '#f59e0b' : 
+                                     procedure.constitutionalImpact === 'significant' ? '#f97316' : '#ef4444') + '20'
+                    }}>
+                      {procedure.constitutionalImpact}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn government-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderPowers = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🔐 Emergency Powers</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => console.log('Grant Power')}>🔐 Grant Power</button>
+          <button className="standard-btn government-theme" onClick={() => console.log('Review Powers')}>🔍 Review</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Power Name</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Scope</th>
+                <th>Oversight Requirements</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {overrideData?.emergencyPowers.map(power => (
+                <tr key={power.id}>
+                  <td>
+                    <div style={{ maxWidth: '200px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{power.name}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                        Authority: {power.authority}
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: '#374151',
+                      color: '#f3f4f6'
+                    }}>
+                      {power.category}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getStatusColor(power.status),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getStatusColor(power.status) + '20'
+                    }}>
+                      {power.status}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ maxWidth: '200px', fontSize: '0.875rem' }}>
+                      {power.scope}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ maxWidth: '200px', fontSize: '0.875rem' }}>
+                      {power.oversightRequirements.join(', ')}
+                    </div>
+                  </td>
+                  <td>
+                    <button className="standard-btn government-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAnalytics = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>📊 Override Analytics</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div className="chart-container">
+            <PieChart
+              data={overrideData?.analytics.emergencyTypes.map(type => ({
+                label: type.type,
+                value: type.count
+              })) || []}
+              title="Emergency Types Distribution"
+              size={250}
+              showLegend={true}
+            />
+          </div>
+          <div className="chart-container">
+            <PieChart
+              data={overrideData?.analytics.overrideLevels.map(level => ({
+                label: level.level,
+                value: level.count
+              })) || []}
+              title="Override Levels Distribution"
+              size={250}
+              showLegend={true}
+            />
+          </div>
+        </div>
+        <div style={{ marginTop: '2rem' }}>
+          <h4 style={{ marginBottom: '1rem', color: '#3b82f6' }}>Emergency Response Trends</h4>
+          <div className="chart-container">
+            <LineChart
+              data={overrideData?.analytics.restorationTrends.map(trend => ({
+                label: trend.date,
+                value: trend.activeEmergencies,
+                'Active Emergencies': trend.activeEmergencies,
+                'Resolved Emergencies': trend.resolvedEmergencies,
+                'New Declarations': trend.newDeclarations
+              })) || []}
+              title="Daily Emergency Status Trends"
+              height={300}
+              width={800}
+              showTooltip={true}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    <BaseScreen screenId={screenId} title={title} icon={icon} endpoints={endpoints}>
-      <div className="institutional-override-screen">
-        <div className="screen-header">
-          <h2>⚖️ Institutional Override System</h2>
-          <p>Executive authority to override decisions from Legislature, Central Bank, and Supreme Court</p>
+    <BaseScreen
+      screenId={screenId}
+      title={title}
+      icon={icon}
+      gameContext={gameContext}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchOverrideData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
+    >
+      <div className="standard-screen-container government-theme">
+        <div className="standard-dashboard">
+          {!loading && !error && overrideData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'emergencies' && renderEmergencies()}
+              {activeTab === 'procedures' && renderProcedures()}
+              {activeTab === 'powers' && renderPowers()}
+              {activeTab === 'analytics' && renderAnalytics()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading override data...' : 'No override data available'}
+            </div>
+          )}
         </div>
-
-        <div className="tabs-container">
-          <div className="tabs">
-            <button 
-              className={activeTab === 'overview' ? 'tab active' : 'tab'}
-              onClick={() => setActiveTab('overview')}
-            >
-              📊 Overview
-            </button>
-            <button 
-              className={activeTab === 'active' ? 'tab active' : 'tab'}
-              onClick={() => setActiveTab('active')}
-            >
-              ⚡ Active Overrides
-            </button>
-            <button 
-              className={activeTab === 'eligible' ? 'tab active' : 'tab'}
-              onClick={() => setActiveTab('eligible')}
-            >
-              🎯 Eligible Decisions
-            </button>
-            <button 
-              className={activeTab === 'analysis' ? 'tab active' : 'tab'}
-              onClick={() => setActiveTab('analysis')}
-            >
-              🔍 Analysis Tools
-            </button>
-            <button 
-              className={activeTab === 'trust' ? 'tab active' : 'tab'}
-              onClick={() => setActiveTab('trust')}
-            >
-              🏛️ Institutional Trust
-            </button>
-
-          </div>
-        </div>
-
-        <div className="tab-content">
-          {activeTab === 'overview' && (
-            <div className="overview-tab">
-              <div className="metrics-grid">
-                <div className="metric-card">
-                  <h3>Total Overrides</h3>
-                  <div className="metric-value">{data.overview.totalOverrides}</div>
-                  <div className="metric-subtitle">All-time institutional overrides</div>
-                </div>
-                <div className="metric-card">
-                  <h3>Active Overrides</h3>
-                  <div className="metric-value">{data.overview.activeOverrides}</div>
-                  <div className="metric-subtitle">Currently in effect</div>
-                </div>
-                <div className="metric-card">
-                  <h3>Success Rate</h3>
-                  <div className="metric-value">{data.overview.successRate}%</div>
-                  <div className="metric-subtitle">Overrides upheld vs challenged</div>
-                </div>
-                <div className="metric-card">
-                  <h3>Constitutional Balance</h3>
-                  <div className="metric-value" style={{ color: data.separationMetrics.constitutionalBalanceScore > 60 ? '#4CAF50' : '#FF9800' }}>
-                    {data.separationMetrics.constitutionalBalanceScore.toFixed(1)}
-                  </div>
-                  <div className="metric-subtitle">Separation of powers health</div>
-                </div>
-              </div>
-
-              <div className="constitutional-health-panel">
-                <h3>🏛️ Constitutional Health Dashboard</h3>
-                <div className="health-metrics">
-                  <div className="health-metric">
-                    <span>Executive Power Index</span>
-                    <div className="progress-bar">
-                      <div 
-                        className="progress-fill" 
-                        style={{ 
-                          width: `${data.separationMetrics.executivePowerIndex}%`,
-                          backgroundColor: data.separationMetrics.executivePowerIndex > 80 ? '#FF5722' : '#4CAF50'
-                        }}
-                      ></div>
-                    </div>
-                    <span>{data.separationMetrics.executivePowerIndex.toFixed(1)}</span>
-                  </div>
-                  <div className="health-metric">
-                    <span>Legislative Independence</span>
-                    <div className="progress-bar">
-                      <div 
-                        className="progress-fill" 
-                        style={{ 
-                          width: `${data.separationMetrics.legislativeIndependenceIndex}%`,
-                          backgroundColor: data.separationMetrics.legislativeIndependenceIndex < 50 ? '#FF5722' : '#4CAF50'
-                        }}
-                      ></div>
-                    </div>
-                    <span>{data.separationMetrics.legislativeIndependenceIndex.toFixed(1)}</span>
-                  </div>
-                  <div className="health-metric">
-                    <span>Judicial Independence</span>
-                    <div className="progress-bar">
-                      <div 
-                        className="progress-fill" 
-                        style={{ 
-                          width: `${data.separationMetrics.judicialIndependenceIndex}%`,
-                          backgroundColor: data.separationMetrics.judicialIndependenceIndex < 50 ? '#FF5722' : '#4CAF50'
-                        }}
-                      ></div>
-                    </div>
-                    <span>{data.separationMetrics.judicialIndependenceIndex.toFixed(1)}</span>
-                  </div>
-                  <div className="health-metric">
-                    <span>Monetary Independence</span>
-                    <div className="progress-bar">
-                      <div 
-                        className="progress-fill" 
-                        style={{ 
-                          width: `${data.separationMetrics.monetaryIndependenceIndex}%`,
-                          backgroundColor: data.separationMetrics.monetaryIndependenceIndex < 50 ? '#FF5722' : '#4CAF50'
-                        }}
-                      ></div>
-                    </div>
-                    <span>{data.separationMetrics.monetaryIndependenceIndex.toFixed(1)}</span>
-                  </div>
-                </div>
-                
-                <div className="crisis-alert">
-                  <span className={`crisis-level ${data.separationMetrics.crisisSeverityLevel}`}>
-                    Crisis Level: {data.separationMetrics.crisisSeverityLevel.toUpperCase()}
-                  </span>
-                  {data.separationMetrics.crisisSeverityLevel !== 'none' && (
-                    <div className="crisis-warning">
-                      ⚠️ Constitutional balance concerns detected. Consider restraint in future overrides.
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'active' && (
-            <div className="active-overrides-tab">
-              <div className="overrides-list">
-                {data.overrides.filter(override => override.status === 'active' || override.status === 'challenged').map(override => (
-                  <div key={override.id} className="override-card">
-                    <div className="override-header">
-                      <div className="override-title">
-                        <span className="institution-icon">{getInstitutionIcon(override.institutionType)}</span>
-                        <span className="decision-title">{override.targetDecisionTitle}</span>
-                        <span 
-                          className="status-badge" 
-                          style={{ backgroundColor: getStatusColor(override.status) }}
-                        >
-                          {override.status.toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="override-date">
-                        {new Date(override.effectiveDate).toLocaleDateString()}
-                      </div>
-                    </div>
-                    
-                    <div className="override-details">
-                      <div className="override-decision">
-                        <strong>Override Decision:</strong> {override.overrideDecision.toUpperCase()}
-                      </div>
-                      <div className="override-reason">
-                        <strong>Reason:</strong> {override.overrideReason}
-                      </div>
-                      <div className="constitutional-basis">
-                        <strong>Constitutional Basis:</strong> {override.constitutionalBasis}
-                      </div>
-                    </div>
-
-                    <div className="impact-metrics">
-                      <div className="impact-metric">
-                        <span>Political Cost</span>
-                        <span className="impact-value">{override.politicalCost.toFixed(1)}</span>
-                      </div>
-                      <div className="impact-metric">
-                        <span>Trust Impact</span>
-                        <span className="impact-value negative">{override.institutionalTrustImpact.toFixed(1)}</span>
-                      </div>
-                      <div className="impact-metric">
-                        <span>Constitutional Impact</span>
-                        <span className="impact-value">{override.separationOfPowersImpact.toFixed(1)}</span>
-                      </div>
-                    </div>
-
-                    {override.challengeDetails && (
-                      <div className="challenge-details">
-                        <h4>⚠️ Legal Challenge</h4>
-                        <div><strong>Challenger:</strong> {override.challengeDetails.challenger}</div>
-                        <div><strong>Reason:</strong> {override.challengeDetails.challengeReason}</div>
-                        <div><strong>Challenge Date:</strong> {new Date(override.challengeDetails.challengeDate).toLocaleDateString()}</div>
-                      </div>
-                    )}
-
-                    {override.expirationDate && (
-                      <div className="expiration-notice">
-                        <strong>Expires:</strong> {new Date(override.expirationDate).toLocaleDateString()}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'eligible' && (
-            <div className="eligible-decisions-tab">
-              <div className="institution-filter">
-                <label>Filter by Institution:</label>
-                <select 
-                  value={selectedInstitution} 
-                  onChange={(e) => setSelectedInstitution(e.target.value as any)}
-                >
-                  <option value="all">All Institutions</option>
-                  <option value="legislature">🏛️ Legislature</option>
-                  <option value="central_bank">🏦 Central Bank</option>
-                  <option value="supreme_court">⚖️ Supreme Court</option>
-                </select>
-              </div>
-
-              <div className="decisions-list">
-                {data.eligibleDecisions
-                  .filter(decision => selectedInstitution === 'all' || decision.institutionType === selectedInstitution)
-                  .map(decision => (
-                  <div key={decision.id} className="decision-card">
-                    <div className="decision-header">
-                      <div className="decision-title">
-                        <span className="institution-icon">{getInstitutionIcon(decision.institutionType)}</span>
-                        <span>{decision.title}</span>
-                        <span 
-                          className="risk-badge" 
-                          style={{ backgroundColor: getRiskColor(decision.overrideRisk) }}
-                        >
-                          {decision.overrideRisk.toUpperCase()} RISK
-                        </span>
-                      </div>
-                      <div className="decision-date">
-                        {new Date(decision.dateDecided).toLocaleDateString()}
-                      </div>
-                    </div>
-                    
-                    <div className="decision-summary">
-                      {decision.summary}
-                    </div>
-                    
-                    <div className="decision-meta">
-                      <span><strong>Type:</strong> {decision.decisionType.replace('_', ' ')}</span>
-                      <span><strong>Status:</strong> {decision.status.replace('_', ' ')}</span>
-                    </div>
-
-                    {decision.canOverride && (
-                      <div className="override-actions">
-                        <button 
-                          className="analyze-button"
-                          onClick={() => handleAnalyzeOverride(decision, 'approve')}
-                        >
-                          🔍 Analyze Override (Approve)
-                        </button>
-                        <button 
-                          className="analyze-button"
-                          onClick={() => handleAnalyzeOverride(decision, 'reject')}
-                        >
-                          🔍 Analyze Override (Reject)
-                        </button>
-                        {decision.institutionType !== 'supreme_court' && (
-                          <button 
-                            className="analyze-button"
-                            onClick={() => handleAnalyzeOverride(decision, 'modify')}
-                          >
-                            🔍 Analyze Override (Modify)
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    
-                    {!decision.canOverride && (
-                      <div className="no-override-notice">
-                        ❌ Override not permitted for this decision type
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'trust' && (
-            <div className="trust-metrics-tab">
-              <h3>🏛️ Institutional Trust Metrics</h3>
-              <div className="trust-cards">
-                {data.trustMetrics.map(metrics => (
-                  <div key={metrics.institutionType} className="trust-card">
-                    <div className="trust-header">
-                      <span className="institution-icon">{getInstitutionIcon(metrics.institutionType)}</span>
-                      <h4>{metrics.institutionType.replace('_', ' ').toUpperCase()}</h4>
-                    </div>
-                    
-                    <div className="trust-metrics">
-                      <div className="trust-metric">
-                        <span>Public Trust</span>
-                        <div className="trust-bar">
-                          <div 
-                            className="trust-fill" 
-                            style={{ 
-                              width: `${metrics.publicTrustRating}%`,
-                              backgroundColor: metrics.publicTrustRating > 60 ? '#4CAF50' : metrics.publicTrustRating > 40 ? '#FF9800' : '#F44336'
-                            }}
-                          ></div>
-                        </div>
-                        <span>{metrics.publicTrustRating.toFixed(1)}%</span>
-                      </div>
-                      
-                      <div className="trust-metric">
-                        <span>Expert Trust</span>
-                        <div className="trust-bar">
-                          <div 
-                            className="trust-fill" 
-                            style={{ 
-                              width: `${metrics.expertTrustRating}%`,
-                              backgroundColor: metrics.expertTrustRating > 60 ? '#4CAF50' : metrics.expertTrustRating > 40 ? '#FF9800' : '#F44336'
-                            }}
-                          ></div>
-                        </div>
-                        <span>{metrics.expertTrustRating.toFixed(1)}%</span>
-                      </div>
-                      
-                      <div className="trust-metric">
-                        <span>Independence Perception</span>
-                        <div className="trust-bar">
-                          <div 
-                            className="trust-fill" 
-                            style={{ 
-                              width: `${metrics.independencePerception}%`,
-                              backgroundColor: metrics.independencePerception > 60 ? '#4CAF50' : metrics.independencePerception > 40 ? '#FF9800' : '#F44336'
-                            }}
-                          ></div>
-                        </div>
-                        <span>{metrics.independencePerception.toFixed(1)}%</span>
-                      </div>
-                    </div>
-                    
-                    <div className="trust-stats">
-                      <div className="trust-stat">
-                        <span>Total Overrides</span>
-                        <span>{metrics.totalOverrides}</span>
-                      </div>
-                      <div className="trust-stat">
-                        <span>Successful Challenges</span>
-                        <span>{metrics.successfulChallenges}</span>
-                      </div>
-                      <div className="trust-stat">
-                        <span>Cumulative Impact</span>
-                        <span className="negative">{metrics.overrideImpactCumulative.toFixed(1)}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-
-        </div>
-
-        {/* Override Analysis Modal */}
-        {showOverrideModal && overrideAnalysis && selectedDecision && (
-          <div className="modal-overlay">
-            <div className="override-modal">
-              <div className="modal-header">
-                <h3>Override Analysis: {selectedDecision.title}</h3>
-                <button className="close-button" onClick={() => setShowOverrideModal(false)}>×</button>
-              </div>
-              
-              <div className="modal-content">
-                <div className="analysis-section">
-                  <h4>📊 Feasibility Assessment</h4>
-                  <div className="analysis-metrics">
-                    <div className="analysis-metric">
-                      <span>Political Feasibility</span>
-                      <span>{overrideAnalysis.politicalFeasibility}%</span>
-                    </div>
-                    <div className="analysis-metric">
-                      <span>Constitutional Validity</span>
-                      <span>{overrideAnalysis.constitutionalValidity}%</span>
-                    </div>
-                    <div className="analysis-metric">
-                      <span>Public Support Estimate</span>
-                      <span>{overrideAnalysis.publicSupportEstimate}%</span>
-                    </div>
-                    <div className="analysis-metric">
-                      <span>Political Cost</span>
-                      <span>{overrideAnalysis.politicalCostAssessment}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="recommendation">
-                    <strong>Recommended Action:</strong> 
-                    <span className={`recommendation-${overrideAnalysis.recommendedAction}`}>
-                      {overrideAnalysis.recommendedAction.toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="analysis-section">
-                  <h4>⚠️ Risk Factors</h4>
-                  <ul className="risk-list">
-                    {overrideAnalysis.riskFactors.map((risk, index) => (
-                      <li key={index}>{risk}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="analysis-section">
-                  <h4>✅ Supporting Arguments</h4>
-                  <ul className="support-list">
-                    {overrideAnalysis.supportingArguments.map((arg, index) => (
-                      <li key={index}>{arg}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                {overrideAnalysis.recommendedAction === 'proceed' && (
-                  <div className="override-form">
-                    <h4>Execute Override</h4>
-                    
-                    <div className="form-group">
-                      <label>Override Decision:</label>
-                      <select 
-                        value={overrideFormData.overrideDecision}
-                        onChange={(e) => setOverrideFormData({
-                          ...overrideFormData, 
-                          overrideDecision: e.target.value as any
-                        })}
-                      >
-                        <option value="approve">Approve</option>
-                        <option value="reject">Reject</option>
-                        <option value="modify">Modify</option>
-                        <option value="suspend">Suspend</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label>Override Reason:</label>
-                      <textarea 
-                        value={overrideFormData.overrideReason}
-                        onChange={(e) => setOverrideFormData({
-                          ...overrideFormData, 
-                          overrideReason: e.target.value
-                        })}
-                        placeholder="Brief reason for the override..."
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Constitutional Justification:</label>
-                      <textarea 
-                        value={overrideFormData.overrideJustification}
-                        onChange={(e) => setOverrideFormData({
-                          ...overrideFormData, 
-                          overrideJustification: e.target.value
-                        })}
-                        placeholder="Detailed constitutional and legal justification..."
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Constitutional Basis:</label>
-                      <textarea 
-                        value={overrideFormData.constitutionalBasis}
-                        onChange={(e) => setOverrideFormData({
-                          ...overrideFormData, 
-                          constitutionalBasis: e.target.value
-                        })}
-                        placeholder="Specific constitutional provisions and authorities..."
-                      />
-                    </div>
-
-                    <div className="modal-actions">
-                      <button className="execute-button" onClick={handleExecuteOverride}>
-                        ⚡ Execute Override
-                      </button>
-                      <button className="cancel-button" onClick={() => setShowOverrideModal(false)}>
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </BaseScreen>
   );

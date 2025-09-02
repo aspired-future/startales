@@ -4,6 +4,161 @@ import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhan
 
 const router = Router();
 
+// Root health data endpoint
+router.get('/', (req, res) => {
+  const healthData = {
+    metrics: {
+      totalFacilities: 3456,
+      totalStaff: 123456,
+      lifeExpectancy: 82.3,
+      healthcareAccess: 94.2,
+      vaccinationRate: 96.8,
+      totalBudget: 45678900000,
+      averageWaitTime: 2.1,
+      patientSatisfaction: 87.5
+    },
+    levels: [
+      {
+        level: 'Primary Care',
+        facilities: 1245,
+        staff: 45678,
+        patients: 2345678,
+        budget: 12345678000,
+        satisfaction: 89.2,
+        waitTime: '1.2 days',
+        description: 'Basic healthcare services and preventive care'
+      },
+      {
+        level: 'Specialized Care',
+        facilities: 567,
+        staff: 23456,
+        patients: 567890,
+        budget: 9876543000,
+        satisfaction: 85.7,
+        waitTime: '3.4 days',
+        description: 'Specialized medical treatments and procedures'
+      },
+      {
+        level: 'Emergency Services',
+        facilities: 234,
+        staff: 12345,
+        patients: 123456,
+        budget: 5678901000,
+        satisfaction: 91.3,
+        waitTime: '0.5 hours',
+        description: 'Emergency medical care and trauma services'
+      },
+      {
+        level: 'Mental Health',
+        facilities: 234,
+        staff: 8765,
+        patients: 345678,
+        budget: 3456789000,
+        satisfaction: 83.1,
+        waitTime: '2.8 days',
+        description: 'Mental health and behavioral health services'
+      }
+    ],
+    facilities: [
+      {
+        id: '1',
+        name: 'Capital General Hospital',
+        type: 'General Hospital',
+        publicPrivate: 'Public',
+        location: 'Capital City',
+        rating: 4.8,
+        capacity: 1200,
+        staff: 850,
+        established: 1985,
+        specializations: ['Emergency Medicine', 'Cardiology', 'Oncology']
+      },
+      {
+        id: '2',
+        name: 'Metropolitan Medical Center',
+        type: 'Specialty Hospital',
+        publicPrivate: 'Private',
+        location: 'Metropolitan Area',
+        rating: 4.6,
+        capacity: 800,
+        staff: 650,
+        established: 1992,
+        specializations: ['Neurology', 'Orthopedics', 'Pediatrics']
+      },
+      {
+        id: '3',
+        name: 'Community Health Clinic',
+        type: 'Primary Care',
+        publicPrivate: 'Public',
+        location: 'Suburban District',
+        rating: 4.4,
+        capacity: 200,
+        staff: 45,
+        established: 2005,
+        specializations: ['Family Medicine', 'Preventive Care']
+      },
+      {
+        id: '4',
+        name: 'Regional Trauma Center',
+        type: 'Emergency',
+        publicPrivate: 'Public',
+        location: 'Industrial Zone',
+        rating: 4.9,
+        capacity: 150,
+        staff: 120,
+        established: 1998,
+        specializations: ['Trauma Surgery', 'Emergency Medicine']
+      },
+      {
+        id: '5',
+        name: 'Mental Health Institute',
+        type: 'Mental Health',
+        publicPrivate: 'Public',
+        location: 'Rural Area',
+        rating: 4.3,
+        capacity: 300,
+        staff: 180,
+        established: 1975,
+        specializations: ['Psychiatry', 'Addiction Treatment']
+      }
+    ],
+    programs: [
+      {
+        level: 'Preventive Care',
+        programs: ['Vaccination Programs', 'Health Screenings', 'Wellness Education'],
+        requirements: ['Regular Check-ups', 'Immunization Records', 'Health Assessments'],
+        services: ['Annual Physicals', 'Vaccinations', 'Health Counseling'],
+        outcomes: ['Reduced Disease Incidence', 'Improved Public Health', 'Lower Healthcare Costs']
+      },
+      {
+        level: 'Chronic Disease Management',
+        programs: ['Diabetes Management', 'Cardiovascular Care', 'Cancer Prevention'],
+        requirements: ['Diagnosis Confirmation', 'Treatment Plans', 'Regular Monitoring'],
+        services: ['Specialized Care', 'Medication Management', 'Lifestyle Counseling'],
+        outcomes: ['Improved Quality of Life', 'Reduced Complications', 'Better Disease Control']
+      },
+      {
+        level: 'Emergency Response',
+        programs: ['Emergency Medical Services', 'Disaster Response', 'Trauma Care'],
+        requirements: ['24/7 Availability', 'Rapid Response Times', 'Specialized Training'],
+        services: ['Emergency Transport', 'Critical Care', 'Disaster Relief'],
+        outcomes: ['Reduced Mortality', 'Faster Recovery', 'Better Emergency Preparedness']
+      },
+      {
+        level: 'Mental Health Services',
+        programs: ['Counseling Services', 'Addiction Treatment', 'Crisis Intervention'],
+        requirements: ['Professional Licensing', 'Confidentiality Protocols', 'Crisis Training'],
+        services: ['Individual Therapy', 'Group Sessions', 'Medication Management'],
+        outcomes: ['Improved Mental Health', 'Reduced Suicide Rates', 'Better Social Integration']
+      }
+    ]
+  };
+
+  res.json({
+    success: true,
+    data: healthData
+  });
+});
+
 // Enhanced AI Knobs for Health System
 const healthKnobsData = {
   // Healthcare System Organization

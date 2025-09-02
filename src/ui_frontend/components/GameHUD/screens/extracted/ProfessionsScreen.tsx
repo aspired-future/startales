@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './ProfessionsScreen.css';
+import '../shared/StandardDesign.css';
+
+interface GameContext {
+  currentLocation: string;
+  playerId: string;
+}
 
 interface Profession {
   id: string;
@@ -163,70 +169,310 @@ interface ProfessionsData {
   careerSimulation: CareerSimulation;
 }
 
-const ProfessionsScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext }) => {
+const ProfessionsScreen: React.FC<ScreenProps> = ({
+  screenId,
+  title,
+  icon,
+  gameContext
+}) => {
+  console.log('💼 ProfessionsScreen: Component rendering with gameContext:', gameContext);
+
   const [professionsData, setProfessionsData] = useState<ProfessionsData | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'professions' | 'unemployment' | 'careers' | 'analytics'>('overview');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'professions' | 'unemployment' | 'careers' | 'analytics'>('overview');
 
   const apiEndpoints: APIEndpoint[] = [
     { method: 'GET', path: '/api/professions', description: 'Get all professions' },
-    { method: 'GET', path: '/api/professions/:id', description: 'Get profession details' },
     { method: 'GET', path: '/api/labor-market', description: 'Get labor market data' },
     { method: 'GET', path: '/api/unemployment', description: 'Get unemployment statistics' },
-    { method: 'GET', path: '/api/career-simulation', description: 'Get career simulation data' },
-    { method: 'POST', path: '/api/professions/simulate', description: 'Run career simulation' },
-    { method: 'GET', path: '/api/skills/demand', description: 'Get skills demand analysis' },
-    { method: 'GET', path: '/api/workforce/analytics', description: 'Get workforce analytics' }
+    { method: 'GET', path: '/api/career-simulation', description: 'Get career simulation data' }
+  ];
+
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'professions', label: 'Professions', icon: '💼' },
+    { id: 'unemployment', label: 'Unemployment', icon: '📉' },
+    { id: 'careers', label: 'Careers', icon: '🎯' },
+    { id: 'analytics', label: 'Analytics', icon: '📈' }
   ];
 
   const fetchProfessionsData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    
     try {
-      const [
-        professionsRes,
-        laborMarketRes,
-        unemploymentRes,
-        careerSimulationRes
-      ] = await Promise.all([
-        fetch('/api/professions'),
-        fetch('/api/labor-market'),
-        fetch('/api/unemployment'),
-        fetch('/api/career-simulation')
-      ]);
+      setLoading(true);
+      setError(null);
+      console.log('💼 ProfessionsScreen: Starting data fetch...');
 
-      const [
-        professions,
-        laborMarket,
-        unemployment,
-        careerSimulation
-      ] = await Promise.all([
-        professionsRes.json(),
-        laborMarketRes.json(),
-        unemploymentRes.json(),
-        careerSimulationRes.json()
-      ]);
-
-      setProfessionsData({
-        professions: professions.professions || generateMockProfessions(),
-        laborMarket: laborMarket.laborMarket || generateMockLaborMarket(),
-        unemployment: unemployment.unemployment || generateMockUnemployment(),
-        careerSimulation: careerSimulation.careerSimulation || generateMockCareerSimulation()
-      });
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/professions');
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          console.log('💼 ProfessionsScreen: Using API data:', result.data);
+          setProfessionsData(result.data);
+        } else {
+          throw new Error('API response format error');
+        }
+      } else {
+        throw new Error('API not available');
+      }
     } catch (err) {
-      console.error('Failed to fetch professions data:', err);
-      // Use mock data as fallback
-      setProfessionsData({
-        professions: generateMockProfessions(),
-        laborMarket: generateMockLaborMarket(),
-        unemployment: generateMockUnemployment(),
-        careerSimulation: generateMockCareerSimulation()
-      });
+      console.warn('💼 ProfessionsScreen: Failed to fetch professions data:', err);
+      console.log('💼 ProfessionsScreen: Using mock data fallback...');
+      // Use comprehensive mock data
+      const mockData: ProfessionsData = {
+        professions: [
+          {
+            id: '1',
+            name: 'Software Engineer',
+            category: 'Technology',
+            level: 'senior',
+            description: 'Develop and maintain software applications and systems',
+            requirements: {
+              education: 'Bachelor\'s in Computer Science',
+              experience: 5,
+              skills: ['JavaScript', 'Python', 'React', 'Node.js'],
+              certifications: ['AWS Certified Developer', 'Google Cloud Professional']
+            },
+            compensation: {
+              baseSalary: 120000,
+              bonuses: 25000,
+              benefits: ['Health Insurance', '401k', 'Stock Options'],
+              totalPackage: 145000
+            },
+            marketData: {
+              demand: 85,
+              supply: 60,
+              openPositions: 15000,
+              avgTimeToFill: 45,
+              growthRate: 12.5,
+              competitiveness: 75
+            },
+            workConditions: {
+              hoursPerWeek: 40,
+              flexibility: 'high',
+              remoteOptions: true,
+              travelRequired: 5,
+              stressLevel: 65,
+              jobSecurity: 80
+            },
+            careerPath: {
+              entryPoints: ['Junior Developer', 'Bootcamp Graduate'],
+              advancement: ['Lead Developer', 'Engineering Manager'],
+              lateralMoves: ['Product Manager', 'DevOps Engineer'],
+              exitOpportunities: ['Technical Consultant', 'Startup Founder']
+            },
+            industries: ['Technology', 'Finance', 'Healthcare'],
+            locations: [
+              { city: 'San Francisco', positions: 5000, avgSalary: 140000, demandLevel: 'high' },
+              { city: 'New York', positions: 3500, avgSalary: 130000, demandLevel: 'high' },
+              { city: 'Austin', positions: 2000, avgSalary: 110000, demandLevel: 'medium' }
+            ]
+          },
+          {
+            id: '2',
+            name: 'Data Scientist',
+            category: 'Analytics',
+            level: 'mid',
+            description: 'Analyze complex data to drive business decisions',
+            requirements: {
+              education: 'Master\'s in Statistics or Data Science',
+              experience: 3,
+              skills: ['Python', 'R', 'SQL', 'Machine Learning'],
+              certifications: ['Google Data Analytics', 'IBM Data Science']
+            },
+            compensation: {
+              baseSalary: 95000,
+              bonuses: 15000,
+              benefits: ['Health Insurance', '401k', 'Professional Development'],
+              totalPackage: 110000
+            },
+            marketData: {
+              demand: 90,
+              supply: 45,
+              openPositions: 8000,
+              avgTimeToFill: 60,
+              growthRate: 15.2,
+              competitiveness: 85
+            },
+            workConditions: {
+              hoursPerWeek: 45,
+              flexibility: 'medium',
+              remoteOptions: true,
+              travelRequired: 10,
+              stressLevel: 70,
+              jobSecurity: 85
+            },
+            careerPath: {
+              entryPoints: ['Data Analyst', 'Business Analyst'],
+              advancement: ['Senior Data Scientist', 'Data Science Manager'],
+              lateralMoves: ['Product Manager', 'Business Intelligence'],
+              exitOpportunities: ['Consultant', 'Academic Research']
+            },
+            industries: ['Technology', 'Finance', 'Healthcare', 'Retail'],
+            locations: [
+              { city: 'San Francisco', positions: 2500, avgSalary: 130000, demandLevel: 'high' },
+              { city: 'New York', positions: 2000, avgSalary: 120000, demandLevel: 'high' },
+              { city: 'Seattle', positions: 1500, avgSalary: 115000, demandLevel: 'medium' }
+            ]
+          },
+          {
+            id: '3',
+            name: 'Marketing Manager',
+            category: 'Business',
+            level: 'senior',
+            description: 'Develop and execute marketing strategies',
+            requirements: {
+              education: 'Bachelor\'s in Marketing or Business',
+              experience: 7,
+              skills: ['Digital Marketing', 'Analytics', 'Strategy', 'Leadership'],
+              certifications: ['Google Ads', 'HubSpot Marketing']
+            },
+            compensation: {
+              baseSalary: 85000,
+              bonuses: 20000,
+              benefits: ['Health Insurance', '401k', 'Performance Bonus'],
+              totalPackage: 105000
+            },
+            marketData: {
+              demand: 70,
+              supply: 80,
+              openPositions: 12000,
+              avgTimeToFill: 35,
+              growthRate: 8.5,
+              competitiveness: 60
+            },
+            workConditions: {
+              hoursPerWeek: 50,
+              flexibility: 'medium',
+              remoteOptions: true,
+              travelRequired: 20,
+              stressLevel: 75,
+              jobSecurity: 70
+            },
+            careerPath: {
+              entryPoints: ['Marketing Coordinator', 'Digital Marketing Specialist'],
+              advancement: ['Marketing Director', 'VP of Marketing'],
+              lateralMoves: ['Product Marketing', 'Brand Manager'],
+              exitOpportunities: ['Consultant', 'Agency Owner']
+            },
+            industries: ['Technology', 'Consumer Goods', 'Healthcare', 'Finance'],
+            locations: [
+              { city: 'New York', positions: 4000, avgSalary: 95000, demandLevel: 'high' },
+              { city: 'Los Angeles', positions: 3000, avgSalary: 90000, demandLevel: 'medium' },
+              { city: 'Chicago', positions: 2500, avgSalary: 85000, demandLevel: 'medium' }
+            ]
+          }
+        ],
+        laborMarket: {
+          overview: {
+            totalEmployed: 158000000,
+            totalUnemployed: 6200000,
+            laborForce: 164200000,
+            participationRate: 62.8,
+            employmentRate: 96.2,
+            openPositions: 850000,
+            avgTimeToFill: 42,
+            marketHealth: 78.5
+          },
+          trends: [
+            { period: 'Q1 2024', employed: 157500000, unemployed: 6500000, openPositions: 820000, newHires: 1850000 },
+            { period: 'Q2 2024', employed: 158000000, unemployed: 6200000, openPositions: 850000, newHires: 1920000 },
+            { period: 'Q3 2024', employed: 158500000, unemployed: 5900000, openPositions: 880000, newHires: 1980000 }
+          ],
+          sectors: [
+            { name: 'Technology', employed: 8500000, growth: 12.5, avgSalary: 95000, openings: 125000 },
+            { name: 'Healthcare', employed: 16500000, growth: 8.2, avgSalary: 65000, openings: 180000 },
+            { name: 'Finance', employed: 8200000, growth: 5.8, avgSalary: 85000, openings: 95000 },
+            { name: 'Manufacturing', employed: 12500000, growth: 3.2, avgSalary: 55000, openings: 110000 }
+          ],
+          skills: [
+            { skill: 'Python', demand: 85, supply: 60, gap: 25, growthRate: 15.2 },
+            { skill: 'JavaScript', demand: 80, supply: 70, gap: 10, growthRate: 12.8 },
+            { skill: 'Data Analysis', demand: 90, supply: 55, gap: 35, growthRate: 18.5 },
+            { skill: 'Project Management', demand: 75, supply: 65, gap: 10, growthRate: 8.5 }
+          ]
+        },
+        unemployment: {
+          overall: {
+            rate: 3.8,
+            total: 6200000,
+            trend: 'decreasing',
+            duration: 18.5
+          },
+          byCategory: [
+            { category: 'Technology', rate: 2.1, count: 180000, trend: 'decreasing' },
+            { category: 'Healthcare', rate: 2.8, count: 460000, trend: 'decreasing' },
+            { category: 'Finance', rate: 3.2, count: 260000, trend: 'stable' },
+            { category: 'Manufacturing', rate: 4.5, count: 560000, trend: 'increasing' }
+          ],
+          byEducation: [
+            { level: 'High School', rate: 5.2, count: 2200000 },
+            { level: 'Bachelor\'s', rate: 2.8, count: 1740000 },
+            { level: 'Master\'s', rate: 1.9, count: 1180000 },
+            { level: 'PhD', rate: 1.2, count: 74000 }
+          ],
+          byAge: [
+            { range: '18-24', rate: 6.8, count: 1100000 },
+            { range: '25-34', rate: 3.9, count: 1520000 },
+            { range: '35-44', rate: 3.2, count: 1240000 },
+            { range: '45-54', rate: 3.1, count: 1150000 },
+            { range: '55+', rate: 3.5, count: 1190000 }
+          ],
+          reasons: [
+            { reason: 'Job Loss', percentage: 45, count: 2790000 },
+            { reason: 'New Entrants', percentage: 25, count: 1550000 },
+            { reason: 'Re-entrants', percentage: 20, count: 1240000 },
+            { reason: 'Voluntary', percentage: 10, count: 620000 }
+          ],
+          support: {
+            programs: 125,
+            participants: 1850000,
+            successRate: 68.5,
+            avgDuration: 6.2
+          }
+        },
+        careerSimulation: {
+          scenarios: [
+            {
+              id: '1',
+              name: 'Tech Career Transition',
+              startingProfession: 'Marketing Coordinator',
+              targetProfession: 'Product Manager',
+              timeline: 24,
+              steps: [
+                { step: 1, action: 'Learn Product Management Fundamentals', duration: 6, cost: 5000, outcome: 'Certification' },
+                { step: 2, action: 'Gain Technical Skills', duration: 8, cost: 8000, outcome: 'Technical Proficiency' },
+                { step: 3, action: 'Build Portfolio Projects', duration: 6, cost: 2000, outcome: 'Portfolio' },
+                { step: 4, action: 'Network and Apply', duration: 4, cost: 1000, outcome: 'Job Offer' }
+              ],
+              requirements: {
+                education: ['Product Management Certification', 'Technical Skills'],
+                skills: ['Agile', 'User Research', 'Data Analysis'],
+                experience: 2,
+                investment: 16000
+              },
+              outcomes: {
+                salaryIncrease: 35000,
+                jobSecurity: 85,
+                satisfaction: 80,
+                successProbability: 75
+              }
+            }
+          ],
+          recommendations: [
+            { profession: 'Data Scientist', reason: 'High demand, excellent growth prospects', priority: 'high', timeframe: '6-12 months' },
+            { profession: 'Product Manager', reason: 'Good work-life balance, high compensation', priority: 'medium', timeframe: '12-18 months' },
+            { profession: 'DevOps Engineer', reason: 'Technical role with automation focus', priority: 'medium', timeframe: '12-24 months' }
+          ]
+        }
+      };
+      console.log('💼 ProfessionsScreen: Setting mock data:', mockData);
+      setProfessionsData(mockData);
     } finally {
       setLoading(false);
+      console.log('💼 ProfessionsScreen: Data fetch completed');
     }
   }, []);
 
@@ -234,318 +480,419 @@ const ProfessionsScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameC
     fetchProfessionsData();
   }, [fetchProfessionsData]);
 
-  const generateMockProfessions = (): Profession[] => [
-    {
-      id: 'prof-1',
-      name: 'Quantum Software Engineer',
-      category: 'technology',
-      level: 'senior',
-      description: 'Develops quantum computing applications and algorithms for next-generation computing systems',
-      requirements: {
-        education: 'Masters in Computer Science or Physics',
-        experience: 5,
-        skills: ['Quantum Computing', 'Python', 'Linear Algebra', 'Algorithm Design'],
-        certifications: ['Quantum Computing Certification', 'Advanced Mathematics']
-      },
-      compensation: {
-        baseSalary: 185000,
-        bonuses: 35000,
-        benefits: ['Health Insurance', 'Stock Options', 'Flexible PTO', 'Research Budget'],
-        totalPackage: 245000
-      },
-      marketData: {
-        demand: 95,
-        supply: 25,
-        openPositions: 847,
-        avgTimeToFill: 89,
-        growthRate: 45.2,
-        competitiveness: 92
-      },
-      workConditions: {
-        hoursPerWeek: 45,
-        flexibility: 'high',
-        remoteOptions: true,
-        travelRequired: 15,
-        stressLevel: 7,
-        jobSecurity: 9
-      },
-      careerPath: {
-        entryPoints: ['Software Engineer', 'Research Scientist', 'Physics Graduate'],
-        advancement: ['Senior Quantum Engineer', 'Quantum Research Director', 'CTO'],
-        lateralMoves: ['AI Research Scientist', 'Cryptography Specialist', 'Academic Researcher'],
-        exitOpportunities: ['Quantum Startup Founder', 'Technology Consultant', 'University Professor']
-      },
-      industries: ['Technology', 'Research', 'Defense', 'Finance'],
-      locations: [
-        { city: 'New Terra Capital', positions: 234, avgSalary: 195000, demandLevel: 'high' },
-        { city: 'Mars Tech Hub', positions: 156, avgSalary: 178000, demandLevel: 'high' },
-        { city: 'Europa Research Station', positions: 89, avgSalary: 210000, demandLevel: 'medium' }
-      ]
-    },
-    {
-      id: 'prof-2',
-      name: 'Interplanetary Logistics Coordinator',
-      category: 'logistics',
-      level: 'mid',
-      description: 'Manages supply chains and transportation networks across multiple planets and space stations',
-      requirements: {
-        education: 'Bachelors in Supply Chain Management or Engineering',
-        experience: 3,
-        skills: ['Supply Chain Management', 'Space Operations', 'Data Analysis', 'Project Management'],
-        certifications: ['Space Operations License', 'Logistics Management']
-      },
-      compensation: {
-        baseSalary: 95000,
-        bonuses: 15000,
-        benefits: ['Health Insurance', 'Space Travel Allowance', 'Hazard Pay', 'Retirement Plan'],
-        totalPackage: 125000
-      },
-      marketData: {
-        demand: 78,
-        supply: 45,
-        openPositions: 312,
-        avgTimeToFill: 45,
-        growthRate: 28.5,
-        competitiveness: 65
-      },
-      workConditions: {
-        hoursPerWeek: 50,
-        flexibility: 'medium',
-        remoteOptions: false,
-        travelRequired: 60,
-        stressLevel: 8,
-        jobSecurity: 7
-      },
-      careerPath: {
-        entryPoints: ['Supply Chain Analyst', 'Operations Coordinator', 'Transportation Specialist'],
-        advancement: ['Senior Logistics Manager', 'Operations Director', 'Supply Chain VP'],
-        lateralMoves: ['Project Manager', 'Operations Analyst', 'Procurement Specialist'],
-        exitOpportunities: ['Logistics Consultant', 'Supply Chain Director', 'Operations Executive']
-      },
-      industries: ['Transportation', 'Manufacturing', 'Retail', 'Government'],
-      locations: [
-        { city: 'Mars Industrial Complex', positions: 145, avgSalary: 98000, demandLevel: 'high' },
-        { city: 'Asteroid Mining Station', positions: 87, avgSalary: 115000, demandLevel: 'medium' },
-        { city: 'New Terra Spaceport', positions: 80, avgSalary: 92000, demandLevel: 'medium' }
-      ]
-    },
-    {
-      id: 'prof-3',
-      name: 'Xenobiology Research Scientist',
-      category: 'science',
-      level: 'senior',
-      description: 'Studies alien life forms and ecosystems to understand extraterrestrial biology',
-      requirements: {
-        education: 'PhD in Biology, Biochemistry, or related field',
-        experience: 8,
-        skills: ['Research Methodology', 'Laboratory Techniques', 'Data Analysis', 'Scientific Writing'],
-        certifications: ['Research Ethics', 'Biosafety Level 4', 'Xenobiology Specialist']
-      },
-      compensation: {
-        baseSalary: 145000,
-        bonuses: 25000,
-        benefits: ['Health Insurance', 'Research Grants', 'Conference Travel', 'Publication Support'],
-        totalPackage: 185000
-      },
-      marketData: {
-        demand: 85,
-        supply: 15,
-        openPositions: 156,
-        avgTimeToFill: 120,
-        growthRate: 35.8,
-        competitiveness: 88
-      },
-      workConditions: {
-        hoursPerWeek: 55,
-        flexibility: 'medium',
-        remoteOptions: false,
-        travelRequired: 40,
-        stressLevel: 6,
-        jobSecurity: 8
-      },
-      careerPath: {
-        entryPoints: ['Research Assistant', 'Lab Technician', 'Graduate Student'],
-        advancement: ['Principal Scientist', 'Research Director', 'Department Head'],
-        lateralMoves: ['Biotechnology Researcher', 'Environmental Scientist', 'Medical Researcher'],
-        exitOpportunities: ['Biotech Startup', 'Science Consultant', 'University Professor']
-      },
-      industries: ['Research', 'Government', 'Biotechnology', 'Pharmaceuticals'],
-      locations: [
-        { city: 'Europa Research Station', positions: 67, avgSalary: 155000, demandLevel: 'high' },
-        { city: 'Titan Science Complex', positions: 45, avgSalary: 148000, demandLevel: 'medium' },
-        { city: 'New Terra University', positions: 44, avgSalary: 138000, demandLevel: 'medium' }
-      ]
+  useEffect(() => {
+    console.log('💼 ProfessionsScreen: professionsData changed:', professionsData);
+  }, [professionsData]);
+
+  const renderOverview = () => {
+    console.log('💼 ProfessionsScreen: renderOverview called, professionsData:', professionsData);
+    if (!professionsData) return null;
+
+    const { laborMarket, unemployment } = professionsData;
+
+    return (
+      <>
+        {/* Key Metrics */}
+        <div className="standard-panel social-theme">
+          <h3>📊 Labor Market Overview</h3>
+          <div className="standard-metric-grid">
+            <div className="standard-metric">
+              <div className="metric-value">{laborMarket.overview.totalEmployed.toLocaleString()}</div>
+              <div className="metric-label">Total Employed</div>
+            </div>
+            <div className="standard-metric">
+              <div className="metric-value">{laborMarket.overview.totalUnemployed.toLocaleString()}</div>
+              <div className="metric-label">Total Unemployed</div>
+            </div>
+            <div className="standard-metric">
+              <div className="metric-value">{unemployment.overall.rate.toFixed(1)}%</div>
+              <div className="metric-label">Unemployment Rate</div>
+            </div>
+            <div className="standard-metric">
+              <div className="metric-value">{laborMarket.overview.openPositions.toLocaleString()}</div>
+              <div className="metric-label">Open Positions</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Employment Rate */}
+        <div className="standard-panel social-theme">
+          <h3>📈 Employment Metrics</h3>
+          <div className="standard-metric-grid">
+            <div className="standard-metric">
+              <div className="metric-value">{laborMarket.overview.participationRate.toFixed(1)}%</div>
+              <div className="metric-label">Labor Force Participation</div>
+            </div>
+            <div className="standard-metric">
+              <div className="metric-value">{laborMarket.overview.employmentRate.toFixed(1)}%</div>
+              <div className="metric-label">Employment Rate</div>
+            </div>
+            <div className="standard-metric">
+              <div className="metric-value">{laborMarket.overview.avgTimeToFill} days</div>
+              <div className="metric-label">Avg Time to Fill</div>
+            </div>
+            <div className="standard-metric">
+              <div className="metric-value">{laborMarket.overview.marketHealth.toFixed(1)}</div>
+              <div className="metric-label">Market Health Score</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Sector Performance */}
+        <div className="standard-panel social-theme table-panel">
+          <h3>🏢 Sector Performance</h3>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Sector</th>
+                  <th>Employed</th>
+                  <th>Growth Rate</th>
+                  <th>Avg Salary</th>
+                  <th>Openings</th>
+                </tr>
+              </thead>
+              <tbody>
+                {laborMarket.sectors.map((sector, index) => (
+                  <tr key={index}>
+                    <td>{sector.name}</td>
+                    <td>{sector.employed.toLocaleString()}</td>
+                    <td>
+                      <span className={`growth-rate ${sector.growth > 5 ? 'high' : sector.growth > 0 ? 'medium' : 'low'}`}>
+                        {sector.growth > 0 ? '+' : ''}{sector.growth.toFixed(1)}%
+                      </span>
+                    </td>
+                    <td>${sector.avgSalary.toLocaleString()}</td>
+                    <td>{sector.openings.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const renderProfessions = () => {
+    if (!professionsData) return null;
+
+    return (
+      <>
+        <div className="standard-panel social-theme table-panel">
+          <h3>💼 Top Professions</h3>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Profession</th>
+                  <th>Category</th>
+                  <th>Level</th>
+                  <th>Demand</th>
+                  <th>Avg Salary</th>
+                  <th>Open Positions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {professionsData.professions.map((profession) => (
+                  <tr key={profession.id}>
+                    <td>{profession.name}</td>
+                    <td>
+                      <span className={`category-badge category-${profession.category.toLowerCase()}`}>
+                        {profession.category}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`level-badge level-${profession.level}`}>
+                        {profession.level}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`demand-badge ${profession.marketData.demand > 80 ? 'high' : profession.marketData.demand > 60 ? 'medium' : 'low'}`}>
+                        {profession.marketData.demand}%
+                      </span>
+                    </td>
+                    <td>${profession.compensation.totalPackage.toLocaleString()}</td>
+                    <td>{profession.marketData.openPositions.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const renderUnemployment = () => {
+    if (!professionsData) return null;
+
+    const { unemployment } = professionsData;
+
+    return (
+      <>
+        {/* Unemployment Overview */}
+        <div className="standard-panel social-theme">
+          <h3>📉 Unemployment Overview</h3>
+          <div className="standard-metric-grid">
+            <div className="standard-metric">
+              <div className="metric-value">{unemployment.overall.rate.toFixed(1)}%</div>
+              <div className="metric-label">Unemployment Rate</div>
+            </div>
+            <div className="standard-metric">
+              <div className="metric-value">{unemployment.overall.total.toLocaleString()}</div>
+              <div className="metric-label">Total Unemployed</div>
+            </div>
+            <div className="standard-metric">
+              <div className="metric-value">{unemployment.overall.duration.toFixed(1)} weeks</div>
+              <div className="metric-label">Avg Duration</div>
+            </div>
+            <div className="standard-metric">
+              <div className="metric-value">{unemployment.support.successRate.toFixed(1)}%</div>
+              <div className="metric-label">Support Success Rate</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Unemployment by Category */}
+        <div className="standard-panel social-theme table-panel">
+          <h3>📊 Unemployment by Category</h3>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Rate</th>
+                  <th>Count</th>
+                  <th>Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unemployment.byCategory.map((category, index) => (
+                  <tr key={index}>
+                    <td>{category.category}</td>
+                    <td>{category.rate.toFixed(1)}%</td>
+                    <td>{category.count.toLocaleString()}</td>
+                    <td>
+                      <span className={`trend-badge trend-${category.trend}`}>
+                        {category.trend === 'increasing' ? '↗️' : category.trend === 'decreasing' ? '↘️' : '→'} {category.trend}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const renderCareers = () => {
+    if (!professionsData) return null;
+
+    const { careerSimulation } = professionsData;
+
+    return (
+      <>
+        {/* Career Recommendations */}
+        <div className="standard-panel social-theme">
+          <h3>🎯 Career Recommendations</h3>
+          <div className="standard-metric-grid">
+            {careerSimulation.recommendations.map((rec, index) => (
+              <div className="standard-metric" key={index}>
+                <div className="metric-value">{rec.profession}</div>
+                <div className="metric-label">{rec.reason}</div>
+                <div className="metric-progress">
+                  <div className="progress-bar" style={{ 
+                    width: `${rec.priority === 'high' ? 90 : rec.priority === 'medium' ? 60 : 30}%`,
+                    backgroundColor: rec.priority === 'high' ? '#10b981' : rec.priority === 'medium' ? '#f59e0b' : '#ef4444'
+                  }}></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Career Scenarios */}
+        <div className="standard-panel social-theme table-panel">
+          <h3>🔄 Career Scenarios</h3>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Timeline</th>
+                  <th>Success Rate</th>
+                  <th>Salary Increase</th>
+                </tr>
+              </thead>
+              <tbody>
+                {careerSimulation.scenarios.map((scenario) => (
+                  <tr key={scenario.id}>
+                    <td>{scenario.name}</td>
+                    <td>{scenario.startingProfession}</td>
+                    <td>{scenario.targetProfession}</td>
+                    <td>{scenario.timeline} months</td>
+                    <td>
+                      <span className={`success-badge ${scenario.outcomes.successProbability > 70 ? 'high' : scenario.outcomes.successProbability > 50 ? 'medium' : 'low'}`}>
+                        {scenario.outcomes.successProbability}%
+                      </span>
+                    </td>
+                    <td>+${scenario.outcomes.salaryIncrease.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const renderAnalytics = () => {
+    if (!professionsData) return null;
+
+    const { laborMarket } = professionsData;
+
+    return (
+      <>
+        {/* Skills Gap Analysis */}
+        <div className="standard-panel social-theme table-panel">
+          <h3>🔍 Skills Gap Analysis</h3>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Skill</th>
+                  <th>Demand</th>
+                  <th>Supply</th>
+                  <th>Gap</th>
+                  <th>Growth Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {laborMarket.skills.map((skill, index) => (
+                  <tr key={index}>
+                    <td>{skill.skill}</td>
+                    <td>{skill.demand}%</td>
+                    <td>{skill.supply}%</td>
+                    <td>
+                      <span className={`gap-badge ${skill.gap > 20 ? 'high' : skill.gap > 10 ? 'medium' : 'low'}`}>
+                        {skill.gap}%
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`growth-badge ${skill.growthRate > 10 ? 'high' : skill.growthRate > 5 ? 'medium' : 'low'}`}>
+                        {skill.growthRate > 0 ? '+' : ''}{skill.growthRate.toFixed(1)}%
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Market Trends */}
+        <div className="standard-panel social-theme table-panel">
+          <h3>📈 Market Trends</h3>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Employed</th>
+                  <th>Unemployed</th>
+                  <th>Open Positions</th>
+                  <th>New Hires</th>
+                </tr>
+              </thead>
+              <tbody>
+                {laborMarket.trends.map((trend, index) => (
+                  <tr key={index}>
+                    <td>{trend.period}</td>
+                    <td>{trend.employed.toLocaleString()}</td>
+                    <td>{trend.unemployed.toLocaleString()}</td>
+                    <td>{trend.openPositions.toLocaleString()}</td>
+                    <td>{trend.newHires.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId as any);
+  };
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return renderOverview();
+      case 'professions':
+        return renderProfessions();
+      case 'unemployment':
+        return renderUnemployment();
+      case 'careers':
+        return renderCareers();
+      case 'analytics':
+        return renderAnalytics();
+      default:
+        return renderOverview();
     }
-  ];
-
-  const generateMockLaborMarket = (): LaborMarketData => ({
-    overview: {
-      totalEmployed: 2850000,
-      totalUnemployed: 142000,
-      laborForce: 2992000,
-      participationRate: 78.5,
-      employmentRate: 95.3,
-      openPositions: 185000,
-      avgTimeToFill: 42,
-      marketHealth: 87
-    },
-    trends: [
-      { period: '2394 Q1', employed: 2820000, unemployed: 158000, openPositions: 165000, newHires: 45000 },
-      { period: '2394 Q2', employed: 2835000, unemployed: 148000, openPositions: 172000, newHires: 52000 },
-      { period: '2394 Q3', employed: 2845000, unemployed: 145000, openPositions: 178000, newHires: 48000 },
-      { period: '2394 Q4', employed: 2850000, unemployed: 142000, openPositions: 185000, newHires: 55000 }
-    ],
-    sectors: [
-      { name: 'Technology', employed: 485000, growth: 12.5, avgSalary: 125000, openings: 45000 },
-      { name: 'Healthcare', employed: 425000, growth: 8.2, avgSalary: 95000, openings: 32000 },
-      { name: 'Manufacturing', employed: 380000, growth: 4.8, avgSalary: 78000, openings: 28000 },
-      { name: 'Education', employed: 295000, growth: 6.1, avgSalary: 65000, openings: 18000 },
-      { name: 'Finance', employed: 285000, growth: 7.3, avgSalary: 105000, openings: 22000 },
-      { name: 'Retail', employed: 245000, growth: 2.1, avgSalary: 45000, openings: 15000 }
-    ],
-    skills: [
-      { skill: 'Quantum Computing', demand: 95, supply: 25, gap: 70, growthRate: 45.2 },
-      { skill: 'AI/Machine Learning', demand: 88, supply: 45, gap: 43, growthRate: 32.8 },
-      { skill: 'Space Operations', demand: 82, supply: 35, gap: 47, growthRate: 28.5 },
-      { skill: 'Biotechnology', demand: 78, supply: 55, gap: 23, growthRate: 22.1 },
-      { skill: 'Cybersecurity', demand: 85, supply: 60, gap: 25, growthRate: 18.7 },
-      { skill: 'Data Science', demand: 75, supply: 65, gap: 10, growthRate: 15.3 }
-    ]
-  });
-
-  const generateMockUnemployment = (): UnemploymentData => ({
-    overall: {
-      rate: 4.7,
-      total: 142000,
-      trend: 'decreasing',
-      duration: 16.5
-    },
-    byCategory: [
-      { category: 'Technology', rate: 2.1, count: 12000, trend: 'decreasing' },
-      { category: 'Healthcare', rate: 3.8, count: 18000, trend: 'stable' },
-      { category: 'Manufacturing', rate: 6.2, count: 28000, trend: 'decreasing' },
-      { category: 'Retail', rate: 8.5, count: 25000, trend: 'increasing' },
-      { category: 'Education', rate: 4.1, count: 15000, trend: 'stable' },
-      { category: 'Finance', rate: 3.2, count: 11000, trend: 'decreasing' }
-    ],
-    byEducation: [
-      { level: 'Advanced Degree', rate: 2.8, count: 35000 },
-      { level: 'Bachelors Degree', rate: 4.2, count: 58000 },
-      { level: 'High School', rate: 7.1, count: 49000 }
-    ],
-    byAge: [
-      { range: '18-24', rate: 8.2, count: 28000 },
-      { range: '25-34', rate: 4.1, count: 35000 },
-      { range: '35-44', rate: 3.8, count: 32000 },
-      { range: '45-54', rate: 4.5, count: 28000 },
-      { range: '55+', rate: 5.2, count: 19000 }
-    ],
-    reasons: [
-      { reason: 'Job Elimination', percentage: 35, count: 49700 },
-      { reason: 'Career Change', percentage: 22, count: 31240 },
-      { reason: 'New Graduate', percentage: 18, count: 25560 },
-      { reason: 'Relocation', percentage: 12, count: 17040 },
-      { reason: 'Health Issues', percentage: 8, count: 11360 },
-      { reason: 'Other', percentage: 5, count: 7100 }
-    ],
-    support: {
-      programs: 45,
-      participants: 85000,
-      successRate: 72,
-      avgDuration: 12.5
-    }
-  });
-
-  const generateMockCareerSimulation = (): CareerSimulation => ({
-    scenarios: [
-      {
-        id: 'scenario-1',
-        name: 'Software Engineer to Quantum Engineer',
-        startingProfession: 'Software Engineer',
-        targetProfession: 'Quantum Software Engineer',
-        timeline: 36,
-        steps: [
-          { step: 1, action: 'Complete Quantum Computing Certification', duration: 6, cost: 15000, outcome: 'Certification Acquired' },
-          { step: 2, action: 'Masters in Quantum Physics (Part-time)', duration: 24, cost: 45000, outcome: 'Advanced Degree' },
-          { step: 3, action: 'Quantum Research Internship', duration: 6, cost: 0, outcome: 'Industry Experience' }
-        ],
-        requirements: {
-          education: ['Masters in Quantum Physics'],
-          skills: ['Quantum Computing', 'Linear Algebra', 'Python'],
-          experience: 3,
-          investment: 60000
-        },
-        outcomes: {
-          salaryIncrease: 85000,
-          jobSecurity: 9,
-          satisfaction: 8,
-          successProbability: 78
-        }
-      },
-      {
-        id: 'scenario-2',
-        name: 'Lab Technician to Research Scientist',
-        startingProfession: 'Lab Technician',
-        targetProfession: 'Xenobiology Research Scientist',
-        timeline: 84,
-        steps: [
-          { step: 1, action: 'Complete Bachelors in Biology', duration: 36, cost: 35000, outcome: 'Undergraduate Degree' },
-          { step: 2, action: 'PhD in Xenobiology', duration: 48, cost: 25000, outcome: 'Doctoral Degree' }
-        ],
-        requirements: {
-          education: ['PhD in Xenobiology'],
-          skills: ['Research Methodology', 'Laboratory Techniques', 'Scientific Writing'],
-          experience: 2,
-          investment: 60000
-        },
-        outcomes: {
-          salaryIncrease: 95000,
-          jobSecurity: 8,
-          satisfaction: 9,
-          successProbability: 65
-        }
-      }
-    ],
-    recommendations: [
-      { profession: 'AI Research Scientist', reason: 'High demand, growing field', priority: 'high', timeframe: '2-3 years' },
-      { profession: 'Space Operations Manager', reason: 'Expanding industry, good compensation', priority: 'medium', timeframe: '3-4 years' },
-      { profession: 'Quantum Engineer', reason: 'Emerging technology, high pay', priority: 'high', timeframe: '4-5 years' }
-    ]
-  });
-
-  const formatNumber = (value: number): string => {
-    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
-    if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
-    return value.toString();
   };
 
-  const formatCurrency = (value: number): string => {
-    return `$${formatNumber(value)}`;
-  };
+  if (loading) {
+    return (
+      <BaseScreen
+        screenId={screenId}
+        title={title}
+        icon={icon}
+        gameContext={gameContext}
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        apiEndpoints={apiEndpoints}
+      >
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading professions data...</p>
+        </div>
+      </BaseScreen>
+    );
+  }
 
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case 'high': return '#10b981';
-      case 'medium': return '#f59e0b';
-      case 'low': return '#ef4444';
-      default: return '#6b7280';
-    }
-  };
-
-  const getTrendColor = (trend: string): string => {
-    switch (trend) {
-      case 'increasing': return '#ef4444';
-      case 'decreasing': return '#10b981';
-      case 'stable': return '#f59e0b';
-      default: return '#6b7280';
-    }
-  };
-
-  const getFilteredProfessions = (): Profession[] => {
-    if (!professionsData) return [];
-    if (!selectedCategory) return professionsData.professions;
-    return professionsData.professions.filter(profession => profession.category === selectedCategory);
-  };
+  if (error) {
+    return (
+      <BaseScreen
+        screenId={screenId}
+        title={title}
+        icon={icon}
+        gameContext={gameContext}
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        apiEndpoints={apiEndpoints}
+      >
+        <div className="error-container">
+          <div className="error-message">
+            <h3>⚠️ Error</h3>
+            <p>{error}</p>
+            <button onClick={fetchProfessionsData} className="retry-button">
+              Retry
+            </button>
+          </div>
+        </div>
+      </BaseScreen>
+    );
+  }
 
   return (
     <BaseScreen
@@ -553,532 +900,13 @@ const ProfessionsScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameC
       title={title}
       icon={icon}
       gameContext={gameContext}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={handleTabChange}
       apiEndpoints={apiEndpoints}
-      onRefresh={fetchProfessionsData}
     >
-      <div className="professions-screen">
-        <div className="view-tabs">
-          <button 
-            className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
-          >
-            📊 Overview
-          </button>
-          <button 
-            className={`tab ${activeTab === 'professions' ? 'active' : ''}`}
-            onClick={() => setActiveTab('professions')}
-          >
-            🔍 Professions
-          </button>
-          <button 
-            className={`tab ${activeTab === 'unemployment' ? 'active' : ''}`}
-            onClick={() => setActiveTab('unemployment')}
-          >
-            📉 Unemployment
-          </button>
-          <button 
-            className={`tab ${activeTab === 'careers' ? 'active' : ''}`}
-            onClick={() => setActiveTab('careers')}
-          >
-            🚀 Careers
-          </button>
-          <button 
-            className={`tab ${activeTab === 'analytics' ? 'active' : ''}`}
-            onClick={() => setActiveTab('analytics')}
-          >
-            📈 Analytics
-          </button>
-        </div>
-
-        <div className="tab-content">
-          {loading && <div className="loading">Loading professions data...</div>}
-          {error && <div className="error">Error: {error}</div>}
-          {!loading && !error && professionsData && (
-            <>
-              {activeTab === 'overview' && (
-                <div className="overview-tab">
-                  <div className="labor-market-overview">
-                    <h4>📊 Labor Market Overview</h4>
-                    <div className="overview-metrics">
-                      <div className="metric-card">
-                        <div className="metric-icon">👥</div>
-                        <div className="metric-info">
-                          <div className="metric-value">{formatNumber(professionsData.laborMarket.overview.totalEmployed)}</div>
-                          <div className="metric-label">Total Employed</div>
-                        </div>
-                      </div>
-                      <div className="metric-card">
-                        <div className="metric-icon">📋</div>
-                        <div className="metric-info">
-                          <div className="metric-value">{formatNumber(professionsData.laborMarket.overview.openPositions)}</div>
-                          <div className="metric-label">Open Positions</div>
-                        </div>
-                      </div>
-                      <div className="metric-card">
-                        <div className="metric-icon">⏱️</div>
-                        <div className="metric-info">
-                          <div className="metric-value">{professionsData.laborMarket.overview.avgTimeToFill}</div>
-                          <div className="metric-label">Avg. Time to Fill (days)</div>
-                        </div>
-                      </div>
-                      <div className="metric-card">
-                        <div className="metric-icon">💚</div>
-                        <div className="metric-info">
-                          <div className="metric-value">{professionsData.laborMarket.overview.marketHealth}%</div>
-                          <div className="metric-label">Market Health</div>
-                        </div>
-                      </div>
-                      <div className="metric-card">
-                        <div className="metric-icon">📈</div>
-                        <div className="metric-info">
-                          <div className="metric-value">{professionsData.laborMarket.overview.employmentRate}%</div>
-                          <div className="metric-label">Employment Rate</div>
-                        </div>
-                      </div>
-                      <div className="metric-card">
-                        <div className="metric-icon">🎯</div>
-                        <div className="metric-info">
-                          <div className="metric-value">{professionsData.laborMarket.overview.participationRate}%</div>
-                          <div className="metric-label">Participation Rate</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="sectors-overview">
-                    <h4>🏭 Sector Performance</h4>
-                    <div className="sectors-grid">
-                      {professionsData.laborMarket.sectors.map((sector, i) => (
-                        <div key={i} className="sector-card">
-                          <div className="sector-header">
-                            <div className="sector-name">{sector.name}</div>
-                            <div className="sector-growth" style={{ color: sector.growth >= 5 ? '#10b981' : sector.growth >= 0 ? '#f59e0b' : '#ef4444' }}>
-                              {sector.growth >= 0 ? '+' : ''}{sector.growth.toFixed(1)}%
-                            </div>
-                          </div>
-                          <div className="sector-metrics">
-                            <div className="sector-metric">
-                              <span className="metric-label">Employed:</span>
-                              <span className="metric-value">{formatNumber(sector.employed)}</span>
-                            </div>
-                            <div className="sector-metric">
-                              <span className="metric-label">Avg Salary:</span>
-                              <span className="metric-value">{formatCurrency(sector.avgSalary)}</span>
-                            </div>
-                            <div className="sector-metric">
-                              <span className="metric-label">Openings:</span>
-                              <span className="metric-value">{formatNumber(sector.openings)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'professions' && (
-                <div className="professions-tab">
-                  <div className="professions-controls">
-                    <div className="filter-group">
-                      <label htmlFor="categoryFilter">Category Filter:</label>
-                      <select 
-                        id="categoryFilter" 
-                        value={selectedCategory} 
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="category-select"
-                      >
-                        <option value="">All Categories</option>
-                        <option value="technology">Technology</option>
-                        <option value="healthcare">Healthcare</option>
-                        <option value="science">Science</option>
-                        <option value="logistics">Logistics</option>
-                        <option value="finance">Finance</option>
-                        <option value="education">Education</option>
-                      </select>
-                    </div>
-                    <div className="results-count">
-                      Showing {getFilteredProfessions().length} professions
-                    </div>
-                  </div>
-
-                  <div className="professions-grid">
-                    {getFilteredProfessions().map((profession) => (
-                      <div key={profession.id} className="profession-card">
-                        <div className="profession-header">
-                          <div className="profession-name">{profession.name}</div>
-                          <div className={`profession-level ${profession.level}`}>
-                            {profession.level.charAt(0).toUpperCase() + profession.level.slice(1)}
-                          </div>
-                        </div>
-                        <div className="profession-category">{profession.category.toUpperCase()}</div>
-                        <div className="profession-description">{profession.description}</div>
-                        
-                        <div className="profession-compensation">
-                          <div className="compensation-item">
-                            <span className="comp-label">Base Salary:</span>
-                            <span className="comp-value">{formatCurrency(profession.compensation.baseSalary)}</span>
-                          </div>
-                          <div className="compensation-item">
-                            <span className="comp-label">Total Package:</span>
-                            <span className="comp-value">{formatCurrency(profession.compensation.totalPackage)}</span>
-                          </div>
-                        </div>
-
-                        <div className="profession-market">
-                          <div className="market-item">
-                            <span className="market-label">Demand:</span>
-                            <div className="market-bar">
-                              <div className="market-fill" style={{ width: `${profession.marketData.demand}%` }}></div>
-                            </div>
-                            <span className="market-value">{profession.marketData.demand}%</span>
-                          </div>
-                          <div className="market-item">
-                            <span className="market-label">Growth:</span>
-                            <span className="market-value" style={{ color: '#10b981' }}>
-                              +{profession.marketData.growthRate.toFixed(1)}%
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="profession-requirements">
-                          <div className="req-item">
-                            <span className="req-label">Education:</span>
-                            <span className="req-value">{profession.requirements.education}</span>
-                          </div>
-                          <div className="req-item">
-                            <span className="req-label">Experience:</span>
-                            <span className="req-value">{profession.requirements.experience} years</span>
-                          </div>
-                        </div>
-
-                        <div className="profession-skills">
-                          <strong>Key Skills:</strong>
-                          <div className="skills-list">
-                            {profession.requirements.skills.slice(0, 3).map((skill, i) => (
-                              <span key={i} className="skill-tag">{skill}</span>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="profession-locations">
-                          <strong>Top Locations:</strong>
-                          <div className="locations-list">
-                            {profession.locations.slice(0, 2).map((location, i) => (
-                              <div key={i} className="location-item">
-                                <span className="location-name">{location.city}</span>
-                                <span className="location-positions">({location.positions} positions)</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="tab-actions">
-                    <button className="action-btn">Profession Directory</button>
-                    <button className="action-btn secondary">Skills Analysis</button>
-                    <button className="action-btn">Career Paths</button>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'unemployment' && (
-                <div className="unemployment-tab">
-                  <div className="unemployment-overview">
-                    <h4>📉 Unemployment Overview</h4>
-                    <div className="unemployment-metrics">
-                      <div className="metric-card">
-                        <div className="metric-icon">📊</div>
-                        <div className="metric-info">
-                          <div className="metric-value">{professionsData.unemployment.overall.rate}%</div>
-                          <div className="metric-label">Overall Rate</div>
-                        </div>
-                      </div>
-                      <div className="metric-card">
-                        <div className="metric-icon">👥</div>
-                        <div className="metric-info">
-                          <div className="metric-value">{formatNumber(professionsData.unemployment.overall.total)}</div>
-                          <div className="metric-label">Total Unemployed</div>
-                        </div>
-                      </div>
-                      <div className="metric-card">
-                        <div className="metric-icon">⏱️</div>
-                        <div className="metric-info">
-                          <div className="metric-value">{professionsData.unemployment.overall.duration}</div>
-                          <div className="metric-label">Avg. Duration (weeks)</div>
-                        </div>
-                      </div>
-                      <div className="metric-card">
-                        <div className="metric-icon">📈</div>
-                        <div className="metric-info">
-                          <div className="metric-value" style={{ color: getTrendColor(professionsData.unemployment.overall.trend) }}>
-                            {professionsData.unemployment.overall.trend.toUpperCase()}
-                          </div>
-                          <div className="metric-label">Trend</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="unemployment-breakdown">
-                    <div className="breakdown-section">
-                      <h5>📋 By Category</h5>
-                      <div className="breakdown-list">
-                        {professionsData.unemployment.byCategory.map((category, i) => (
-                          <div key={i} className="breakdown-item">
-                            <div className="breakdown-header">
-                              <span className="breakdown-name">{category.category}</span>
-                              <span className="breakdown-rate">{category.rate}%</span>
-                            </div>
-                            <div className="breakdown-details">
-                              <span className="breakdown-count">{formatNumber(category.count)} people</span>
-                              <span className="breakdown-trend" style={{ color: getTrendColor(category.trend) }}>
-                                {category.trend}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="breakdown-section">
-                      <h5>🎓 By Education</h5>
-                      <div className="breakdown-list">
-                        {professionsData.unemployment.byEducation.map((education, i) => (
-                          <div key={i} className="breakdown-item">
-                            <div className="breakdown-header">
-                              <span className="breakdown-name">{education.level}</span>
-                              <span className="breakdown-rate">{education.rate}%</span>
-                            </div>
-                            <div className="breakdown-details">
-                              <span className="breakdown-count">{formatNumber(education.count)} people</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="breakdown-section">
-                      <h5>👥 By Age Group</h5>
-                      <div className="breakdown-list">
-                        {professionsData.unemployment.byAge.map((age, i) => (
-                          <div key={i} className="breakdown-item">
-                            <div className="breakdown-header">
-                              <span className="breakdown-name">{age.range}</span>
-                              <span className="breakdown-rate">{age.rate}%</span>
-                            </div>
-                            <div className="breakdown-details">
-                              <span className="breakdown-count">{formatNumber(age.count)} people</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="unemployment-support">
-                    <h4>🎯 Support Programs</h4>
-                    <div className="support-metrics">
-                      <div className="support-metric">
-                        <span className="support-label">Active Programs:</span>
-                        <span className="support-value">{professionsData.unemployment.support.programs}</span>
-                      </div>
-                      <div className="support-metric">
-                        <span className="support-label">Participants:</span>
-                        <span className="support-value">{formatNumber(professionsData.unemployment.support.participants)}</span>
-                      </div>
-                      <div className="support-metric">
-                        <span className="support-label">Success Rate:</span>
-                        <span className="support-value">{professionsData.unemployment.support.successRate}%</span>
-                      </div>
-                      <div className="support-metric">
-                        <span className="support-label">Avg. Duration:</span>
-                        <span className="support-value">{professionsData.unemployment.support.avgDuration} weeks</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="tab-actions">
-                    <button className="action-btn">Support Programs</button>
-                    <button className="action-btn secondary">Job Placement</button>
-                    <button className="action-btn">Training Initiatives</button>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'careers' && (
-                <div className="careers-tab">
-                  <div className="career-scenarios">
-                    <h4>🚀 Career Transition Scenarios</h4>
-                    <div className="scenarios-grid">
-                      {professionsData.careerSimulation.scenarios.map((scenario) => (
-                        <div key={scenario.id} className="scenario-card">
-                          <div className="scenario-header">
-                            <div className="scenario-name">{scenario.name}</div>
-                            <div className="scenario-timeline">{scenario.timeline} months</div>
-                          </div>
-                          <div className="scenario-path">
-                            <div className="path-item">
-                              <strong>From:</strong> {scenario.startingProfession}
-                            </div>
-                            <div className="path-arrow">→</div>
-                            <div className="path-item">
-                              <strong>To:</strong> {scenario.targetProfession}
-                            </div>
-                          </div>
-                          
-                          <div className="scenario-steps">
-                            <h6>📋 Steps Required:</h6>
-                            <div className="steps-list">
-                              {scenario.steps.map((step, i) => (
-                                <div key={i} className="step-item">
-                                  <div className="step-number">{step.step}</div>
-                                  <div className="step-details">
-                                    <div className="step-action">{step.action}</div>
-                                    <div className="step-meta">
-                                      <span className="step-duration">{step.duration} months</span>
-                                      <span className="step-cost">{formatCurrency(step.cost)}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="scenario-outcomes">
-                            <h6>🎯 Expected Outcomes:</h6>
-                            <div className="outcomes-grid">
-                              <div className="outcome-item">
-                                <span className="outcome-label">Salary Increase:</span>
-                                <span className="outcome-value">{formatCurrency(scenario.outcomes.salaryIncrease)}</span>
-                              </div>
-                              <div className="outcome-item">
-                                <span className="outcome-label">Success Rate:</span>
-                                <span className="outcome-value">{scenario.outcomes.successProbability}%</span>
-                              </div>
-                              <div className="outcome-item">
-                                <span className="outcome-label">Job Security:</span>
-                                <span className="outcome-value">{scenario.outcomes.jobSecurity}/10</span>
-                              </div>
-                              <div className="outcome-item">
-                                <span className="outcome-label">Satisfaction:</span>
-                                <span className="outcome-value">{scenario.outcomes.satisfaction}/10</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="scenario-investment">
-                            <div className="investment-item">
-                              <span className="investment-label">Total Investment:</span>
-                              <span className="investment-value">{formatCurrency(scenario.requirements.investment)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="career-recommendations">
-                    <h4>💡 Career Recommendations</h4>
-                    <div className="recommendations-list">
-                      {professionsData.careerSimulation.recommendations.map((rec, i) => (
-                        <div key={i} className="recommendation-item">
-                          <div className="rec-header">
-                            <div className="rec-profession">{rec.profession}</div>
-                            <div className={`rec-priority ${rec.priority}`}>
-                              {rec.priority.toUpperCase()}
-                            </div>
-                          </div>
-                          <div className="rec-reason">{rec.reason}</div>
-                          <div className="rec-timeframe">
-                            <strong>Timeframe:</strong> {rec.timeframe}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="tab-actions">
-                    <button className="action-btn">Career Planner</button>
-                    <button className="action-btn secondary">Skills Assessment</button>
-                    <button className="action-btn">Training Programs</button>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'analytics' && (
-                <div className="analytics-tab">
-                  <div className="skills-analysis">
-                    <h4>🎯 Skills Gap Analysis</h4>
-                    <div className="skills-grid">
-                      {professionsData.laborMarket.skills.map((skill, i) => (
-                        <div key={i} className="skill-card">
-                          <div className="skill-header">
-                            <div className="skill-name">{skill.skill}</div>
-                            <div className="skill-growth" style={{ color: '#10b981' }}>
-                              +{skill.growthRate.toFixed(1)}%
-                            </div>
-                          </div>
-                          <div className="skill-metrics">
-                            <div className="skill-metric">
-                              <span className="skill-label">Demand:</span>
-                              <div className="skill-bar">
-                                <div className="skill-fill demand" style={{ width: `${skill.demand}%` }}></div>
-                              </div>
-                              <span className="skill-value">{skill.demand}%</span>
-                            </div>
-                            <div className="skill-metric">
-                              <span className="skill-label">Supply:</span>
-                              <div className="skill-bar">
-                                <div className="skill-fill supply" style={{ width: `${skill.supply}%` }}></div>
-                              </div>
-                              <span className="skill-value">{skill.supply}%</span>
-                            </div>
-                            <div className="skill-gap">
-                              <span className="gap-label">Gap:</span>
-                              <span className="gap-value" style={{ color: skill.gap > 50 ? '#ef4444' : skill.gap > 25 ? '#f59e0b' : '#10b981' }}>
-                                {skill.gap} points
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="market-trends">
-                    <h4>📈 Market Trends</h4>
-                    <div className="trends-chart">
-                      {professionsData.laborMarket.trends.map((trend, i) => (
-                        <div key={i} className="trend-item">
-                          <div className="trend-period">{trend.period}</div>
-                          <div className="trend-metrics">
-                            <div className="trend-metric">
-                              <span className="trend-label">Employed:</span>
-                              <span className="trend-value">{formatNumber(trend.employed)}</span>
-                            </div>
-                            <div className="trend-metric">
-                              <span className="trend-label">New Hires:</span>
-                              <span className="trend-value">{formatNumber(trend.newHires)}</span>
-                            </div>
-                            <div className="trend-metric">
-                              <span className="trend-label">Openings:</span>
-                              <span className="trend-value">{formatNumber(trend.openPositions)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="tab-actions">
-                    <button className="action-btn">Generate Report</button>
-                    <button className="action-btn secondary">Market Forecast</button>
-                    <button className="action-btn">Workforce Planning</button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+      <div className="social-theme" style={{ minHeight: '800px' }}>
+        {renderContent()}
       </div>
     </BaseScreen>
   );

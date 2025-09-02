@@ -1,5 +1,24 @@
+/**
+ * Science Technology Screen - Research and Development Management
+ * 
+ * This screen focuses on scientific research and technology development including:
+ * - Research projects and technology trees
+ * - Innovation management and breakthroughs
+ * - Research collaboration and partnerships
+ * - Technology applications and commercialization
+ * - Research ethics and regulations
+ * 
+ * Distinct from:
+ * - Corporate Research: Private sector research and development
+ * - University Research: Academic research and education
+ * - Classified Research: Secret government research projects
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './ScienceTechnologyScreen.css';
+import '../shared/StandardDesign.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface Technology {
   id: string;
@@ -12,155 +31,334 @@ interface Technology {
   description?: string;
   prerequisites?: string[];
   unlocks?: string[];
+  researchers: number;
+  efficiency: number;
+  breakthroughChance: number;
 }
 
-interface ResearchData {
-  totalPoints: number;
-  pointsPerTurn: number;
-  activeProjects: number;
-  completedTechs: number;
-  technologies: Technology[];
+interface ResearchProject {
+  id: string;
+  name: string;
+  category: string;
+  leadScientist: string;
+  teamSize: number;
+  progress: number;
+  budget: number;
+  startDate: string;
+  expectedCompletion: string;
+  status: 'planning' | 'active' | 'completed' | 'paused' | 'cancelled';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  breakthroughs: string[];
+  challenges: string[];
+}
+
+interface Innovation {
+  id: string;
+  name: string;
+  category: string;
+  inventor: string;
+  discoveryDate: string;
+  impact: 'low' | 'medium' | 'high' | 'revolutionary';
+  applications: string[];
+  commercialization: number;
+  patents: number;
+  description: string;
+}
+
+interface Collaboration {
+  id: string;
+  name: string;
+  type: 'university' | 'corporation' | 'government' | 'international';
+  partner: string;
+  focus: string;
+  startDate: string;
+  duration: number;
+  budget: number;
+  status: 'proposed' | 'active' | 'completed' | 'cancelled';
+  outcomes: string[];
+  publications: number;
+}
+
+interface ResearchAnalysis {
+  totalFunding: number;
   researchEfficiency: number;
+  breakthroughRate: number;
+  publicationCount: number;
+  patentCount: number;
+  collaborationCount: number;
+  technologyReadiness: number;
+  innovationIndex: number;
 }
 
-const ScienceTechnologyScreen: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'research' | 'projects' | 'innovations' | 'collaboration' | 'analysis' | 'breakthroughs' | 'ethics' | 'applications'>('overview');
-  const [researchData, setResearchData] = useState<ResearchData>({
-    totalPoints: 1250,
-    pointsPerTurn: 85,
-    activeProjects: 3,
-    completedTechs: 12,
-    researchEfficiency: 94,
-    technologies: [
-      { 
-        id: 'quantum_computing', 
-        name: 'Quantum Computing', 
-        category: 'Computing', 
-        progress: 100, 
-        maxProgress: 100, 
-        cost: 200, 
-        status: 'researched',
-        description: 'Revolutionary computing technology using quantum mechanics principles',
-        unlocks: ['ai_consciousness']
-      },
-      { 
-        id: 'fusion_power', 
-        name: 'Fusion Power', 
-        category: 'Energy', 
-        progress: 75, 
-        maxProgress: 150, 
-        cost: 150, 
-        status: 'researching',
-        description: 'Clean, unlimited energy from nuclear fusion reactions',
-        unlocks: ['terraforming']
-      },
-      { 
-        id: 'neural_interfaces', 
-        name: 'Neural Interfaces', 
-        category: 'Biotech', 
-        progress: 45, 
-        maxProgress: 120, 
-        cost: 120, 
-        status: 'researching',
-        description: 'Direct brain-computer interface technology'
-      },
-      { 
-        id: 'antimatter_engines', 
-        name: 'Antimatter Engines', 
-        category: 'Propulsion', 
-        progress: 0, 
-        maxProgress: 300, 
-        cost: 300, 
-        status: 'available',
-        description: 'Ultra-efficient propulsion using antimatter reactions',
-        unlocks: ['wormhole_travel']
-      },
-      { 
-        id: 'terraforming', 
-        name: 'Terraforming Technology', 
-        category: 'Planetary', 
-        progress: 0, 
-        maxProgress: 250, 
-        cost: 250, 
-        status: 'available',
-        description: 'Transform planetary environments to support life',
-        prerequisites: ['fusion_power']
-      },
-      { 
-        id: 'ai_consciousness', 
-        name: 'AI Consciousness', 
-        category: 'Computing', 
-        progress: 0, 
-        maxProgress: 400, 
-        cost: 400, 
-        status: 'locked',
-        description: 'Development of truly conscious artificial intelligence',
-        prerequisites: ['quantum_computing']
-      },
-      { 
-        id: 'wormhole_travel', 
-        name: 'Wormhole Travel', 
-        category: 'Propulsion', 
-        progress: 0, 
-        maxProgress: 500, 
-        cost: 500, 
-        status: 'locked',
-        description: 'Instantaneous travel through space-time wormholes',
-        prerequisites: ['antimatter_engines']
-      },
-      { 
-        id: 'matter_replication', 
-        name: 'Matter Replication', 
-        category: 'Manufacturing', 
-        progress: 30, 
-        maxProgress: 180, 
-        cost: 180, 
-        status: 'researching',
-        description: 'Create any material from base atomic components'
-      },
-      { 
-        id: 'genetic_engineering', 
-        name: 'Advanced Genetic Engineering', 
-        category: 'Biotech', 
-        progress: 0, 
-        maxProgress: 220, 
-        cost: 220, 
-        status: 'available',
-        description: 'Precise manipulation of genetic code for enhancement'
-      },
-      { 
-        id: 'nano_technology', 
-        name: 'Nanotechnology', 
-        category: 'Manufacturing', 
-        progress: 0, 
-        maxProgress: 280, 
-        cost: 280, 
-        status: 'available',
-        description: 'Molecular-scale manufacturing and medical applications'
-      }
-    ]
-  });
+const ScienceTechnologyScreen: React.FC<ScreenProps> = ({ 
+  screenId, 
+  title, 
+  icon, 
+  gameContext 
+}) => {
+  const [researchData, setResearchData] = useState<{
+    overview: ResearchAnalysis;
+    technologies: Technology[];
+    projects: ResearchProject[];
+    innovations: Innovation[];
+    collaborations: Collaboration[];
+  } | null>(null);
+
+  const [activeTab, setActiveTab] = useState<'overview' | 'research' | 'projects' | 'innovations' | 'collaboration'>('overview');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch research data
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'research', label: 'Research', icon: '🔬' },
+    { id: 'projects', label: 'Projects', icon: '📋' },
+    { id: 'innovations', label: 'Innovations', icon: '💡' },
+    { id: 'collaboration', label: 'Collaboration', icon: '🤝' }
+  ];
+
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/science-technology', description: 'Get science technology data' }
+  ];
+
+  // Utility functions
+  const formatCurrency = (value: number, currency: string = 'USD') => {
+    if (value >= 1e12) return `${currency} ${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `${currency} ${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${currency} ${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${currency} ${(value / 1e3).toFixed(0)}K`;
+    return `${currency} ${value}`;
+  };
+
+  const formatNumber = (value: number) => {
+    if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+    return value.toString();
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+      case 'researching':
+      case 'researched':
+        return '#10b981';
+      case 'planning':
+      case 'available':
+        return '#fbbf24';
+      case 'paused':
+      case 'cancelled':
+        return '#ef4444';
+      case 'locked':
+        return '#6b7280';
+      default:
+        return '#6b7280';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return '#ef4444';
+      case 'high': return '#f59e0b';
+      case 'medium': return '#fbbf24';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getImpactColor = (impact: string) => {
+    switch (impact) {
+      case 'revolutionary': return '#ef4444';
+      case 'high': return '#f59e0b';
+      case 'medium': return '#fbbf24';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getCollaborationTypeColor = (type: string) => {
+    switch (type) {
+      case 'international': return '#ef4444';
+      case 'government': return '#3b82f6';
+      case 'corporation': return '#f59e0b';
+      case 'university': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
   const fetchResearchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
       // Try to fetch from API
-      const response = await fetch('http://localhost:4010/api/technology/research');
+      const response = await fetch('http://localhost:4000/api/science-technology');
       if (response.ok) {
         const data = await response.json();
-        setResearchData(prev => ({
-          ...prev,
-          ...data
-        }));
+        setResearchData(data);
+      } else {
+        throw new Error('API not available');
       }
     } catch (err) {
-      console.warn('Failed to fetch research data:', err);
-      setError('Using offline data - API unavailable');
+      console.warn('Failed to fetch science technology data:', err);
+      // Use comprehensive mock data
+      setResearchData({
+        overview: {
+          totalFunding: 850000000,
+          researchEfficiency: 94.2,
+          breakthroughRate: 12.5,
+          publicationCount: 1250,
+          patentCount: 89,
+          collaborationCount: 45,
+          technologyReadiness: 78.5,
+          innovationIndex: 92.1
+        },
+        technologies: [
+          {
+            id: 'quantum_computing',
+            name: 'Quantum Computing',
+            category: 'Computing',
+            progress: 100,
+            maxProgress: 100,
+            cost: 200000000,
+            status: 'researched',
+            description: 'Revolutionary computing technology using quantum mechanics principles',
+            unlocks: ['ai_consciousness'],
+            researchers: 25,
+            efficiency: 95,
+            breakthroughChance: 15
+          },
+          {
+            id: 'fusion_power',
+            name: 'Fusion Power',
+            category: 'Energy',
+            progress: 75,
+            maxProgress: 150,
+            cost: 150000000,
+            status: 'researching',
+            description: 'Clean, unlimited energy from nuclear fusion reactions',
+            unlocks: ['terraforming'],
+            researchers: 18,
+            efficiency: 88,
+            breakthroughChance: 22
+          },
+          {
+            id: 'neural_interfaces',
+            name: 'Neural Interfaces',
+            category: 'Biotech',
+            progress: 45,
+            maxProgress: 120,
+            cost: 120000000,
+            status: 'researching',
+            description: 'Direct brain-computer interface technology',
+            researchers: 12,
+            efficiency: 82,
+            breakthroughChance: 18
+          },
+          {
+            id: 'antimatter_engines',
+            name: 'Antimatter Engines',
+            category: 'Propulsion',
+            progress: 0,
+            maxProgress: 300,
+            cost: 300000000,
+            status: 'available',
+            description: 'Ultra-efficient propulsion using antimatter reactions',
+            unlocks: ['wormhole_travel'],
+            researchers: 0,
+            efficiency: 0,
+            breakthroughChance: 8
+          }
+        ],
+        projects: [
+          {
+            id: 'proj_001',
+            name: 'Advanced AI Development',
+            category: 'Artificial Intelligence',
+            leadScientist: 'Dr. Sarah Chen',
+            teamSize: 15,
+            progress: 65,
+            budget: 50000000,
+            startDate: '2024-01-15',
+            expectedCompletion: '2024-06-15',
+            status: 'active',
+            priority: 'high',
+            breakthroughs: ['Improved neural network efficiency', 'Enhanced learning algorithms'],
+            challenges: ['Computational resource limitations', 'Ethical considerations']
+          },
+          {
+            id: 'proj_002',
+            name: 'Sustainable Energy Systems',
+            category: 'Energy',
+            leadScientist: 'Dr. Michael Rodriguez',
+            teamSize: 12,
+            progress: 45,
+            budget: 35000000,
+            startDate: '2024-02-01',
+            expectedCompletion: '2024-08-01',
+            status: 'active',
+            priority: 'medium',
+            breakthroughs: ['Improved solar cell efficiency', 'Advanced battery technology'],
+            challenges: ['Material cost optimization', 'Scalability issues']
+          }
+        ],
+        innovations: [
+          {
+            id: 'innov_001',
+            name: 'Quantum Encryption Protocol',
+            category: 'Cybersecurity',
+            inventor: 'Dr. Elena Petrov',
+            discoveryDate: '2024-01-20',
+            impact: 'high',
+            applications: ['Government communications', 'Financial transactions', 'Military operations'],
+            commercialization: 85,
+            patents: 3,
+            description: 'Unbreakable encryption using quantum entanglement principles'
+          },
+          {
+            id: 'innov_002',
+            name: 'Bio-Engineered Materials',
+            category: 'Materials Science',
+            inventor: 'Dr. James Wilson',
+            discoveryDate: '2024-02-10',
+            impact: 'medium',
+            applications: ['Medical implants', 'Aerospace components', 'Consumer electronics'],
+            commercialization: 65,
+            patents: 2,
+            description: 'Self-healing materials with biological properties'
+          }
+        ],
+        collaborations: [
+          {
+            id: 'collab_001',
+            name: 'International Fusion Research',
+            type: 'international',
+            partner: 'European Research Council',
+            focus: 'Nuclear Fusion Technology',
+            startDate: '2023-09-01',
+            duration: 36,
+            budget: 75000000,
+            status: 'active',
+            outcomes: ['Improved plasma containment', 'Enhanced fusion efficiency'],
+            publications: 12
+          },
+          {
+            id: 'collab_002',
+            name: 'University AI Partnership',
+            type: 'university',
+            partner: 'MIT Technology Institute',
+            focus: 'Machine Learning Algorithms',
+            startDate: '2024-01-01',
+            duration: 24,
+            budget: 25000000,
+            status: 'active',
+            outcomes: ['Advanced neural networks', 'Improved training methods'],
+            publications: 8
+          }
+        ]
+      });
     } finally {
       setLoading(false);
     }
@@ -170,555 +368,433 @@ const ScienceTechnologyScreen: React.FC = () => {
     fetchResearchData();
   }, [fetchResearchData]);
 
-  // Auto-progress research simulation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setResearchData(prev => {
-        const newData = { ...prev };
-        let hasChanges = false;
-
-        newData.technologies = newData.technologies.map(tech => {
-          if (tech.status === 'researching') {
-            const newProgress = Math.min(tech.maxProgress, tech.progress + 2);
-            if (newProgress !== tech.progress) {
-              hasChanges = true;
-              if (newProgress >= tech.maxProgress) {
-                return { ...tech, progress: newProgress, status: 'researched' as const };
-              }
-              return { ...tech, progress: newProgress };
-            }
-          }
-          return tech;
-        });
-
-        if (hasChanges) {
-          newData.totalPoints += Math.floor(newData.pointsPerTurn * 0.1);
-          newData.completedTechs = newData.technologies.filter(t => t.status === 'researched').length;
-        }
-
-        return hasChanges ? newData : prev;
-      });
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const getStatusColor = (status: Technology['status']) => {
-    switch(status) {
-      case 'researched': return '#4ecdc4';
-      case 'researching': return '#fbbf24';
-      case 'available': return '#ccc';
-      case 'locked': return '#666';
-      default: return '#ccc';
-    }
-  };
-
-  const getStatusText = (status: Technology['status']) => {
-    switch(status) {
-      case 'researched': return '✅ Completed';
-      case 'researching': return '🔬 Researching';
-      case 'available': return '📋 Available';
-      case 'locked': return '🔒 Locked';
-      default: return 'Unknown';
-    }
-  };
-
-  const selectTech = (techId: string) => {
-    setResearchData(prev => {
-      const newData = { ...prev };
-      const techIndex = newData.technologies.findIndex(t => t.id === techId);
-      
-      if (techIndex !== -1) {
-        const tech = { ...newData.technologies[techIndex] };
-        
-        if (tech.status === 'available') {
-          tech.status = 'researching';
-          tech.progress = 10;
-        } else if (tech.status === 'researching') {
-          tech.progress = Math.min(tech.maxProgress, tech.progress + 25);
-          if (tech.progress >= tech.maxProgress) {
-            tech.status = 'researched';
-            newData.completedTechs++;
-            // Unlock dependent technologies
-            unlockDependentTechs(newData, techId);
-          }
-        }
-        
-        newData.technologies[techIndex] = tech;
-      }
-      
-      return newData;
-    });
-  };
-
-  const unlockDependentTechs = (data: ResearchData, completedTechId: string) => {
-    const completedTech = data.technologies.find(t => t.id === completedTechId);
-    if (completedTech?.unlocks) {
-      completedTech.unlocks.forEach(unlockId => {
-        const techToUnlock = data.technologies.find(t => t.id === unlockId);
-        if (techToUnlock && techToUnlock.status === 'locked') {
-          techToUnlock.status = 'available';
-        }
-      });
-    }
-  };
-
-  const allocateResearch = () => {
-    setResearchData(prev => {
-      const researchingTechs = prev.technologies.filter(tech => tech.status === 'researching');
-      if (researchingTechs.length > 0 && prev.totalPoints >= prev.pointsPerTurn) {
-        const newData = { ...prev };
-        newData.totalPoints -= newData.pointsPerTurn;
-        
-        const pointsPerTech = Math.floor(newData.pointsPerTurn / researchingTechs.length);
-        newData.technologies = newData.technologies.map(tech => {
-          if (tech.status === 'researching') {
-            const newProgress = Math.min(tech.maxProgress, tech.progress + pointsPerTech);
-            if (newProgress >= tech.maxProgress) {
-              newData.completedTechs++;
-              unlockDependentTechs(newData, tech.id);
-              return { ...tech, progress: newProgress, status: 'researched' as const };
-            }
-            return { ...tech, progress: newProgress };
-          }
-          return tech;
-        });
-        
-        return newData;
-      }
-      return prev;
-    });
-  };
-
-  const rushResearch = () => {
-    setResearchData(prev => {
-      const researchingTechs = prev.technologies.filter(tech => tech.status === 'researching');
-      if (researchingTechs.length > 0) {
-        const tech = researchingTechs[0];
-        const remainingCost = tech.maxProgress - tech.progress;
-        if (prev.totalPoints >= remainingCost * 2) {
-          const newData = { ...prev };
-          newData.totalPoints -= remainingCost * 2;
-          newData.completedTechs++;
-          
-          newData.technologies = newData.technologies.map(t => {
-            if (t.id === tech.id) {
-              unlockDependentTechs(newData, t.id);
-              return { ...t, progress: t.maxProgress, status: 'researched' as const };
-            }
-            return t;
-          });
-          
-          return newData;
-        }
-      }
-      return prev;
-    });
-  };
-
-  const activeResearch = researchData.technologies.filter(tech => tech.status === 'researching');
-  const totalCostRemaining = activeResearch.reduce((sum, tech) => sum + (tech.cost - (tech.progress / tech.maxProgress * tech.cost)), 0);
-  const estimatedCompletion = totalCostRemaining > 0 ? Math.ceil(totalCostRemaining / researchData.pointsPerTurn) : 0;
-
+  // Render functions for each tab
   const renderOverview = () => (
-    <div className="overview-content">
-      <div className="research-stats">
-        <div className="stat-card">
-          <div className="stat-value">{researchData.totalPoints.toLocaleString()}</div>
-          <div className="stat-label">Research Points</div>
+    <>
+      {/* Research Overview - Full panel width */}
+      <div className="standard-panel technology-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>📊 Research & Development Overview</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Total Funding</span>
+            <span className="standard-metric-value">{formatCurrency(researchData?.overview?.totalFunding || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Research Efficiency</span>
+            <span className="standard-metric-value">{(researchData?.overview?.researchEfficiency || 0).toFixed(1)}%</span>
+          </div>
+          <div className="standard-metric">
+            <span>Breakthrough Rate</span>
+            <span className="standard-metric-value">{(researchData?.overview?.breakthroughRate || 0).toFixed(1)}%</span>
+          </div>
+          <div className="standard-metric">
+            <span>Publications</span>
+            <span className="standard-metric-value">{formatNumber(researchData?.overview?.publicationCount || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Patents</span>
+            <span className="standard-metric-value">{researchData?.overview?.patentCount || 0}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Collaborations</span>
+            <span className="standard-metric-value">{researchData?.overview?.collaborationCount || 0}</span>
+          </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-value">{researchData.pointsPerTurn}</div>
-          <div className="stat-label">Points Per Turn</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{activeResearch.length}</div>
-          <div className="stat-label">Active Projects</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{researchData.completedTechs}</div>
-          <div className="stat-label">Completed Technologies</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{researchData.researchEfficiency}%</div>
-          <div className="stat-label">Research Efficiency</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{estimatedCompletion} turns</div>
-          <div className="stat-label">Estimated Completion</div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('Research Analysis')}>Research Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Innovation Review')}>Innovation Review</button>
         </div>
       </div>
 
-      <div className="research-actions">
-        <button className="action-btn primary" onClick={allocateResearch}>
-          🧪 Allocate Research Points
-        </button>
-        <button className="action-btn secondary" onClick={rushResearch}>
-          ⚡ Rush Current Research
-        </button>
-        <button className="action-btn" onClick={fetchResearchData}>
-          🔄 Refresh Data
-        </button>
+      {/* Active Research Projects - Full panel width */}
+      <div className="standard-panel technology-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>📋 Active Research Projects</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Category</th>
+                <th>Lead Scientist</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Progress</th>
+                <th>Team Size</th>
+                <th>Budget</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData?.projects?.slice(0, 5).map((project) => (
+                <tr key={project.id}>
+                  <td><strong>{project.name}</strong></td>
+                  <td>{project.category}</td>
+                  <td>{project.leadScientist}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(project.status), 
+                      color: 'white' 
+                    }}>
+                      {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getPriorityColor(project.priority), 
+                      color: 'white' 
+                    }}>
+                      {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
+                    </span>
+                  </td>
+                  <td>{project.progress}%</td>
+                  <td>{project.teamSize}</td>
+                  <td>{formatCurrency(project.budget)}</td>
+                  <td>
+                    <button className="standard-btn technology-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+
+      {/* Research Analytics - Full panel width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div className="standard-panel technology-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>📈 Research Analytics</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+            <div className="chart-container">
+              <BarChart
+                data={researchData?.projects?.map(proj => ({
+                  label: proj.name,
+                  value: proj.progress,
+                  color: getStatusColor(proj.status)
+                })) || []}
+                title="📋 Project Progress (%)"
+                height={250}
+                width={400}
+                showTooltip={true}
+              />
+            </div>
+            <div className="chart-container">
+              <PieChart
+                data={researchData?.technologies?.map((tech, index) => ({
+                  label: tech.category,
+                  value: 1,
+                  color: getStatusColor(tech.status)
+                })) || []}
+                title="🔬 Technology Categories"
+                size={200}
+                showLegend={true}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 
   const renderResearch = () => (
-    <div className="research-content">
-      <div className="tech-tree">
-        {researchData.technologies.map(tech => {
-          const progressPercent = (tech.progress / tech.maxProgress) * 100;
-          const statusClass = tech.status === 'researched' ? 'researched' : tech.status === 'researching' ? 'researching' : '';
-          
-          return (
-            <div key={tech.id} className={`tech-card ${statusClass}`} onClick={() => selectTech(tech.id)}>
-              <div className="tech-name">{tech.name}</div>
-              <div className="tech-category">{tech.category}</div>
-              <div className="tech-cost">Cost: {tech.cost} RP</div>
-              <div className="tech-progress">
-                <div className="progress-bar" style={{ width: `${progressPercent}%` }}></div>
-              </div>
-              <div className="tech-progress-text">
-                {tech.progress}/{tech.maxProgress} ({progressPercent.toFixed(0)}%)
-              </div>
-              <div className="tech-status" style={{ color: getStatusColor(tech.status) }}>
-                {getStatusText(tech.status)}
-              </div>
-              {tech.description && (
-                <div className="tech-description">{tech.description}</div>
-              )}
-              {tech.prerequisites && tech.prerequisites.length > 0 && (
-                <div className="tech-prerequisites">
-                  Requires: {tech.prerequisites.join(', ')}
-                </div>
-              )}
-            </div>
-          );
-        })}
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel technology-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>🔬 Technology Research</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('Technology Analysis')}>Technology Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Research Planning')}>Research Planning</button>
+        </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Technology</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Cost</th>
+                <th>Researchers</th>
+                <th>Efficiency</th>
+                <th>Breakthrough</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData?.technologies?.map((tech) => (
+                <tr key={tech.id}>
+                  <td>
+                    <strong>{tech.name}</strong><br />
+                    <small style={{ color: '#a0a9ba' }}>{tech.description}</small>
+                  </td>
+                  <td>{tech.category}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(tech.status), 
+                      color: 'white' 
+                    }}>
+                      {tech.status.charAt(0).toUpperCase() + tech.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>{tech.progress}/{tech.maxProgress}</td>
+                  <td>{formatCurrency(tech.cost)}</td>
+                  <td>{tech.researchers}</td>
+                  <td>{tech.efficiency}%</td>
+                  <td>{tech.breakthroughChance}%</td>
+                  <td>
+                    <button className="standard-btn technology-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 
   const renderProjects = () => (
-    <div className="projects-content">
-      <h3>Active Research Projects</h3>
-      <div className="active-projects">
-        {activeResearch.map(tech => (
-          <div key={tech.id} className="project-card">
-            <div className="project-header">
-              <h4>{tech.name}</h4>
-              <span className="project-category">{tech.category}</span>
-            </div>
-            <div className="project-progress">
-              <div className="progress-bar" style={{ width: `${(tech.progress / tech.maxProgress) * 100}%` }}></div>
-            </div>
-            <div className="project-details">
-              <span>Progress: {tech.progress}/{tech.maxProgress}</span>
-              <span>Remaining: {tech.maxProgress - tech.progress} RP</span>
-            </div>
-            {tech.description && <p className="project-description">{tech.description}</p>}
-          </div>
-        ))}
-      </div>
-      
-      {activeResearch.length === 0 && (
-        <div className="no-projects">
-          <p>No active research projects. Select available technologies to begin research.</p>
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel technology-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>📋 Research Projects</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('Project Analysis')}>Project Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Resource Allocation')}>Resource Allocation</button>
         </div>
-      )}
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Category</th>
+                <th>Lead Scientist</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Progress</th>
+                <th>Team Size</th>
+                <th>Budget</th>
+                <th>Start Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData?.projects?.map((project) => (
+                <tr key={project.id}>
+                  <td><strong>{project.name}</strong></td>
+                  <td>{project.category}</td>
+                  <td>{project.leadScientist}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(project.status), 
+                      color: 'white' 
+                    }}>
+                      {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getPriorityColor(project.priority), 
+                      color: 'white' 
+                    }}>
+                      {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
+                    </span>
+                  </td>
+                  <td>{project.progress}%</td>
+                  <td>{project.teamSize}</td>
+                  <td>{formatCurrency(project.budget)}</td>
+                  <td>{project.startDate}</td>
+                  <td>
+                    <button className="standard-btn technology-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 
   const renderInnovations = () => (
-    <div className="innovations-content">
-      <h3>Innovation Pipeline</h3>
-      <div className="innovation-categories">
-        <div className="category-card">
-          <h4>🖥️ Computing</h4>
-          <p>Quantum computing, AI consciousness, neural networks</p>
-          <div className="category-progress">Progress: 65%</div>
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel technology-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>💡 Innovations & Discoveries</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('Innovation Analysis')}>Innovation Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Patent Management')}>Patent Management</button>
         </div>
-        <div className="category-card">
-          <h4>⚡ Energy</h4>
-          <p>Fusion power, antimatter, renewable systems</p>
-          <div className="category-progress">Progress: 45%</div>
-        </div>
-        <div className="category-card">
-          <h4>🚀 Propulsion</h4>
-          <p>Antimatter engines, wormhole travel, FTL drives</p>
-          <div className="category-progress">Progress: 20%</div>
-        </div>
-        <div className="category-card">
-          <h4>🧬 Biotech</h4>
-          <p>Genetic engineering, neural interfaces, life extension</p>
-          <div className="category-progress">Progress: 55%</div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Innovation</th>
+                <th>Category</th>
+                <th>Inventor</th>
+                <th>Impact</th>
+                <th>Commercialization</th>
+                <th>Patents</th>
+                <th>Discovery Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData?.innovations?.map((innovation) => (
+                <tr key={innovation.id}>
+                  <td>
+                    <strong>{innovation.name}</strong><br />
+                    <small style={{ color: '#a0a9ba' }}>{innovation.description}</small>
+                  </td>
+                  <td>{innovation.category}</td>
+                  <td>{innovation.inventor}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getImpactColor(innovation.impact), 
+                      color: 'white' 
+                    }}>
+                      {innovation.impact.charAt(0).toUpperCase() + innovation.impact.slice(1)}
+                    </span>
+                  </td>
+                  <td>{innovation.commercialization}%</td>
+                  <td>{innovation.patents}</td>
+                  <td>{innovation.discoveryDate}</td>
+                  <td>
+                    <button className="standard-btn technology-theme">View</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 
   const renderCollaboration = () => (
-    <div className="collaboration-content">
-      <h3>Research Collaboration</h3>
-      <div className="collaboration-partners">
-        <div className="partner-card">
-          <h4>🏛️ Galactic Research Consortium</h4>
-          <p>Joint research on quantum technologies and AI consciousness</p>
-          <div className="partner-status">Status: Active</div>
-          <div className="partner-contribution">Contribution: +15% Computing research speed</div>
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel technology-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>🤝 Research Collaborations</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('Collaboration Analysis')}>Collaboration Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Partnership Review')}>Partnership Review</button>
         </div>
-        <div className="partner-card">
-          <h4>🌌 Centauri Science Alliance</h4>
-          <p>Energy research collaboration and fusion technology sharing</p>
-          <div className="partner-status">Status: Active</div>
-          <div className="partner-contribution">Contribution: +20% Energy research speed</div>
-        </div>
-        <div className="partner-card">
-          <h4>🔬 Independent Research Labs</h4>
-          <p>Biotech and medical research partnerships</p>
-          <div className="partner-status">Status: Negotiating</div>
-          <div className="partner-contribution">Potential: +10% Biotech research speed</div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderAnalysis = () => (
-    <div className="analysis-content">
-      <h3>Research Analytics</h3>
-      <div className="analytics-grid">
-        <div className="analytics-card">
-          <h4>Research Efficiency Trends</h4>
-          <div className="trend-indicator positive">↗ +5% this quarter</div>
-          <p>Efficiency improvements from new lab facilities and equipment upgrades</p>
-        </div>
-        <div className="analytics-card">
-          <h4>Technology Impact Assessment</h4>
-          <div className="impact-list">
-            <div className="impact-item">Quantum Computing: +25% AI research speed</div>
-            <div className="impact-item">Fusion Power: +30% energy production</div>
-            <div className="impact-item">Neural Interfaces: +15% population happiness</div>
-          </div>
-        </div>
-        <div className="analytics-card">
-          <h4>Resource Allocation</h4>
-          <div className="allocation-chart">
-            <div className="allocation-item">Computing: 35%</div>
-            <div className="allocation-item">Energy: 25%</div>
-            <div className="allocation-item">Biotech: 20%</div>
-            <div className="allocation-item">Propulsion: 15%</div>
-            <div className="allocation-item">Other: 5%</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderBreakthroughs = () => (
-    <div className="breakthroughs-content">
-      <h3>Recent Breakthroughs</h3>
-      <div className="breakthroughs-timeline">
-        <div className="breakthrough-item">
-          <div className="breakthrough-date">Turn 147</div>
-          <div className="breakthrough-content">
-            <h4>🖥️ Quantum Computing Mastery</h4>
-            <p>Successfully developed stable quantum processors with 1000+ qubit capacity</p>
-            <div className="breakthrough-impact">Impact: Unlocked AI Consciousness research</div>
-          </div>
-        </div>
-        <div className="breakthrough-item">
-          <div className="breakthrough-date">Turn 142</div>
-          <div className="breakthrough-content">
-            <h4>🧬 Genetic Code Mapping</h4>
-            <p>Complete genetic mapping of 15 sentient species across the galaxy</p>
-            <div className="breakthrough-impact">Impact: +50% biotech research efficiency</div>
-          </div>
-        </div>
-        <div className="breakthrough-item">
-          <div className="breakthrough-date">Turn 138</div>
-          <div className="breakthrough-content">
-            <h4>⚡ Fusion Reactor Optimization</h4>
-            <p>Achieved 99.7% energy conversion efficiency in fusion reactors</p>
-            <div className="breakthrough-impact">Impact: Unlimited clean energy production</div>
-          </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Collaboration</th>
+                <th>Type</th>
+                <th>Partner</th>
+                <th>Focus</th>
+                <th>Status</th>
+                <th>Budget</th>
+                <th>Duration</th>
+                <th>Publications</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData?.collaborations?.map((collab) => (
+                <tr key={collab.id}>
+                  <td><strong>{collab.name}</strong></td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getCollaborationTypeColor(collab.type), 
+                      color: 'white' 
+                    }}>
+                      {collab.type.charAt(0).toUpperCase() + collab.type.slice(1)}
+                    </span>
+                  </td>
+                  <td>{collab.partner}</td>
+                  <td>{collab.focus}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(collab.status), 
+                      color: 'white' 
+                    }}>
+                      {collab.status.charAt(0).toUpperCase() + collab.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>{formatCurrency(collab.budget)}</td>
+                  <td>{collab.duration} months</td>
+                  <td>{collab.publications}</td>
+                  <td>
+                    <button className="standard-btn technology-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
-
-  const renderEthics = () => (
-    <div className="ethics-content">
-      <h3>Research Ethics & Oversight</h3>
-      <div className="ethics-panels">
-        <div className="ethics-card">
-          <h4>🤖 AI Ethics Committee</h4>
-          <p>Oversight of AI consciousness research and neural interface development</p>
-          <div className="ethics-status">Status: Active monitoring</div>
-          <div className="ethics-recommendations">
-            <h5>Current Recommendations:</h5>
-            <ul>
-              <li>Implement AI rights framework before consciousness breakthrough</li>
-              <li>Establish neural interface consent protocols</li>
-              <li>Create AI-human interaction guidelines</li>
-            </ul>
-          </div>
-        </div>
-        <div className="ethics-card">
-          <h4>🧬 Bioethics Review Board</h4>
-          <p>Genetic engineering and biotech research ethical oversight</p>
-          <div className="ethics-status">Status: Under review</div>
-          <div className="ethics-recommendations">
-            <h5>Current Recommendations:</h5>
-            <ul>
-              <li>Limit genetic modifications to medical applications</li>
-              <li>Establish species-wide genetic diversity preservation</li>
-              <li>Create biotech safety protocols</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderApplications = () => (
-    <div className="applications-content">
-      <h3>Technology Applications</h3>
-      <div className="applications-grid">
-        <div className="application-card">
-          <h4>🏭 Industrial Applications</h4>
-          <div className="application-list">
-            <div className="application-item">
-              <strong>Matter Replication:</strong> Automated manufacturing, resource abundance
-            </div>
-            <div className="application-item">
-              <strong>Nanotechnology:</strong> Precision manufacturing, material enhancement
-            </div>
-            <div className="application-item">
-              <strong>Fusion Power:</strong> Industrial energy independence
-            </div>
-          </div>
-        </div>
-        <div className="application-card">
-          <h4>🏥 Medical Applications</h4>
-          <div className="application-list">
-            <div className="application-item">
-              <strong>Genetic Engineering:</strong> Disease elimination, life extension
-            </div>
-            <div className="application-item">
-              <strong>Neural Interfaces:</strong> Paralysis treatment, cognitive enhancement
-            </div>
-            <div className="application-item">
-              <strong>Nanotechnology:</strong> Targeted drug delivery, cellular repair
-            </div>
-          </div>
-        </div>
-        <div className="application-card">
-          <h4>🚀 Space Applications</h4>
-          <div className="application-list">
-            <div className="application-item">
-              <strong>Antimatter Engines:</strong> Interstellar travel, cargo transport
-            </div>
-            <div className="application-item">
-              <strong>Terraforming:</strong> Planetary colonization, habitat creation
-            </div>
-            <div className="application-item">
-              <strong>Wormhole Travel:</strong> Instantaneous galactic transport
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  if (loading) {
-    return (
-      <div className="science-technology-screen">
-        <div className="loading-state">
-          <div className="loading-spinner"></div>
-          <p>Loading research data...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="science-technology-screen">
-      <div className="screen-header">
-        <h1>🔬 Science & Technology Research</h1>
-        <p>Advanced research and development with technology trees and innovation systems</p>
-        {error && <div className="error-message">⚠️ {error}</div>}
+    <BaseScreen
+      screenId={screenId}
+      title={title}
+      icon={icon}
+      gameContext={gameContext}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchResearchData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
+    >
+      <div className="standard-screen-container technology-theme">
+        {error && <div className="error-message">Error: {error}</div>}
+        
+        <div className="standard-dashboard">
+          {!loading && !error && researchData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'research' && renderResearch()}
+              {activeTab === 'projects' && renderProjects()}
+              {activeTab === 'innovations' && renderInnovations()}
+              {activeTab === 'collaboration' && renderCollaboration()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading research data...' : 'No research data available'}
+            </div>
+          )}
+        </div>
       </div>
-
-      <div className="screen-tabs">
-        <button 
-          className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          📊 Overview
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'research' ? 'active' : ''}`}
-          onClick={() => setActiveTab('research')}
-        >
-          🔬 Research Tree
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
-          onClick={() => setActiveTab('projects')}
-        >
-          📋 Active Projects
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'innovations' ? 'active' : ''}`}
-          onClick={() => setActiveTab('innovations')}
-        >
-          💡 Innovations
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'collaboration' ? 'active' : ''}`}
-          onClick={() => setActiveTab('collaboration')}
-        >
-          🤝 Collaboration
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'analysis' ? 'active' : ''}`}
-          onClick={() => setActiveTab('analysis')}
-        >
-          📈 Analysis
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'breakthroughs' ? 'active' : ''}`}
-          onClick={() => setActiveTab('breakthroughs')}
-        >
-          🏆 Breakthroughs
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'ethics' ? 'active' : ''}`}
-          onClick={() => setActiveTab('ethics')}
-        >
-          ⚖️ Ethics
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'applications' ? 'active' : ''}`}
-          onClick={() => setActiveTab('applications')}
-        >
-          🔧 Applications
-        </button>
-      </div>
-
-      <div className="screen-content">
-        {activeTab === 'overview' && renderOverview()}
-        {activeTab === 'research' && renderResearch()}
-        {activeTab === 'projects' && renderProjects()}
-        {activeTab === 'innovations' && renderInnovations()}
-        {activeTab === 'collaboration' && renderCollaboration()}
-        {activeTab === 'analysis' && renderAnalysis()}
-        {activeTab === 'breakthroughs' && renderBreakthroughs()}
-        {activeTab === 'ethics' && renderEthics()}
-        {activeTab === 'applications' && renderApplications()}
-      </div>
-    </div>
+    </BaseScreen>
   );
 };
 
 export default ScienceTechnologyScreen;
+

@@ -1,6 +1,23 @@
+/**
+ * Demographics Screen - Population & Social Statistics
+ * 
+ * This screen focuses on population demographics including:
+ * - Population overview and trends
+ * - Age distribution and education levels
+ * - Income distribution and social mobility
+ * - City-specific demographic data
+ * - Population projections and simulations
+ * 
+ * Distinct from:
+ * - Cities Screen: City infrastructure and management
+ * - Migration Screen: Population movement and immigration
+ * - Health Screen: Health statistics and medical data
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
-import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './DemographicsScreen.css';
+import '../shared/StandardDesign.css';
 import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface DemographicStat {
@@ -56,174 +73,38 @@ interface DemographicsData {
   }[];
 }
 
-const DemographicsScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext }) => {
+const DemographicsScreen: React.FC<ScreenProps> = ({ 
+  screenId, 
+  title, 
+  icon, 
+  gameContext 
+}) => {
   const [demographicsData, setDemographicsData] = useState<DemographicsData | null>(null);
   const [selectedCityId, setSelectedCityId] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'overview' | 'trends' | 'mobility' | 'projections' | 'comparative'>('overview');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const apiEndpoints: APIEndpoint[] = [
-    { method: 'GET', path: '/api/demographics/population', description: 'Get population demographics' },
-    { method: 'GET', path: '/api/demographics/cities', description: 'Get city demographic data' },
-    { method: 'GET', path: '/api/demographics/trends', description: 'Get demographic trends' },
-    { method: 'GET', path: '/api/demographics/mobility', description: 'Get social mobility data' },
-    { method: 'POST', path: '/api/demographics/simulate', description: 'Simulate demographic changes' }
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'trends', label: 'Trends', icon: '📈' },
+    { id: 'mobility', label: 'Mobility', icon: '🔄' },
+    { id: 'projections', label: 'Projections', icon: '🔮' },
+    { id: 'comparative', label: 'Comparative', icon: '🌍' }
   ];
 
-  const fetchDemographicsData = useCallback(async () => {
-    setLoading(true);
-    try {
-      // Try to fetch real data from API
-      const response = await fetch('/api/demographics/population');
-      if (response.ok) {
-        const data = await response.json();
-        setDemographicsData(data);
-        if (data.cities.length > 0 && !selectedCityId) {
-          setSelectedCityId(data.cities[0].id);
-        }
-        return;
-      }
-    } catch (error) {
-      console.warn('Demographics API not available, using mock data');
-    }
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/demographics', description: 'Get demographics data' }
+  ];
 
-    // Fallback to mock data for development
-    const mockData: DemographicsData = {
-      cities: [
-        {
-          id: 'new-terra',
-          name: 'New Terra',
-          totalPopulation: 2500000,
-          ageDistribution: {
-            children: 18,
-            adults: 65,
-            elderly: 17
-          },
-          educationLevels: {
-            elementary: 15,
-            secondary: 35,
-            higher: 35,
-            advanced: 15
-          },
-          incomeDistribution: {
-            low: 25,
-            middle: 45,
-            high: 25,
-            elite: 5
-          },
-          socialMobility: {
-            upwardMobility: 12,
-            downwardMobility: 8,
-            barriers: ['Limited Education Access', 'Economic Inequality', 'Geographic Isolation'],
-            opportunities: ['Tech Industry Growth', 'Education Programs', 'Infrastructure Development']
-          },
-          trends: {
-            populationGrowth: 2.3,
-            migrationRate: 1.8,
-            birthRate: 14.2,
-            deathRate: 8.1
-          }
-        },
-        {
-          id: 'mars-colony',
-          name: 'Mars Colony Alpha',
-          totalPopulation: 850000,
-          ageDistribution: {
-            children: 22,
-            adults: 68,
-            elderly: 10
-          },
-          educationLevels: {
-            elementary: 10,
-            secondary: 25,
-            higher: 45,
-            advanced: 20
-          },
-          incomeDistribution: {
-            low: 15,
-            middle: 40,
-            high: 35,
-            elite: 10
-          },
-          socialMobility: {
-            upwardMobility: 18,
-            downwardMobility: 5,
-            barriers: ['Resource Scarcity', 'Harsh Environment'],
-            opportunities: ['Research Opportunities', 'Pioneer Economy', 'High-Tech Industries']
-          },
-          trends: {
-            populationGrowth: 4.1,
-            migrationRate: 3.2,
-            birthRate: 16.8,
-            deathRate: 6.2
-          }
-        }
-      ],
-      selectedCity: null,
-      overallStats: [
-        { label: 'Total Population', value: '3.35M', trend: 'up', percentage: 2.8 },
-        { label: 'Population Growth', value: '2.9%', trend: 'up', percentage: 2.9 },
-        { label: 'Average Age', value: '34.2', trend: 'stable', percentage: 0.1 },
-        { label: 'Education Index', value: '0.78', trend: 'up', percentage: 1.2 },
-        { label: 'Social Mobility', value: '14.5%', trend: 'up', percentage: 0.8 }
-      ],
-      projections: [
-        { year: 2024, population: 3350000, scenario: 'Current Trend' },
-        { year: 2025, population: 3447000, scenario: 'Current Trend' },
-        { year: 2026, population: 3547000, scenario: 'Current Trend' },
-        { year: 2027, population: 3651000, scenario: 'Current Trend' },
-        { year: 2028, population: 3758000, scenario: 'Current Trend' }
-      ]
-    };
-
-    mockData.selectedCity = mockData.cities[0];
-    setDemographicsData(mockData);
-    setSelectedCityId(mockData.cities[0].id);
-    setLoading(false);
-  }, [selectedCityId]);
-
-  const loadCityData = useCallback(async (cityId: string) => {
-    if (!cityId || !demographicsData) return;
-    
-    const city = demographicsData.cities.find(c => c.id === cityId);
-    if (city) {
-      setDemographicsData(prev => prev ? { ...prev, selectedCity: city } : null);
-    }
-  }, [demographicsData]);
-
-  const simulateDemographics = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/demographics/simulate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ years: 5, cityId: selectedCityId })
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        // Update projections with simulation results
-        console.log('Simulation results:', data);
-      }
-    } catch (error) {
-      console.warn('Simulation API not available');
-    }
-    setLoading(false);
-  }, [selectedCityId]);
-
-  useEffect(() => {
-    fetchDemographicsData();
-  }, [fetchDemographicsData]);
-
-  useEffect(() => {
-    if (selectedCityId) {
-      loadCityData(selectedCityId);
-    }
-  }, [selectedCityId, loadCityData]);
-
+  // Utility functions
   const formatNumber = (num: number): string => {
-    if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
-    if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+    if (num >= 1e12) return `${(num / 1e12).toFixed(1)}T`;
+    if (num >= 1e9) return `${(num / 1e9).toFixed(1)}B`;
+    if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
+    if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
     return num.toString();
   };
 
@@ -236,402 +117,700 @@ const DemographicsScreen: React.FC<ScreenProps> = ({ screenId, title, icon, game
     }
   };
 
-  const renderOverview = () => {
-    if (!demographicsData?.selectedCity) return <div className="loading">Select a city to view demographics...</div>;
+  const getTrendColor = (trend?: string) => {
+    switch (trend) {
+      case 'up': return '#10b981';
+      case 'down': return '#ef4444';
+      case 'stable': return '#fbbf24';
+      default: return '#6b7280';
+    }
+  };
 
-    const city = demographicsData.selectedCity;
+  const fetchDemographicsData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/demographics');
+      if (response.ok) {
+        const data = await response.json();
+        setDemographicsData(data);
+        if (data.cities.length > 0 && !selectedCityId) {
+          setSelectedCityId(data.cities[0].id);
+        }
+      } else {
+        throw new Error('API not available');
+      }
+    } catch (err) {
+      console.warn('Failed to fetch demographics data:', err);
+      // Use comprehensive mock data
+      setDemographicsData({
+        cities: [
+          {
+            id: 'new-terra',
+            name: 'New Terra',
+            totalPopulation: 2500000,
+            ageDistribution: {
+              children: 18,
+              adults: 65,
+              elderly: 17
+            },
+            educationLevels: {
+              elementary: 15,
+              secondary: 35,
+              higher: 35,
+              advanced: 15
+            },
+            incomeDistribution: {
+              low: 25,
+              middle: 45,
+              high: 25,
+              elite: 5
+            },
+            socialMobility: {
+              upwardMobility: 12,
+              downwardMobility: 8,
+              barriers: ['Limited Education Access', 'Economic Inequality', 'Geographic Isolation'],
+              opportunities: ['Tech Industry Growth', 'Education Programs', 'Infrastructure Development']
+            },
+            trends: {
+              populationGrowth: 2.3,
+              migrationRate: 1.8,
+              birthRate: 14.2,
+              deathRate: 8.1
+            }
+          },
+          {
+            id: 'mars-colony',
+            name: 'Mars Colony Alpha',
+            totalPopulation: 850000,
+            ageDistribution: {
+              children: 22,
+              adults: 68,
+              elderly: 10
+            },
+            educationLevels: {
+              elementary: 10,
+              secondary: 25,
+              higher: 45,
+              advanced: 20
+            },
+            incomeDistribution: {
+              low: 15,
+              middle: 40,
+              high: 35,
+              elite: 10
+            },
+            socialMobility: {
+              upwardMobility: 18,
+              downwardMobility: 5,
+              barriers: ['High Cost of Living', 'Limited Local Opportunities', 'Transportation Costs'],
+              opportunities: ['Space Industry Growth', 'Research Funding', 'International Collaboration']
+            },
+            trends: {
+              populationGrowth: 3.1,
+              migrationRate: 2.5,
+              birthRate: 16.8,
+              deathRate: 6.2
+            }
+          },
+          {
+            id: 'luna-station',
+            name: 'Luna Station Beta',
+            totalPopulation: 420000,
+            ageDistribution: {
+              children: 15,
+              adults: 72,
+              elderly: 13
+            },
+            educationLevels: {
+              elementary: 8,
+              secondary: 20,
+              higher: 50,
+              advanced: 22
+            },
+            incomeDistribution: {
+              low: 10,
+              middle: 35,
+              high: 40,
+              elite: 15
+            },
+            socialMobility: {
+              upwardMobility: 22,
+              downwardMobility: 3,
+              barriers: ['High Entry Costs', 'Technical Requirements', 'Remote Location'],
+              opportunities: ['Lunar Mining', 'Research Facilities', 'Tourism Development']
+            },
+            trends: {
+              populationGrowth: 4.2,
+              migrationRate: 3.1,
+              birthRate: 18.5,
+              deathRate: 5.8
+            }
+          }
+        ],
+        selectedCity: null,
+        overallStats: [
+          { label: 'Total Population', value: '3.77M', trend: 'up', percentage: 2.8 },
+          { label: 'Growth Rate', value: '2.8%', trend: 'up', percentage: 0.3 },
+          { label: 'Life Expectancy', value: '78.4 years', trend: 'up', percentage: 1.2 },
+          { label: 'Fertility Rate', value: '2.1', trend: 'stable', percentage: 0.0 },
+          { label: 'Urbanization', value: '87.3%', trend: 'up', percentage: 0.8 },
+          { label: 'Diversity Index', value: '0.76', trend: 'up', percentage: 0.05 }
+        ],
+        projections: [
+          { year: 2025, population: 3880000, scenario: 'Optimistic' },
+          { year: 2030, population: 4250000, scenario: 'Optimistic' },
+          { year: 2035, population: 4650000, scenario: 'Optimistic' },
+          { year: 2025, population: 3750000, scenario: 'Realistic' },
+          { year: 2030, population: 4050000, scenario: 'Realistic' },
+          { year: 2035, population: 4350000, scenario: 'Realistic' },
+          { year: 2025, population: 3620000, scenario: 'Conservative' },
+          { year: 2030, population: 3850000, scenario: 'Conservative' },
+          { year: 2035, population: 4050000, scenario: 'Conservative' }
+        ]
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedCityId]);
 
-    return (
-      <div className="demographics-overview">
-        <div className="stats-grid">
-          {demographicsData.overallStats.map((stat, index) => (
-            <div key={index} className="stat-card">
-              <div className="stat-icon">{getTrendIcon(stat.trend)}</div>
-              <div className="stat-content">
-                <div className="stat-value">{stat.value}</div>
-                <div className="stat-label">{stat.label}</div>
-                {stat.percentage && (
-                  <div className={`stat-change ${stat.trend}`}>
-                    {stat.trend === 'up' ? '+' : stat.trend === 'down' ? '-' : ''}
-                    {Math.abs(stat.percentage)}%
-                  </div>
-                )}
-              </div>
+  useEffect(() => {
+    fetchDemographicsData();
+  }, [fetchDemographicsData]);
+
+  useEffect(() => {
+    if (selectedCityId && demographicsData) {
+      const city = demographicsData.cities.find(c => c.id === selectedCityId);
+      if (city) {
+        setDemographicsData(prev => prev ? { ...prev, selectedCity: city } : null);
+      }
+    }
+  }, [selectedCityId, demographicsData]);
+
+  // Render functions for each tab
+  const renderOverview = () => (
+    <>
+      {/* Demographics Overview - Full panel width */}
+      <div className="standard-panel social-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📊 Demographics Overview</h3>
+        <div className="standard-metric-grid">
+          {demographicsData?.overallStats?.map((stat, index) => (
+            <div className="standard-metric" key={index}>
+              <span>{stat.label}</span>
+              <span className="standard-metric-value">{stat.value}</span>
+              {stat.trend && (
+                <span style={{ 
+                  color: getTrendColor(stat.trend),
+                  fontSize: '0.8rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem'
+                }}>
+                  {getTrendIcon(stat.trend)} {stat.percentage !== undefined && `${stat.percentage > 0 ? '+' : ''}${stat.percentage}%`}
+                </span>
+              )}
             </div>
           ))}
         </div>
-
-        <div className="demographics-details">
-          <div className="detail-card">
-            <h3>👥 Population Overview</h3>
-            <div className="population-stat">
-              <span>Total Population:</span>
-              <span>{formatNumber(city.totalPopulation)}</span>
-            </div>
-          </div>
-
-          <div className="detail-card">
-            <h3>📊 Age Distribution</h3>
-            <div className="distribution-chart">
-              <div className="chart-item">
-                <span>Children (0-17)</span>
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: `${city.ageDistribution.children}%` }} />
-                </div>
-                <span>{city.ageDistribution.children}%</span>
-              </div>
-              <div className="chart-item">
-                <span>Adults (18-64)</span>
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: `${city.ageDistribution.adults}%` }} />
-                </div>
-                <span>{city.ageDistribution.adults}%</span>
-              </div>
-              <div className="chart-item">
-                <span>Elderly (65+)</span>
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: `${city.ageDistribution.elderly}%` }} />
-                </div>
-                <span>{city.ageDistribution.elderly}%</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="detail-card">
-            <h3>🎓 Education Levels</h3>
-            <div className="distribution-chart">
-              <div className="chart-item">
-                <span>Elementary</span>
-                <div className="progress-bar">
-                  <div className="progress-fill education" style={{ width: `${city.educationLevels.elementary}%` }} />
-                </div>
-                <span>{city.educationLevels.elementary}%</span>
-              </div>
-              <div className="chart-item">
-                <span>Secondary</span>
-                <div className="progress-bar">
-                  <div className="progress-fill education" style={{ width: `${city.educationLevels.secondary}%` }} />
-                </div>
-                <span>{city.educationLevels.secondary}%</span>
-              </div>
-              <div className="chart-item">
-                <span>Higher Education</span>
-                <div className="progress-bar">
-                  <div className="progress-fill education" style={{ width: `${city.educationLevels.higher}%` }} />
-                </div>
-                <span>{city.educationLevels.higher}%</span>
-              </div>
-              <div className="chart-item">
-                <span>Advanced Degrees</span>
-                <div className="progress-bar">
-                  <div className="progress-fill education" style={{ width: `${city.educationLevels.advanced}%` }} />
-                </div>
-                <span>{city.educationLevels.advanced}%</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="detail-card">
-            <h3>💰 Income Distribution</h3>
-            <div className="distribution-chart">
-              <div className="chart-item">
-                <span>Low Income</span>
-                <div className="progress-bar">
-                  <div className="progress-fill income" style={{ width: `${city.incomeDistribution.low}%` }} />
-                </div>
-                <span>{city.incomeDistribution.low}%</span>
-              </div>
-              <div className="chart-item">
-                <span>Middle Income</span>
-                <div className="progress-bar">
-                  <div className="progress-fill income" style={{ width: `${city.incomeDistribution.middle}%` }} />
-                </div>
-                <span>{city.incomeDistribution.middle}%</span>
-              </div>
-              <div className="chart-item">
-                <span>High Income</span>
-                <div className="progress-bar">
-                  <div className="progress-fill income" style={{ width: `${city.incomeDistribution.high}%` }} />
-                </div>
-                <span>{city.incomeDistribution.high}%</span>
-              </div>
-              <div className="chart-item">
-                <span>Elite</span>
-                <div className="progress-bar">
-                  <div className="progress-fill income" style={{ width: `${city.incomeDistribution.elite}%` }} />
-                </div>
-                <span>{city.incomeDistribution.elite}%</span>
-              </div>
-            </div>
-          </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('Demographics Analysis')}>Demographics Analysis</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Population Report')}>Population Report</button>
         </div>
+      </div>
 
-        {/* Demographics Charts Section */}
-        <div className="demographics-charts-section">
-          <div className="charts-grid">
+      {/* City Selection - Full panel width */}
+      <div className="standard-panel social-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🏙️ City Demographics</h3>
+        <div style={{ marginBottom: '1rem' }}>
+          <select 
+            value={selectedCityId} 
+            onChange={(e) => setSelectedCityId(e.target.value)}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '4px',
+              border: '1px solid rgba(16, 185, 129, 0.2)',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              color: '#e0e6ed',
+              fontSize: '1rem'
+            }}
+          >
+            {demographicsData?.cities?.map(city => (
+              <option key={city.id} value={city.id}>{city.name} ({formatNumber(city.totalPopulation)})</option>
+            ))}
+          </select>
+        </div>
+        
+        {demographicsData?.selectedCity && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+            <div style={{
+              padding: '1rem',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              borderRadius: '8px',
+              border: '1px solid rgba(16, 185, 129, 0.2)'
+            }}>
+              <h4 style={{ marginBottom: '0.5rem', color: '#10b981' }}>👥 Age Distribution</h4>
+              <div style={{ fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>Children (0-17):</span>
+                  <span>{demographicsData.selectedCity.ageDistribution.children}%</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>Adults (18-64):</span>
+                  <span>{demographicsData.selectedCity.ageDistribution.adults}%</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Elderly (65+):</span>
+                  <span>{demographicsData.selectedCity.ageDistribution.elderly}%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div style={{
+              padding: '1rem',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              borderRadius: '8px',
+              border: '1px solid rgba(16, 185, 129, 0.2)'
+            }}>
+              <h4 style={{ marginBottom: '0.5rem', color: '#10b981' }}>🎓 Education Levels</h4>
+              <div style={{ fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>Elementary:</span>
+                  <span>{demographicsData.selectedCity.educationLevels.elementary}%</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>Secondary:</span>
+                  <span>{demographicsData.selectedCity.educationLevels.secondary}%</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>Higher:</span>
+                  <span>{demographicsData.selectedCity.educationLevels.higher}%</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Advanced:</span>
+                  <span>{demographicsData.selectedCity.educationLevels.advanced}%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div style={{
+              padding: '1rem',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              borderRadius: '8px',
+              border: '1px solid rgba(16, 185, 129, 0.2)'
+            }}>
+              <h4 style={{ marginBottom: '0.5rem', color: '#10b981' }}>💰 Income Distribution</h4>
+              <div style={{ fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>Low:</span>
+                  <span>{demographicsData.selectedCity.incomeDistribution.low}%</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>Middle:</span>
+                  <span>{demographicsData.selectedCity.incomeDistribution.middle}%</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>High:</span>
+                  <span>{demographicsData.selectedCity.incomeDistribution.high}%</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Elite:</span>
+                  <span>{demographicsData.selectedCity.incomeDistribution.elite}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Demographics Charts - Full panel width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div className="standard-panel social-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📈 Demographics Charts</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
             <div className="chart-container">
               <PieChart
-                data={[
-                  { 
-                    label: 'Adults (18-64)', 
-                    value: city.ageDistribution.adults, 
-                    color: '#4ecdc4' 
-                  },
-                  { 
-                    label: 'Children (0-17)', 
-                    value: city.ageDistribution.children, 
-                    color: '#45b7aa' 
-                  },
-                  { 
-                    label: 'Elderly (65+)', 
-                    value: city.ageDistribution.elderly, 
-                    color: '#96ceb4' 
-                  }
-                ]}
+                data={demographicsData?.selectedCity ? [
+                  { label: 'Children', value: demographicsData.selectedCity.ageDistribution.children, color: '#10b981' },
+                  { label: 'Adults', value: demographicsData.selectedCity.ageDistribution.adults, color: '#3b82f6' },
+                  { label: 'Elderly', value: demographicsData.selectedCity.ageDistribution.elderly, color: '#f59e0b' }
+                ] : []}
                 title="👥 Age Distribution"
                 size={200}
                 showLegend={true}
               />
             </div>
-
-            <div className="chart-container">
-              <LineChart
-                data={[
-                  { label: '2019', value: city.totalPopulation * 0.85 },
-                  { label: '2020', value: city.totalPopulation * 0.88 },
-                  { label: '2021', value: city.totalPopulation * 0.92 },
-                  { label: '2022', value: city.totalPopulation * 0.96 },
-                  { label: '2023', value: city.totalPopulation * 0.98 },
-                  { label: '2024', value: city.totalPopulation }
-                ]}
-                title="📈 Population Growth Trends"
-                color="#feca57"
-                height={250}
-                width={400}
-              />
-            </div>
-
             <div className="chart-container">
               <BarChart
-                data={[
-                  { 
-                    label: 'Low Income', 
-                    value: city.incomeDistribution.low, 
-                    color: '#ff6b6b' 
-                  },
-                  { 
-                    label: 'Middle Income', 
-                    value: city.incomeDistribution.middle, 
-                    color: '#4ecdc4' 
-                  },
-                  { 
-                    label: 'High Income', 
-                    value: city.incomeDistribution.high, 
-                    color: '#45b7aa' 
-                  },
-                  { 
-                    label: 'Elite', 
-                    value: city.incomeDistribution.elite, 
-                    color: '#feca57' 
-                  }
-                ]}
-                title="💰 Income Distribution"
+                data={demographicsData?.selectedCity ? [
+                  { label: 'Elementary', value: demographicsData.selectedCity.educationLevels.elementary, color: '#10b981' },
+                  { label: 'Secondary', value: demographicsData.selectedCity.educationLevels.secondary, color: '#3b82f6' },
+                  { label: 'Higher', value: demographicsData.selectedCity.educationLevels.higher, color: '#8b5cf6' },
+                  { label: 'Advanced', value: demographicsData.selectedCity.educationLevels.advanced, color: '#f59e0b' }
+                ] : []}
+                title="🎓 Education Levels"
                 height={250}
                 width={400}
                 showTooltip={true}
               />
             </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 
+  const renderTrends = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📈 Demographic Trends</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('Analyze Trends')}>Analyze Trends</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Export Trends')}>Export Trends</button>
+        </div>
+        
+        {demographicsData?.selectedCity && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem', marginBottom: '2rem' }}>
+            <div className="chart-container">
+              <LineChart
+                data={[
+                  { label: '2020', value: demographicsData.selectedCity.trends.populationGrowth * 0.8 },
+                  { label: '2021', value: demographicsData.selectedCity.trends.populationGrowth * 0.9 },
+                  { label: '2022', value: demographicsData.selectedCity.trends.populationGrowth * 0.95 },
+                  { label: '2023', value: demographicsData.selectedCity.trends.populationGrowth },
+                  { label: '2024', value: demographicsData.selectedCity.trends.populationGrowth * 1.05 }
+                ]}
+                title="📈 Population Growth Trend"
+                color="#10b981"
+                height={250}
+                width={400}
+              />
+            </div>
+            <div className="chart-container">
+              <BarChart
+                data={[
+                  { label: 'Population Growth', value: demographicsData.selectedCity.trends.populationGrowth, color: '#10b981' },
+                  { label: 'Migration Rate', value: demographicsData.selectedCity.trends.migrationRate, color: '#3b82f6' },
+                  { label: 'Birth Rate', value: demographicsData.selectedCity.trends.birthRate, color: '#8b5cf6' },
+                  { label: 'Death Rate', value: demographicsData.selectedCity.trends.deathRate, color: '#ef4444' }
+                ]}
+                title="📊 Key Demographic Rates"
+                height={250}
+                width={400}
+                showTooltip={true}
+              />
+            </div>
+          </div>
+        )}
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>City</th>
+                <th>Population</th>
+                <th>Growth Rate</th>
+                <th>Migration Rate</th>
+                <th>Birth Rate</th>
+                <th>Death Rate</th>
+                <th>Trend</th>
+              </tr>
+            </thead>
+            <tbody>
+              {demographicsData?.cities?.map((city) => (
+                <tr key={city.id}>
+                  <td>
+                    <strong>{city.name}</strong>
+                    {city.id === selectedCityId && <span style={{ marginLeft: '0.5rem', color: '#10b981' }}>📍</span>}
+                  </td>
+                  <td>{formatNumber(city.totalPopulation)}</td>
+                  <td>{city.trends.populationGrowth}%</td>
+                  <td>{city.trends.migrationRate}%</td>
+                  <td>{city.trends.birthRate}%</td>
+                  <td>{city.trends.deathRate}%</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: city.trends.populationGrowth > 2 ? '#10b981' : city.trends.populationGrowth > 1 ? '#fbbf24' : '#ef4444', 
+                      color: 'white' 
+                    }}>
+                      {city.trends.populationGrowth > 2 ? 'High Growth' : city.trends.populationGrowth > 1 ? 'Moderate' : 'Low Growth'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderMobility = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🔄 Social Mobility</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('Mobility Analysis')}>Mobility Analysis</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Policy Recommendations')}>Policy Recommendations</button>
+        </div>
+        
+        {demographicsData?.selectedCity && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem', marginBottom: '2rem' }}>
             <div className="chart-container">
               <PieChart
                 data={[
-                  { 
-                    label: 'Secondary', 
-                    value: city.educationLevels.secondary, 
-                    color: '#4ecdc4' 
-                  },
-                  { 
-                    label: 'Higher Education', 
-                    value: city.educationLevels.higher, 
-                    color: '#45b7aa' 
-                  },
-                  { 
-                    label: 'Elementary', 
-                    value: city.educationLevels.elementary, 
-                    color: '#96ceb4' 
-                  },
-                  { 
-                    label: 'Advanced Degrees', 
-                    value: city.educationLevels.advanced, 
-                    color: '#feca57' 
-                  }
+                  { label: 'Upward Mobility', value: demographicsData.selectedCity.socialMobility.upwardMobility, color: '#10b981' },
+                  { label: 'Downward Mobility', value: demographicsData.selectedCity.socialMobility.downwardMobility, color: '#ef4444' },
+                  { label: 'Stable', value: 100 - demographicsData.selectedCity.socialMobility.upwardMobility - demographicsData.selectedCity.socialMobility.downwardMobility, color: '#fbbf24' }
                 ]}
-                title="🎓 Education Levels"
+                title="🔄 Social Mobility Distribution"
                 size={200}
                 showLegend={true}
               />
             </div>
-
-            <div className="chart-container">
-              <LineChart
-                data={[
-                  { label: 'Jan', value: demographicsData.overallStats[0]?.percentage || 85 },
-                  { label: 'Feb', value: (demographicsData.overallStats[0]?.percentage || 85) + 1 },
-                  { label: 'Mar', value: (demographicsData.overallStats[0]?.percentage || 85) + 2 },
-                  { label: 'Apr', value: (demographicsData.overallStats[0]?.percentage || 85) + 1.5 },
-                  { label: 'May', value: (demographicsData.overallStats[0]?.percentage || 85) + 3 },
-                  { label: 'Jun', value: (demographicsData.overallStats[0]?.percentage || 85) + 2.5 }
-                ]}
-                title="📊 Quality of Life Index"
-                color="#96ceb4"
-                height={250}
-                width={400}
-              />
-            </div>
-
-            <div className="chart-container">
-              <BarChart
-                data={[
-                  { label: 'Birth Rate', value: 12.5, color: '#4ecdc4' },
-                  { label: 'Death Rate', value: 8.2, color: '#ff6b6b' },
-                  { label: 'Migration Rate', value: 15.3, color: '#feca57' },
-                  { label: 'Employment Rate', value: 94.2, color: '#45b7aa' }
-                ]}
-                title="📈 Demographic Indicators"
-                height={250}
-                width={400}
-                showTooltip={true}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderTrends = () => {
-    if (!demographicsData?.selectedCity) return <div className="loading">Select a city to view trends...</div>;
-
-    const city = demographicsData.selectedCity;
-
-    return (
-      <div className="demographics-trends">
-        <div className="trends-grid">
-          <div className="trend-card">
-            <h4>📈 Population Growth</h4>
-            <div className="trend-value">{city.trends.populationGrowth}%</div>
-            <div className="trend-description">Annual population growth rate</div>
-          </div>
-          <div className="trend-card">
-            <h4>🚶 Migration Rate</h4>
-            <div className="trend-value">{city.trends.migrationRate}%</div>
-            <div className="trend-description">Net migration rate</div>
-          </div>
-          <div className="trend-card">
-            <h4>👶 Birth Rate</h4>
-            <div className="trend-value">{city.trends.birthRate}‰</div>
-            <div className="trend-description">Births per 1,000 people</div>
-          </div>
-          <div className="trend-card">
-            <h4>⚰️ Death Rate</h4>
-            <div className="trend-value">{city.trends.deathRate}‰</div>
-            <div className="trend-description">Deaths per 1,000 people</div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderMobility = () => {
-    if (!demographicsData?.selectedCity) return <div className="loading">Select a city to view mobility data...</div>;
-
-    const city = demographicsData.selectedCity;
-
-    return (
-      <div className="social-mobility">
-        <div className="mobility-overview">
-          <div className="mobility-metric">
-            <h4>📈 Upward Mobility</h4>
-            <div className="mobility-value">{city.socialMobility.upwardMobility}%</div>
-          </div>
-          <div className="mobility-metric">
-            <h4>📉 Downward Mobility</h4>
-            <div className="mobility-value">{city.socialMobility.downwardMobility}%</div>
-          </div>
-        </div>
-
-        <div className="mobility-factors">
-          <div className="factor-card">
-            <h4>🚧 Barriers to Mobility</h4>
-            <div className="factor-list">
-              {city.socialMobility.barriers.map((barrier, index) => (
-                <div key={index} className="factor-item barrier">
-                  {barrier}
+            <div style={{
+              padding: '1rem',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              borderRadius: '8px',
+              border: '1px solid rgba(16, 185, 129, 0.2)'
+            }}>
+              <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>📊 Mobility Metrics</h4>
+              <div style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <span>Upward Mobility:</span>
+                  <span style={{ color: '#10b981' }}>{demographicsData.selectedCity.socialMobility.upwardMobility}%</span>
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className="factor-card">
-            <h4>🚀 Opportunities</h4>
-            <div className="factor-list">
-              {city.socialMobility.opportunities.map((opportunity, index) => (
-                <div key={index} className="factor-item opportunity">
-                  {opportunity}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <span>Downward Mobility:</span>
+                  <span style={{ color: '#ef4444' }}>{demographicsData.selectedCity.socialMobility.downwardMobility}%</span>
                 </div>
-              ))}
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Stability Rate:</span>
+                  <span style={{ color: '#fbbf24' }}>{100 - demographicsData.selectedCity.socialMobility.upwardMobility - demographicsData.selectedCity.socialMobility.downwardMobility}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>🚧 Mobility Barriers</h4>
+            <div className="standard-table-container">
+              <table className="standard-data-table">
+                <thead>
+                  <tr>
+                    <th>Barrier</th>
+                    <th>Impact Level</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {demographicsData?.selectedCity?.socialMobility.barriers.map((barrier, index) => (
+                    <tr key={index}>
+                      <td>{barrier}</td>
+                      <td>
+                        <span style={{ 
+                          padding: '0.3rem 0.6rem', 
+                          borderRadius: '4px', 
+                          fontSize: '0.8rem', 
+                          backgroundColor: '#ef4444', 
+                          color: 'white' 
+                        }}>
+                          High
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>💡 Mobility Opportunities</h4>
+            <div className="standard-table-container">
+              <table className="standard-data-table">
+                <thead>
+                  <tr>
+                    <th>Opportunity</th>
+                    <th>Potential Impact</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {demographicsData?.selectedCity?.socialMobility.opportunities.map((opportunity, index) => (
+                    <tr key={index}>
+                      <td>{opportunity}</td>
+                      <td>
+                        <span style={{ 
+                          padding: '0.3rem 0.6rem', 
+                          borderRadius: '4px', 
+                          fontSize: '0.8rem', 
+                          backgroundColor: '#10b981', 
+                          color: 'white' 
+                        }}>
+                          High
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
 
-  const renderProjections = () => {
-    if (!demographicsData?.projections) return <div className="loading">Loading projections...</div>;
-
-    return (
-      <div className="demographics-projections">
-        <h4>🔮 Population Projections</h4>
-        <div className="projections-chart">
-          {demographicsData.projections.map((projection, index) => (
-            <div key={index} className="projection-item">
-              <div className="projection-year">{projection.year}</div>
-              <div className="projection-population">{formatNumber(projection.population)}</div>
-              <div className="projection-scenario">{projection.scenario}</div>
-            </div>
-          ))}
+  const renderProjections = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🔮 Population Projections</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('Run Simulation')}>Run Simulation</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Export Projections')}>Export Projections</button>
+        </div>
+        
+        <div className="chart-container" style={{ marginBottom: '2rem' }}>
+          <LineChart
+            data={demographicsData?.projections?.filter(p => p.scenario === 'Realistic').map(p => ({
+              label: p.year.toString(),
+              value: p.population / 1000000
+            })) || []}
+            title="📈 Population Projections (Realistic Scenario)"
+            color="#10b981"
+            height={300}
+            width={600}
+          />
+        </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Optimistic</th>
+                <th>Realistic</th>
+                <th>Conservative</th>
+                <th>Growth Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[2025, 2030, 2035].map(year => {
+                const optimistic = demographicsData?.projections?.find(p => p.year === year && p.scenario === 'Optimistic');
+                const realistic = demographicsData?.projections?.find(p => p.year === year && p.scenario === 'Realistic');
+                const conservative = demographicsData?.projections?.find(p => p.year === year && p.scenario === 'Conservative');
+                
+                return (
+                  <tr key={year}>
+                    <td>{year}</td>
+                    <td>{optimistic ? formatNumber(optimistic.population) : '-'}</td>
+                    <td>{realistic ? formatNumber(realistic.population) : '-'}</td>
+                    <td>{conservative ? formatNumber(conservative.population) : '-'}</td>
+                    <td>
+                      {realistic && demographicsData?.overallStats?.[0]?.value ? 
+                        `${(((realistic.population / 3770000) - 1) * 100).toFixed(1)}%` : '-'}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
 
-  const renderComparative = () => {
-    if (!demographicsData?.cities) return <div className="loading">Loading comparative data...</div>;
-
-    return (
-      <div className="comparative-analysis">
-        <h4>⚖️ City Comparison</h4>
-        <div className="comparison-table">
-          <div className="comparison-header">
-            <div>City</div>
-            <div>Population</div>
-            <div>Growth Rate</div>
-            <div>Education Index</div>
-            <div>Mobility</div>
+  const renderComparative = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🌍 Comparative Analysis</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('Comparative Analysis')}>Comparative Analysis</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Benchmark Report')}>Benchmark Report</button>
+        </div>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem', marginBottom: '2rem' }}>
+          <div className="chart-container">
+            <BarChart
+              data={demographicsData?.cities?.map(city => ({
+                label: city.name,
+                value: city.totalPopulation / 1000000,
+                color: city.id === selectedCityId ? '#10b981' : '#3b82f6'
+              })) || []}
+              title="🏙️ Population Comparison"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
           </div>
-          {demographicsData.cities.map(city => (
-            <div key={city.id} className="comparison-row">
-              <div className="city-name">{city.name}</div>
-              <div>{formatNumber(city.totalPopulation)}</div>
-              <div>{city.trends.populationGrowth}%</div>
-              <div>{((city.educationLevels.higher + city.educationLevels.advanced) / 100).toFixed(2)}</div>
-              <div>{city.socialMobility.upwardMobility}%</div>
-            </div>
-          ))}
+          <div className="chart-container">
+            <BarChart
+              data={demographicsData?.cities?.map(city => ({
+                label: city.name,
+                value: city.trends.populationGrowth,
+                color: city.id === selectedCityId ? '#10b981' : '#3b82f6'
+              })) || []}
+              title="📈 Growth Rate Comparison"
+              height={250}
+              width={400}
+              showTooltip={true}
+            />
+          </div>
+        </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>City</th>
+                <th>Population</th>
+                <th>Growth Rate</th>
+                <th>Education Level</th>
+                <th>Income Level</th>
+                <th>Mobility Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {demographicsData?.cities?.map((city) => {
+                const avgEducation = (city.educationLevels.higher + city.educationLevels.advanced) / 2;
+                const avgIncome = (city.incomeDistribution.high + city.incomeDistribution.elite) / 2;
+                const mobilityScore = city.socialMobility.upwardMobility - city.socialMobility.downwardMobility;
+                
+                return (
+                  <tr key={city.id}>
+                    <td>
+                      <strong>{city.name}</strong>
+                      {city.id === selectedCityId && <span style={{ marginLeft: '0.5rem', color: '#10b981' }}>📍</span>}
+                    </td>
+                    <td>{formatNumber(city.totalPopulation)}</td>
+                    <td>{city.trends.populationGrowth}%</td>
+                    <td>{avgEducation.toFixed(1)}%</td>
+                    <td>{avgIncome.toFixed(1)}%</td>
+                    <td>
+                      <span style={{ 
+                        padding: '0.3rem 0.6rem', 
+                        borderRadius: '4px', 
+                        fontSize: '0.8rem', 
+                        backgroundColor: mobilityScore > 5 ? '#10b981' : mobilityScore > 0 ? '#fbbf24' : '#ef4444', 
+                        color: 'white' 
+                      }}>
+                        {mobilityScore > 5 ? 'High' : mobilityScore > 0 ? 'Moderate' : 'Low'}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
 
   return (
     <BaseScreen
@@ -641,68 +820,33 @@ const DemographicsScreen: React.FC<ScreenProps> = ({ screenId, title, icon, game
       gameContext={gameContext}
       apiEndpoints={apiEndpoints}
       onRefresh={fetchDemographicsData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
     >
-      <div className="demographics-screen">
-        {/* City Selector */}
-        <div className="city-selector">
-          <label htmlFor="citySelect">Select City: </label>
-          <select 
-            id="citySelect" 
-            value={selectedCityId} 
-            onChange={(e) => setSelectedCityId(e.target.value)}
-          >
-            <option value="">Select a city...</option>
-            {demographicsData?.cities.map(city => (
-              <option key={city.id} value={city.id}>{city.name}</option>
-            ))}
-          </select>
-          <button className="btn secondary" onClick={simulateDemographics} disabled={loading}>
-            ⏭️ Simulate 5 Years
-          </button>
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="tab-navigation">
-          <button 
-            className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
-          >
-            📊 Overview
-          </button>
-          <button 
-            className={`tab ${activeTab === 'trends' ? 'active' : ''}`}
-            onClick={() => setActiveTab('trends')}
-          >
-            📈 Trends
-          </button>
-          <button 
-            className={`tab ${activeTab === 'mobility' ? 'active' : ''}`}
-            onClick={() => setActiveTab('mobility')}
-          >
-            🚀 Social Mobility
-          </button>
-          <button 
-            className={`tab ${activeTab === 'projections' ? 'active' : ''}`}
-            onClick={() => setActiveTab('projections')}
-          >
-            🔮 Projections
-          </button>
-          <button 
-            className={`tab ${activeTab === 'comparative' ? 'active' : ''}`}
-            onClick={() => setActiveTab('comparative')}
-          >
-            ⚖️ Comparative
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        <div className="tab-content">
-          {loading && <div className="loading">Loading demographics data...</div>}
-          {!loading && activeTab === 'overview' && renderOverview()}
-          {!loading && activeTab === 'trends' && renderTrends()}
-          {!loading && activeTab === 'mobility' && renderMobility()}
-          {!loading && activeTab === 'projections' && renderProjections()}
-          {!loading && activeTab === 'comparative' && renderComparative()}
+      <div className="standard-screen-container social-theme">
+        {error && <div className="error-message">Error: {error}</div>}
+        
+        <div className="standard-dashboard">
+          {!loading && !error && demographicsData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'trends' && renderTrends()}
+              {activeTab === 'mobility' && renderMobility()}
+              {activeTab === 'projections' && renderProjections()}
+              {activeTab === 'comparative' && renderComparative()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading demographics data...' : 'No demographics data available'}
+            </div>
+          )}
         </div>
       </div>
     </BaseScreen>

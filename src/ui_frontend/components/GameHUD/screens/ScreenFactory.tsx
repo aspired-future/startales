@@ -254,7 +254,7 @@ const screenRegistry: Record<string, ScreenConfig> = {
   },
   'health': {
     component: HealthScreen,
-    title: 'Health & Welfare',
+    title: 'Health',
     icon: '🏥',
     category: 'population'
   },

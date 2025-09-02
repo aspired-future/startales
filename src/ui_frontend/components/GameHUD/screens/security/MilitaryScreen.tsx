@@ -13,8 +13,9 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './MilitaryScreen.css';
+import '../shared/StandardDesign.css';
 import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface Fleet {
@@ -63,587 +64,532 @@ interface MilitaryData {
 const MilitaryScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext }) => {
   const [militaryData, setMilitaryData] = useState<MilitaryData | null>(null);
   const [selectedFleet, setSelectedFleet] = useState<Fleet | null>(null);
-  const [viewMode, setViewMode] = useState<'overview' | 'fleets' | 'bases' | 'threats'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'fleets' | 'bases' | 'threats'>('overview');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const apiEndpoints: APIEndpoint[] = [
-    { method: 'GET', path: '/api/military/fleets', description: 'Get all fleet status' },
-    { method: 'GET', path: '/api/military/bases', description: 'Get military base information' },
-    { method: 'GET', path: '/api/military/threats', description: 'Get threat assessments' },
-    { method: 'POST', path: '/api/military/deploy', description: 'Deploy fleet to location' },
-    { method: 'PUT', path: '/api/military/readiness', description: 'Update readiness level' },
-    { method: 'GET', path: '/api/defense/status', description: 'Get defense system status' }
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'fleets', label: 'Fleets', icon: '🚀' },
+    { id: 'bases', label: 'Bases', icon: '🏰' },
+    { id: 'threats', label: 'Threats', icon: '⚠️' }
   ];
+
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/military', description: 'Get military data' }
+  ];
+
+  // Utility functions
+  const formatNumber = (value: number) => {
+    if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+    return value.toString();
+  };
+
+  const formatCurrency = (value: number) => {
+    if (value >= 1e12) return `$${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `$${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `$${(value / 1e3).toFixed(0)}K`;
+    return `$${value}`;
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'deployed': return '#10b981';
+      case 'docked': return '#fbbf24';
+      case 'in-transit': return '#f59e0b';
+      case 'maintenance': return '#ef4444';
+      case 'operational': return '#10b981';
+      case 'construction': return '#fbbf24';
+      case 'damaged': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getThreatLevelColor = (level: string) => {
+    switch (level) {
+      case 'critical': return '#ef4444';
+      case 'high': return '#f59e0b';
+      case 'medium': return '#fbbf24';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getThreatTypeColor = (type: string) => {
+    switch (type) {
+      case 'invasion': return '#ef4444';
+      case 'piracy': return '#f59e0b';
+      case 'espionage': return '#fbbf24';
+      case 'terrorism': return '#dc2626';
+      case 'unknown': return '#6b7280';
+      default: return '#6b7280';
+    }
+  };
 
   const fetchMilitaryData = useCallback(async () => {
     try {
-      // Try to fetch real data from API
-      const response = await fetch('/api/military/status');
+      setLoading(true);
+      setError(null);
+      
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/military');
       if (response.ok) {
         const data = await response.json();
         setMilitaryData(data);
-        return;
+      } else {
+        throw new Error('API not available');
       }
-    } catch (error) {
-      console.warn('Military API not available, using mock data');
+    } catch (err) {
+      console.warn('Failed to fetch military data:', err);
+      // Use comprehensive mock data
+      setMilitaryData({
+        fleets: generateMockFleets(),
+        bases: generateMockBases(),
+        threats: generateMockThreats(),
+        overallReadiness: 89,
+        totalPersonnel: 45000,
+        activeOperations: 12,
+        defenseBudget: 85000000000
+      });
+    } finally {
+      setLoading(false);
     }
-
-    // Fallback to mock data for development
-    const mockData: MilitaryData = {
-      fleets: [
-        {
-          id: 'fleet-alpha',
-          name: 'Alpha Strike Force',
-          commander: 'Admiral Chen',
-          location: 'Sol System',
-          status: 'deployed',
-          ships: 24,
-          readiness: 95,
-          mission: 'Border Patrol',
-          eta: '2024-02-15T14:30:00Z'
-        },
-        {
-          id: 'fleet-beta',
-          name: 'Beta Defense Squadron',
-          commander: 'Captain Rodriguez',
-          location: 'Mars Orbital Station',
-          status: 'docked',
-          ships: 18,
-          readiness: 87
-        },
-        {
-          id: 'fleet-gamma',
-          name: 'Gamma Exploration Fleet',
-          commander: 'Admiral Thompson',
-          location: 'Alpha Centauri',
-          status: 'in-transit',
-          ships: 12,
-          readiness: 92,
-          mission: 'Deep Space Reconnaissance',
-          eta: '2024-02-20T09:15:00Z'
-        }
-      ],
-      bases: [
-        {
-          id: 'base-luna',
-          name: 'Luna Command Center',
-          type: 'orbital',
-          location: 'Luna Orbit',
-          personnel: 15000,
-          defenseRating: 98,
-          facilities: ['Command Center', 'Shipyard', 'Training Facility', 'Research Lab'],
-          status: 'operational'
-        },
-        {
-          id: 'base-mars',
-          name: 'Mars Defense Outpost',
-          type: 'planetary',
-          location: 'Mars Surface',
-          personnel: 8500,
-          defenseRating: 85,
-          facilities: ['Ground Forces', 'Air Defense', 'Supply Depot'],
-          status: 'operational'
-        },
-        {
-          id: 'base-europa',
-          name: 'Europa Research Station',
-          type: 'planetary',
-          location: 'Europa',
-          personnel: 3200,
-          defenseRating: 65,
-          facilities: ['Research Lab', 'Early Warning System'],
-          status: 'construction'
-        }
-      ],
-      threats: [
-        {
-          id: 'threat-001',
-          level: 'high',
-          type: 'piracy',
-          location: 'Asteroid Belt',
-          description: 'Increased pirate activity reported in mining sectors',
-          timestamp: '2024-02-10T08:30:00Z',
-          status: 'active'
-        },
-        {
-          id: 'threat-002',
-          level: 'medium',
-          type: 'espionage',
-          location: 'Mars Colony',
-          description: 'Suspected intelligence gathering activities detected',
-          timestamp: '2024-02-09T15:45:00Z',
-          status: 'investigating'
-        },
-        {
-          id: 'threat-003',
-          level: 'low',
-          type: 'unknown',
-          location: 'Outer System',
-          description: 'Unidentified signals detected from deep space',
-          timestamp: '2024-02-08T22:10:00Z',
-          status: 'resolved'
-        }
-      ],
-      overallReadiness: 91,
-      totalPersonnel: 26700,
-      activeOperations: 3,
-      defenseBudget: 2.4e9
-    };
-
-    setMilitaryData(mockData);
   }, []);
 
   useEffect(() => {
     fetchMilitaryData();
   }, [fetchMilitaryData]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'deployed': case 'operational': return '#4ecdc4';
-      case 'docked': case 'construction': return '#fbbf24';
-      case 'in-transit': return '#3b82f6';
-      case 'maintenance': case 'damaged': return '#ef4444';
-      default: return '#b8bcc8';
+  const generateMockFleets = (): Fleet[] => [
+    {
+      id: 'fleet-alpha',
+      name: 'Alpha Strike Force',
+      commander: 'Admiral Chen',
+      location: 'Sol System',
+      status: 'deployed',
+      ships: 24,
+      readiness: 95,
+      mission: 'Border Patrol',
+      eta: '2024-02-15T14:30:00Z'
+    },
+    {
+      id: 'fleet-beta',
+      name: 'Beta Defense Squadron',
+      commander: 'Captain Rodriguez',
+      location: 'Mars Orbital Station',
+      status: 'docked',
+      ships: 18,
+      readiness: 87
+    },
+    {
+      id: 'fleet-gamma',
+      name: 'Gamma Exploration Fleet',
+      commander: 'Admiral Thompson',
+      location: 'Alpha Centauri',
+      status: 'in-transit',
+      ships: 12,
+      readiness: 92,
+      mission: 'Deep Space Reconnaissance',
+      eta: '2024-02-20T09:15:00Z'
+    },
+    {
+      id: 'fleet-delta',
+      name: 'Delta Response Force',
+      commander: 'Commodore Williams',
+      location: 'Jupiter Station',
+      status: 'maintenance',
+      ships: 8,
+      readiness: 45
     }
-  };
+  ];
 
-  const getThreatColor = (level: string) => {
-    switch (level) {
-      case 'critical': return '#dc2626';
-      case 'high': return '#ea580c';
-      case 'medium': return '#ca8a04';
-      case 'low': return '#16a34a';
-      default: return '#6b7280';
+  const generateMockBases = (): MilitaryBase[] => [
+    {
+      id: 'base-luna',
+      name: 'Luna Command Center',
+      type: 'orbital',
+      location: 'Luna Orbit',
+      personnel: 15000,
+      defenseRating: 98,
+      facilities: ['Command Center', 'Shipyard', 'Training Facility', 'Research Lab'],
+      status: 'operational'
+    },
+    {
+      id: 'base-mars',
+      name: 'Mars Defense Outpost',
+      type: 'planetary',
+      location: 'Mars Surface',
+      personnel: 8500,
+      defenseRating: 85,
+      facilities: ['Ground Forces', 'Air Defense', 'Supply Depot'],
+      status: 'operational'
+    },
+    {
+      id: 'base-europa',
+      name: 'Europa Research Station',
+      type: 'planetary',
+      location: 'Europa',
+      personnel: 3200,
+      defenseRating: 65,
+      facilities: ['Research Lab', 'Early Warning System'],
+      status: 'construction'
+    },
+    {
+      id: 'base-titan',
+      name: 'Titan Deep Space Station',
+      type: 'deep-space',
+      location: 'Titan Orbit',
+      personnel: 5200,
+      defenseRating: 78,
+      facilities: ['Deep Space Monitoring', 'Fuel Depot', 'Emergency Shelter'],
+      status: 'operational'
     }
-  };
+  ];
 
-  const formatNumber = (num: number): string => {
-    if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
-    if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
-    if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
-    return num.toString();
-  };
+  const generateMockThreats = (): ThreatAlert[] => [
+    {
+      id: 'threat-001',
+      level: 'medium',
+      type: 'piracy',
+      location: 'Asteroid Belt',
+      description: 'Suspicious vessel activity detected in mining sector',
+      timestamp: '2024-02-14T10:30:00Z',
+      status: 'investigating'
+    },
+    {
+      id: 'threat-002',
+      level: 'low',
+      type: 'espionage',
+      location: 'Luna Station',
+      description: 'Unauthorized access attempt to classified systems',
+      timestamp: '2024-02-14T08:15:00Z',
+      status: 'resolved'
+    },
+    {
+      id: 'threat-003',
+      level: 'high',
+      type: 'unknown',
+      location: 'Outer Solar System',
+      description: 'Unidentified object approaching at high velocity',
+      timestamp: '2024-02-14T06:45:00Z',
+      status: 'active'
+    }
+  ];
 
+  // Render functions for each tab
   const renderOverview = () => (
-    <div className="military-overview">
-      <div className="metrics-grid">
-        <div className="metric-card">
-          <div className="metric-icon">⚡</div>
-          <div className="metric-content">
-            <div className="metric-value">{militaryData?.overallReadiness || 0}%</div>
-            <div className="metric-label">Overall Readiness</div>
+    <>
+      {/* Military Overview - Full panel width */}
+      <div className="standard-panel security-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>📊 Military Command Overview</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Overall Readiness</span>
+            <span className="standard-metric-value">{militaryData?.overallReadiness}%</span>
+          </div>
+          <div className="standard-metric">
+            <span>Total Personnel</span>
+            <span className="standard-metric-value">{formatNumber(militaryData?.totalPersonnel || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Active Operations</span>
+            <span className="standard-metric-value">{militaryData?.activeOperations}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Defense Budget</span>
+            <span className="standard-metric-value">{formatCurrency(militaryData?.defenseBudget || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Active Fleets</span>
+            <span className="standard-metric-value">{militaryData?.fleets?.length || 0}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Military Bases</span>
+            <span className="standard-metric-value">{militaryData?.bases?.length || 0}</span>
           </div>
         </div>
-        
-        <div className="metric-card">
-          <div className="metric-icon">👥</div>
-          <div className="metric-content">
-            <div className="metric-value">{formatNumber(militaryData?.totalPersonnel || 0)}</div>
-            <div className="metric-label">Total Personnel</div>
-          </div>
-        </div>
-        
-        <div className="metric-card">
-          <div className="metric-icon">🚀</div>
-          <div className="metric-content">
-            <div className="metric-value">{militaryData?.fleets.length || 0}</div>
-            <div className="metric-label">Active Fleets</div>
-          </div>
-        </div>
-        
-        <div className="metric-card">
-          <div className="metric-icon">💰</div>
-          <div className="metric-content">
-            <div className="metric-value">${formatNumber(militaryData?.defenseBudget || 0)}</div>
-            <div className="metric-label">Defense Budget</div>
-          </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Military Analysis')}>Military Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Threat Assessment')}>Threat Assessment</button>
         </div>
       </div>
 
-      <div className="status-panels">
-        <div className="panel">
-          <h3>🚀 Fleet Status</h3>
-          <div className="fleet-summary">
-            {militaryData?.fleets.map(fleet => (
-              <div key={fleet.id} className="fleet-item">
-                <div className="fleet-info">
-                  <div className="fleet-name">{fleet.name}</div>
-                  <div className="fleet-details">
-                    📍 {fleet.location} | 👤 {fleet.commander}
-                  </div>
-                </div>
-                <div className="fleet-status">
-                  <div 
-                    className="status-badge"
-                    style={{ backgroundColor: getStatusColor(fleet.status) }}
-                  >
-                    {fleet.status.toUpperCase()}
-                  </div>
-                  <div className="readiness-bar">
-                    <div 
-                      className="readiness-fill"
-                      style={{ width: `${fleet.readiness}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* Active Fleets - Full panel width */}
+      <div className="standard-panel security-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>🚀 Active Fleets</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Fleet</th>
+                <th>Commander</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Ships</th>
+                <th>Readiness</th>
+                <th>Mission</th>
+              </tr>
+            </thead>
+            <tbody>
+              {militaryData?.fleets?.slice(0, 5).map((fleet) => (
+                <tr key={fleet.id}>
+                  <td><strong>{fleet.name}</strong></td>
+                  <td>{fleet.commander}</td>
+                  <td>{fleet.location}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(fleet.status), 
+                      color: 'white' 
+                    }}>
+                      {fleet.status.charAt(0).toUpperCase() + fleet.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>{fleet.ships}</td>
+                  <td>{fleet.readiness}%</td>
+                  <td>{fleet.mission || 'Standby'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        <div className="panel">
-          <h3>🚨 Active Threats</h3>
-          <div className="threats-summary">
-            {militaryData?.threats.filter(t => t.status === 'active').map(threat => (
-              <div key={threat.id} className="threat-item">
-                <div 
-                  className="threat-level"
-                  style={{ backgroundColor: getThreatColor(threat.level) }}
-                >
-                  {threat.level.toUpperCase()}
-                </div>
-                <div className="threat-info">
-                  <div className="threat-type">{threat.type.toUpperCase()}</div>
-                  <div className="threat-location">📍 {threat.location}</div>
-                  <div className="threat-description">{threat.description}</div>
-                </div>
-              </div>
-            ))}
+      {/* Military Analytics - Full panel width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div className="standard-panel security-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>📈 Military Analytics</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+            <div className="chart-container">
+              <BarChart
+                data={militaryData?.fleets?.map(fleet => ({
+                  label: fleet.name,
+                  value: fleet.readiness,
+                  color: getStatusColor(fleet.status)
+                })) || []}
+                title="🚀 Fleet Readiness Levels"
+                height={250}
+                width={400}
+                showTooltip={true}
+              />
+            </div>
+            <div className="chart-container">
+              <PieChart
+                data={militaryData?.bases?.map(base => ({
+                  label: base.name,
+                  value: base.personnel / 1000, // Convert to thousands
+                  color: getStatusColor(base.status)
+                })) || []}
+                title="🏰 Base Personnel Distribution (Thousands)"
+                size={200}
+                showLegend={true}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 
   const renderFleets = () => (
-    <div className="fleets-view">
-      <div className="fleets-grid">
-        {militaryData?.fleets.map(fleet => (
-          <div 
-            key={fleet.id} 
-            className={`fleet-card ${selectedFleet?.id === fleet.id ? 'selected' : ''}`}
-            onClick={() => setSelectedFleet(fleet)}
-          >
-            <div className="fleet-header">
-              <div className="fleet-name">{fleet.name}</div>
-              <div 
-                className="fleet-status"
-                style={{ color: getStatusColor(fleet.status) }}
-              >
-                {fleet.status.toUpperCase()}
-              </div>
-            </div>
-            
-            <div className="fleet-commander">
-              👤 Commander: {fleet.commander}
-            </div>
-            
-            <div className="fleet-location">
-              📍 Location: {fleet.location}
-            </div>
-            
-            <div className="fleet-metrics">
-              <div className="metric">
-                <span>🚀 Ships:</span>
-                <span>{fleet.ships}</span>
-              </div>
-              <div className="metric">
-                <span>⚡ Readiness:</span>
-                <span>{fleet.readiness}%</span>
-              </div>
-            </div>
-            
-            {fleet.mission && (
-              <div className="fleet-mission">
-                🎯 Mission: {fleet.mission}
-              </div>
-            )}
-            
-            {fleet.eta && (
-              <div className="fleet-eta">
-                ⏰ ETA: {new Date(fleet.eta).toLocaleString()}
-              </div>
-            )}
-            
-            <div className="fleet-actions">
-              <button className="action-btn small">📋 Orders</button>
-              <button className="action-btn small">📊 Status</button>
-              <button className="action-btn small">🗺️ Deploy</button>
-            </div>
-          </div>
-        ))}
-      </div>
-      
-      {selectedFleet && (
-        <div className="fleet-detail-panel">
-          <div className="detail-header">
-            <h3>{selectedFleet.name}</h3>
-            <button onClick={() => setSelectedFleet(null)}>✕</button>
-          </div>
-          
-          <div className="fleet-details">
-            <div className="detail-section">
-              <h4>Command Information</h4>
-              <div className="detail-item">
-                <span>Commander:</span>
-                <span>{selectedFleet.commander}</span>
-              </div>
-              <div className="detail-item">
-                <span>Current Location:</span>
-                <span>{selectedFleet.location}</span>
-              </div>
-              <div className="detail-item">
-                <span>Status:</span>
-                <span style={{ color: getStatusColor(selectedFleet.status) }}>
-                  {selectedFleet.status.toUpperCase()}
-                </span>
-              </div>
-            </div>
-            
-            <div className="detail-section">
-              <h4>Fleet Composition</h4>
-              <div className="detail-item">
-                <span>Total Ships:</span>
-                <span>{selectedFleet.ships}</span>
-              </div>
-              <div className="detail-item">
-                <span>Readiness Level:</span>
-                <span>{selectedFleet.readiness}%</span>
-              </div>
-            </div>
-            
-            {selectedFleet.mission && (
-              <div className="detail-section">
-                <h4>Current Mission</h4>
-                <div className="mission-info">
-                  <div>{selectedFleet.mission}</div>
-                  {selectedFleet.eta && (
-                    <div className="eta">
-                      ETA: {new Date(selectedFleet.eta).toLocaleString()}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-          
-          <div className="fleet-commands">
-            <button className="action-btn primary">🚀 New Mission</button>
-            <button className="action-btn secondary">🔄 Recall Fleet</button>
-            <button className="action-btn secondary">⚡ Resupply</button>
-            <button className="action-btn secondary">📊 Full Report</button>
-          </div>
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>🚀 Fleet Management</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Fleet Analysis')}>Fleet Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Deploy Fleet')}>Deploy Fleet</button>
         </div>
-      )}
-
-      {/* Military Charts Section */}
-      <div className="military-charts-section">
-        <div className="charts-grid">
-          <div className="chart-container">
-            <BarChart
-              data={militaryData?.fleets.slice(0, 6).map((fleet, index) => ({
-                label: fleet.name.split(' ')[0], // Shorten names
-                value: fleet.ships,
-                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'][index]
-              })) || []}
-              title="🚀 Fleet Strength (Ships)"
-              height={250}
-              width={400}
-              showTooltip={true}
-            />
-          </div>
-
-          <div className="chart-container">
-            <LineChart
-              data={militaryData?.fleets.slice(0, 6).map((fleet, index) => ({
-                label: fleet.name.split(' ')[0], // Shorten names
-                value: fleet.readiness
-              })) || []}
-              title="⚡ Fleet Readiness Levels"
-              color="#4ecdc4"
-              height={250}
-              width={400}
-            />
-          </div>
-
-          <div className="chart-container">
-            <PieChart
-              data={[
-                { label: 'Active', value: militaryData?.fleets.filter(f => f.status === 'active').length || 0, color: '#4ecdc4' },
-                { label: 'Deployed', value: militaryData?.fleets.filter(f => f.status === 'deployed').length || 0, color: '#45b7aa' },
-                { label: 'Maintenance', value: militaryData?.fleets.filter(f => f.status === 'maintenance').length || 0, color: '#feca57' },
-                { label: 'Standby', value: militaryData?.fleets.filter(f => f.status === 'standby').length || 0, color: '#96ceb4' }
-              ]}
-              title="🎯 Fleet Status Distribution"
-              size={200}
-              showLegend={true}
-            />
-          </div>
-
-          <div className="chart-container">
-            <BarChart
-              data={militaryData?.bases.slice(0, 6).map((base, index) => ({
-                label: base.location.split(' ')[0], // Shorten names
-                value: base.personnel,
-                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'][index]
-              })) || []}
-              title="👥 Base Personnel Distribution"
-              height={250}
-              width={400}
-              showTooltip={true}
-            />
-          </div>
-
-          <div className="chart-container">
-            <LineChart
-              data={[
-                { label: 'Q1 2023', value: 85 },
-                { label: 'Q2 2023', value: 88 },
-                { label: 'Q3 2023', value: 91 },
-                { label: 'Q4 2023', value: 89 },
-                { label: 'Q1 2024', value: 93 },
-                { label: 'Q2 2024', value: 95 }
-              ]}
-              title="📈 Defense Spending Trends (%)"
-              color="#feca57"
-              height={250}
-              width={400}
-            />
-          </div>
-
-          <div className="chart-container">
-            <PieChart
-              data={militaryData?.bases.slice(0, 5).map((base, index) => ({
-                label: base.type.replace('-', ' '),
-                value: base.defenseRating,
-                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3'][index]
-              })) || []}
-              title="🛡️ Base Defense Ratings"
-              size={200}
-              showLegend={true}
-            />
-          </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Fleet</th>
+                <th>Commander</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Ships</th>
+                <th>Readiness</th>
+                <th>Mission</th>
+                <th>ETA</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {militaryData?.fleets?.map((fleet) => (
+                <tr key={fleet.id}>
+                  <td><strong>{fleet.name}</strong></td>
+                  <td>{fleet.commander}</td>
+                  <td>{fleet.location}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(fleet.status), 
+                      color: 'white' 
+                    }}>
+                      {fleet.status.charAt(0).toUpperCase() + fleet.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>{fleet.ships}</td>
+                  <td>{fleet.readiness}%</td>
+                  <td>{fleet.mission || 'Standby'}</td>
+                  <td>{fleet.eta ? new Date(fleet.eta).toLocaleDateString() : 'N/A'}</td>
+                  <td>
+                    <button className="standard-btn security-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 
   const renderBases = () => (
-    <div className="bases-view">
-      <div className="bases-grid">
-        {militaryData?.bases.map(base => (
-          <div key={base.id} className="base-card">
-            <div className="base-header">
-              <div className="base-name">{base.name}</div>
-              <div 
-                className="base-status"
-                style={{ color: getStatusColor(base.status) }}
-              >
-                {base.status.toUpperCase()}
-              </div>
-            </div>
-            
-            <div className="base-type">
-              🏗️ Type: {base.type.replace('-', ' ').toUpperCase()}
-            </div>
-            
-            <div className="base-location">
-              📍 Location: {base.location}
-            </div>
-            
-            <div className="base-metrics">
-              <div className="metric">
-                <span>👥 Personnel:</span>
-                <span>{formatNumber(base.personnel)}</span>
-              </div>
-              <div className="metric">
-                <span>🛡️ Defense:</span>
-                <span>{base.defenseRating}%</span>
-              </div>
-            </div>
-            
-            <div className="base-facilities">
-              <div className="facilities-label">🏢 Facilities:</div>
-              <div className="facilities-list">
-                {base.facilities.map(facility => (
-                  <span key={facility} className="facility-tag">
-                    {facility}
-                  </span>
-                ))}
-              </div>
-            </div>
-            
-            <div className="base-actions">
-              <button className="action-btn small">📊 Status</button>
-              <button className="action-btn small">🔧 Upgrade</button>
-              <button className="action-btn small">👥 Personnel</button>
-            </div>
-          </div>
-        ))}
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>🏰 Military Base Operations</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Base Analysis')}>Base Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Facility Report')}>Facility Report</button>
+        </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Base</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Personnel</th>
+                <th>Defense Rating</th>
+                <th>Status</th>
+                <th>Facilities</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {militaryData?.bases?.map((base) => (
+                <tr key={base.id}>
+                  <td><strong>{base.name}</strong></td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: base.type === 'orbital' ? '#10b981' : base.type === 'planetary' ? '#fbbf24' : '#f59e0b', 
+                      color: 'white' 
+                    }}>
+                      {base.type.charAt(0).toUpperCase() + base.type.slice(1)}
+                    </span>
+                  </td>
+                  <td>{base.location}</td>
+                  <td>{formatNumber(base.personnel)}</td>
+                  <td>{base.defenseRating}/100</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(base.status), 
+                      color: 'white' 
+                    }}>
+                      {base.status.charAt(0).toUpperCase() + base.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>{base.facilities.slice(0, 2).join(', ')}</td>
+                  <td>
+                    <button className="standard-btn security-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 
   const renderThreats = () => (
-    <div className="threats-view">
-      <div className="threats-header">
-        <h3>🚨 Threat Assessment Dashboard</h3>
-        <div className="threat-summary">
-          <div className="threat-count critical">
-            Critical: {militaryData?.threats.filter(t => t.level === 'critical').length || 0}
-          </div>
-          <div className="threat-count high">
-            High: {militaryData?.threats.filter(t => t.level === 'high').length || 0}
-          </div>
-          <div className="threat-count medium">
-            Medium: {militaryData?.threats.filter(t => t.level === 'medium').length || 0}
-          </div>
-          <div className="threat-count low">
-            Low: {militaryData?.threats.filter(t => t.level === 'low').length || 0}
-          </div>
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel security-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>⚠️ Threat Assessment</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn security-theme" onClick={() => console.log('Threat Analysis')}>Threat Analysis</button>
+          <button className="standard-btn security-theme" onClick={() => console.log('Response Plan')}>Response Plan</button>
         </div>
-      </div>
-      
-      <div className="threats-list">
-        {militaryData?.threats.map(threat => (
-          <div key={threat.id} className="threat-card">
-            <div className="threat-header">
-              <div 
-                className="threat-level-badge"
-                style={{ backgroundColor: getThreatColor(threat.level) }}
-              >
-                {threat.level.toUpperCase()}
-              </div>
-              <div className="threat-type">{threat.type.toUpperCase()}</div>
-              <div 
-                className="threat-status"
-                style={{ 
-                  color: threat.status === 'active' ? '#ef4444' : 
-                         threat.status === 'investigating' ? '#fbbf24' : '#4ecdc4'
-                }}
-              >
-                {threat.status.toUpperCase()}
-              </div>
-            </div>
-            
-            <div className="threat-location">
-              📍 {threat.location}
-            </div>
-            
-            <div className="threat-description">
-              {threat.description}
-            </div>
-            
-            <div className="threat-timestamp">
-              ⏰ {new Date(threat.timestamp).toLocaleString()}
-            </div>
-            
-            <div className="threat-actions">
-              <button className="action-btn small">📋 Details</button>
-              <button className="action-btn small">🚀 Respond</button>
-              <button className="action-btn small">📊 Analyze</button>
-            </div>
-          </div>
-        ))}
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Description</th>
+                <th>Timestamp</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {militaryData?.threats?.map((threat) => (
+                <tr key={threat.id}>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getThreatLevelColor(threat.level), 
+                      color: 'white' 
+                    }}>
+                      {threat.level.charAt(0).toUpperCase() + threat.level.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getThreatTypeColor(threat.type), 
+                      color: 'white' 
+                    }}>
+                      {threat.type.charAt(0).toUpperCase() + threat.type.slice(1)}
+                    </span>
+                  </td>
+                  <td>{threat.location}</td>
+                  <td>{threat.description}</td>
+                  <td>{new Date(threat.timestamp).toLocaleDateString()}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: threat.status === 'active' ? '#ef4444' : threat.status === 'investigating' ? '#fbbf24' : '#10b981', 
+                      color: 'white' 
+                    }}>
+                      {threat.status.charAt(0).toUpperCase() + threat.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn security-theme">Respond</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -656,42 +602,32 @@ const MilitaryScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameCont
       gameContext={gameContext}
       apiEndpoints={apiEndpoints}
       onRefresh={fetchMilitaryData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
     >
-      <div className="military-screen">
-        {/* View Mode Tabs */}
-        <div className="view-tabs">
-          <button 
-            className={`tab ${viewMode === 'overview' ? 'active' : ''}`}
-            onClick={() => setViewMode('overview')}
-          >
-            📊 Overview
-          </button>
-          <button 
-            className={`tab ${viewMode === 'fleets' ? 'active' : ''}`}
-            onClick={() => setViewMode('fleets')}
-          >
-            🚀 Fleets
-          </button>
-          <button 
-            className={`tab ${viewMode === 'bases' ? 'active' : ''}`}
-            onClick={() => setViewMode('bases')}
-          >
-            🏗️ Bases
-          </button>
-          <button 
-            className={`tab ${viewMode === 'threats' ? 'active' : ''}`}
-            onClick={() => setViewMode('threats')}
-          >
-            🚨 Threats
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="tab-content">
-          {viewMode === 'overview' && renderOverview()}
-          {viewMode === 'fleets' && renderFleets()}
-          {viewMode === 'bases' && renderBases()}
-          {viewMode === 'threats' && renderThreats()}
+      <div className="standard-screen-container security-theme">
+        {error && <div className="error-message">Error: {error}</div>}
+        
+        <div className="standard-dashboard">
+          {!loading && !error && militaryData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'fleets' && renderFleets()}
+              {activeTab === 'bases' && renderBases()}
+              {activeTab === 'threats' && renderThreats()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading military data...' : 'No military data available'}
+            </div>
+          )}
         </div>
       </div>
     </BaseScreen>
@@ -699,3 +635,4 @@ const MilitaryScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameCont
 };
 
 export default MilitaryScreen;
+

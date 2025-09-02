@@ -1,5 +1,24 @@
+/**
+ * Corporate Research Screen - Private Sector Research & Development
+ * 
+ * This screen focuses on corporate research and development including:
+ * - Research projects and funding management
+ * - Corporation profiles and research budgets
+ * - Research partnerships and collaborations
+ * - Patent management and intellectual property
+ * - Market analysis and ROI projections
+ * 
+ * Distinct from:
+ * - Government Research: Public sector research and development
+ * - University Research: Academic research and education
+ * - Classified Research: Secret government research projects
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './CorporateResearchScreen.css';
+import '../shared/StandardDesign.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface ResearchProject {
   id: string;
@@ -12,6 +31,11 @@ interface ResearchProject {
   expectedROI: number;
   status: 'active' | 'completed' | 'paused' | 'cancelled';
   marketPotential: 'low' | 'medium' | 'high' | 'breakthrough';
+  teamSize: number;
+  startDate: string;
+  expectedCompletion: string;
+  description: string;
+  technologies: string[];
 }
 
 interface Corporation {
@@ -22,511 +46,719 @@ interface Corporation {
   activeProjects: number;
   completedProjects: number;
   researchEfficiency: number;
+  marketCap: number;
+  employees: number;
+  headquarters: string;
+  specialties: string[];
 }
 
-const CorporateResearchScreen: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'corporations' | 'partnerships' | 'patents' | 'market-analysis'>('overview');
+interface ResearchPartnership {
+  id: string;
+  name: string;
+  companies: string[];
+  focus: string;
+  startDate: string;
+  duration: number;
+  totalFunding: number;
+  status: 'proposed' | 'active' | 'completed' | 'cancelled';
+  outcomes: string[];
+  patents: number;
+}
+
+interface Patent {
+  id: string;
+  title: string;
+  company: string;
+  category: string;
+  filingDate: string;
+  status: 'pending' | 'approved' | 'rejected' | 'expired';
+  value: number;
+  description: string;
+  inventors: string[];
+  applications: string[];
+}
+
+interface MarketAnalysis {
+  totalCorporateFunding: number;
+  activeResearchProjects: number;
+  averageROI: number;
+  patentCount: number;
+  partnershipCount: number;
+  marketGrowth: number;
+  innovationIndex: number;
+  competitiveAdvantage: number;
+}
+
+const CorporateResearchScreen: React.FC<ScreenProps> = ({ 
+  screenId, 
+  title, 
+  icon, 
+  gameContext 
+}) => {
+  const [researchData, setResearchData] = useState<{
+    overview: MarketAnalysis;
+    projects: ResearchProject[];
+    corporations: Corporation[];
+    partnerships: ResearchPartnership[];
+    patents: Patent[];
+  } | null>(null);
+
+  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'corporations' | 'partnerships' | 'patents'>('overview');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const [researchProjects, setResearchProjects] = useState<ResearchProject[]>([
-    {
-      id: 'proj_001',
-      name: 'Neural-Link Consumer Interface',
-      company: 'NeuroTech Industries',
-      category: 'Consumer Electronics',
-      progress: 75,
-      maxProgress: 100,
-      funding: 2500000,
-      expectedROI: 450,
-      status: 'active',
-      marketPotential: 'breakthrough'
-    },
-    {
-      id: 'proj_002',
-      name: 'Quantum Encryption Protocol',
-      company: 'SecureSpace Corp',
-      category: 'Cybersecurity',
-      progress: 45,
-      maxProgress: 80,
-      funding: 1800000,
-      expectedROI: 320,
-      status: 'active',
-      marketPotential: 'high'
-    },
-    {
-      id: 'proj_003',
-      name: 'Automated Mining Drones',
-      company: 'Galactic Mining Consortium',
-      category: 'Industrial Automation',
-      progress: 100,
-      maxProgress: 100,
-      funding: 3200000,
-      expectedROI: 280,
-      status: 'completed',
-      marketPotential: 'high'
-    },
-    {
-      id: 'proj_004',
-      name: 'Bio-Enhanced Food Production',
-      company: 'AgriSpace Solutions',
-      category: 'Agriculture',
-      progress: 60,
-      maxProgress: 90,
-      funding: 1200000,
-      expectedROI: 190,
-      status: 'active',
-      marketPotential: 'medium'
-    },
-    {
-      id: 'proj_005',
-      name: 'Holographic Entertainment System',
-      company: 'StarVision Entertainment',
-      category: 'Entertainment',
-      progress: 30,
-      maxProgress: 70,
-      funding: 900000,
-      expectedROI: 150,
-      status: 'paused',
-      marketPotential: 'medium'
-    }
-  ]);
 
-  const [corporations, setCorporations] = useState<Corporation[]>([
-    {
-      id: 'corp_001',
-      name: 'NeuroTech Industries',
-      industry: 'Consumer Electronics',
-      researchBudget: 5000000,
-      activeProjects: 2,
-      completedProjects: 8,
-      researchEfficiency: 92
-    },
-    {
-      id: 'corp_002',
-      name: 'SecureSpace Corp',
-      industry: 'Cybersecurity',
-      researchBudget: 3500000,
-      activeProjects: 1,
-      completedProjects: 12,
-      researchEfficiency: 88
-    },
-    {
-      id: 'corp_003',
-      name: 'Galactic Mining Consortium',
-      industry: 'Mining & Resources',
-      researchBudget: 8000000,
-      activeProjects: 3,
-      completedProjects: 15,
-      researchEfficiency: 85
-    },
-    {
-      id: 'corp_004',
-      name: 'AgriSpace Solutions',
-      industry: 'Agriculture',
-      researchBudget: 2200000,
-      activeProjects: 1,
-      completedProjects: 6,
-      researchEfficiency: 78
-    }
-  ]);
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'projects', label: 'Projects', icon: '📋' },
+    { id: 'corporations', label: 'Corporations', icon: '🏢' },
+    { id: 'partnerships', label: 'Partnerships', icon: '🤝' },
+    { id: 'patents', label: 'Patents', icon: '📜' }
+  ];
 
-  const fetchCorporateResearchData = useCallback(async () => {
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/corporate-research', description: 'Get corporate research data' }
+  ];
+
+  // Utility functions
+  const formatCurrency = (value: number, currency: string = 'USD') => {
+    if (value >= 1e12) return `${currency} ${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `${currency} ${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${currency} ${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${currency} ${(value / 1e3).toFixed(0)}K`;
+    return `${currency} ${value}`;
+  };
+
+  const formatNumber = (value: number) => {
+    if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+    return value.toString();
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return '#10b981';
+      case 'completed': return '#6b7280';
+      case 'paused': return '#fbbf24';
+      case 'cancelled': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getMarketPotentialColor = (potential: string) => {
+    switch (potential) {
+      case 'breakthrough': return '#ef4444';
+      case 'high': return '#f59e0b';
+      case 'medium': return '#fbbf24';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getPatentStatusColor = (status: string) => {
+    switch (status) {
+      case 'approved': return '#10b981';
+      case 'pending': return '#fbbf24';
+      case 'rejected': return '#ef4444';
+      case 'expired': return '#6b7280';
+      default: return '#6b7280';
+    }
+  };
+
+  const getPartnershipStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return '#10b981';
+      case 'proposed': return '#fbbf24';
+      case 'completed': return '#6b7280';
+      case 'cancelled': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const fetchResearchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:4010/api/corporate-research/projects');
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/corporate-research');
       if (response.ok) {
         const data = await response.json();
-        if (data.projects) setResearchProjects(data.projects);
-        if (data.corporations) setCorporations(data.corporations);
+        setResearchData(data);
+      } else {
+        throw new Error('API not available');
       }
     } catch (err) {
       console.warn('Failed to fetch corporate research data:', err);
-      setError('Using offline data - API unavailable');
+      // Use comprehensive mock data
+      setResearchData({
+        overview: {
+          totalCorporateFunding: 1250000000,
+          activeResearchProjects: 45,
+          averageROI: 285.5,
+          patentCount: 156,
+          partnershipCount: 23,
+          marketGrowth: 12.8,
+          innovationIndex: 87.3,
+          competitiveAdvantage: 92.1
+        },
+        projects: [
+          {
+            id: 'proj_001',
+            name: 'Neural-Link Consumer Interface',
+            company: 'NeuroTech Industries',
+            category: 'Consumer Electronics',
+            progress: 75,
+            maxProgress: 100,
+            funding: 2500000,
+            expectedROI: 450,
+            status: 'active',
+            marketPotential: 'breakthrough',
+            teamSize: 18,
+            startDate: '2024-01-15',
+            expectedCompletion: '2024-06-15',
+            description: 'Next-generation brain-computer interface for consumer applications',
+            technologies: ['Neural Networks', 'Biotechnology', 'Wireless Communication']
+          },
+          {
+            id: 'proj_002',
+            name: 'Quantum Encryption Protocol',
+            company: 'SecureSpace Corp',
+            category: 'Cybersecurity',
+            progress: 45,
+            maxProgress: 80,
+            funding: 1800000,
+            expectedROI: 320,
+            status: 'active',
+            marketPotential: 'high',
+            teamSize: 12,
+            startDate: '2024-02-01',
+            expectedCompletion: '2024-08-01',
+            description: 'Unbreakable encryption using quantum entanglement principles',
+            technologies: ['Quantum Computing', 'Cryptography', 'Network Security']
+          },
+          {
+            id: 'proj_003',
+            name: 'Automated Mining Drones',
+            company: 'Galactic Mining Consortium',
+            category: 'Industrial Automation',
+            progress: 100,
+            maxProgress: 100,
+            funding: 3200000,
+            expectedROI: 280,
+            status: 'completed',
+            marketPotential: 'high',
+            teamSize: 25,
+            startDate: '2023-09-01',
+            expectedCompletion: '2024-01-15',
+            description: 'Autonomous mining drones for asteroid and planetary resource extraction',
+            technologies: ['AI Navigation', 'Robotics', 'Resource Detection']
+          }
+        ],
+        corporations: [
+          {
+            id: 'corp_001',
+            name: 'NeuroTech Industries',
+            industry: 'Consumer Electronics',
+            researchBudget: 5000000,
+            activeProjects: 8,
+            completedProjects: 15,
+            researchEfficiency: 94.2,
+            marketCap: 2500000000,
+            employees: 1250,
+            headquarters: 'New Silicon Valley',
+            specialties: ['Neural Interfaces', 'Biotechnology', 'Consumer Electronics']
+          },
+          {
+            id: 'corp_002',
+            name: 'SecureSpace Corp',
+            industry: 'Cybersecurity',
+            researchBudget: 3200000,
+            activeProjects: 6,
+            completedProjects: 12,
+            researchEfficiency: 89.7,
+            marketCap: 1800000000,
+            employees: 890,
+            headquarters: 'Cyber District',
+            specialties: ['Quantum Security', 'Network Protection', 'Data Encryption']
+          },
+          {
+            id: 'corp_003',
+            name: 'Galactic Mining Consortium',
+            industry: 'Industrial',
+            researchBudget: 4500000,
+            activeProjects: 10,
+            completedProjects: 18,
+            researchEfficiency: 91.5,
+            marketCap: 3200000000,
+            employees: 2100,
+            headquarters: 'Industrial Hub',
+            specialties: ['Automation', 'Resource Extraction', 'Space Technology']
+          }
+        ],
+        partnerships: [
+          {
+            id: 'part_001',
+            name: 'Quantum Computing Alliance',
+            companies: ['SecureSpace Corp', 'NeuroTech Industries'],
+            focus: 'Quantum Computing Applications',
+            startDate: '2024-01-01',
+            duration: 24,
+            totalFunding: 8000000,
+            status: 'active',
+            outcomes: ['Improved quantum algorithms', 'Enhanced security protocols'],
+            patents: 5
+          },
+          {
+            id: 'part_002',
+            name: 'Space Mining Initiative',
+            companies: ['Galactic Mining Consortium', 'StarVision Entertainment'],
+            focus: 'Asteroid Resource Extraction',
+            startDate: '2023-11-01',
+            duration: 36,
+            totalFunding: 12000000,
+            status: 'active',
+            outcomes: ['Advanced mining techniques', 'Resource mapping systems'],
+            patents: 8
+          }
+        ],
+        patents: [
+          {
+            id: 'patent_001',
+            title: 'Neural Interface Calibration System',
+            company: 'NeuroTech Industries',
+            category: 'Biotechnology',
+            filingDate: '2024-01-20',
+            status: 'approved',
+            value: 2500000,
+            description: 'Advanced calibration system for neural interface devices',
+            inventors: ['Dr. Sarah Chen', 'Dr. Michael Rodriguez'],
+            applications: ['Medical devices', 'Consumer electronics', 'Gaming systems']
+          },
+          {
+            id: 'patent_002',
+            title: 'Quantum-Resistant Encryption Method',
+            company: 'SecureSpace Corp',
+            category: 'Cybersecurity',
+            filingDate: '2024-02-10',
+            status: 'pending',
+            value: 1800000,
+            description: 'Encryption method resistant to quantum computing attacks',
+            inventors: ['Dr. Elena Petrov', 'Dr. James Wilson'],
+            applications: ['Government systems', 'Financial institutions', 'Military communications']
+          }
+        ]
+      });
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchCorporateResearchData();
-  }, [fetchCorporateResearchData]);
+    fetchResearchData();
+  }, [fetchResearchData]);
 
-  const getMarketPotentialColor = (potential: string) => {
-    switch(potential) {
-      case 'breakthrough': return '#ff6b6b';
-      case 'high': return '#4ecdc4';
-      case 'medium': return '#fbbf24';
-      case 'low': return '#666';
-      default: return '#ccc';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'completed': return '#4ecdc4';
-      case 'active': return '#fbbf24';
-      case 'paused': return '#666';
-      case 'cancelled': return '#ef4444';
-      default: return '#ccc';
-    }
-  };
-
-  const totalInvestment = researchProjects.reduce((sum, proj) => sum + proj.funding, 0);
-  const activeProjects = researchProjects.filter(proj => proj.status === 'active');
-  const completedProjects = researchProjects.filter(proj => proj.status === 'completed');
-  const averageROI = researchProjects.reduce((sum, proj) => sum + proj.expectedROI, 0) / researchProjects.length;
-
+  // Render functions for each tab
   const renderOverview = () => (
-    <div className="overview-content">
-      <div className="research-stats">
-        <div className="stat-card">
-          <div className="stat-value">{researchProjects.length}</div>
-          <div className="stat-label">Total Projects</div>
+    <>
+      {/* Corporate Research Overview - Full panel width */}
+      <div className="standard-panel technology-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>📊 Corporate Research Overview</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Total Funding</span>
+            <span className="standard-metric-value">{formatCurrency(researchData?.overview?.totalCorporateFunding || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Active Projects</span>
+            <span className="standard-metric-value">{researchData?.overview?.activeResearchProjects || 0}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Average ROI</span>
+            <span className="standard-metric-value">{(researchData?.overview?.averageROI || 0).toFixed(1)}%</span>
+          </div>
+          <div className="standard-metric">
+            <span>Patents</span>
+            <span className="standard-metric-value">{researchData?.overview?.patentCount || 0}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Partnerships</span>
+            <span className="standard-metric-value">{researchData?.overview?.partnershipCount || 0}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Market Growth</span>
+            <span className="standard-metric-value">{(researchData?.overview?.marketGrowth || 0).toFixed(1)}%</span>
+          </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-value">{activeProjects.length}</div>
-          <div className="stat-label">Active Projects</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{completedProjects.length}</div>
-          <div className="stat-label">Completed Projects</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">₹{(totalInvestment / 1000000).toFixed(1)}M</div>
-          <div className="stat-label">Total Investment</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{averageROI.toFixed(0)}%</div>
-          <div className="stat-label">Average ROI</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{corporations.length}</div>
-          <div className="stat-label">Research Partners</div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('Market Analysis')}>Market Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('ROI Review')}>ROI Review</button>
         </div>
       </div>
 
-      <div className="key-insights">
-        <h3>🎯 Key Insights</h3>
-        <div className="insights-grid">
-          <div className="insight-card">
-            <h4>🚀 Breakthrough Potential</h4>
-            <p>Neural-Link Consumer Interface shows 450% ROI potential - revolutionary market impact expected</p>
-          </div>
-          <div className="insight-card">
-            <h4>💰 Investment Efficiency</h4>
-            <p>Mining automation projects delivering consistent 280%+ returns with proven market demand</p>
-          </div>
-          <div className="insight-card">
-            <h4>🔒 Security Focus</h4>
-            <p>Quantum encryption becoming critical as cyber threats increase across galactic networks</p>
+      {/* Active Research Projects - Full panel width */}
+      <div className="standard-panel technology-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>📋 Active Research Projects</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Company</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Funding</th>
+                <th>Expected ROI</th>
+                <th>Market Potential</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData?.projects?.slice(0, 5).map((project) => (
+                <tr key={project.id}>
+                  <td><strong>{project.name}</strong></td>
+                  <td>{project.company}</td>
+                  <td>{project.category}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(project.status), 
+                      color: 'white' 
+                    }}>
+                      {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>{project.progress}/{project.maxProgress}</td>
+                  <td>{formatCurrency(project.funding)}</td>
+                  <td>{project.expectedROI}%</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getMarketPotentialColor(project.marketPotential), 
+                      color: 'white' 
+                    }}>
+                      {project.marketPotential.charAt(0).toUpperCase() + project.marketPotential.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn technology-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Research Analytics - Full panel width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div className="standard-panel technology-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>📈 Research Analytics</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+            <div className="chart-container">
+              <BarChart
+                data={researchData?.projects?.map(proj => ({
+                  label: proj.name,
+                  value: proj.progress,
+                  color: getStatusColor(proj.status)
+                })) || []}
+                title="📋 Project Progress (%)"
+                height={250}
+                width={400}
+                showTooltip={true}
+              />
+            </div>
+            <div className="chart-container">
+              <PieChart
+                data={researchData?.corporations?.map((corp, index) => ({
+                  label: corp.name,
+                  value: corp.activeProjects,
+                  color: getStatusColor('active')
+                })) || []}
+                title="🏢 Corporation Project Distribution"
+                size={200}
+                showLegend={true}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 
   const renderProjects = () => (
-    <div className="projects-content">
-      <div className="projects-header">
-        <h3>Active Corporate Research Projects</h3>
-        <div className="project-filters">
-          <select className="filter-select">
-            <option value="all">All Categories</option>
-            <option value="consumer">Consumer Electronics</option>
-            <option value="industrial">Industrial</option>
-            <option value="biotech">Biotechnology</option>
-            <option value="security">Security</option>
-          </select>
-          <select className="filter-select">
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="completed">Completed</option>
-            <option value="paused">Paused</option>
-          </select>
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel technology-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>📋 Research Projects</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('Project Analysis')}>Project Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Funding Review')}>Funding Review</button>
         </div>
-      </div>
-      
-      <div className="projects-grid">
-        {researchProjects.map(project => (
-          <div key={project.id} className="project-card">
-            <div className="project-header">
-              <h4>{project.name}</h4>
-              <span 
-                className="project-status"
-                style={{ color: getStatusColor(project.status) }}
-              >
-                {project.status.toUpperCase()}
-              </span>
-            </div>
-            <div className="project-company">{project.company}</div>
-            <div className="project-category">{project.category}</div>
-            
-            <div className="project-progress">
-              <div className="progress-bar" style={{ width: `${(project.progress / project.maxProgress) * 100}%` }}></div>
-            </div>
-            <div className="progress-text">
-              Progress: {project.progress}/{project.maxProgress} ({((project.progress / project.maxProgress) * 100).toFixed(0)}%)
-            </div>
-            
-            <div className="project-metrics">
-              <div className="metric">
-                <span className="metric-label">Funding:</span>
-                <span className="metric-value">₹{(project.funding / 1000000).toFixed(1)}M</span>
-              </div>
-              <div className="metric">
-                <span className="metric-label">Expected ROI:</span>
-                <span className="metric-value">{project.expectedROI}%</span>
-              </div>
-              <div className="metric">
-                <span className="metric-label">Market Potential:</span>
-                <span 
-                  className="metric-value"
-                  style={{ color: getMarketPotentialColor(project.marketPotential) }}
-                >
-                  {project.marketPotential.toUpperCase()}
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Company</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Funding</th>
+                <th>Expected ROI</th>
+                <th>Team Size</th>
+                <th>Start Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData?.projects?.map((project) => (
+                <tr key={project.id}>
+                  <td>
+                    <strong>{project.name}</strong><br />
+                    <small style={{ color: '#a0a9ba' }}>{project.description}</small>
+                  </td>
+                  <td>{project.company}</td>
+                  <td>{project.category}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(project.status), 
+                      color: 'white' 
+                    }}>
+                      {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>{project.progress}/{project.maxProgress}</td>
+                  <td>{formatCurrency(project.funding)}</td>
+                  <td>{project.expectedROI}%</td>
+                  <td>{project.teamSize}</td>
+                  <td>{project.startDate}</td>
+                  <td>
+                    <button className="standard-btn technology-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 
   const renderCorporations = () => (
-    <div className="corporations-content">
-      <h3>Research Partner Corporations</h3>
-      <div className="corporations-grid">
-        {corporations.map(corp => (
-          <div key={corp.id} className="corporation-card">
-            <div className="corp-header">
-              <h4>{corp.name}</h4>
-              <span className="corp-industry">{corp.industry}</span>
-            </div>
-            
-            <div className="corp-metrics">
-              <div className="corp-metric">
-                <span className="metric-label">Research Budget:</span>
-                <span className="metric-value">₹{(corp.researchBudget / 1000000).toFixed(1)}M</span>
-              </div>
-              <div className="corp-metric">
-                <span className="metric-label">Active Projects:</span>
-                <span className="metric-value">{corp.activeProjects}</span>
-              </div>
-              <div className="corp-metric">
-                <span className="metric-label">Completed:</span>
-                <span className="metric-value">{corp.completedProjects}</span>
-              </div>
-              <div className="corp-metric">
-                <span className="metric-label">Efficiency:</span>
-                <span className="metric-value">{corp.researchEfficiency}%</span>
-              </div>
-            </div>
-            
-            <div className="corp-actions">
-              <button className="action-btn">📊 View Projects</button>
-              <button className="action-btn">🤝 Partnership Terms</button>
-            </div>
-          </div>
-        ))}
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel technology-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>🏢 Corporations</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('Corporation Analysis')}>Corporation Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Budget Review')}>Budget Review</button>
+        </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Corporation</th>
+                <th>Industry</th>
+                <th>Research Budget</th>
+                <th>Active Projects</th>
+                <th>Completed</th>
+                <th>Efficiency</th>
+                <th>Market Cap</th>
+                <th>Employees</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData?.corporations?.map((corp) => (
+                <tr key={corp.id}>
+                  <td>
+                    <strong>{corp.name}</strong><br />
+                    <small style={{ color: '#a0a9ba' }}>{corp.headquarters}</small>
+                  </td>
+                  <td>{corp.industry}</td>
+                  <td>{formatCurrency(corp.researchBudget)}</td>
+                  <td>{corp.activeProjects}</td>
+                  <td>{corp.completedProjects}</td>
+                  <td>{corp.researchEfficiency}%</td>
+                  <td>{formatCurrency(corp.marketCap)}</td>
+                  <td>{formatNumber(corp.employees)}</td>
+                  <td>
+                    <button className="standard-btn technology-theme">View</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 
   const renderPartnerships = () => (
-    <div className="partnerships-content">
-      <h3>Public-Private Research Partnerships</h3>
-      <div className="partnerships-grid">
-        <div className="partnership-card">
-          <h4>🏛️ Government-Corporate Joint Ventures</h4>
-          <p>Collaborative projects between government R&D and private industry</p>
-          <div className="partnership-stats">
-            <div>Active Partnerships: 8</div>
-            <div>Total Investment: ₹45M</div>
-            <div>Success Rate: 78%</div>
-          </div>
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel technology-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>🤝 Research Partnerships</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('Partnership Analysis')}>Partnership Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Collaboration Review')}>Collaboration Review</button>
         </div>
-        <div className="partnership-card">
-          <h4>🎓 University-Industry Collaboration</h4>
-          <p>Academic research partnerships with commercial applications</p>
-          <div className="partnership-stats">
-            <div>Active Collaborations: 12</div>
-            <div>Student Researchers: 156</div>
-            <div>Patents Filed: 23</div>
-          </div>
-        </div>
-        <div className="partnership-card">
-          <h4>🌌 Inter-Civilization Tech Exchange</h4>
-          <p>Technology sharing agreements with allied civilizations</p>
-          <div className="partnership-stats">
-            <div>Active Exchanges: 5</div>
-            <div>Technologies Shared: 18</div>
-            <div>Benefits Gained: 31</div>
-          </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Partnership</th>
+                <th>Companies</th>
+                <th>Focus</th>
+                <th>Status</th>
+                <th>Total Funding</th>
+                <th>Duration</th>
+                <th>Patents</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData?.partnerships?.map((partnership) => (
+                <tr key={partnership.id}>
+                  <td><strong>{partnership.name}</strong></td>
+                  <td>{partnership.companies.join(', ')}</td>
+                  <td>{partnership.focus}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getPartnershipStatusColor(partnership.status), 
+                      color: 'white' 
+                    }}>
+                      {partnership.status.charAt(0).toUpperCase() + partnership.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>{formatCurrency(partnership.totalFunding)}</td>
+                  <td>{partnership.duration} months</td>
+                  <td>{partnership.patents}</td>
+                  <td>
+                    <button className="standard-btn technology-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 
   const renderPatents = () => (
-    <div className="patents-content">
-      <h3>Corporate Patents & IP</h3>
-      <div className="patents-grid">
-        <div className="patent-card">
-          <h4>🔬 Recent Patents Filed</h4>
-          <div className="patent-list">
-            <div className="patent-item">
-              <strong>Neural Interface Calibration System</strong>
-              <span>NeuroTech Industries - Filed 3 days ago</span>
-            </div>
-            <div className="patent-item">
-              <strong>Quantum Data Compression Algorithm</strong>
-              <span>SecureSpace Corp - Filed 1 week ago</span>
-            </div>
-            <div className="patent-item">
-              <strong>Autonomous Mining Swarm Protocol</strong>
-              <span>Galactic Mining Consortium - Filed 2 weeks ago</span>
-            </div>
-          </div>
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel technology-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>📜 Patents & IP</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('Patent Analysis')}>Patent Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('IP Management')}>IP Management</button>
         </div>
-        <div className="patent-card">
-          <h4>💰 Patent Revenue Streams</h4>
-          <div className="revenue-list">
-            <div className="revenue-item">
-              <strong>Licensing Revenue:</strong>
-              <span>₹12.5M annually</span>
-            </div>
-            <div className="revenue-item">
-              <strong>Patent Portfolio Value:</strong>
-              <span>₹89M estimated</span>
-            </div>
-            <div className="revenue-item">
-              <strong>Cross-Licensing Deals:</strong>
-              <span>15 active agreements</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderMarketAnalysis = () => (
-    <div className="market-analysis-content">
-      <h3>Research Market Analysis</h3>
-      <div className="analysis-grid">
-        <div className="analysis-card">
-          <h4>📈 Investment Trends</h4>
-          <div className="trend-list">
-            <div className="trend-item">
-              <span className="trend-category">AI & Neural Tech:</span>
-              <span className="trend-growth positive">↗ +45%</span>
-            </div>
-            <div className="trend-item">
-              <span className="trend-category">Quantum Computing:</span>
-              <span className="trend-growth positive">↗ +38%</span>
-            </div>
-            <div className="trend-item">
-              <span className="trend-category">Biotech:</span>
-              <span className="trend-growth positive">↗ +22%</span>
-            </div>
-            <div className="trend-item">
-              <span className="trend-category">Entertainment:</span>
-              <span className="trend-growth negative">↘ -12%</span>
-            </div>
-          </div>
-        </div>
-        <div className="analysis-card">
-          <h4>🎯 Market Opportunities</h4>
-          <div className="opportunity-list">
-            <div className="opportunity-item high">
-              <strong>Neural Consumer Interfaces</strong>
-              <span>Market Size: ₹2.8B | Growth: 67%</span>
-            </div>
-            <div className="opportunity-item medium">
-              <strong>Automated Industrial Systems</strong>
-              <span>Market Size: ₹1.9B | Growth: 34%</span>
-            </div>
-            <div className="opportunity-item medium">
-              <strong>Quantum Security Solutions</strong>
-              <span>Market Size: ₹1.2B | Growth: 28%</span>
-            </div>
-          </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Patent</th>
+                <th>Company</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Filing Date</th>
+                <th>Value</th>
+                <th>Inventors</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData?.patents?.map((patent) => (
+                <tr key={patent.id}>
+                  <td>
+                    <strong>{patent.title}</strong><br />
+                    <small style={{ color: '#a0a9ba' }}>{patent.description}</small>
+                  </td>
+                  <td>{patent.company}</td>
+                  <td>{patent.category}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getPatentStatusColor(patent.status), 
+                      color: 'white' 
+                    }}>
+                      {patent.status.charAt(0).toUpperCase() + patent.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>{patent.filingDate}</td>
+                  <td>{formatCurrency(patent.value)}</td>
+                  <td>{patent.inventors.join(', ')}</td>
+                  <td>
+                    <button className="standard-btn technology-theme">View</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
-
-  if (loading) {
-    return (
-      <div className="corporate-research-screen">
-        <div className="loading-state">
-          <div className="loading-spinner"></div>
-          <p>Loading corporate research data...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="corporate-research-screen">
-      <div className="screen-header">
-        <h1>🏢 Corporate Research & Development</h1>
-        <p>Private sector innovation, commercial R&D projects, and industry partnerships</p>
-        {error && <div className="error-message">⚠️ {error}</div>}
+    <BaseScreen
+      screenId={screenId}
+      title={title}
+      icon={icon}
+      gameContext={gameContext}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchResearchData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
+    >
+      <div className="standard-screen-container technology-theme">
+        {error && <div className="error-message">Error: {error}</div>}
+        
+        <div className="standard-dashboard">
+          {!loading && !error && researchData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'projects' && renderProjects()}
+              {activeTab === 'corporations' && renderCorporations()}
+              {activeTab === 'partnerships' && renderPartnerships()}
+              {activeTab === 'patents' && renderPatents()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading corporate research data...' : 'No corporate research data available'}
+            </div>
+          )}
+        </div>
       </div>
-
-      <div className="screen-tabs">
-        <button 
-          className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          📊 Overview
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
-          onClick={() => setActiveTab('projects')}
-        >
-          🔬 R&D Projects
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'corporations' ? 'active' : ''}`}
-          onClick={() => setActiveTab('corporations')}
-        >
-          🏢 Corporations
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'partnerships' ? 'active' : ''}`}
-          onClick={() => setActiveTab('partnerships')}
-        >
-          🤝 Partnerships
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'patents' ? 'active' : ''}`}
-          onClick={() => setActiveTab('patents')}
-        >
-          📜 Patents & IP
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'market-analysis' ? 'active' : ''}`}
-          onClick={() => setActiveTab('market-analysis')}
-        >
-          📈 Market Analysis
-        </button>
-      </div>
-
-      <div className="screen-content">
-        {activeTab === 'overview' && renderOverview()}
-        {activeTab === 'projects' && renderProjects()}
-        {activeTab === 'corporations' && renderCorporations()}
-        {activeTab === 'partnerships' && renderPartnerships()}
-        {activeTab === 'patents' && renderPatents()}
-        {activeTab === 'market-analysis' && renderMarketAnalysis()}
-      </div>
-    </div>
+    </BaseScreen>
   );
 };
 
 export default CorporateResearchScreen;
+

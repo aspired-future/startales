@@ -69,10 +69,10 @@
 /* Base Screen Tabs */
 .base-screen-tabs {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   flex: 1;
-  justify-content: center;
+  justify-content: flex-start;
   margin: 0 20px;
   overflow-x: auto;
   overflow-y: hidden;
@@ -80,6 +80,9 @@
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
   min-width: 0;
+  padding: 0 4px;
+  max-width: 100%;
+  width: 100%;
 }
 
 .base-screen-tabs::-webkit-scrollbar {
@@ -111,6 +114,7 @@
   overflow: hidden;
   flex-shrink: 0; /* Prevent tabs from shrinking */
   white-space: nowrap;
+  min-width: fit-content;
 }
 
 .base-screen-tab::before {

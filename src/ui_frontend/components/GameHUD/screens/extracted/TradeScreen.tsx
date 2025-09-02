@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './TradeScreen.css';
+import '../shared/StandardDesign.css';
 import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface TradeIndex {
@@ -85,65 +86,351 @@ interface TradeData {
 
 const TradeScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext }) => {
   const [tradeData, setTradeData] = useState<TradeData | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'commodities' | 'routes' | 'corporations' | 'contracts' | 'opportunities'>('overview');
-  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'commodities' | 'routes' | 'corporations' | 'opportunities'>('overview');
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'commodities', label: 'Commodities', icon: '📦' },
+    { id: 'routes', label: 'Routes', icon: '🛣️' },
+    { id: 'corporations', label: 'Corporations', icon: '🏢' },
+    { id: 'opportunities', label: 'Opportunities', icon: '💡' }
+  ];
+
+  // API endpoints
   const apiEndpoints: APIEndpoint[] = [
     { method: 'GET', path: '/api/trade/indices', description: 'Get trade indices and market indicators' },
     { method: 'GET', path: '/api/trade/systems', description: 'Get trading systems and hubs' },
     { method: 'GET', path: '/api/trade/commodities', description: 'Get commodity prices and data' },
     { method: 'GET', path: '/api/trade/routes', description: 'Get profitable trade routes' },
-    { method: 'GET', path: '/api/trade/corporations', description: 'Get corporation data and stocks' },
-    { method: 'GET', path: '/api/trade/contracts', description: 'Get available trade contracts' },
-    { method: 'GET', path: '/api/trade/opportunities', description: 'Get trade opportunities' }
+    { method: 'GET', path: '/api/trade/corporations', description: 'Get corporation data and stocks' }
   ];
 
+  const getRiskColor = (risk: string) => {
+    switch (risk) {
+      case 'low': return '#10b981';
+      case 'medium': return '#f59e0b';
+      case 'high': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return '#10b981';
+      case 'restricted': return '#f59e0b';
+      case 'closed': return '#ef4444';
+      case 'inactive': return '#6b7280';
+      case 'dangerous': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getTrendColor = (trend: string) => {
+    switch (trend) {
+      case 'up': return '#10b981';
+      case 'down': return '#ef4444';
+      case 'stable': return '#f59e0b';
+      default: return '#6b7280';
+    }
+  };
+
+  const formatCurrency = (value: number) => {
+    if (value >= 1e12) return `$${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `$${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `$${(value / 1e3).toFixed(0)}K`;
+    return `$${value}`;
+  };
+
+  const formatNumber = (value: number) => {
+    if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+    return value.toString();
+  };
+
   const fetchTradeData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    
     try {
-      const [indicesRes, systemsRes, commoditiesRes, routesRes, corporationsRes, contractsRes, opportunitiesRes] = await Promise.all([
-        fetch('/api/trade/indices?campaignId=1'),
-        fetch('/api/trade/systems?campaignId=1'),
-        fetch('/api/trade/commodities?campaignId=1'),
-        fetch('/api/trade/routes?campaignId=1'),
-        fetch('/api/trade/corporations?campaignId=1'),
-        fetch('/api/trade/contracts?campaignId=1'),
-        fetch('/api/trade/opportunities?campaignId=1')
-      ]);
-
-      const [indices, systems, commodities, routes, corporations, contracts, opportunities] = await Promise.all([
-        indicesRes.json(),
-        systemsRes.json(),
-        commoditiesRes.json(),
-        routesRes.json(),
-        corporationsRes.json(),
-        contractsRes.json(),
-        opportunitiesRes.json()
-      ]);
-
-      setTradeData({
-        indices: indices.data || generateMockIndices(),
-        systems: systems.data || generateMockSystems(),
-        commodities: commodities.data || generateMockCommodities(),
-        routes: routes.data || generateMockRoutes(),
-        corporations: corporations.data || generateMockCorporations(),
-        contracts: contracts.data || generateMockContracts(),
-        opportunities: opportunities.data || generateMockOpportunities()
-      });
+      setLoading(true);
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/trade');
+      if (response.ok) {
+        const data = await response.json();
+        setTradeData(data);
+      } else {
+        throw new Error('API not available');
+      }
     } catch (err) {
-      console.error('Failed to fetch trade data:', err);
-      // Use mock data as fallback
+      console.warn('Failed to fetch trade data:', err);
+      // Use comprehensive mock data
       setTradeData({
-        indices: generateMockIndices(),
-        systems: generateMockSystems(),
-        commodities: generateMockCommodities(),
-        routes: generateMockRoutes(),
-        corporations: generateMockCorporations(),
-        contracts: generateMockContracts(),
-        opportunities: generateMockOpportunities()
+        indices: [
+          { name: 'Galactic Trade Index', value: 1247.8, change: 2.3, trend: 'up' },
+          { name: 'Commodity Futures', value: 892.4, change: -1.1, trend: 'down' },
+          { name: 'Interstellar Exchange', value: 1567.2, change: 0.8, trend: 'stable' },
+          { name: 'Corporate Performance', value: 2341.6, change: 3.2, trend: 'up' }
+        ],
+        systems: [
+          {
+            id: 'sys-001',
+            name: 'Alpha Centauri Hub',
+            location: 'Alpha Centauri System',
+            volume: 4500000000000,
+            specialties: ['Technology', 'Luxury Goods', 'Raw Materials'],
+            status: 'active'
+          },
+          {
+            id: 'sys-002',
+            name: 'Vega Trading Center',
+            location: 'Vega System',
+            volume: 3200000000000,
+            specialties: ['Agricultural Products', 'Consumer Goods'],
+            status: 'active'
+          },
+          {
+            id: 'sys-003',
+            name: 'Sirius Exchange',
+            location: 'Sirius System',
+            volume: 2800000000000,
+            specialties: ['Financial Services', 'Information Technology'],
+            status: 'active'
+          },
+          {
+            id: 'sys-004',
+            name: 'Proxima Market',
+            location: 'Proxima Centauri',
+            volume: 1800000000000,
+            specialties: ['Mining Equipment', 'Industrial Supplies'],
+            status: 'restricted'
+          },
+          {
+            id: 'sys-005',
+            name: 'Betelgeuse Port',
+            location: 'Betelgeuse System',
+            volume: 950000000000,
+            specialties: ['Exotic Materials', 'Research Equipment'],
+            status: 'active'
+          }
+        ],
+        commodities: [
+          {
+            id: 'com-001',
+            name: 'Quantum Processors',
+            category: 'Technology',
+            price: 25000,
+            change: 5.2,
+            volume: 1500000,
+            supply: 'medium',
+            demand: 'high'
+          },
+          {
+            id: 'com-002',
+            name: 'Rare Earth Metals',
+            category: 'Raw Materials',
+            price: 850,
+            change: -2.1,
+            volume: 45000000,
+            supply: 'high',
+            demand: 'medium'
+          },
+          {
+            id: 'com-003',
+            name: 'Synthetic Food',
+            category: 'Agricultural',
+            price: 125,
+            change: 1.8,
+            volume: 85000000,
+            supply: 'medium',
+            demand: 'high'
+          },
+          {
+            id: 'com-004',
+            name: 'Fusion Reactors',
+            category: 'Energy',
+            price: 150000,
+            change: 8.5,
+            volume: 250000,
+            supply: 'low',
+            demand: 'high'
+          },
+          {
+            id: 'com-005',
+            name: 'Luxury Textiles',
+            category: 'Consumer Goods',
+            price: 450,
+            change: -0.5,
+            volume: 12000000,
+            supply: 'medium',
+            demand: 'medium'
+          }
+        ],
+        routes: [
+          {
+            id: 'route-001',
+            origin: 'Alpha Centauri',
+            destination: 'Vega',
+            commodity: 'Quantum Processors',
+            profit: 8500000,
+            risk: 'low',
+            distance: 25.3,
+            status: 'active'
+          },
+          {
+            id: 'route-002',
+            origin: 'Vega',
+            destination: 'Sirius',
+            commodity: 'Synthetic Food',
+            profit: 3200000,
+            risk: 'medium',
+            distance: 15.7,
+            status: 'active'
+          },
+          {
+            id: 'route-003',
+            origin: 'Sirius',
+            destination: 'Proxima Centauri',
+            commodity: 'Fusion Reactors',
+            profit: 12500000,
+            risk: 'high',
+            distance: 42.1,
+            status: 'dangerous'
+          },
+          {
+            id: 'route-004',
+            origin: 'Proxima Centauri',
+            destination: 'Betelgeuse',
+            commodity: 'Rare Earth Metals',
+            profit: 5800000,
+            risk: 'medium',
+            distance: 38.9,
+            status: 'active'
+          },
+          {
+            id: 'route-005',
+            origin: 'Betelgeuse',
+            destination: 'Alpha Centauri',
+            commodity: 'Luxury Textiles',
+            profit: 4200000,
+            risk: 'low',
+            distance: 31.2,
+            status: 'active'
+          }
+        ],
+        corporations: [
+          {
+            id: 'corp-001',
+            name: 'Quantum Dynamics Inc.',
+            sector: 'Technology',
+            marketCap: 850000000000,
+            stockPrice: 245.80,
+            change: 3.2,
+            reputation: 92
+          },
+          {
+            id: 'corp-002',
+            name: 'Stellar Mining Corp.',
+            sector: 'Mining',
+            marketCap: 420000000000,
+            stockPrice: 78.45,
+            change: -1.8,
+            reputation: 85
+          },
+          {
+            id: 'corp-003',
+            name: 'Interstellar Foods',
+            sector: 'Agriculture',
+            marketCap: 320000000000,
+            stockPrice: 156.20,
+            change: 2.1,
+            reputation: 88
+          },
+          {
+            id: 'corp-004',
+            name: 'Fusion Energy Systems',
+            sector: 'Energy',
+            marketCap: 680000000000,
+            stockPrice: 189.75,
+            change: 5.7,
+            reputation: 94
+          },
+          {
+            id: 'corp-005',
+            name: 'Luxury Goods International',
+            sector: 'Consumer',
+            marketCap: 280000000000,
+            stockPrice: 95.30,
+            change: 0.8,
+            reputation: 79
+          }
+        ],
+        contracts: [
+          {
+            id: 'contract-001',
+            type: 'transport',
+            commodity: 'Quantum Processors',
+            quantity: 500,
+            price: 12500000,
+            deadline: '2024-09-15',
+            client: 'Quantum Dynamics Inc.',
+            risk: 'low',
+            reward: 850000
+          },
+          {
+            id: 'contract-002',
+            type: 'buy',
+            commodity: 'Rare Earth Metals',
+            quantity: 10000,
+            price: 8500000,
+            deadline: '2024-09-20',
+            client: 'Stellar Mining Corp.',
+            risk: 'medium',
+            reward: 1200000
+          },
+          {
+            id: 'contract-003',
+            type: 'sell',
+            commodity: 'Synthetic Food',
+            quantity: 25000,
+            price: 3125000,
+            deadline: '2024-09-18',
+            client: 'Interstellar Foods',
+            risk: 'low',
+            reward: 450000
+          }
+        ],
+        opportunities: [
+          {
+            id: 'opp-001',
+            type: 'arbitrage',
+            description: 'Price discrepancy in Quantum Processors between Alpha Centauri and Vega',
+            potential: 2500000,
+            timeframe: '48 hours',
+            requirements: ['Fast transport', 'Large capital'],
+            risk: 'medium'
+          },
+          {
+            id: 'opp-002',
+            type: 'shortage',
+            description: 'Fusion Reactors shortage in Proxima Centauri due to increased demand',
+            potential: 8500000,
+            timeframe: '1 week',
+            requirements: ['High-capacity transport', 'Security clearance'],
+            risk: 'high'
+          },
+          {
+            id: 'opp-003',
+            type: 'surplus',
+            description: 'Rare Earth Metals surplus in Betelgeuse causing price drop',
+            potential: 3200000,
+            timeframe: '3 days',
+            requirements: ['Storage facilities', 'Quick action'],
+            risk: 'low'
+          }
+        ]
       });
     } finally {
       setLoading(false);
@@ -154,339 +441,334 @@ const TradeScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext
     fetchTradeData();
   }, [fetchTradeData]);
 
-  const generateMockIndices = (): TradeIndex[] => [
-    { name: 'Galactic Trade Index', value: 2847.52, change: 2.3, trend: 'up' },
-    { name: 'Commodity Futures', value: 1923.18, change: -0.8, trend: 'down' },
-    { name: 'Shipping Index', value: 3421.90, change: 1.2, trend: 'up' },
-    { name: 'Energy Markets', value: 1567.33, change: 4.1, trend: 'up' }
-  ];
-
-  const generateMockSystems = (): TradingSystem[] => [
-    { id: 'sol', name: 'Sol Trading Hub', location: 'Sol System', volume: 2.4e12, specialties: ['Technology', 'Luxury Goods'], status: 'active' },
-    { id: 'alpha', name: 'Alpha Centauri Exchange', location: 'Alpha Centauri', volume: 1.8e12, specialties: ['Raw Materials', 'Energy'], status: 'active' },
-    { id: 'vega', name: 'Vega Commercial Port', location: 'Vega System', volume: 1.2e12, specialties: ['Agriculture', 'Textiles'], status: 'active' },
-    { id: 'sirius', name: 'Sirius Trade Station', location: 'Sirius System', volume: 9.5e11, specialties: ['Minerals', 'Chemicals'], status: 'restricted' }
-  ];
-
-  const generateMockCommodities = (): Commodity[] => [
-    { id: 'titanium', name: 'Titanium Ore', category: 'Raw Materials', price: 1247.50, change: 3.2, volume: 45000, supply: 'medium', demand: 'high' },
-    { id: 'quantum', name: 'Quantum Processors', category: 'Technology', price: 89750.00, change: -1.8, volume: 1200, supply: 'low', demand: 'high' },
-    { id: 'grain', name: 'Hydroponic Grain', category: 'Agriculture', price: 234.75, change: 0.5, volume: 125000, supply: 'high', demand: 'medium' },
-    { id: 'plasma', name: 'Plasma Cells', category: 'Energy', price: 5670.25, change: 7.3, volume: 8900, supply: 'low', demand: 'high' }
-  ];
-
-  const generateMockRoutes = (): TradeRoute[] => [
-    { id: 'route1', origin: 'Sol Hub', destination: 'Alpha Centauri', commodity: 'Quantum Processors', profit: 15750, risk: 'low', distance: 4.3, status: 'active' },
-    { id: 'route2', origin: 'Vega Port', destination: 'Sirius Station', commodity: 'Hydroponic Grain', profit: 8920, risk: 'medium', distance: 12.8, status: 'active' },
-    { id: 'route3', origin: 'Alpha Centauri', destination: 'Sol Hub', commodity: 'Titanium Ore', profit: 12300, risk: 'low', distance: 4.3, status: 'active' },
-    { id: 'route4', origin: 'Outer Rim', destination: 'Core Worlds', commodity: 'Exotic Matter', profit: 45600, risk: 'high', distance: 45.2, status: 'dangerous' }
-  ];
-
-  const generateMockCorporations = (): Corporation[] => [
-    { id: 'stellar', name: 'Stellar Dynamics Corp', sector: 'Technology', marketCap: 2.4e15, stockPrice: 1247.50, change: 2.3, reputation: 85 },
-    { id: 'galactic', name: 'Galactic Mining Ltd', sector: 'Mining', marketCap: 1.8e15, stockPrice: 892.75, change: -1.2, reputation: 78 },
-    { id: 'cosmic', name: 'Cosmic Transport Inc', sector: 'Logistics', marketCap: 1.2e15, stockPrice: 567.25, change: 4.1, reputation: 92 },
-    { id: 'nebula', name: 'Nebula Energy Systems', sector: 'Energy', marketCap: 9.5e14, stockPrice: 1890.00, change: 1.8, reputation: 71 }
-  ];
-
-  const generateMockContracts = (): TradeContract[] => [
-    { id: 'contract1', type: 'transport', commodity: 'Medical Supplies', quantity: 500, price: 15000, deadline: '2024-02-15', client: 'Frontier Medical', risk: 'medium', reward: 25000 },
-    { id: 'contract2', type: 'buy', commodity: 'Rare Metals', quantity: 100, price: 89000, deadline: '2024-02-20', client: 'Tech Consortium', risk: 'low', reward: 12000 },
-    { id: 'contract3', type: 'sell', commodity: 'Food Supplies', quantity: 2000, price: 45000, deadline: '2024-02-12', client: 'Colony Alpha-7', risk: 'high', reward: 35000 }
-  ];
-
-  const generateMockOpportunities = (): TradeOpportunity[] => [
-    { id: 'opp1', type: 'shortage', description: 'Critical shortage of medical supplies in Outer Rim colonies', potential: 85000, timeframe: '3 days', requirements: ['Fast ship', 'Medical license'], risk: 'medium' },
-    { id: 'opp2', type: 'arbitrage', description: 'Price differential in quantum processors between Core and Rim', potential: 45000, timeframe: '1 week', requirements: ['Large cargo hold'], risk: 'low' },
-    { id: 'opp3', type: 'event', description: 'Mining strike on Kepler-442b creating titanium shortage', potential: 120000, timeframe: '2 weeks', requirements: ['Mining contacts', 'Heavy transport'], risk: 'high' }
-  ];
-
-  const formatCurrency = (value: number): string => {
-    if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
-    if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
-    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
-    if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
-    return value.toFixed(2);
-  };
-
-  const getTrendIcon = (trend: string): string => {
-    switch (trend) {
-      case 'up': return '📈';
-      case 'down': return '📉';
-      default: return '➡️';
-    }
-  };
-
-  const getRiskColor = (risk: string): string => {
-    switch (risk) {
-      case 'low': return '#4caf50';
-      case 'medium': return '#ff9800';
-      case 'high': return '#f44336';
-      default: return '#4ecdc4';
-    }
-  };
-
   const renderOverview = () => (
-    <div className="trade-overview">
-      <div className="indices-grid">
-        <h3>📊 Market Indices</h3>
-        <div className="indices-list">
-          {tradeData?.indices.map((index, i) => (
-            <div key={i} className="index-card">
-              <div className="index-name">{index.name}</div>
-              <div className="index-value">{formatCurrency(index.value)}</div>
-              <div className={`index-change ${index.change >= 0 ? 'positive' : 'negative'}`}>
-                {getTrendIcon(index.trend)} {index.change >= 0 ? '+' : ''}{index.change}%
-              </div>
+    <>
+      {/* Trade Overview - Full panel width */}
+      <div className="standard-panel economic-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>📊 Trade Overview</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Total Volume</span>
+            <span className="standard-metric-value">{formatCurrency(tradeData?.systems?.reduce((sum, sys) => sum + sys.volume, 0) || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Active Systems</span>
+            <span className="standard-metric-value">{tradeData?.systems?.filter(sys => sys.status === 'active').length || 0}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Total Routes</span>
+            <span className="standard-metric-value">{tradeData?.routes?.length || 0}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Market Cap</span>
+            <span className="standard-metric-value">{formatCurrency(tradeData?.corporations?.reduce((sum, corp) => sum + corp.marketCap, 0) || 0)}</span>
+          </div>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn economic-theme" onClick={() => console.log('Generate Trade Report')}>Generate Report</button>
+          <button className="standard-btn economic-theme" onClick={() => console.log('View Analytics')}>View Analytics</button>
+        </div>
+      </div>
+
+      {/* Market Indices - Full panel width */}
+      <div className="standard-panel economic-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>📈 Market Indices</h3>
+        <div className="standard-metric-grid">
+          {tradeData?.indices?.map((index, i) => (
+            <div key={i} className="standard-metric">
+              <span>{index.name}</span>
+              <span className="standard-metric-value" style={{ color: getTrendColor(index.trend) }}>
+                {index.value.toFixed(1)} ({index.change >= 0 ? '+' : ''}{index.change}%)
+              </span>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="systems-grid">
-        <h3>🚀 Trading Systems</h3>
-        <div className="systems-list">
-          {tradeData?.systems.map((system) => (
-            <div key={system.id} className="system-card">
-              <div className="system-header">
-                <div className="system-name">{system.name}</div>
-                <div className={`system-status ${system.status}`}>{system.status}</div>
-              </div>
-              <div className="system-location">{system.location}</div>
-              <div className="system-volume">Volume: {formatCurrency(system.volume)} credits</div>
-              <div className="system-specialties">
-                {system.specialties.map((specialty, i) => (
-                  <span key={i} className="specialty-tag">{specialty}</span>
-                ))}
-              </div>
+      {/* Trade Analytics - Full panel width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div className="standard-panel economic-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>📊 Trade Analytics</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+            <div className="chart-container">
+              <BarChart
+                data={tradeData?.systems?.map((system, index) => ({
+                  label: system.name.split(' ')[0],
+                  value: system.volume / 1000000000,
+                  color: ['#fbbf24', '#f59e0b', '#d97706', '#92400e', '#78350f'][index]
+                })) || []}
+                title="💰 Trading System Volumes (Billions)"
+                height={250}
+                width={400}
+                showTooltip={true}
+              />
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Trade Charts Section */}
-      <div className="trade-charts-section">
-        <div className="charts-grid">
-          <div className="chart-container">
-            <LineChart
-              data={[
-                { label: 'Jan', value: 2.8 },
-                { label: 'Feb', value: 3.2 },
-                { label: 'Mar', value: 2.9 },
-                { label: 'Apr', value: 3.5 },
-                { label: 'May', value: 3.8 },
-                { label: 'Jun', value: 4.1 }
-              ]}
-              title="📈 Import/Export Balance (Trillions)"
-              color="#4ecdc4"
-              height={250}
-              width={400}
-            />
-          </div>
-
-          <div className="chart-container">
-            <PieChart
-              data={tradeData?.systems.slice(0, 6).map((system, index) => ({
-                label: system.name,
-                value: system.volume / 1000000000, // Convert to billions
-                color: ['#4ecdc4', '#45b7aa', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'][index]
-              })) || []}
-              title="🚀 Trade Partners by Volume"
-              size={200}
-              showLegend={true}
-            />
-          </div>
-
-          <div className="chart-container">
-            <BarChart
-              data={[
-                { label: 'Quantum Materials', value: 45.2, color: '#4ecdc4' },
-                { label: 'Energy Crystals', value: 38.7, color: '#45b7aa' },
-                { label: 'Rare Metals', value: 32.1, color: '#96ceb4' },
-                { label: 'Bio-Tech', value: 28.9, color: '#feca57' },
-                { label: 'Starship Parts', value: 25.6, color: '#ff9ff3' }
-              ]}
-              title="📦 Commodity Flows (Billions)"
-              height={250}
-              width={400}
-              showTooltip={true}
-            />
-          </div>
-
-          <div className="chart-container">
-            <LineChart
-              data={tradeData?.indices.map((index, i) => ({
-                label: index.name.split(' ')[0], // Shorten names
-                value: index.value / 1000000 // Convert to millions
-              })) || []}
-              title="📊 Market Indices Performance"
-              color="#feca57"
-              height={250}
-              width={400}
-            />
-          </div>
-
-          <div className="chart-container">
-            <PieChart
-              data={[
-                { label: 'Active Systems', value: tradeData?.systems.filter(s => s.status === 'active').length || 0, color: '#4ecdc4' },
-                { label: 'Expanding Systems', value: tradeData?.systems.filter(s => s.status === 'expanding').length || 0, color: '#feca57' },
-                { label: 'Stable Systems', value: tradeData?.systems.filter(s => s.status === 'stable').length || 0, color: '#45b7aa' }
-              ]}
-              title="🌟 Trading System Status"
-              size={200}
-              showLegend={true}
-            />
-          </div>
-
-          <div className="chart-container">
-            <BarChart
-              data={[
-                { label: 'Q1', value: 125.4, color: '#4ecdc4' },
-                { label: 'Q2', value: 138.7, color: '#45b7aa' },
-                { label: 'Q3', value: 142.1, color: '#96ceb4' },
-                { label: 'Q4', value: 156.8, color: '#feca57' }
-              ]}
-              title="📅 Quarterly Trade Volume (Trillions)"
-              height={250}
-              width={400}
-              showTooltip={true}
-            />
+            <div className="chart-container">
+              <PieChart
+                data={tradeData?.commodities?.map((commodity, index) => ({
+                  label: commodity.category,
+                  value: commodity.volume / 1000000,
+                  color: ['#fbbf24', '#f59e0b', '#d97706', '#92400e', '#78350f'][index]
+                })) || []}
+                title="📦 Commodity Volume by Category"
+                size={200}
+                showLegend={true}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 
   const renderCommodities = () => (
-    <div className="commodities-view">
-      <h3>📦 Commodity Markets</h3>
-      <div className="commodities-table">
-        <div className="table-header">
-          <div>Commodity</div>
-          <div>Price</div>
-          <div>Change</div>
-          <div>Volume</div>
-          <div>Supply</div>
-          <div>Demand</div>
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel economic-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>📦 Commodity Markets</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn economic-theme" onClick={() => console.log('Update Prices')}>Update Prices</button>
+          <button className="standard-btn economic-theme" onClick={() => console.log('Market Analysis')}>Market Analysis</button>
         </div>
-        {tradeData?.commodities.map((commodity) => (
-          <div key={commodity.id} className="table-row">
-            <div className="commodity-info">
-              <div className="commodity-name">{commodity.name}</div>
-              <div className="commodity-category">{commodity.category}</div>
-            </div>
-            <div className="commodity-price">{formatCurrency(commodity.price)}</div>
-            <div className={`commodity-change ${commodity.change >= 0 ? 'positive' : 'negative'}`}>
-              {commodity.change >= 0 ? '+' : ''}{commodity.change}%
-            </div>
-            <div className="commodity-volume">{commodity.volume.toLocaleString()}</div>
-            <div className={`supply-level ${commodity.supply}`}>{commodity.supply}</div>
-            <div className={`demand-level ${commodity.demand}`}>{commodity.demand}</div>
-          </div>
-        ))}
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Commodity</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Change</th>
+                <th>Volume</th>
+                <th>Supply</th>
+                <th>Demand</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tradeData?.commodities?.map((commodity) => (
+                <tr key={commodity.id}>
+                  <td><strong>{commodity.name}</strong></td>
+                  <td>{commodity.category}</td>
+                  <td>{formatCurrency(commodity.price)}</td>
+                  <td style={{ color: commodity.change >= 0 ? '#10b981' : '#ef4444' }}>
+                    {commodity.change >= 0 ? '+' : ''}{commodity.change}%
+                  </td>
+                  <td>{formatNumber(commodity.volume)}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: commodity.supply === 'high' ? '#10b981' : commodity.supply === 'medium' ? '#f59e0b' : '#ef4444', 
+                      color: 'white' 
+                    }}>
+                      {commodity.supply.charAt(0).toUpperCase() + commodity.supply.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: commodity.demand === 'high' ? '#10b981' : commodity.demand === 'medium' ? '#f59e0b' : '#ef4444', 
+                      color: 'white' 
+                    }}>
+                      {commodity.demand.charAt(0).toUpperCase() + commodity.demand.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn economic-theme">Details</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 
   const renderRoutes = () => (
-    <div className="routes-view">
-      <h3>🚀 Trade Routes</h3>
-      <div className="routes-list">
-        {tradeData?.routes.map((route) => (
-          <div key={route.id} className="route-card">
-            <div className="route-header">
-              <div className="route-path">{route.origin} → {route.destination}</div>
-              <div className={`route-status ${route.status}`}>{route.status}</div>
-            </div>
-            <div className="route-commodity">Commodity: {route.commodity}</div>
-            <div className="route-metrics">
-              <div className="route-profit">Profit: {formatCurrency(route.profit)}</div>
-              <div className="route-distance">Distance: {route.distance} ly</div>
-              <div className="route-risk" style={{ color: getRiskColor(route.risk) }}>
-                Risk: {route.risk}
-              </div>
-            </div>
-          </div>
-        ))}
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel economic-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>🛣️ Trade Routes</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn economic-theme" onClick={() => console.log('Optimize Routes')}>Optimize Routes</button>
+          <button className="standard-btn economic-theme" onClick={() => console.log('Risk Assessment')}>Risk Assessment</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Route</th>
+                <th>Commodity</th>
+                <th>Profit</th>
+                <th>Risk</th>
+                <th>Distance</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tradeData?.routes?.map((route) => (
+                <tr key={route.id}>
+                  <td><strong>{route.origin} → {route.destination}</strong></td>
+                  <td>{route.commodity}</td>
+                  <td>{formatCurrency(route.profit)}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getRiskColor(route.risk), 
+                      color: 'white' 
+                    }}>
+                      {route.risk.charAt(0).toUpperCase() + route.risk.slice(1)}
+                    </span>
+                  </td>
+                  <td>{route.distance} ly</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(route.status), 
+                      color: 'white' 
+                    }}>
+                      {route.status.charAt(0).toUpperCase() + route.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn economic-theme">Details</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 
   const renderCorporations = () => (
-    <div className="corporations-view">
-      <h3>🏢 Corporations</h3>
-      <div className="corporations-list">
-        {tradeData?.corporations.map((corp) => (
-          <div key={corp.id} className="corporation-card">
-            <div className="corp-header">
-              <div className="corp-name">{corp.name}</div>
-              <div className="corp-sector">{corp.sector}</div>
-            </div>
-            <div className="corp-metrics">
-              <div className="corp-market-cap">Market Cap: {formatCurrency(corp.marketCap)}</div>
-              <div className="corp-stock-price">Stock: {formatCurrency(corp.stockPrice)}</div>
-              <div className={`corp-change ${corp.change >= 0 ? 'positive' : 'negative'}`}>
-                {corp.change >= 0 ? '+' : ''}{corp.change}%
-              </div>
-              <div className="corp-reputation">Reputation: {corp.reputation}/100</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderContracts = () => (
-    <div className="contracts-view">
-      <h3>📋 Available Contracts</h3>
-      <div className="contracts-list">
-        {tradeData?.contracts.map((contract) => (
-          <div key={contract.id} className="contract-card">
-            <div className="contract-header">
-              <div className="contract-type">{contract.type.toUpperCase()}</div>
-              <div className="contract-reward">{formatCurrency(contract.reward)} reward</div>
-            </div>
-            <div className="contract-details">
-              <div className="contract-commodity">{contract.commodity} x{contract.quantity}</div>
-              <div className="contract-price">Price: {formatCurrency(contract.price)}</div>
-              <div className="contract-client">Client: {contract.client}</div>
-              <div className="contract-deadline">Deadline: {contract.deadline}</div>
-              <div className="contract-risk" style={{ color: getRiskColor(contract.risk) }}>
-                Risk: {contract.risk}
-              </div>
-            </div>
-          </div>
-        ))}
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel economic-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>🏢 Corporations</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn economic-theme" onClick={() => console.log('Market Analysis')}>Market Analysis</button>
+          <button className="standard-btn economic-theme" onClick={() => console.log('Investment Guide')}>Investment Guide</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Corporation</th>
+                <th>Sector</th>
+                <th>Market Cap</th>
+                <th>Stock Price</th>
+                <th>Change</th>
+                <th>Reputation</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tradeData?.corporations?.map((corporation) => (
+                <tr key={corporation.id}>
+                  <td><strong>{corporation.name}</strong></td>
+                  <td>{corporation.sector}</td>
+                  <td>{formatCurrency(corporation.marketCap)}</td>
+                  <td>${corporation.stockPrice.toFixed(2)}</td>
+                  <td style={{ color: corporation.change >= 0 ? '#10b981' : '#ef4444' }}>
+                    {corporation.change >= 0 ? '+' : ''}{corporation.change}%
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ 
+                        width: '60px', 
+                        height: '8px', 
+                        backgroundColor: '#e0e0e0', 
+                        borderRadius: '4px',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{ 
+                          width: `${corporation.reputation}%`, 
+                          height: '100%', 
+                          backgroundColor: '#fbbf24'
+                        }}></div>
+                      </div>
+                      <span style={{ fontSize: '0.8rem' }}>{corporation.reputation}%</span>
+                    </div>
+                  </td>
+                  <td>
+                    <button className="standard-btn economic-theme">Details</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 
   const renderOpportunities = () => (
-    <div className="opportunities-view">
-      <h3>💡 Trade Opportunities</h3>
-      <div className="opportunities-list">
-        {tradeData?.opportunities.map((opp) => (
-          <div key={opp.id} className="opportunity-card">
-            <div className="opp-header">
-              <div className="opp-type">{opp.type.toUpperCase()}</div>
-              <div className="opp-potential">{formatCurrency(opp.potential)} potential</div>
-            </div>
-            <div className="opp-description">{opp.description}</div>
-            <div className="opp-details">
-              <div className="opp-timeframe">Timeframe: {opp.timeframe}</div>
-              <div className="opp-risk" style={{ color: getRiskColor(opp.risk) }}>
-                Risk: {opp.risk}
-              </div>
-            </div>
-            <div className="opp-requirements">
-              <strong>Requirements:</strong>
-              {opp.requirements.map((req, i) => (
-                <span key={i} className="requirement-tag">{req}</span>
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel economic-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>💡 Trade Opportunities</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn economic-theme" onClick={() => console.log('Scan Opportunities')}>Scan Opportunities</button>
+          <button className="standard-btn economic-theme" onClick={() => console.log('Risk Analysis')}>Risk Analysis</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Potential</th>
+                <th>Timeframe</th>
+                <th>Risk</th>
+                <th>Requirements</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tradeData?.opportunities?.map((opportunity) => (
+                <tr key={opportunity.id}>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: '#fbbf24', 
+                      color: 'white' 
+                    }}>
+                      {opportunity.type.charAt(0).toUpperCase() + opportunity.type.slice(1)}
+                    </span>
+                  </td>
+                  <td>{opportunity.description}</td>
+                  <td>{formatCurrency(opportunity.potential)}</td>
+                  <td>{opportunity.timeframe}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getRiskColor(opportunity.risk), 
+                      color: 'white' 
+                    }}>
+                      {opportunity.risk.charAt(0).toUpperCase() + opportunity.risk.slice(1)}
+                    </span>
+                  </td>
+                  <td>{opportunity.requirements.join(', ')}</td>
+                  <td>
+                    <button className="standard-btn economic-theme">Details</button>
+                  </td>
+                </tr>
               ))}
-            </div>
-          </div>
-        ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -499,59 +781,32 @@ const TradeScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext
       gameContext={gameContext}
       apiEndpoints={apiEndpoints}
       onRefresh={fetchTradeData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
     >
-      <div className="trade-screen">
-        <div className="view-tabs">
-          <button 
-            className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
-          >
-            📊 Overview
-          </button>
-          <button 
-            className={`tab ${activeTab === 'commodities' ? 'active' : ''}`}
-            onClick={() => setActiveTab('commodities')}
-          >
-            📦 Commodities
-          </button>
-          <button 
-            className={`tab ${activeTab === 'routes' ? 'active' : ''}`}
-            onClick={() => setActiveTab('routes')}
-          >
-            🚀 Routes
-          </button>
-          <button 
-            className={`tab ${activeTab === 'corporations' ? 'active' : ''}`}
-            onClick={() => setActiveTab('corporations')}
-          >
-            🏢 Corporations
-          </button>
-          <button 
-            className={`tab ${activeTab === 'contracts' ? 'active' : ''}`}
-            onClick={() => setActiveTab('contracts')}
-          >
-            📋 Contracts
-          </button>
-          <button 
-            className={`tab ${activeTab === 'opportunities' ? 'active' : ''}`}
-            onClick={() => setActiveTab('opportunities')}
-          >
-            💡 Opportunities
-          </button>
-        </div>
-
-        <div className="tab-content">
-          {loading && <div className="loading">Loading trade data...</div>}
-          {error && <div className="error">Error: {error}</div>}
-          {!loading && !error && (
+      <div className="standard-screen-container economic-theme">
+        {error && <div className="error-message">Error: {error}</div>}
+        
+        <div className="standard-dashboard">
+          {!loading && !error && tradeData ? (
             <>
               {activeTab === 'overview' && renderOverview()}
               {activeTab === 'commodities' && renderCommodities()}
               {activeTab === 'routes' && renderRoutes()}
               {activeTab === 'corporations' && renderCorporations()}
-              {activeTab === 'contracts' && renderContracts()}
               {activeTab === 'opportunities' && renderOpportunities()}
             </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading trade data...' : 'No trade data available'}
+            </div>
           )}
         </div>
       </div>

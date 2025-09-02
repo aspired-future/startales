@@ -403,15 +403,15 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
           () => setCurrentSpeakerId(characterId),
           () => setCurrentSpeakerId(null)
         );
-      } else {
+          } else {
         await voiceService.textToSpeech(text, {
           characterId: characterId,
           rate: 1.0,
           pitch: 1.0,
           volume: 0.8
         });
-      }
-    } catch (error) {
+          }
+        } catch (error) {
       console.error('TTS failed:', error);
     }
   }, [selectedChannel, selectedConversation]);
@@ -422,7 +422,7 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
       const newSet = new Set(prev);
       if (enabled) {
         newSet.add(participantId);
-      } else {
+                 } else {
         newSet.delete(participantId);
       }
       return newSet;
@@ -630,25 +630,25 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
                     fontSize: '14px',
                     lineHeight: '1.4'
                   }}>
-                    {message.content}
-                    {message.senderId !== currentUserId && voiceEnabledParticipants.has(message.senderId) && (
-                      <button
-                        onClick={() => handleTextToSpeech(message.content, message.senderId)}
-                        style={{
-                          background: 'rgba(255, 193, 7, 0.1)',
-                          border: '1px solid rgba(255, 193, 7, 0.3)',
-                          borderRadius: '4px',
-                          color: '#FFC107',
-                          padding: '2px 4px',
-                          fontSize: '10px',
-                          cursor: 'pointer',
-                          marginLeft: '8px',
+                        {message.content}
+                        {message.senderId !== currentUserId && voiceEnabledParticipants.has(message.senderId) && (
+                          <button
+                            onClick={() => handleTextToSpeech(message.content, message.senderId)}
+                            style={{
+                              background: 'rgba(255, 193, 7, 0.1)',
+                              border: '1px solid rgba(255, 193, 7, 0.3)',
+                              borderRadius: '4px',
+                              color: '#FFC107',
+                              padding: '2px 4px',
+                              fontSize: '10px',
+                              cursor: 'pointer',
+                              marginLeft: '8px',
                           opacity: 0.7
-                        }}
-                        title="Read aloud with TTS"
-                      >
-                        🔊
-                      </button>
+                            }}
+                            title="Read aloud with TTS"
+                          >
+                            🔊
+                          </button>
                     )}
                   </div>
                 </div>
@@ -693,7 +693,7 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
                 }}
               />
               
-              <button
+                <button
                 onClick={() => setIsVoiceMode(!isVoiceMode)}
                 style={{
                   background: isVoiceMode ? 'rgba(76, 175, 80, 0.3)' : 'rgba(78, 205, 196, 0.1)',
@@ -907,46 +907,46 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
 
         <div className="channel-categories">
           {channels.map(channel => (
-            <div
-              key={channel.id}
-              className={`channel-item ${selectedChannel?.id === channel.id ? 'selected' : ''}`}
-              style={{
-                padding: '10px',
-                borderRadius: '6px',
-                marginBottom: '5px',
-                cursor: 'pointer',
-                background: selectedChannel?.id === channel.id ? 
-                  'rgba(78, 205, 196, 0.1)' : 'transparent',
-                border: selectedChannel?.id === channel.id ? 
-                  '1px solid rgba(78, 205, 196, 0.3)' : '1px solid transparent',
-                transition: 'all 0.2s ease'
-              }}
-              onClick={() => handleChannelSelect(channel)}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontWeight: 'bold', color: '#e8e8e8', fontSize: '14px' }}>
-                    # {channel.name}
+              <div
+                key={channel.id}
+                className={`channel-item ${selectedChannel?.id === channel.id ? 'selected' : ''}`}
+                style={{
+                  padding: '10px',
+                  borderRadius: '6px',
+                  marginBottom: '5px',
+                  cursor: 'pointer',
+                  background: selectedChannel?.id === channel.id ? 
+                    'rgba(78, 205, 196, 0.1)' : 'transparent',
+                  border: selectedChannel?.id === channel.id ? 
+                    '1px solid rgba(78, 205, 196, 0.3)' : '1px solid transparent',
+                  transition: 'all 0.2s ease'
+                }}
+                onClick={() => handleChannelSelect(channel)}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#e8e8e8', fontSize: '14px' }}>
+                      # {channel.name}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#888' }}>
+                      {channel.participantCount} members
+                    </div>
                   </div>
-                  <div style={{ fontSize: '11px', color: '#888' }}>
-                    {channel.participantCount} members
-                  </div>
+                  {channel.unreadCount > 0 && (
+                    <span style={{
+                      background: '#F44336',
+                      color: 'white',
+                      borderRadius: '10px',
+                      padding: '2px 6px',
+                      fontSize: '10px',
+                      fontWeight: 'bold'
+                    }}>
+                      {channel.unreadCount}
+                    </span>
+                  )}
                 </div>
-                {channel.unreadCount > 0 && (
-                  <span style={{
-                    background: '#F44336',
-                    color: 'white',
-                    borderRadius: '10px',
-                    padding: '2px 6px',
-                    fontSize: '10px',
-                    fontWeight: 'bold'
-                  }}>
-                    {channel.unreadCount}
-                  </span>
-                )}
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     );
@@ -982,56 +982,56 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
               transition: 'all 0.2s ease'
             }}
             onClick={() => handleCharacterClick(character)}
-          >
-            <img
-              src={character.avatar}
-              alt={character.name}
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                objectFit: 'cover',
+              >
+                <img 
+                  src={character.avatar} 
+                  alt={character.name}
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
                 border: '2px solid rgba(78, 205, 196, 0.3)'
-              }}
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%234ecdc4"/><text x="20" y="25" text-anchor="middle" fill="white" font-size="14">${character.name.charAt(0)}</text></svg>`;
-              }}
-            />
+                  }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%234ecdc4"/><text x="20" y="25" text-anchor="middle" fill="white" font-size="14">${character.name.charAt(0)}</text></svg>`;
+                  }}
+                />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 'bold', color: '#e8e8e8', fontSize: '14px' }}>
-                {character.name}
-              </div>
-              <div style={{ fontSize: '12px', color: '#888' }}>
-                {character.title}
-              </div>
-            </div>
+                  {character.name}
+                </div>
+                <div style={{ fontSize: '12px', color: '#888' }}>
+                  {character.title}
+                </div>
+                </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                style={{
-                  background: 'rgba(78, 205, 196, 0.2)',
+                  <button
+                    style={{
+                      background: 'rgba(78, 205, 196, 0.2)',
                   border: '1px solid #4ecdc4',
-                  borderRadius: '6px',
+                      borderRadius: '6px',
                   color: '#4ecdc4',
-                  padding: '4px 8px',
-                  fontSize: '11px',
+                      padding: '4px 8px',
+                      fontSize: '11px',
                   cursor: 'pointer'
                 }}
               >
                 💬 Message
-              </button>
-              <button
-                style={{
+                  </button>
+                  <button
+                    style={{
                   background: 'rgba(78, 205, 196, 0.2)',
                   border: '1px solid #4ecdc4',
-                  borderRadius: '6px',
+                      borderRadius: '6px',
                   color: '#4ecdc4',
-                  padding: '4px 8px',
-                  fontSize: '11px',
+                      padding: '4px 8px',
+                      fontSize: '11px',
                   cursor: 'pointer'
                 }}
-              >
-                📞 Call
-              </button>
+                  >
+                    📞 Call
+                  </button>
             </div>
           </div>
         ))}

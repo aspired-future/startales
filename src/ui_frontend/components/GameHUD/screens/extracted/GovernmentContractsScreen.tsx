@@ -1,12 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import './GovernmentContractsScreen.css';
+/**
+ * Government Contracts Screen - Contract Management and Procurement
+ * 
+ * This screen focuses on government contract operations including:
+ * - Contract creation and management
+ * - Bidding processes and vendor selection
+ * - Contract performance monitoring
+ * - Budget allocation and payment tracking
+ * - Contract analytics and reporting
+ * 
+ * Theme: Government (blue color scheme)
+ */
 
-interface GovernmentContractsScreenProps {
-  screenId: string;
-  title: string;
-  icon: string;
-  gameContext?: any;
-}
+import React, { useState, useEffect, useCallback } from 'react';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
+import './GovernmentContractsScreen.css';
+import '../shared/StandardDesign.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface GovernmentContract {
   id: string;
@@ -28,6 +37,14 @@ interface GovernmentContract {
   performance?: any;
   createdBy: string;
   approvedBy?: string;
+  progress: number;
+  milestones: Array<{
+    id: string;
+    title: string;
+    dueDate: string;
+    status: 'pending' | 'completed' | 'overdue';
+    paymentAmount: number;
+  }>;
 }
 
 interface ContractType {
@@ -40,17 +57,80 @@ interface ContractType {
   riskLevel: number;
   requiredCapabilities: string[];
   evaluationCriteria: any;
+  averageValue: number;
+  successRate: number;
 }
 
-const GovernmentContractsScreen: React.FC<GovernmentContractsScreenProps> = ({ 
+interface BiddingVendor {
+  id: string;
+  name: string;
+  rating: number;
+  experience: number;
+  proposedValue: number;
+  timeline: number;
+  capabilities: string[];
+  pastPerformance: number;
+  financialStability: number;
+  status: 'evaluating' | 'shortlisted' | 'awarded' | 'rejected';
+}
+
+interface ContractPerformance {
+  onTimeDelivery: number;
+  qualityScore: number;
+  costEfficiency: number;
+  complianceRate: number;
+  riskMitigation: number;
+  overallScore: number;
+  issues: Array<{
+    id: string;
+    type: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    description: string;
+    resolution: string;
+    status: 'open' | 'resolved' | 'escalated';
+  }>;
+}
+
+interface ContractAnalytics {
+  overview: {
+    totalContracts: number;
+    activeContracts: number;
+    totalValue: number;
+    averageDuration: number;
+    completionRate: number;
+    disputeRate: number;
+  };
+  categoryBreakdown: Array<{
+    category: string;
+    count: number;
+    totalValue: number;
+    averageDuration: number;
+    successRate: number;
+  }>;
+  performanceTrends: Array<{
+    month: string;
+    contractsAwarded: number;
+    totalValue: number;
+    averagePerformance: number;
+    disputeRate: number;
+  }>;
+}
+
+interface GovernmentContractsData {
+  contracts: GovernmentContract[];
+  contractTypes: ContractType[];
+  vendors: BiddingVendor[];
+  analytics: ContractAnalytics;
+}
+
+const GovernmentContractsScreen: React.FC<ScreenProps> = ({ 
   screenId, 
   title, 
   icon, 
   gameContext 
 }) => {
-  const [activeTab, setActiveTab] = useState<'contracts' | 'create' | 'bidding' | 'performance' | 'analytics'>('contracts');
-  const [contracts, setContracts] = useState<GovernmentContract[]>([]);
-  const [contractTypes, setContractTypes] = useState<ContractType[]>([]);
+  const [contractsData, setContractsData] = useState<GovernmentContractsData | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'contracts' | 'bidding' | 'performance' | 'analytics'>('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -58,11 +138,65 @@ const GovernmentContractsScreen: React.FC<GovernmentContractsScreenProps> = ({
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
-  useEffect(() => {
-    fetchContractsData();
-  }, []);
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'contracts', label: 'Contracts', icon: '📋' },
+    { id: 'bidding', label: 'Bidding', icon: '🏆' },
+    { id: 'performance', label: 'Performance', icon: '📈' },
+    { id: 'analytics', label: 'Analytics', icon: '📊' }
+  ];
 
-  const fetchContractsData = async () => {
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/government-contracts/civilization/campaign_1/player_civ', description: 'Get government contracts' },
+    { method: 'GET', path: '/api/government-contracts/types', description: 'Get contract types' },
+    { method: 'POST', path: '/api/government-contracts', description: 'Create new contract' }
+  ];
+
+  const formatCurrency = (value: number) => {
+    if (value >= 1e12) return `$${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `$${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `$${(value / 1e3).toFixed(0)}K`;
+    return `$${value}`;
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'planning': return '#6b7280';
+      case 'bidding': return '#3b82f6';
+      case 'awarded': return '#10b981';
+      case 'active': return '#f59e0b';
+      case 'completed': return '#10b981';
+      case 'cancelled': return '#ef4444';
+      case 'disputed': return '#f97316';
+      default: return '#6b7280';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return '#ef4444';
+      case 'high': return '#f97316';
+      case 'medium': return '#f59e0b';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'defense': return '#ef4444';
+      case 'infrastructure': return '#3b82f6';
+      case 'research': return '#8b5cf6';
+      case 'social': return '#10b981';
+      case 'custom': return '#f59e0b';
+      default: return '#6b7280';
+    }
+  };
+
+  const fetchContractsData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -71,8 +205,12 @@ const GovernmentContractsScreen: React.FC<GovernmentContractsScreenProps> = ({
       if (contractsResponse.ok) {
         const contractsData = await contractsResponse.json();
         if (contractsData.success) {
-          setContracts(contractsData.data.contracts);
+          setContractsData(contractsData.data);
+        } else {
+          throw new Error('API response error');
         }
+      } else {
+        throw new Error('API not available');
       }
 
       // Fetch contract types
@@ -80,665 +218,717 @@ const GovernmentContractsScreen: React.FC<GovernmentContractsScreenProps> = ({
       if (typesResponse.ok) {
         const typesData = await typesResponse.json();
         if (typesData.success) {
-          setContractTypes(typesData.data);
+          // Update contracts data with types
+          setContractsData(prev => prev ? { ...prev, contractTypes: typesData.data } : null);
         }
       }
 
     } catch (err) {
-      console.warn('Government Contracts API not available, using mock data');
-      setContracts(createMockContracts());
-      setContractTypes(createMockContractTypes());
+      console.warn('Failed to fetch contracts data:', err);
+      // Use comprehensive mock data
+      setContractsData({
+        contracts: [
+          {
+            id: 'contract_1',
+            title: 'Advanced Defense Shield System',
+            description: 'Development and deployment of next-generation planetary defense shields',
+            category: 'defense',
+            totalValue: 2500000000,
+            budgetAllocated: 1800000000,
+            fundingSource: 'Defense Budget',
+            paymentSchedule: 'milestone',
+            startDate: '2390-03-15',
+            endDate: '2395-06-30',
+            duration: 63,
+            priority: 'critical',
+            status: 'active',
+            requirements: { technical: 'High', security: 'Maximum', timeline: 'Strict' },
+            biddingProcess: { type: 'competitive', participants: 8, evaluation: 'ongoing' },
+            awardedTo: { name: 'Quantum Defense Corp', rating: 4.8 },
+            performance: { onTime: 85, quality: 92, cost: 88 },
+            createdBy: 'Admiral Rodriguez',
+            approvedBy: 'Defense Committee',
+            progress: 67,
+            milestones: [
+              { id: 'm1', title: 'Design Phase Complete', dueDate: '2391-06-30', status: 'completed', paymentAmount: 500000000 },
+              { id: 'm2', title: 'Prototype Testing', dueDate: '2392-12-31', status: 'completed', paymentAmount: 800000000 },
+              { id: 'm3', title: 'Production Setup', dueDate: '2393-09-30', status: 'active', paymentAmount: 600000000 },
+              { id: 'm4', title: 'Deployment Phase', dueDate: '2395-06-30', status: 'pending', paymentAmount: 600000000 }
+            ]
+          },
+          {
+            id: 'contract_2',
+            title: 'Interstellar Highway Network',
+            description: 'Construction of FTL transportation network connecting major star systems',
+            category: 'infrastructure',
+            totalValue: 1800000000,
+            budgetAllocated: 1200000000,
+            fundingSource: 'Infrastructure Fund',
+            paymentSchedule: 'monthly',
+            startDate: '2391-01-01',
+            endDate: '2398-12-31',
+            duration: 96,
+            priority: 'high',
+            status: 'active',
+            requirements: { technical: 'Medium', security: 'Standard', timeline: 'Flexible' },
+            biddingProcess: { type: 'competitive', participants: 12, evaluation: 'completed' },
+            awardedTo: { name: 'Stellar Construction Ltd', rating: 4.6 },
+            performance: { onTime: 78, quality: 85, cost: 82 },
+            createdBy: 'Commissioner Park',
+            approvedBy: 'Infrastructure Committee',
+            progress: 45,
+            milestones: [
+              { id: 'm1', title: 'Route Planning', dueDate: '2391-06-30', status: 'completed', paymentAmount: 200000000 },
+              { id: 'm2', title: 'Core Stations', dueDate: '2393-12-31', status: 'active', paymentAmount: 400000000 },
+              { id: 'm3', title: 'Network Expansion', dueDate: '2396-06-30', status: 'pending', paymentAmount: 600000000 },
+              { id: 'm4', title: 'Final Integration', dueDate: '2398-12-31', status: 'pending', paymentAmount: 600000000 }
+            ]
+          },
+          {
+            id: 'contract_3',
+            title: 'AI Governance Framework',
+            description: 'Development of comprehensive AI governance and oversight systems',
+            category: 'research',
+            totalValue: 850000000,
+            budgetAllocated: 650000000,
+            fundingSource: 'Research Budget',
+            paymentSchedule: 'milestone',
+            startDate: '2392-06-01',
+            endDate: '2395-12-31',
+            duration: 42,
+            priority: 'high',
+            status: 'active',
+            requirements: { technical: 'Maximum', security: 'High', timeline: 'Moderate' },
+            biddingProcess: { type: 'selective', participants: 5, evaluation: 'completed' },
+            awardedTo: { name: 'Ethical AI Institute', rating: 4.9 },
+            performance: { onTime: 92, quality: 95, cost: 89 },
+            createdBy: 'Dr. Petrova',
+            approvedBy: 'Science Committee',
+            progress: 78,
+            milestones: [
+              { id: 'm1', title: 'Framework Design', dueDate: '2393-06-30', status: 'completed', paymentAmount: 200000000 },
+              { id: 'm2', title: 'Prototype Development', dueDate: '2394-06-30', status: 'active', paymentAmount: 250000000 },
+              { id: 'm3', title: 'Testing & Validation', dueDate: '2395-06-30', status: 'pending', paymentAmount: 200000000 },
+              { id: 'm4', title: 'Deployment', dueDate: '2395-12-31', status: 'pending', paymentAmount: 200000000 }
+            ]
+          },
+          {
+            id: 'contract_4',
+            title: 'Universal Healthcare System',
+            description: 'Implementation of comprehensive healthcare coverage across all colonies',
+            category: 'social',
+            totalValue: 1200000000,
+            budgetAllocated: 950000000,
+            fundingSource: 'Social Services Budget',
+            paymentSchedule: 'monthly',
+            startDate: '2390-09-01',
+            endDate: '2394-03-31',
+            duration: 42,
+            priority: 'medium',
+            status: 'completed',
+            requirements: { technical: 'Medium', security: 'High', timeline: 'Moderate' },
+            biddingProcess: { type: 'competitive', participants: 15, evaluation: 'completed' },
+            awardedTo: { name: 'HealthFirst Consortium', rating: 4.7 },
+            performance: { onTime: 88, quality: 91, cost: 85 },
+            createdBy: 'Senator Thompson',
+            approvedBy: 'Social Services Committee',
+            progress: 100,
+            milestones: [
+              { id: 'm1', title: 'System Design', dueDate: '2391-03-31', status: 'completed', paymentAmount: 300000000 },
+              { id: 'm2', title: 'Infrastructure Setup', dueDate: '2392-09-30', status: 'completed', paymentAmount: 400000000 },
+              { id: 'm3', title: 'Staff Training', dueDate: '2393-09-30', status: 'completed', paymentAmount: 200000000 },
+              { id: 'm4', title: 'Full Deployment', dueDate: '2394-03-31', status: 'completed', paymentAmount: 300000000 }
+            ]
+          },
+          {
+            id: 'contract_5',
+            title: 'Colonial Expansion Initiative',
+            description: 'Establishment of new colony worlds and infrastructure development',
+            category: 'infrastructure',
+            totalValue: 3200000000,
+            budgetAllocated: 2800000000,
+            fundingSource: 'Exploration Budget',
+            paymentSchedule: 'milestone',
+            startDate: '2391-03-01',
+            endDate: '2398-12-31',
+            duration: 93,
+            priority: 'high',
+            status: 'active',
+            requirements: { technical: 'High', security: 'Maximum', timeline: 'Flexible' },
+            biddingProcess: { type: 'selective', participants: 6, evaluation: 'completed' },
+            awardedTo: { name: 'Frontier Development Corp', rating: 4.5 },
+            performance: { onTime: 72, quality: 88, cost: 79 },
+            createdBy: 'Dr. Chen',
+            approvedBy: 'Exploration Committee',
+            progress: 35,
+            milestones: [
+              { id: 'm1', title: 'Site Selection', dueDate: '2392-03-31', status: 'completed', paymentAmount: 400000000 },
+              { id: 'm2', title: 'Basic Infrastructure', dueDate: '2394-09-30', status: 'active', paymentAmount: 800000000 },
+              { id: 'm3', title: 'Colony Establishment', dueDate: '2397-03-31', status: 'pending', paymentAmount: 1200000000 },
+              { id: 'm4', title: 'Full Operations', dueDate: '2398-12-31', status: 'pending', paymentAmount: 800000000 }
+            ]
+          }
+        ],
+        contractTypes: [
+          {
+            id: 'type_1',
+            name: 'Defense Contracts',
+            description: 'Military and security-related contracts',
+            category: 'defense',
+            typicalDuration: 60,
+            complexityLevel: 9,
+            riskLevel: 8,
+            requiredCapabilities: ['Security clearance', 'Technical expertise', 'Quality assurance'],
+            evaluationCriteria: { technical: 40, cost: 30, pastPerformance: 30 },
+            averageValue: 2000000000,
+            successRate: 85
+          },
+          {
+            id: 'type_2',
+            name: 'Infrastructure Contracts',
+            description: 'Construction and development projects',
+            category: 'infrastructure',
+            typicalDuration: 84,
+            complexityLevel: 7,
+            riskLevel: 6,
+            requiredCapabilities: ['Engineering expertise', 'Project management', 'Safety compliance'],
+            evaluationCriteria: { technical: 35, cost: 40, pastPerformance: 25 },
+            averageValue: 1500000000,
+            successRate: 78
+          },
+          {
+            id: 'type_3',
+            name: 'Research Contracts',
+            description: 'Scientific research and development',
+            category: 'research',
+            typicalDuration: 48,
+            complexityLevel: 10,
+            riskLevel: 7,
+            requiredCapabilities: ['Research expertise', 'Innovation capability', 'Documentation'],
+            evaluationCriteria: { technical: 50, cost: 25, pastPerformance: 25 },
+            averageValue: 800000000,
+            successRate: 72
+          },
+          {
+            id: 'type_4',
+            name: 'Social Service Contracts',
+            description: 'Public service and welfare programs',
+            category: 'social',
+            typicalDuration: 36,
+            complexityLevel: 5,
+            riskLevel: 4,
+            requiredCapabilities: ['Service delivery', 'Compliance', 'Reporting'],
+            evaluationCriteria: { technical: 25, cost: 45, pastPerformance: 30 },
+            averageValue: 600000000,
+            successRate: 88
+          }
+        ],
+        vendors: [
+          {
+            id: 'vendor_1',
+            name: 'Quantum Defense Corp',
+            rating: 4.8,
+            experience: 25,
+            proposedValue: 2450000000,
+            timeline: 60,
+            capabilities: ['Advanced weaponry', 'Shield technology', 'Military systems'],
+            pastPerformance: 92,
+            financialStability: 95,
+            status: 'awarded'
+          },
+          {
+            id: 'vendor_2',
+            name: 'Stellar Construction Ltd',
+            rating: 4.6,
+            experience: 18,
+            proposedValue: 1750000000,
+            timeline: 90,
+            capabilities: ['Large-scale construction', 'Space infrastructure', 'Project management'],
+            pastPerformance: 87,
+            financialStability: 88,
+            status: 'awarded'
+          },
+          {
+            id: 'vendor_3',
+            name: 'Ethical AI Institute',
+            rating: 4.9,
+            experience: 12,
+            proposedValue: 820000000,
+            timeline: 42,
+            capabilities: ['AI development', 'Ethics research', 'Governance systems'],
+            pastPerformance: 94,
+            financialStability: 92,
+            status: 'awarded'
+          }
+        ],
+        analytics: {
+          overview: {
+            totalContracts: 47,
+            activeContracts: 23,
+            totalValue: 8570000000,
+            averageDuration: 67,
+            completionRate: 78.7,
+            disputeRate: 4.3
+          },
+          categoryBreakdown: [
+            { category: 'Defense', count: 12, totalValue: 3200000000, averageDuration: 58, successRate: 85 },
+            { category: 'Infrastructure', count: 18, totalValue: 2800000000, averageDuration: 89, successRate: 78 },
+            { category: 'Research', count: 8, totalValue: 1200000000, averageDuration: 45, successRate: 72 },
+            { category: 'Social', count: 9, totalValue: 1370000000, averageDuration: 38, successRate: 88 }
+          ],
+          performanceTrends: [
+            { month: 'Jan 2393', contractsAwarded: 4, totalValue: 680000000, averagePerformance: 82, disputeRate: 3.2 },
+            { month: 'Feb 2393', contractsAwarded: 3, totalValue: 520000000, averagePerformance: 85, disputeRate: 2.8 },
+            { month: 'Mar 2393', contractsAwarded: 5, totalValue: 890000000, averagePerformance: 79, disputeRate: 4.1 },
+            { month: 'Apr 2393', contractsAwarded: 2, totalValue: 310000000, averagePerformance: 88, disputeRate: 1.9 },
+            { month: 'May 2393', contractsAwarded: 4, totalValue: 720000000, averagePerformance: 83, disputeRate: 3.5 },
+            { month: 'Jun 2393', contractsAwarded: 3, totalValue: 450000000, averagePerformance: 86, disputeRate: 2.4 }
+          ]
+        }
+      });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const createMockContracts = (): GovernmentContract[] => [
-    {
-      id: 'contract_1',
-      title: 'Advanced Defense Shield System',
-      description: 'Development and deployment of next-generation planetary defense shields',
-      category: 'defense',
-      totalValue: 2400000000,
-      budgetAllocated: 2400000000,
-      fundingSource: 'Defense Budget',
-      paymentSchedule: 'milestone',
-      startDate: '2024-01-15',
-      endDate: '2026-01-15',
-      duration: 24,
-      priority: 'critical',
-      status: 'active',
-      requirements: {
-        securityClearance: 'top_secret',
-        minCompanySize: 'large',
-        technicalCapabilities: ['quantum_shielding', 'energy_management', 'ai_systems']
-      },
-      biddingProcess: {
-        biddingDeadline: '2023-12-01',
-        evaluationCriteria: ['technical_merit', 'cost_effectiveness', 'timeline', 'experience']
-      },
-      awardedTo: {
-        company: 'Stellar Defense Industries',
-        contractValue: 2400000000,
-        awardDate: '2023-12-15'
-      },
-      performance: {
-        overallScore: 85,
-        milestones: {
-          completed: 3,
-          total: 8,
-          nextDeadline: '2024-06-30'
-        }
-      },
-      createdBy: 'Defense Procurement Office',
-      approvedBy: 'Secretary of Defense'
-    },
-    {
-      id: 'contract_2',
-      title: 'Galactic Transportation Infrastructure',
-      description: 'Construction of high-speed transportation networks between major star systems',
-      category: 'infrastructure',
-      totalValue: 1800000000,
-      budgetAllocated: 1800000000,
-      fundingSource: 'Infrastructure Fund',
-      paymentSchedule: 'monthly',
-      startDate: '2024-03-01',
-      endDate: '2027-03-01',
-      duration: 36,
-      priority: 'high',
-      status: 'bidding',
-      requirements: {
-        securityClearance: 'confidential',
-        minCompanySize: 'large',
-        technicalCapabilities: ['space_construction', 'logistics', 'project_management']
-      },
-      biddingProcess: {
-        biddingDeadline: '2024-02-15',
-        evaluationCriteria: ['technical_approach', 'cost', 'schedule', 'sustainability']
-      },
-      createdBy: 'Infrastructure Development Agency',
-      approvedBy: 'Minister of Transportation'
-    },
-    {
-      id: 'contract_3',
-      title: 'AI Research Initiative',
-      description: 'Advanced artificial intelligence research for civilian applications',
-      category: 'research',
-      totalValue: 500000000,
-      budgetAllocated: 500000000,
-      fundingSource: 'Science & Technology Budget',
-      paymentSchedule: 'milestone',
-      startDate: '2024-02-01',
-      endDate: '2025-08-01',
-      duration: 18,
-      priority: 'medium',
-      status: 'planning',
-      requirements: {
-        securityClearance: 'secret',
-        minCompanySize: 'medium',
-        technicalCapabilities: ['ai_research', 'machine_learning', 'ethics_compliance']
-      },
-      biddingProcess: {
-        biddingDeadline: '2024-01-30',
-        evaluationCriteria: ['research_quality', 'innovation', 'ethical_framework', 'cost']
-      },
-      createdBy: 'National Science Foundation',
-      approvedBy: 'Chief Science Officer'
-    }
-  ];
+  useEffect(() => {
+    fetchContractsData();
+  }, [fetchContractsData]);
 
-  const createMockContractTypes = (): ContractType[] => [
-    {
-      id: 'defense_systems',
-      name: 'Defense Systems',
-      description: 'Military and defense technology contracts',
-      category: 'defense',
-      typicalDuration: 24,
-      complexityLevel: 9,
-      riskLevel: 8,
-      requiredCapabilities: ['security_clearance', 'defense_experience', 'advanced_technology'],
-      evaluationCriteria: {
-        technical: 40,
-        cost: 25,
-        schedule: 20,
-        experience: 15
-      }
-    },
-    {
-      id: 'infrastructure',
-      name: 'Infrastructure Development',
-      description: 'Large-scale construction and infrastructure projects',
-      category: 'infrastructure',
-      typicalDuration: 36,
-      complexityLevel: 7,
-      riskLevel: 6,
-      requiredCapabilities: ['construction_experience', 'project_management', 'logistics'],
-      evaluationCriteria: {
-        technical: 30,
-        cost: 35,
-        schedule: 25,
-        sustainability: 10
-      }
-    },
-    {
-      id: 'research_development',
-      name: 'Research & Development',
-      description: 'Scientific research and technology development contracts',
-      category: 'research',
-      typicalDuration: 18,
-      complexityLevel: 8,
-      riskLevel: 7,
-      requiredCapabilities: ['research_expertise', 'innovation_track_record', 'peer_review'],
-      evaluationCriteria: {
-        technical: 50,
-        innovation: 25,
-        cost: 15,
-        timeline: 10
-      }
-    }
-  ];
-
-  const handleCreateContract = async (contractData: any) => {
-    try {
-      const response = await fetch('http://localhost:4000/api/government-contracts/civilization/campaign_1/player_civ', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(contractData)
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setContracts([...contracts, data.data]);
-          setShowCreateModal(false);
-          alert('Government contract created successfully!');
-        }
-      }
-    } catch (error) {
-      console.error('Contract creation failed:', error);
-      alert('Contract creation failed. This is a demo - full functionality will be available in the complete system.');
-    }
-  };
-
-  const handleAIGenerateContract = async (requirements: string) => {
-    try {
-      const response = await fetch('http://localhost:4000/api/government-contracts/ai-generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          requirements,
-          campaignId: 'campaign_1',
-          civilizationId: 'player_civ'
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setContracts([...contracts, data.data]);
-          alert('AI-generated contract created successfully!');
-        }
-      }
-    } catch (error) {
-      console.error('AI contract generation failed:', error);
-      alert('AI contract generation failed. This is a demo - full functionality will be available in the complete system.');
-    }
-  };
-
-  const filteredContracts = contracts.filter(contract => {
-    const categoryMatch = filterCategory === 'all' || contract.category === filterCategory;
-    const statusMatch = filterStatus === 'all' || contract.status === filterStatus;
-    return categoryMatch && statusMatch;
-  });
-
-  if (loading) {
-    return (
-      <div className="government-contracts-screen loading">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Loading government contracts...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="government-contracts-screen error">
-        <div className="error-message">
-          <h3>⚠️ Contract System Unavailable</h3>
-          <p>Unable to load contract data. Please try again later.</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="government-contracts-screen">
-      <div className="screen-header">
-        <div className="header-left">
-          <span className="screen-icon">{icon}</span>
-          <div className="header-text">
-            <h2>{title}</h2>
-            <p>Government Contract Management & Procurement System</p>
+  const renderOverview = () => (
+    <>
+      {/* Contracts Overview - Full panel width */}
+      <div className="standard-panel government-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>📊 Contracts Overview</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Total Contracts</span>
+            <span className="standard-metric-value">{contractsData?.analytics.overview.totalContracts}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Active Contracts</span>
+            <span className="standard-metric-value">{contractsData?.analytics.overview.activeContracts}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Total Value</span>
+            <span className="standard-metric-value">{formatCurrency(contractsData?.analytics.overview.totalValue || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Average Duration</span>
+            <span className="standard-metric-value">{contractsData?.analytics.overview.averageDuration} months</span>
+          </div>
+          <div className="standard-metric">
+            <span>Completion Rate</span>
+            <span className="standard-metric-value">{contractsData?.analytics.overview.completionRate}%</span>
+          </div>
+          <div className="standard-metric">
+            <span>Dispute Rate</span>
+            <span className="standard-metric-value">{contractsData?.analytics.overview.disputeRate}%</span>
           </div>
         </div>
-        <div className="header-right">
-          <div className="contract-stats">
-            <div className="stat">
-              <span className="stat-label">Total Contracts</span>
-              <span className="stat-value">{contracts.length}</span>
-            </div>
-            <div className="stat">
-              <span className="stat-label">Active Value</span>
-              <span className="stat-value">
-                ${contracts.filter(c => c.status === 'active').reduce((sum, c) => sum + c.totalValue, 0).toLocaleString()}
-              </span>
-            </div>
-            <div className="stat">
-              <span className="stat-label">Pending Bids</span>
-              <span className="stat-value">{contracts.filter(c => c.status === 'bidding').length}</span>
-            </div>
-          </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => console.log('Create Contract')}>➕ Create Contract</button>
+          <button className="standard-btn government-theme" onClick={() => console.log('View All Contracts')}>📋 View All Contracts</button>
         </div>
       </div>
 
-      <div className="tab-navigation">
-        {[
-          { id: 'contracts', label: 'All Contracts', icon: '📋' },
-          { id: 'create', label: 'Create Contract', icon: '➕' },
-          { id: 'bidding', label: 'Bidding Process', icon: '🏆' },
-          { id: 'performance', label: 'Performance', icon: '📊' },
-          { id: 'analytics', label: 'Analytics', icon: '📈' }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id as any)}
-          >
-            <span className="tab-icon">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="tab-content">
-        {activeTab === 'contracts' && (
-          <div className="contracts-tab">
-            <div className="contracts-header">
-              <div className="filters">
-                <select 
-                  value={filterCategory} 
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Categories</option>
-                  <option value="defense">Defense</option>
-                  <option value="infrastructure">Infrastructure</option>
-                  <option value="research">Research</option>
-                  <option value="social">Social</option>
-                </select>
-                
-                <select 
-                  value={filterStatus} 
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Status</option>
-                  <option value="planning">Planning</option>
-                  <option value="bidding">Bidding</option>
-                  <option value="active">Active</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </div>
-              
-              <button 
-                className="create-btn"
-                onClick={() => setActiveTab('create')}
-              >
-                + Create New Contract
-              </button>
-            </div>
-
-            <div className="contracts-grid">
-              {filteredContracts.map(contract => (
-                <div key={contract.id} className={`contract-card ${contract.status}`}>
-                  <div className="contract-header">
-                    <h4>{contract.title}</h4>
-                    <div className="contract-badges">
-                      <span className={`category-badge ${contract.category}`}>{contract.category}</span>
-                      <span className={`priority-badge ${contract.priority}`}>{contract.priority}</span>
-                      <span className={`status-badge ${contract.status}`}>{contract.status}</span>
-                    </div>
-                  </div>
-                  
-                  <p className="contract-description">{contract.description}</p>
-                  
-                  <div className="contract-details">
-                    <div className="detail-row">
-                      <span className="label">Total Value:</span>
-                      <span className="value">${contract.totalValue.toLocaleString()}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="label">Duration:</span>
-                      <span className="value">{contract.duration} months</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="label">Start Date:</span>
-                      <span className="value">{new Date(contract.startDate).toLocaleDateString()}</span>
-                    </div>
-                    {contract.awardedTo && (
-                      <div className="detail-row">
-                        <span className="label">Awarded To:</span>
-                        <span className="value">{contract.awardedTo.company}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {contract.performance && (
-                    <div className="performance-summary">
-                      <div className="performance-score">
-                        Performance: {contract.performance.overallScore}%
-                      </div>
-                      <div className="milestone-progress">
-                        Milestones: {contract.performance.milestones.completed}/{contract.performance.milestones.total}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="contract-actions">
-                    <button className="action-btn secondary">View Details</button>
-                    <button className="action-btn secondary">Edit</button>
-                    {contract.status === 'bidding' && (
-                      <button className="action-btn">Manage Bids</button>
-                    )}
-                    {contract.status === 'active' && (
-                      <button className="action-btn">Track Progress</button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'create' && (
-          <div className="create-tab">
-            <div className="create-header">
-              <h3>Create New Government Contract</h3>
-              <p>Use AI assistance or manual creation to develop comprehensive contracts</p>
-            </div>
-
-            <div className="creation-options">
-              <div className="creation-card">
-                <h4>🤖 AI-Assisted Contract Generation</h4>
-                <p>Describe your requirements and let AI generate a comprehensive contract</p>
-                
-                <div className="ai-input-section">
-                  <textarea 
-                    placeholder="Describe your contract requirements (e.g., 'Need a contract for developing quantum communication systems for military use, budget around 500M, 18-month timeline, requires top secret clearance')"
-                    className="ai-requirements-input"
-                    rows={4}
-                  />
-                  <button 
-                    className="ai-generate-btn"
-                    onClick={() => handleAIGenerateContract("Sample AI-generated contract requirements")}
-                  >
-                    Generate Contract with AI
-                  </button>
-                </div>
-              </div>
-
-              <div className="creation-card">
-                <h4>📝 Manual Contract Creation</h4>
-                <p>Create a contract manually using our guided form</p>
-                
-                <div className="manual-form">
-                  <div className="form-row">
-                    <label>Contract Title:</label>
-                    <input type="text" placeholder="Enter contract title" className="form-input" />
-                  </div>
-                  
-                  <div className="form-row">
-                    <label>Category:</label>
-                    <select className="form-select">
-                      <option value="defense">Defense</option>
-                      <option value="infrastructure">Infrastructure</option>
-                      <option value="research">Research</option>
-                      <option value="social">Social</option>
-                    </select>
-                  </div>
-                  
-                  <div className="form-row">
-                    <label>Total Value:</label>
-                    <input type="number" placeholder="Contract value" className="form-input" />
-                  </div>
-                  
-                  <div className="form-row">
-                    <label>Duration (months):</label>
-                    <input type="number" placeholder="Duration in months" className="form-input" />
-                  </div>
-                  
-                  <div className="form-row">
-                    <label>Description:</label>
-                    <textarea placeholder="Detailed contract description" className="form-textarea" rows={3} />
-                  </div>
-                  
-                  <button 
-                    className="manual-create-btn"
-                    onClick={() => handleCreateContract({
-                      title: "Sample Manual Contract",
-                      category: "defense",
-                      totalValue: 1000000,
-                      duration: 12
-                    })}
-                  >
-                    Create Contract Manually
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="contract-templates">
-              <h4>📋 Contract Templates</h4>
-              <div className="templates-grid">
-                {contractTypes.map(type => (
-                  <div key={type.id} className="template-card">
-                    <h5>{type.name}</h5>
-                    <p>{type.description}</p>
-                    <div className="template-stats">
-                      <span>Duration: {type.typicalDuration} months</span>
-                      <span>Complexity: {type.complexityLevel}/10</span>
-                      <span>Risk: {type.riskLevel}/10</span>
-                    </div>
-                    <button className="use-template-btn">Use Template</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'bidding' && (
-          <div className="bidding-tab">
-            <div className="tab-header">
-              <h3>Bidding Process Management</h3>
-              <p>Manage contract bidding, evaluation, and award processes</p>
-            </div>
-
-            <div className="bidding-contracts">
-              {contracts.filter(c => c.status === 'bidding').map(contract => (
-                <div key={contract.id} className="bidding-contract-card">
-                  <div className="bidding-header">
-                    <h4>{contract.title}</h4>
-                    <span className="bidding-deadline">
-                      Deadline: {contract.biddingProcess?.biddingDeadline || 'TBD'}
+      {/* Category Breakdown - Full panel width */}
+      <div className="standard-panel government-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>📈 Category Breakdown</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Count</th>
+                <th>Total Value</th>
+                <th>Average Duration</th>
+                <th>Success Rate</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contractsData?.analytics.categoryBreakdown.map(category => (
+                <tr key={category.category}>
+                  <td>
+                    <span style={{ 
+                      color: getCategoryColor(category.category.toLowerCase()),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getCategoryColor(category.category.toLowerCase()) + '20'
+                    }}>
+                      {category.category}
                     </span>
-                  </div>
-                  
-                  <div className="bidding-details">
-                    <div className="detail-section">
-                      <h5>Contract Value: ${contract.totalValue.toLocaleString()}</h5>
-                      <p>{contract.description}</p>
-                    </div>
-                    
-                    <div className="evaluation-criteria">
-                      <h5>Evaluation Criteria:</h5>
-                      <ul>
-                        {contract.biddingProcess?.evaluationCriteria?.map((criteria: string, index: number) => (
-                          <li key={index}>{criteria}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                  
-                  <div className="bidding-actions">
-                    <button className="action-btn">View Bids (3)</button>
-                    <button className="action-btn secondary">Extend Deadline</button>
-                    <button className="action-btn secondary">Modify Requirements</button>
-                  </div>
-                </div>
-              ))}
-              
-              {contracts.filter(c => c.status === 'bidding').length === 0 && (
-                <div className="no-bidding">
-                  <p>No contracts currently in bidding phase.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'performance' && (
-          <div className="performance-tab">
-            <div className="tab-header">
-              <h3>Contract Performance Monitoring</h3>
-              <p>Track and analyze contract performance and deliverables</p>
-            </div>
-
-            <div className="performance-overview">
-              <div className="performance-stats">
-                <div className="perf-stat-card">
-                  <h4>Average Performance</h4>
-                  <span className="perf-score">87%</span>
-                </div>
-                <div className="perf-stat-card">
-                  <h4>On-Time Delivery</h4>
-                  <span className="perf-score">92%</span>
-                </div>
-                <div className="perf-stat-card">
-                  <h4>Budget Compliance</h4>
-                  <span className="perf-score">95%</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="active-contracts-performance">
-              {contracts.filter(c => c.status === 'active' && c.performance).map(contract => (
-                <div key={contract.id} className="performance-contract-card">
-                  <div className="performance-header">
-                    <h4>{contract.title}</h4>
-                    <span className="overall-score">
-                      Score: {contract.performance?.overallScore}%
+                  </td>
+                  <td>{category.count}</td>
+                  <td>{formatCurrency(category.totalValue)}</td>
+                  <td>{category.averageDuration} months</td>
+                  <td>
+                    <span style={{ color: category.successRate >= 80 ? '#10b981' : category.successRate >= 60 ? '#f59e0b' : '#ef4444' }}>
+                      {category.successRate}%
                     </span>
-                  </div>
-                  
-                  <div className="milestone-tracking">
-                    <h5>Milestone Progress:</h5>
-                    <div className="milestone-bar">
-                      <div 
-                        className="milestone-progress" 
-                        style={{ 
-                          width: `${(contract.performance?.milestones.completed / contract.performance?.milestones.total) * 100}%` 
-                        }}
-                      ></div>
-                    </div>
-                    <span className="milestone-text">
-                      {contract.performance?.milestones.completed} of {contract.performance?.milestones.total} completed
-                    </span>
-                  </div>
-                  
-                  <div className="next-milestone">
-                    <strong>Next Deadline:</strong> {contract.performance?.milestones.nextDeadline}
-                  </div>
-                </div>
+                  </td>
+                  <td>
+                    <button className="standard-btn government-theme">View</button>
+                  </td>
+                </tr>
               ))}
-            </div>
-          </div>
-        )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
 
-        {activeTab === 'analytics' && (
-          <div className="analytics-tab">
-            <div className="tab-header">
-              <h3>Contract Analytics & Insights</h3>
-              <p>Strategic analysis of contract performance and procurement patterns</p>
-            </div>
-
-            <div className="analytics-dashboard">
-              <div className="analytics-cards">
-                <div className="analytics-card">
-                  <h4>Contract Distribution by Category</h4>
-                  <div className="category-breakdown">
-                    <div className="category-item">
-                      <span className="category-label">Defense:</span>
-                      <span className="category-value">45%</span>
+  const renderContracts = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>📋 Government Contracts</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => console.log('Create Contract')}>➕ Create Contract</button>
+          <button className="standard-btn government-theme" onClick={() => console.log('Filter Contracts')}>🔍 Filter</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Value</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Timeline</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contractsData?.contracts.map(contract => (
+                <tr key={contract.id}>
+                  <td>{contract.title}</td>
+                  <td>
+                    <span style={{ 
+                      color: getCategoryColor(contract.category),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getCategoryColor(contract.category) + '20'
+                    }}>
+                      {contract.category}
+                    </span>
+                  </td>
+                  <td>{formatCurrency(contract.totalValue)}</td>
+                  <td>
+                    <span style={{ 
+                      color: getStatusColor(contract.status),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getStatusColor(contract.status) + '20'
+                    }}>
+                      {contract.status}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ 
+                        width: '100px', 
+                        height: '8px', 
+                        backgroundColor: '#374151', 
+                        borderRadius: '4px',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{ 
+                          width: `${contract.progress}%`, 
+                          height: '100%', 
+                          backgroundColor: contract.progress >= 80 ? '#10b981' : contract.progress >= 60 ? '#f59e0b' : '#ef4444',
+                          transition: 'width 0.3s ease'
+                        }} />
+                      </div>
+                      <span>{contract.progress}%</span>
                     </div>
-                    <div className="category-item">
-                      <span className="category-label">Infrastructure:</span>
-                      <span className="category-value">30%</span>
-                    </div>
-                    <div className="category-item">
-                      <span className="category-label">Research:</span>
-                      <span className="category-value">20%</span>
-                    </div>
-                    <div className="category-item">
-                      <span className="category-label">Social:</span>
-                      <span className="category-value">5%</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="analytics-card">
-                  <h4>Procurement Efficiency</h4>
-                  <div className="efficiency-metrics">
-                    <div className="metric">
-                      <span className="metric-label">Average Bid Time:</span>
-                      <span className="metric-value">45 days</span>
-                    </div>
-                    <div className="metric">
-                      <span className="metric-label">Award Success Rate:</span>
-                      <span className="metric-value">78%</span>
-                    </div>
-                    <div className="metric">
-                      <span className="metric-label">Cost Savings:</span>
-                      <span className="metric-value">12%</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="analytics-card">
-                  <h4>Risk Assessment</h4>
-                  <div className="risk-indicators">
-                    <div className="risk-item low">
-                      <span className="risk-label">Schedule Risk:</span>
-                      <span className="risk-level">Low</span>
-                    </div>
-                    <div className="risk-item medium">
-                      <span className="risk-label">Budget Risk:</span>
-                      <span className="risk-level">Medium</span>
-                    </div>
-                    <div className="risk-item low">
-                      <span className="risk-label">Performance Risk:</span>
-                      <span className="risk-level">Low</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+                  </td>
+                  <td>{contract.startDate} - {contract.endDate}</td>
+                  <td>
+                    <button className="standard-btn government-theme">Details</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+  );
+
+  const renderBidding = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🏆 Bidding & Vendor Management</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn government-theme" onClick={() => console.log('Invite Vendors')}>📧 Invite Vendors</button>
+          <button className="standard-btn government-theme" onClick={() => console.log('Evaluate Bids')}>📊 Evaluate Bids</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Vendor</th>
+                <th>Rating</th>
+                <th>Experience</th>
+                <th>Proposed Value</th>
+                <th>Timeline</th>
+                <th>Past Performance</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contractsData?.vendors.map(vendor => (
+                <tr key={vendor.id}>
+                  <td>{vendor.name}</td>
+                  <td>
+                    <span style={{ color: vendor.rating >= 4.5 ? '#10b981' : vendor.rating >= 4.0 ? '#f59e0b' : '#ef4444' }}>
+                      {vendor.rating}/5.0
+                    </span>
+                  </td>
+                  <td>{vendor.experience} years</td>
+                  <td>{formatCurrency(vendor.proposedValue)}</td>
+                  <td>{vendor.timeline} months</td>
+                  <td>
+                    <span style={{ color: vendor.pastPerformance >= 90 ? '#10b981' : vendor.pastPerformance >= 80 ? '#f59e0b' : '#ef4444' }}>
+                      {vendor.pastPerformance}%
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: vendor.status === 'awarded' ? '#10b981' : 
+                             vendor.status === 'shortlisted' ? '#3b82f6' : 
+                             vendor.status === 'evaluating' ? '#f59e0b' : '#ef4444',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: (vendor.status === 'awarded' ? '#10b981' : 
+                                     vendor.status === 'shortlisted' ? '#3b82f6' : 
+                                     vendor.status === 'evaluating' ? '#f59e0b' : '#ef4444') + '20'
+                    }}>
+                      {vendor.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn government-theme">Evaluate</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderPerformance = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>📈 Contract Performance</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#3b82f6' }}>Active Contract Progress</h4>
+            <div className="standard-table-container">
+              <table className="standard-data-table">
+                <thead>
+                  <tr>
+                    <th>Contract</th>
+                    <th>Progress</th>
+                    <th>Next Milestone</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {contractsData?.contracts.filter(c => c.status === 'active').map(contract => {
+                    const nextMilestone = contract.milestones.find(m => m.status === 'pending');
+                    return (
+                      <tr key={contract.id}>
+                        <td>{contract.title}</td>
+                        <td>
+                          <span style={{ color: contract.progress >= 80 ? '#10b981' : contract.progress >= 60 ? '#f59e0b' : '#ef4444' }}>
+                            {contract.progress}%
+                          </span>
+                        </td>
+                        <td>{nextMilestone?.title || 'N/A'}</td>
+                        <td>
+                          <span style={{ 
+                            color: getStatusColor(contract.status),
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '0.25rem',
+                            fontSize: '0.875rem',
+                            backgroundColor: getStatusColor(contract.status) + '20'
+                          }}>
+                            {contract.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h4 style={{ marginBottom: '1rem', color: '#3b82f6' }}>Milestone Tracking</h4>
+            <div className="standard-table-container">
+              <table className="standard-data-table">
+                <thead>
+                  <tr>
+                    <th>Milestone</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {contractsData?.contracts.flatMap(c => c.milestones).slice(0, 10).map(milestone => (
+                    <tr key={milestone.id}>
+                      <td>{milestone.title}</td>
+                      <td>{milestone.dueDate}</td>
+                      <td>
+                        <span style={{ 
+                          color: milestone.status === 'completed' ? '#10b981' : 
+                                 milestone.status === 'active' ? '#f59e0b' : '#ef4444',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.875rem',
+                          backgroundColor: (milestone.status === 'completed' ? '#10b981' : 
+                                         milestone.status === 'active' ? '#f59e0b' : '#ef4444') + '20'
+                        }}>
+                          {milestone.status}
+                        </span>
+                      </td>
+                      <td>{formatCurrency(milestone.paymentAmount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAnalytics = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel government-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>📊 Contract Analytics</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div className="chart-container">
+            <LineChart
+              data={contractsData?.analytics.performanceTrends.map(trend => ({
+                name: trend.month,
+                'Contracts Awarded': trend.contractsAwarded,
+                'Total Value': trend.totalValue / 1000000,
+                'Average Performance': trend.averagePerformance,
+                'Dispute Rate': trend.disputeRate
+              })) || []}
+              title="Contract Performance Trends"
+              height={300}
+              width={500}
+              showTooltip={true}
+            />
+          </div>
+          <div className="chart-container">
+            <PieChart
+              data={contractsData?.analytics.categoryBreakdown.map(category => ({
+                name: category.category,
+                value: category.totalValue
+              })) || []}
+              title="Contract Value by Category"
+              size={250}
+              showLegend={true}
+            />
+          </div>
+        </div>
+        <div style={{ marginTop: '2rem' }}>
+          <h4 style={{ marginBottom: '1rem', color: '#3b82f6' }}>Performance Metrics</h4>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Current</th>
+                  <th>Target</th>
+                  <th>Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>On-Time Delivery</td>
+                  <td style={{ color: '#10b981' }}>82%</td>
+                  <td>85%</td>
+                  <td style={{ color: '#f59e0b' }}>↗️ Improving</td>
+                </tr>
+                <tr>
+                  <td>Cost Efficiency</td>
+                  <td style={{ color: '#10b981' }}>87%</td>
+                  <td>90%</td>
+                  <td style={{ color: '#10b981' }}>↗️ On Track</td>
+                </tr>
+                <tr>
+                  <td>Quality Score</td>
+                  <td style={{ color: '#10b981' }}>89%</td>
+                  <td>85%</td>
+                  <td style={{ color: '#10b981' }}>✅ Exceeding</td>
+                </tr>
+                <tr>
+                  <td>Vendor Satisfaction</td>
+                  <td style={{ color: '#f59e0b' }}>78%</td>
+                  <td>80%</td>
+                  <td style={{ color: '#ef4444' }}>↘️ Declining</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <BaseScreen
+      screenId={screenId}
+      title={title}
+      icon={icon}
+      gameContext={gameContext}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchContractsData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
+    >
+      <div className="standard-screen-container government-theme">
+        <div className="standard-dashboard">
+          {!loading && !error && contractsData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'contracts' && renderContracts()}
+              {activeTab === 'bidding' && renderBidding()}
+              {activeTab === 'performance' && renderPerformance()}
+              {activeTab === 'analytics' && renderAnalytics()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading contracts data...' : 'No contracts data available'}
+            </div>
+          )}
+        </div>
+      </div>
+    </BaseScreen>
   );
 };
 

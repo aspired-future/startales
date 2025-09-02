@@ -1,15 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { ExplorationDashboard } from '../../../Exploration/ExplorationDashboard';
-import { GalacticExplorationService } from '../../../../services/GalacticExplorationService';
-import './ExplorationScreen.css';
-import { LineChart, PieChart, BarChart } from '../../../Charts';
+/**
+ * Exploration Screen - Space Exploration & Discovery Management
+ * 
+ * This screen focuses on space exploration including:
+ * - Active expeditions and mission tracking
+ * - Discovered star systems and anomalies
+ * - First contact protocols and alien species
+ * - Exploration analytics and success metrics
+ * - Resource allocation and budget management
+ * 
+ * Distinct from:
+ * - Visual Systems Screen: AI-generated visual content and assets
+ * - Galaxy Data Screen: Raw astronomical data and observations
+ * - Missions Screen: Specific mission planning and execution
+ */
 
-interface ExplorationScreenProps {
-  screenId: string;
-  title: string;
-  icon: string;
-  gameContext?: any;
-}
+import React, { useState, useEffect, useCallback } from 'react';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
+import './ExplorationScreen.css';
+import '../shared/StandardDesign.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface ExplorationStats {
   activeExpeditions: number;
@@ -18,720 +27,840 @@ interface ExplorationStats {
   anomaliesFound: number;
   explorationBudget: string;
   successRate: number;
+  totalDistance: number;
+  crewMembers: number;
 }
 
-const ExplorationScreen: React.FC<ExplorationScreenProps> = ({ 
+interface Expedition {
+  id: string;
+  name: string;
+  status: 'active' | 'completed' | 'failed' | 'returning';
+  destination: string;
+  distance: number;
+  crew: number;
+  duration: number;
+  progress: number;
+  discoveries: string[];
+  risks: string[];
+  budget: string;
+  estimatedReturn: string;
+}
+
+interface StarSystem {
+  id: string;
+  name: string;
+  type: 'star' | 'binary' | 'nebula' | 'black-hole' | 'pulsar';
+  distance: number;
+  discovered: string;
+  status: 'explored' | 'partially-explored' | 'unexplored';
+  planets: number;
+  resources: string[];
+  anomalies: string[];
+  habitability: number;
+  strategicValue: number;
+}
+
+interface FirstContact {
+  id: string;
+  species: string;
+  system: string;
+  date: string;
+  status: 'established' | 'negotiating' | 'hostile' | 'neutral';
+  technology: string;
+  resources: string[];
+  diplomatic: number;
+  trade: number;
+  military: number;
+}
+
+interface Anomaly {
+  id: string;
+  type: 'spatial' | 'temporal' | 'energy' | 'biological' | 'technological';
+  location: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  discovered: string;
+  investigation: number;
+  risk: number;
+  potential: number;
+}
+
+interface ExplorationData {
+  stats: ExplorationStats;
+  expeditions: Expedition[];
+  starSystems: StarSystem[];
+  firstContacts: FirstContact[];
+  anomalies: Anomaly[];
+  selectedExpedition: Expedition | null;
+  selectedSystem: StarSystem | null;
+}
+
+const ExplorationScreen: React.FC<ScreenProps> = ({ 
   screenId, 
   title, 
   icon, 
   gameContext 
 }) => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'missions' | 'discoveries' | 'contacts' | 'analytics'>('dashboard');
-  const [explorationStats, setExplorationStats] = useState<ExplorationStats>({
-    activeExpeditions: 0,
-    discoveredSystems: 0,
-    firstContacts: 0,
-    anomaliesFound: 0,
-    explorationBudget: '$0',
-    successRate: 0
-  });
-  const [loading, setLoading] = useState(true);
+  const [explorationData, setExplorationData] = useState<ExplorationData | null>(null);
+  const [selectedExpeditionId, setSelectedExpeditionId] = useState<string>('');
+  const [selectedSystemId, setSelectedSystemId] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'overview' | 'expeditions' | 'discoveries' | 'contacts' | 'analytics'>('overview');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [explorationService] = useState(() => new GalacticExplorationService());
 
-  useEffect(() => {
-    const fetchExplorationStats = async () => {
-      try {
-        setLoading(true);
-        // Try to fetch from API
-        const response = await fetch('/api/exploration/stats');
-        
-        if (!response.ok) {
-          throw new Error('API not available');
-        }
-        
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '🚀' },
+    { id: 'expeditions', label: 'Expeditions', icon: '🛸' },
+    { id: 'discoveries', label: 'Discoveries', icon: '⭐' },
+    { id: 'contacts', label: 'Contacts', icon: '👽' },
+    { id: 'analytics', label: 'Analytics', icon: '📊' }
+  ];
+
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/exploration/stats', description: 'Get exploration statistics' }
+  ];
+
+  // Utility functions
+  const formatNumber = (num: number): string => {
+    if (num >= 1e12) return `${(num / 1e12).toFixed(1)}T`;
+    if (num >= 1e9) return `${(num / 1e9).toFixed(1)}B`;
+    if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
+    if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
+    return num.toString();
+  };
+
+  const getStatusColor = (status: string): string => {
+    const colors: { [key: string]: string } = {
+      active: '#10b981',
+      completed: '#3b82f6',
+      failed: '#ef4444',
+      returning: '#f59e0b',
+      established: '#10b981',
+      negotiating: '#f59e0b',
+      hostile: '#ef4444',
+      neutral: '#6b7280',
+      explored: '#10b981',
+      'partially-explored': '#f59e0b',
+      unexplored: '#6b7280'
+    };
+    return colors[status] || '#6b7280';
+  };
+
+  const getSeverityColor = (severity: string): string => {
+    const colors: { [key: string]: string } = {
+      low: '#10b981',
+      medium: '#fbbf24',
+      high: '#f59e0b',
+      critical: '#ef4444'
+    };
+    return colors[severity] || '#6b7280';
+  };
+
+  const getTypeColor = (type: string): string => {
+    const colors: { [key: string]: string } = {
+      star: '#fbbf24',
+      binary: '#8b5cf6',
+      nebula: '#ec4899',
+      'black-hole': '#1f2937',
+      pulsar: '#3b82f6',
+      spatial: '#8b5cf6',
+      temporal: '#ec4899',
+      energy: '#fbbf24',
+      biological: '#10b981',
+      technological: '#3b82f6'
+    };
+    return colors[type] || '#6b7280';
+  };
+
+  const fetchExplorationData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/exploration/stats');
+      if (response.ok) {
         const data = await response.json();
-        if (data.success) {
-          setExplorationStats(data.stats);
+        setExplorationData(data);
+        if (data.expeditions.length > 0 && !selectedExpeditionId) {
+          setSelectedExpeditionId(data.expeditions[0].id);
         }
-      } catch (err) {
-        console.warn('Exploration API not available, using mock data');
-        // Use mock data
-        setExplorationStats({
+      } else {
+        throw new Error('API not available');
+      }
+    } catch (err) {
+      console.warn('Failed to fetch exploration data:', err);
+      // Use comprehensive mock data
+      setExplorationData({
+        stats: {
           activeExpeditions: 8,
           discoveredSystems: 156,
           firstContacts: 12,
           anomaliesFound: 34,
           explorationBudget: '$2.4B',
-          successRate: 87.3
-        });
-      } finally {
-        setLoading(false);
+          successRate: 87.3,
+          totalDistance: 125000,
+          crewMembers: 45
+        },
+        expeditions: [
+          {
+            id: 'exp-1',
+            name: 'Pioneer Alpha',
+            status: 'active',
+            destination: 'Alpha Centauri',
+            distance: 4.37,
+            crew: 6,
+            duration: 12,
+            progress: 65,
+            discoveries: ['Earth-like planet', 'Ancient artifacts'],
+            risks: ['Radiation storms', 'Unknown space phenomena'],
+            budget: '$450M',
+            estimatedReturn: '6 months'
+          },
+          {
+            id: 'exp-2',
+            name: 'Voyager Beta',
+            status: 'returning',
+            destination: 'Vega System',
+            distance: 25.04,
+            crew: 8,
+            duration: 18,
+            progress: 95,
+            discoveries: ['Binary star system', 'Rare minerals'],
+            risks: ['Navigation anomalies', 'Crew fatigue'],
+            budget: '$680M',
+            estimatedReturn: '2 weeks'
+          },
+          {
+            id: 'exp-3',
+            name: 'Discovery Gamma',
+            status: 'active',
+            destination: 'Sirius Cluster',
+            distance: 8.6,
+            crew: 5,
+            duration: 8,
+            progress: 35,
+            discoveries: ['Nebula formation', 'Energy signatures'],
+            risks: ['Temporal distortions', 'Unknown life forms'],
+            budget: '$320M',
+            estimatedReturn: '5 months'
+          }
+        ],
+        starSystems: [
+          {
+            id: 'sys-1',
+            name: 'Alpha Centauri',
+            type: 'binary',
+            distance: 4.37,
+            discovered: '2024-03-15',
+            status: 'partially-explored',
+            planets: 3,
+            resources: ['Iron', 'Helium-3', 'Rare earths'],
+            anomalies: ['Temporal fluctuations', 'Gravity wells'],
+            habitability: 75,
+            strategicValue: 90
+          },
+          {
+            id: 'sys-2',
+            name: 'Vega',
+            type: 'star',
+            distance: 25.04,
+            discovered: '2024-02-28',
+            status: 'explored',
+            planets: 1,
+            resources: ['Platinum', 'Uranium', 'Water ice'],
+            anomalies: ['Magnetic storms', 'Radiation belts'],
+            habitability: 45,
+            strategicValue: 70
+          },
+          {
+            id: 'sys-3',
+            name: 'Sirius',
+            type: 'binary',
+            distance: 8.6,
+            discovered: '2024-04-02',
+            status: 'partially-explored',
+            planets: 2,
+            resources: ['Diamond', 'Carbon', 'Methane'],
+            anomalies: ['Quantum fluctuations', 'Dark matter'],
+            habitability: 30,
+            strategicValue: 85
+          }
+        ],
+        firstContacts: [
+          {
+            id: 'fc-1',
+            species: 'Zephyrians',
+            system: 'Alpha Centauri',
+            date: '2024-03-20',
+            status: 'established',
+            technology: 'Advanced FTL, Quantum computing',
+            resources: ['Anti-matter', 'Quantum crystals'],
+            diplomatic: 85,
+            trade: 70,
+            military: 60
+          },
+          {
+            id: 'fc-2',
+            species: 'Vegans',
+            system: 'Vega',
+            date: '2024-03-10',
+            status: 'negotiating',
+            technology: 'Plasma weapons, Shield tech',
+            resources: ['Plasma energy', 'Shield materials'],
+            diplomatic: 65,
+            trade: 80,
+            military: 90
+          }
+        ],
+        anomalies: [
+          {
+            id: 'anom-1',
+            type: 'temporal',
+            location: 'Alpha Centauri',
+            severity: 'high',
+            description: 'Time dilation effects near binary stars',
+            discovered: '2024-03-18',
+            investigation: 75,
+            risk: 60,
+            potential: 85
+          },
+          {
+            id: 'anom-2',
+            type: 'spatial',
+            location: 'Sirius Cluster',
+            severity: 'medium',
+            description: 'Spatial distortions in nebula region',
+            discovered: '2024-04-05',
+            investigation: 45,
+            risk: 40,
+            potential: 70
+          }
+        ],
+        selectedExpedition: null,
+        selectedSystem: null
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedExpeditionId]);
+
+  useEffect(() => {
+    fetchExplorationData();
+  }, [fetchExplorationData]);
+
+  useEffect(() => {
+    if (selectedExpeditionId && explorationData) {
+      const expedition = explorationData.expeditions.find(e => e.id === selectedExpeditionId);
+      if (expedition) {
+        setExplorationData(prev => prev ? { ...prev, selectedExpedition: expedition } : null);
       }
-    };
+    }
+  }, [selectedExpeditionId, explorationData]);
 
-    fetchExplorationStats();
-  }, []);
+  useEffect(() => {
+    if (selectedSystemId && explorationData) {
+      const system = explorationData.starSystems.find(s => s.id === selectedSystemId);
+      if (system) {
+        setExplorationData(prev => prev ? { ...prev, selectedSystem: system } : null);
+      }
+    }
+  }, [selectedSystemId, explorationData]);
 
-  const handleAction = (action: string, context?: any) => {
-    console.log(`Exploration Action: ${action}`, context);
-    alert(`Exploration System: ${action}\n\nThis would ${action.toLowerCase()} in the full implementation.\n\nContext: ${JSON.stringify(context, null, 2)}`);
-  };
-
-  const renderDashboardTab = () => (
-    <div className="dashboard-tab">
-      <div className="dashboard-header">
-        <h2>🚀 Exploration Dashboard</h2>
-        <p>Comprehensive space exploration management and discovery tracking</p>
-      </div>
-      
-      <div className="stats-overview">
-        <div className="stat-card">
-          <div className="stat-icon">🚀</div>
-          <div className="stat-content">
-            <div className="stat-value">{explorationStats.activeExpeditions}</div>
-            <div className="stat-label">Active Expeditions</div>
+  // Render functions for each tab
+  const renderOverview = () => (
+    <>
+      {/* Exploration Overview - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🚀 Exploration Overview</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Active Expeditions</span>
+            <span className="standard-metric-value">{explorationData?.stats.activeExpeditions || 0}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Discovered Systems</span>
+            <span className="standard-metric-value">{explorationData?.stats.discoveredSystems || 0}</span>
+          </div>
+          <div className="standard-metric">
+            <span>First Contacts</span>
+            <span className="standard-metric-value">{explorationData?.stats.firstContacts || 0}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Success Rate</span>
+            <span className="standard-metric-value">{explorationData?.stats.successRate ? `${explorationData.stats.successRate.toFixed(1)}%` : '0%'}</span>
           </div>
         </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">⭐</div>
-          <div className="stat-content">
-            <div className="stat-value">{explorationStats.discoveredSystems}</div>
-            <div className="stat-label">Discovered Systems</div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">👽</div>
-          <div className="stat-content">
-            <div className="stat-value">{explorationStats.firstContacts}</div>
-            <div className="stat-label">First Contacts</div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">🌌</div>
-          <div className="stat-content">
-            <div className="stat-value">{explorationStats.anomaliesFound}</div>
-            <div className="stat-label">Anomalies Found</div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">💰</div>
-          <div className="stat-content">
-            <div className="stat-value">{explorationStats.explorationBudget}</div>
-            <div className="stat-label">Exploration Budget</div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">📊</div>
-          <div className="stat-content">
-            <div className="stat-value">{explorationStats.successRate}%</div>
-            <div className="stat-label">Success Rate</div>
-          </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn space-theme" onClick={() => console.log('Launch Expedition')}>Launch Expedition</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Exploration Report')}>Exploration Report</button>
         </div>
       </div>
 
-      {/* Exploration Charts Section */}
-      <div className="exploration-charts-section">
-        <div className="charts-grid">
-          <div className="chart-container">
-            <LineChart
-              data={[
-                { label: 'Q1 2023', value: explorationStats.discoveredSystems * 0.6 },
-                { label: 'Q2 2023', value: explorationStats.discoveredSystems * 0.72 },
-                { label: 'Q3 2023', value: explorationStats.discoveredSystems * 0.83 },
-                { label: 'Q4 2023', value: explorationStats.discoveredSystems * 0.91 },
-                { label: 'Q1 2024', value: explorationStats.discoveredSystems * 0.96 },
-                { label: 'Q2 2024', value: explorationStats.discoveredSystems }
-              ]}
-              title="🚀 Exploration Progress Over Time"
-              color="#4ecdc4"
-              height={250}
-              width={400}
-            />
+      {/* Current Expeditions - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🛸 Current Expeditions</h3>
+        <div className="standard-data-table">
+          <div className="table-header">
+            <span>Expedition</span>
+            <span>Status</span>
+            <span>Destination</span>
+            <span>Progress</span>
+            <span>Budget</span>
           </div>
+          {explorationData?.expeditions.slice(0, 3).map(expedition => (
+            <div key={expedition.id} className="table-row">
+              <span>{expedition.name}</span>
+              <span style={{ color: getStatusColor(expedition.status) }}>
+                {expedition.status.charAt(0).toUpperCase() + expedition.status.slice(1)}
+              </span>
+              <span>{expedition.destination}</span>
+              <span>{expedition.progress}%</span>
+              <span>{expedition.budget}</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
+      {/* Recent Discoveries - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>⭐ Recent Discoveries</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+          {explorationData?.starSystems.slice(0, 3).map(system => (
+            <div key={system.id} style={{
+              padding: '1rem',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              borderRadius: '8px',
+              border: '1px solid rgba(59, 130, 246, 0.2)'
+            }}>
+              <h4 style={{ marginBottom: '0.5rem', color: '#3b82f6' }}>⭐ {system.name}</h4>
+              <div style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>Type:</span>
+                  <span style={{ color: getTypeColor(system.type) }}>{system.type}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>Distance:</span>
+                  <span>{system.distance} ly</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>Planets:</span>
+                  <span>{system.planets}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Habitability:</span>
+                  <span>{system.habitability}%</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button className="standard-btn space-theme" style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}>Explore</button>
+                <button className="standard-btn space-theme" style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}>Details</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
+  const renderExpeditions = () => (
+    <>
+      {/* Expeditions Management - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🛸 Expeditions Management</h3>
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ marginRight: '1rem', color: '#3b82f6' }}>Select Expedition:</label>
+          <select 
+            value={selectedExpeditionId} 
+            onChange={(e) => setSelectedExpeditionId(e.target.value)}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '4px',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              color: '#3b82f6'
+            }}
+          >
+            {explorationData?.expeditions.map(expedition => (
+              <option key={expedition.id} value={expedition.id}>{expedition.name}</option>
+            ))}
+          </select>
+        </div>
+        
+        {explorationData?.selectedExpedition && (
+          <div className="standard-data-table">
+            <div className="table-header">
+              <span>Expedition Details</span>
+              <span>Values</span>
+            </div>
+            <div className="table-row">
+              <span>Name</span>
+              <span>{explorationData.selectedExpedition.name}</span>
+            </div>
+            <div className="table-row">
+              <span>Status</span>
+              <span style={{ color: getStatusColor(explorationData.selectedExpedition.status) }}>
+                {explorationData.selectedExpedition.status.charAt(0).toUpperCase() + explorationData.selectedExpedition.status.slice(1)}
+              </span>
+            </div>
+            <div className="table-row">
+              <span>Destination</span>
+              <span>{explorationData.selectedExpedition.destination}</span>
+            </div>
+            <div className="table-row">
+              <span>Distance</span>
+              <span>{explorationData.selectedExpedition.distance} ly</span>
+            </div>
+            <div className="table-row">
+              <span>Crew</span>
+              <span>{explorationData.selectedExpedition.crew}</span>
+            </div>
+            <div className="table-row">
+              <span>Duration</span>
+              <span>{explorationData.selectedExpedition.duration} months</span>
+            </div>
+            <div className="table-row">
+              <span>Progress</span>
+              <span>{explorationData.selectedExpedition.progress}%</span>
+            </div>
+            <div className="table-row">
+              <span>Budget</span>
+              <span>{explorationData.selectedExpedition.budget}</span>
+            </div>
+            <div className="table-row">
+              <span>Estimated Return</span>
+              <span>{explorationData.selectedExpedition.estimatedReturn}</span>
+            </div>
+          </div>
+        )}
+        
+        <div className="standard-action-buttons">
+          <button className="standard-btn space-theme" onClick={() => console.log('Launch New Expedition')}>Launch New Expedition</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Modify Expedition')}>Modify Expedition</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Recall Expedition')}>Recall Expedition</button>
+        </div>
+      </div>
+
+      {/* All Expeditions Table - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>📋 All Expeditions</h3>
+        <div className="standard-data-table">
+          <div className="table-header">
+            <span>Expedition</span>
+            <span>Status</span>
+            <span>Destination</span>
+            <span>Distance</span>
+            <span>Progress</span>
+            <span>Budget</span>
+            <span>Actions</span>
+          </div>
+          {explorationData?.expeditions.map(expedition => (
+            <div key={expedition.id} className="table-row">
+              <span>{expedition.name}</span>
+              <span style={{ color: getStatusColor(expedition.status) }}>
+                {expedition.status.charAt(0).toUpperCase() + expedition.status.slice(1)}
+              </span>
+              <span>{expedition.destination}</span>
+              <span>{expedition.distance} ly</span>
+              <span>{expedition.progress}%</span>
+              <span>{expedition.budget}</span>
+              <span>
+                <button className="standard-btn space-theme" style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem', marginRight: '0.5rem' }}>View</button>
+                <button className="standard-btn space-theme" style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}>Control</button>
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
+  const renderDiscoveries = () => (
+    <>
+      {/* Star Systems Overview - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>⭐ Star Systems Discovery</h3>
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ marginRight: '1rem', color: '#3b82f6' }}>Select System:</label>
+          <select 
+            value={selectedSystemId} 
+            onChange={(e) => setSelectedSystemId(e.target.value)}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '4px',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              color: '#3b82f6'
+            }}
+          >
+            {explorationData?.starSystems.map(system => (
+              <option key={system.id} value={system.id}>{system.name}</option>
+            ))}
+          </select>
+        </div>
+        
+        {explorationData?.selectedSystem && (
+          <div className="standard-data-table">
+            <div className="table-header">
+              <span>System Details</span>
+              <span>Values</span>
+            </div>
+            <div className="table-row">
+              <span>Name</span>
+              <span>{explorationData.selectedSystem.name}</span>
+            </div>
+            <div className="table-row">
+              <span>Type</span>
+              <span style={{ color: getTypeColor(explorationData.selectedSystem.type) }}>
+                {explorationData.selectedSystem.type}
+              </span>
+            </div>
+            <div className="table-row">
+              <span>Distance</span>
+              <span>{explorationData.selectedSystem.distance} ly</span>
+            </div>
+            <div className="table-row">
+              <span>Discovered</span>
+              <span>{explorationData.selectedSystem.discovered}</span>
+            </div>
+            <div className="table-row">
+              <span>Status</span>
+              <span style={{ color: getStatusColor(explorationData.selectedSystem.status) }}>
+                {explorationData.selectedSystem.status.replace('-', ' ')}
+              </span>
+            </div>
+            <div className="table-row">
+              <span>Planets</span>
+              <span>{explorationData.selectedSystem.planets}</span>
+            </div>
+            <div className="table-row">
+              <span>Habitability</span>
+              <span>{explorationData.selectedSystem.habitability}%</span>
+            </div>
+            <div className="table-row">
+              <span>Strategic Value</span>
+              <span>{explorationData.selectedSystem.strategicValue}%</span>
+            </div>
+          </div>
+        )}
+        
+        <div className="standard-action-buttons">
+          <button className="standard-btn space-theme" onClick={() => console.log('Send Expedition')}>Send Expedition</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Analyze System')}>Analyze System</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Claim System')}>Claim System</button>
+        </div>
+      </div>
+
+      {/* All Star Systems - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🌌 All Discovered Systems</h3>
+        <div className="standard-data-table">
+          <div className="table-header">
+            <span>System</span>
+            <span>Type</span>
+            <span>Distance</span>
+            <span>Status</span>
+            <span>Planets</span>
+            <span>Habitability</span>
+            <span>Value</span>
+          </div>
+          {explorationData?.starSystems.map(system => (
+            <div key={system.id} className="table-row">
+              <span>⭐ {system.name}</span>
+              <span style={{ color: getTypeColor(system.type) }}>{system.type}</span>
+              <span>{system.distance} ly</span>
+              <span style={{ color: getStatusColor(system.status) }}>
+                {system.status.replace('-', ' ')}
+              </span>
+              <span>{system.planets}</span>
+              <span>{system.habitability}%</span>
+              <span>{system.strategicValue}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
+  const renderContacts = () => (
+    <>
+      {/* First Contacts Overview - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>👽 First Contact Protocols</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Total Contacts</span>
+            <span className="standard-metric-value">{explorationData?.stats.firstContacts || 0}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Established</span>
+            <span className="standard-metric-value">
+              {explorationData?.firstContacts.filter(fc => fc.status === 'established').length || 0}
+            </span>
+          </div>
+          <div className="standard-metric">
+            <span>Negotiating</span>
+            <span className="standard-metric-value">
+              {explorationData?.firstContacts.filter(fc => fc.status === 'negotiating').length || 0}
+            </span>
+          </div>
+          <div className="standard-metric">
+            <span>Hostile</span>
+            <span className="standard-metric-value">
+              {explorationData?.firstContacts.filter(fc => fc.status === 'hostile').length || 0}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* First Contacts Table - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>🤝 Contact Database</h3>
+        <div className="standard-data-table">
+          <div className="table-header">
+            <span>Species</span>
+            <span>System</span>
+            <span>Status</span>
+            <span>Technology</span>
+            <span>Diplomatic</span>
+            <span>Trade</span>
+            <span>Military</span>
+          </div>
+          {explorationData?.firstContacts.map(contact => (
+            <div key={contact.id} className="table-row">
+              <span>👽 {contact.species}</span>
+              <span>⭐ {contact.system}</span>
+              <span style={{ color: getStatusColor(contact.status) }}>
+                {contact.status.charAt(0).toUpperCase() + contact.status.slice(1)}
+              </span>
+              <span>{contact.technology}</span>
+              <span>{contact.diplomatic}%</span>
+              <span>{contact.trade}%</span>
+              <span>{contact.military}%</span>
+            </div>
+          ))}
+        </div>
+        
+        <div className="standard-action-buttons">
+          <button className="standard-btn space-theme" onClick={() => console.log('Initiate Contact')}>Initiate Contact</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Diplomatic Mission')}>Diplomatic Mission</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Trade Agreement')}>Trade Agreement</button>
+        </div>
+      </div>
+    </>
+  );
+
+  const renderAnalytics = () => (
+    <>
+      {/* Exploration Analytics - Full panel width */}
+      <div className="standard-panel space-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#3b82f6' }}>📊 Exploration Analytics</h3>
+        
+        {/* Charts Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem', marginBottom: '2rem' }}>
           <div className="chart-container">
             <PieChart
-              data={[
-                { label: 'Habitable Worlds', value: 35, color: '#4ecdc4' },
-                { label: 'Resource Rich', value: 28, color: '#45b7aa' },
-                { label: 'Gas Giants', value: 20, color: '#96ceb4' },
-                { label: 'Asteroid Fields', value: 12, color: '#feca57' },
-                { label: 'Unknown', value: 5, color: '#ff9ff3' }
-              ]}
-              title="🌌 Discovered Systems Types"
+              data={explorationData?.expeditions.map(exp => ({
+                label: exp.status,
+                value: 1,
+                color: getStatusColor(exp.status)
+              })) || []}
+              title="🛸 Expedition Status Distribution"
               size={200}
               showLegend={true}
             />
           </div>
-
           <div className="chart-container">
             <BarChart
-              data={[
-                { label: 'Rare Minerals', value: 45, color: '#4ecdc4' },
-                { label: 'Energy Sources', value: 38, color: '#45b7aa' },
-                { label: 'Alien Artifacts', value: 32, color: '#96ceb4' },
-                { label: 'Biological Samples', value: 28, color: '#feca57' },
-                { label: 'Technology', value: 22, color: '#ff9ff3' }
-              ]}
-              title="💎 Resource Findings"
+              data={explorationData?.starSystems.map(system => ({
+                label: system.name,
+                value: system.habitability,
+                color: system.id === selectedSystemId ? '#3b82f6' : '#8b5cf6'
+              })) || []}
+              title="⭐ System Habitability Scores"
               height={250}
               width={400}
               showTooltip={true}
             />
           </div>
-
-          <div className="chart-container">
-            <LineChart
-              data={[
-                { label: 'Jan', value: explorationStats.successRate - 8 },
-                { label: 'Feb', value: explorationStats.successRate - 6 },
-                { label: 'Mar', value: explorationStats.successRate - 4 },
-                { label: 'Apr', value: explorationStats.successRate - 2 },
-                { label: 'May', value: explorationStats.successRate - 1 },
-                { label: 'Jun', value: explorationStats.successRate }
-              ]}
-              title="📈 Mission Success Rate Trends"
-              color="#feca57"
-              height={250}
-              width={400}
-            />
-          </div>
-
-          <div className="chart-container">
-            <PieChart
-              data={[
-                { label: 'Friendly', value: explorationStats.firstContacts * 0.6, color: '#4ecdc4' },
-                { label: 'Neutral', value: explorationStats.firstContacts * 0.3, color: '#feca57' },
-                { label: 'Hostile', value: explorationStats.firstContacts * 0.1, color: '#ff6b6b' }
-              ]}
-              title="👽 First Contact Outcomes"
-              size={200}
-              showLegend={true}
-            />
-          </div>
-
-          <div className="chart-container">
-            <BarChart
-              data={[
-                { label: 'Active Expeditions', value: explorationStats.activeExpeditions, color: '#4ecdc4' },
-                { label: 'Anomalies Found', value: explorationStats.anomaliesFound, color: '#45b7aa' },
-                { label: 'First Contacts', value: explorationStats.firstContacts, color: '#96ceb4' },
-                { label: 'Systems Mapped', value: explorationStats.discoveredSystems, color: '#feca57' }
-              ]}
-              title="📊 Exploration Metrics Overview"
-              height={250}
-              width={400}
-              showTooltip={true}
-            />
-          </div>
         </div>
-      </div>
-
-      <div className="embedded-exploration-dashboard">
-        <ExplorationDashboard
-          explorationService={explorationService}
-          playerId="player-1"
-          isVisible={true}
-          onClose={() => {}}
-        />
-      </div>
-    </div>
-  );
-
-  const renderMissionsTab = () => (
-    <div className="missions-tab">
-      <div className="missions-header">
-        <h2>🚀 Exploration Missions</h2>
-        <p>Active and planned exploration expeditions</p>
-      </div>
-
-      <div className="missions-grid">
-        <div className="mission-card">
-          <div className="mission-header">
-            <h3>Deep Space Survey Alpha</h3>
-            <div className="mission-status active">Active</div>
-          </div>
-          <div className="mission-info">
-            <div className="info-row">
-              <span className="info-label">Target Zone:</span>
-              <span className="info-value">Outer Rim Sector 7</span>
+        
+        {/* Anomalies Analysis */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h4 style={{ marginBottom: '1rem', color: '#3b82f6' }}>⚠️ Anomalies Analysis</h4>
+          <div className="standard-data-table">
+            <div className="table-header">
+              <span>Anomaly Type</span>
+              <span>Location</span>
+              <span>Severity</span>
+              <span>Investigation</span>
+              <span>Risk</span>
+              <span>Potential</span>
             </div>
-            <div className="info-row">
-              <span className="info-label">Progress:</span>
-              <span className="info-value">67%</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Ships:</span>
-              <span className="info-value">3 Exploration Vessels</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Crew:</span>
-              <span className="info-value">450 Personnel</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Duration:</span>
-              <span className="info-value">6 months</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">ETA:</span>
-              <span className="info-value">14 days</span>
-            </div>
-          </div>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: '67%' }}></div>
-          </div>
-          <div className="mission-actions">
-            <button className="btn" onClick={() => handleAction('Mission Status', 'Deep Space Survey Alpha')}>
-              📊 Status
-            </button>
-            <button className="btn secondary" onClick={() => handleAction('Contact Mission', 'Deep Space Survey Alpha')}>
-              📡 Contact
-            </button>
-          </div>
-        </div>
-
-        <div className="mission-card">
-          <div className="mission-header">
-            <h3>Anomaly Investigation Beta</h3>
-            <div className="mission-status planning">Planning</div>
-          </div>
-          <div className="mission-info">
-            <div className="info-row">
-              <span className="info-label">Target Zone:</span>
-              <span className="info-value">Unknown Signal Source</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Progress:</span>
-              <span className="info-value">0%</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Ships:</span>
-              <span className="info-value">2 Science Vessels</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Crew:</span>
-              <span className="info-value">180 Personnel</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Duration:</span>
-              <span className="info-value">3 months</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Launch:</span>
-              <span className="info-value">5 days</span>
-            </div>
-          </div>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: '0%' }}></div>
-          </div>
-          <div className="mission-actions">
-            <button className="btn" onClick={() => handleAction('Launch Mission', 'Anomaly Investigation Beta')}>
-              🚀 Launch
-            </button>
-            <button className="btn secondary" onClick={() => handleAction('Edit Mission', 'Anomaly Investigation Beta')}>
-              ✏️ Edit
-            </button>
-          </div>
-        </div>
-
-        <div className="mission-card">
-          <div className="mission-header">
-            <h3>First Contact Protocol Gamma</h3>
-            <div className="mission-status completed">Completed</div>
-          </div>
-          <div className="mission-info">
-            <div className="info-row">
-              <span className="info-label">Target Zone:</span>
-              <span className="info-value">Kepler-442 System</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Progress:</span>
-              <span className="info-value">100%</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Ships:</span>
-              <span className="info-value">1 Diplomatic Vessel</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Crew:</span>
-              <span className="info-value">85 Personnel</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Duration:</span>
-              <span className="info-value">4 months</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Completed:</span>
-              <span className="info-value">3 days ago</span>
-            </div>
-          </div>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: '100%' }}></div>
-          </div>
-          <div className="mission-actions">
-            <button className="btn" onClick={() => handleAction('Mission Report', 'First Contact Protocol Gamma')}>
-              📋 Report
-            </button>
-            <button className="btn secondary" onClick={() => handleAction('Archive Mission', 'First Contact Protocol Gamma')}>
-              📦 Archive
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="missions-actions">
-        <button className="btn" onClick={() => handleAction('Plan New Mission')}>
-          🚀 New Mission
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Mission Templates')}>
-          📋 Templates
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Fleet Management')}>
-          🚢 Fleet
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderDiscoveriesTab = () => (
-    <div className="discoveries-tab">
-      <div className="discoveries-header">
-        <h2>🔍 Recent Discoveries</h2>
-        <p>New systems, planets, and phenomena discovered by exploration missions</p>
-      </div>
-
-      <div className="discoveries-grid">
-        <div className="discovery-card">
-          <div className="discovery-header">
-            <h3>Kepler-186f</h3>
-            <div className="discovery-type planet">Planet</div>
-          </div>
-          <div className="discovery-info">
-            <div className="info-row">
-              <span className="info-label">System:</span>
-              <span className="info-value">Kepler-186</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Habitability:</span>
-              <span className="info-value">82%</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Resources:</span>
-              <span className="info-value">Rich</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Discovered:</span>
-              <span className="info-value">2 weeks ago</span>
-            </div>
-          </div>
-          <div className="discovery-actions">
-            <button className="btn" onClick={() => handleAction('Detailed Survey', 'Kepler-186f')}>
-              🔬 Survey
-            </button>
-            <button className="btn secondary" onClick={() => handleAction('Colonization Assessment', 'Kepler-186f')}>
-              🏠 Assess
-            </button>
-          </div>
-        </div>
-
-        <div className="discovery-card">
-          <div className="discovery-header">
-            <h3>Quantum Vortex Anomaly</h3>
-            <div className="discovery-type anomaly">Anomaly</div>
-          </div>
-          <div className="discovery-info">
-            <div className="info-row">
-              <span className="info-label">Location:</span>
-              <span className="info-value">Sector 12-Alpha</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Energy Level:</span>
-              <span className="info-value">Extreme</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Danger Level:</span>
-              <span className="info-value">High</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Discovered:</span>
-              <span className="info-value">5 days ago</span>
-            </div>
-          </div>
-          <div className="discovery-actions">
-            <button className="btn" onClick={() => handleAction('Study Anomaly', 'Quantum Vortex')}>
-              🔬 Study
-            </button>
-            <button className="btn secondary" onClick={() => handleAction('Safety Protocol', 'Quantum Vortex')}>
-              ⚠️ Protocol
-            </button>
-          </div>
-        </div>
-
-        <div className="discovery-card">
-          <div className="discovery-header">
-            <h3>Ancient Artifact Site</h3>
-            <div className="discovery-type artifact">Artifact</div>
-          </div>
-          <div className="discovery-info">
-            <div className="info-row">
-              <span className="info-label">Location:</span>
-              <span className="info-value">Ross-128b</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Age:</span>
-              <span className="info-value">~50,000 years</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Technology:</span>
-              <span className="info-value">Unknown</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Discovered:</span>
-              <span className="info-value">1 month ago</span>
-            </div>
-          </div>
-          <div className="discovery-actions">
-            <button className="btn" onClick={() => handleAction('Archaeological Survey', 'Ancient Artifact Site')}>
-              🏺 Survey
-            </button>
-            <button className="btn secondary" onClick={() => handleAction('Secure Site', 'Ancient Artifact Site')}>
-              🔒 Secure
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="discoveries-actions">
-        <button className="btn" onClick={() => handleAction('Discovery Archive')}>
-          📚 Archive
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Research Priorities')}>
-          🎯 Priorities
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Share Discoveries')}>
-          📡 Share
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderContactsTab = () => (
-    <div className="contacts-tab">
-      <div className="contacts-header">
-        <h2>👽 First Contact Protocols</h2>
-        <p>Diplomatic relations with newly discovered civilizations</p>
-      </div>
-
-      <div className="contacts-grid">
-        <div className="contact-card">
-          <div className="contact-header">
-            <h3>Aquatic Collective</h3>
-            <div className="contact-status peaceful">Peaceful</div>
-          </div>
-          <div className="contact-info">
-            <div className="info-row">
-              <span className="info-label">Species:</span>
-              <span className="info-value">Aquatic Humanoids</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Technology:</span>
-              <span className="info-value">Advanced</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Disposition:</span>
-              <span className="info-value">Curious</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">First Contact:</span>
-              <span className="info-value">3 months ago</span>
-            </div>
-          </div>
-          <div className="contact-actions">
-            <button className="btn" onClick={() => handleAction('Diplomatic Mission', 'Aquatic Collective')}>
-              🤝 Diplomacy
-            </button>
-            <button className="btn secondary" onClick={() => handleAction('Cultural Exchange', 'Aquatic Collective')}>
-              🎭 Exchange
-            </button>
-          </div>
-        </div>
-
-        <div className="contact-card">
-          <div className="contact-header">
-            <h3>Silicon-Based Entities</h3>
-            <div className="contact-status neutral">Neutral</div>
-          </div>
-          <div className="contact-info">
-            <div className="info-row">
-              <span className="info-label">Species:</span>
-              <span className="info-value">Crystalline Beings</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Technology:</span>
-              <span className="info-value">Unknown</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Disposition:</span>
-              <span className="info-value">Cautious</span>
-            </div>
-            <div className="info-row">
-              <span className="info-label">First Contact:</span>
-              <span className="info-value">1 month ago</span>
-            </div>
-          </div>
-          <div className="contact-actions">
-            <button className="btn" onClick={() => handleAction('Establish Communication', 'Silicon-Based Entities')}>
-              📡 Communicate
-            </button>
-            <button className="btn secondary" onClick={() => handleAction('Study Species', 'Silicon-Based Entities')}>
-              🔬 Study
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="contacts-actions">
-        <button className="btn" onClick={() => handleAction('Contact Protocols')}>
-          📋 Protocols
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Diplomatic Corps')}>
-          🎖️ Corps
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Translation Services')}>
-          🗣️ Translation
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderAnalyticsTab = () => (
-    <div className="analytics-tab">
-      <div className="analytics-header">
-        <h2>📊 Exploration Analytics</h2>
-        <p>Performance metrics and exploration efficiency analysis</p>
-      </div>
-
-      <div className="analytics-charts">
-        <div className="chart-card">
-          <h3>📈 Discovery Rate Over Time</h3>
-          <div className="chart-placeholder">
-            <div className="chart-bars">
-              <div className="bar" style={{ height: '45%' }}></div>
-              <div className="bar" style={{ height: '60%' }}></div>
-              <div className="bar" style={{ height: '75%' }}></div>
-              <div className="bar" style={{ height: '55%' }}></div>
-              <div className="bar" style={{ height: '90%' }}></div>
-              <div className="bar" style={{ height: '80%' }}></div>
-              <div className="bar" style={{ height: '95%' }}></div>
-            </div>
-            <div className="chart-labels">
-              <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="chart-card">
-          <h3>🎯 Mission Success Rate</h3>
-          <div className="success-breakdown">
-            <div className="success-item">
-              <span className="success-label">Successful</span>
-              <div className="success-bar">
-                <div className="success-fill" style={{ width: '87%', backgroundColor: '#4CAF50' }}></div>
+            {explorationData?.anomalies.map(anomaly => (
+              <div key={anomaly.id} className="table-row">
+                <span style={{ color: getTypeColor(anomaly.type) }}>{anomaly.type}</span>
+                <span>⭐ {anomaly.location}</span>
+                <span style={{ color: getSeverityColor(anomaly.severity) }}>
+                  {anomaly.severity.toUpperCase()}
+                </span>
+                <span>{anomaly.investigation}%</span>
+                <span>{anomaly.risk}%</span>
+                <span>{anomaly.potential}%</span>
               </div>
-              <span className="success-value">87%</span>
-            </div>
-            <div className="success-item">
-              <span className="success-label">Partial Success</span>
-              <div className="success-bar">
-                <div className="success-fill" style={{ width: '8%', backgroundColor: '#FF9800' }}></div>
-              </div>
-              <span className="success-value">8%</span>
-            </div>
-            <div className="success-item">
-              <span className="success-label">Failed</span>
-              <div className="success-bar">
-                <div className="success-fill" style={{ width: '5%', backgroundColor: '#F44336' }}></div>
-              </div>
-              <span className="success-value">5%</span>
-            </div>
+            ))}
           </div>
         </div>
-      </div>
-
-      <div className="analytics-actions">
-        <button className="btn" onClick={() => handleAction('Detailed Analytics')}>
-          📊 Detailed Report
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Efficiency Analysis')}>
-          ⚡ Efficiency
-        </button>
-        <button className="btn secondary" onClick={() => handleAction('Cost Analysis')}>
-          💰 Cost Analysis
-        </button>
-      </div>
-    </div>
-  );
-
-  if (loading) {
-    return (
-      <div className="exploration-screen">
-        <div className="loading-state">
-          <div className="loading-spinner"></div>
-          <p>Loading exploration data...</p>
+        
+        <div className="standard-action-buttons">
+          <button className="standard-btn space-theme" onClick={() => console.log('Generate Report')}>Generate Report</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Export Data')}>Export Data</button>
+          <button className="standard-btn space-theme" onClick={() => console.log('Trend Analysis')}>Trend Analysis</button>
         </div>
       </div>
-    );
-  }
+    </>
+  );
 
   return (
-    <div className="exploration-screen">
-      <div className="tab-navigation">
-        <button 
-          className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
-          onClick={() => setActiveTab('dashboard')}
-        >
-          🚀 Dashboard
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'missions' ? 'active' : ''}`}
-          onClick={() => setActiveTab('missions')}
-        >
-          🎯 Missions
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'discoveries' ? 'active' : ''}`}
-          onClick={() => setActiveTab('discoveries')}
-        >
-          🔍 Discoveries
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'contacts' ? 'active' : ''}`}
-          onClick={() => setActiveTab('contacts')}
-        >
-          👽 Contacts
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`}
-          onClick={() => setActiveTab('analytics')}
-        >
-          📊 Analytics
-        </button>
+    <BaseScreen
+      screenId={screenId}
+      title={title}
+      icon={icon}
+      gameContext={gameContext}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchExplorationData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
+    >
+      <div className="standard-screen-container space-theme">
+        {error && <div className="error-message">Error: {error}</div>}
+        
+        <div className="standard-dashboard">
+          {!loading && !error && explorationData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'expeditions' && renderExpeditions()}
+              {activeTab === 'discoveries' && renderDiscoveries()}
+              {activeTab === 'contacts' && renderContacts()}
+              {activeTab === 'analytics' && renderAnalytics()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading exploration data...' : 'No exploration data available'}
+            </div>
+          )}
+        </div>
       </div>
-
-      <div className="tab-content">
-        {activeTab === 'dashboard' && renderDashboardTab()}
-        {activeTab === 'missions' && renderMissionsTab()}
-        {activeTab === 'discoveries' && renderDiscoveriesTab()}
-        {activeTab === 'contacts' && renderContactsTab()}
-        {activeTab === 'analytics' && renderAnalyticsTab()}
-      </div>
-    </div>
+    </BaseScreen>
   );
 };
 

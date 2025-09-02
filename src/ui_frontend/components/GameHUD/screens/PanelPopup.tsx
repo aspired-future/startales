@@ -20,6 +20,7 @@ import MigrationScreen from './extracted/MigrationScreen';
 import ProfessionsScreen from './extracted/ProfessionsScreen';
 import EducationScreen from './extracted/EducationScreen';
 import HealthScreen from './extracted/HealthScreen';
+import HouseholdEconomicsScreen from './extracted/HouseholdEconomicsScreen';
 import CorporateResearchScreen from './extracted/CorporateResearchScreen';
 import IntelligenceScreen from './extracted/IntelligenceScreen';
 import CommunicationsScreen from './extracted/CommunicationsScreen';
@@ -50,7 +51,7 @@ import VisualSystemsScreen from './extracted/VisualSystemsScreen';
 import InstitutionalOverrideScreen from './extracted/InstitutionalOverrideScreen';
 import EntertainmentTourismScreen from './extracted/EntertainmentTourismScreen';
 import GalaxyWondersScreen from './extracted/GalaxyWondersScreen';
-import HouseholdEconomicsScreen from './extracted/HouseholdEconomicsScreen';
+// import HouseholdEconomicsScreen from './extracted/HouseholdEconomicsScreen';
 import BusinessCycleScreen from './BusinessCycleScreen';
 import WorldWondersEnhancedScreen from './WorldWondersScreen';
 
@@ -387,9 +388,9 @@ const BusinessesPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
 );
 
 const CentralBankPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
-  <CentralBankEnhancedScreen 
+  <CentralBankScreen 
     screenId="central-bank" 
-    title="Enhanced Central Bank" 
+    title="Central Banking" 
     icon="🏦" 
     gameContext={{ currentLocation: 'Capital System', playerId }}
   />
@@ -499,16 +500,16 @@ const DemographicsPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
 const CitiesPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
   <CitiesScreen 
     screenId="cities" 
-    title="City Management" 
+    title="Planets & Cities" 
     icon="🏙️" 
     gameContext={{ currentLocation: 'Capital System', playerId }} 
   />
 );
 
 const MigrationPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
-  <MigrationScreen 
-    screenId="migration" 
-    title="Migration" 
+  <MigrationScreen
+    screenId="migration"
+    title="Migration Management" 
     icon="🚶" 
     gameContext={{ currentLocation: 'Capital System', playerId }} 
   />
@@ -535,18 +536,28 @@ const EducationPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
 const HealthPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
   <HealthScreen 
     screenId="health" 
-    title="Health & Welfare" 
+                    title="Health" 
     icon="🏥" 
     gameContext={{ currentLocation: 'Capital System', playerId }} 
   />
 );
 
 const GovernmentResearchPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
-  <ScienceTechnologyScreen />
+  <ScienceTechnologyScreen 
+    screenId="government-research" 
+    title="Government Research" 
+    icon="🔬" 
+    gameContext={{ currentLocation: 'Capital System', playerId }} 
+  />
 );
 
 const CorporateResearchPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
-  <CorporateResearchScreen />
+  <CorporateResearchScreen 
+    screenId="corporate-research" 
+    title="Corporate R&D" 
+    icon="🏢" 
+    gameContext={{ currentLocation: 'Capital System', playerId }} 
+  />
 );
 
 const UniversityResearchPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
@@ -559,7 +570,12 @@ const UniversityResearchPanel: React.FC<{ playerId: string }> = ({ playerId }) =
 );
 
 const ClassifiedResearchPanel: React.FC<{ playerId: string }> = ({ playerId }) => (
-  <ClassifiedResearchScreen />
+  <ClassifiedResearchScreen 
+    screenId="classified-research" 
+    title="Classified Research" 
+    icon="🔒" 
+    gameContext={{ currentLocation: 'Capital System', playerId }} 
+  />
 );
 
 const TechnologyPanel: React.FC<{ playerId: string }> = ({ playerId }) => (

@@ -1,1369 +1,873 @@
 /**
- * Entertainment, Culture & Tourism Management Screen
- * Comprehensive interface for managing entertainment industry, cultural development, and tourism
+ * Entertainment & Tourism Screen - Cultural and Recreational Management
+ * 
+ * This screen focuses on entertainment and tourism operations including:
+ * - Cultural events and entertainment venues
+ * - Tourism destinations and travel management
+ * - Recreational facilities and activities
+ * - Cultural programming and audience engagement
+ * - Tourism analytics and visitor insights
+ * 
+ * Theme: Social (green color scheme)
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './EntertainmentTourismScreen.css';
+import '../shared/StandardDesign.css';
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
-interface EntertainmentTourismScreenProps {
-  gameContext: any;
-  onClose?: () => void;
-}
-
-interface CulturalHeritage {
-  heritageScore: number;
-  traditionalArtsVitality: number;
-  modernArtsInnovation: number;
-  culturalDiversityIndex: number;
-  culturalEducationLevel: number;
-  artisticFreedomIndex: number;
-  culturalSites: number;
-  culturalEvents: number;
-}
-
-interface EntertainmentIndustry {
-  industrySize: number;
-  venueCapacity: number;
-  employmentLevel: number;
-  contentDiversityScore: number;
-  celebrityInfluenceIndex: number;
-  sportsIndustryStrength: number;
-  gamingIndustrySize: number;
-  livePerformanceVitality: number;
-  entertainmentExports: number;
-  innovationIndex: number;
-}
-
-interface TourismSector {
-  touristArrivals: number;
-  tourismRevenue: number;
-  infrastructureQuality: number;
-  naturalAttractionScore: number;
-  historicalSiteScore: number;
-  touristSatisfactionIndex: number;
-  sustainabilityRating: number;
-  safetyIndex: number;
-  accessibilityScore: number;
-  marketingEffectiveness: number;
-  // Enhanced factors
-  distanceAccessibility: number;
-  economicAffordability: number;
-  securityLevel: number;
-  travelTimeIndex: number;
-  costOfLivingImpact: number;
-  crimeSafetyRating: number;
-  politicalStabilityIndex: number;
-  healthSafetyStandards: number;
-}
-
-interface EconomicImpact {
-  totalGdpContribution: number;
-  employmentContribution: number;
-  taxRevenue: number;
-  foreignExchangeEarnings: number;
-  investmentAttraction: number;
-  economicMultiplier: number;
-  seasonalityIndex: number;
-  competitivenessRating: number;
-}
-
-interface SocialMetrics {
-  culturalParticipationRate: number;
-  culturalIdentityStrength: number;
-  interculturalExchangeLevel: number;
-  entertainmentAccessibility: number;
-  communityEngagement: number;
-  culturalAuthenticityIndex: number;
-  socialCohesionImpact: number;
-  qualityOfLifeContribution: number;
-}
-
-interface LanguageAndLiterature {
-  languageDiversityIndex: number;
-  literacyRate: number;
-  publishingIndustryStrength: number;
-  libraryAccessibility: number;
-  literaryAwardsPrestige: number;
-  translationActivity: number;
-  oralTraditionVitality: number;
-  poetryAndProsePopularity: number;
-}
-
-interface ReligionAndPhilosophy {
-  religiousDiversityIndex: number;
-  spiritualPracticeEngagement: number;
-  philosophicalEducationLevel: number;
-  interfaithHarmonyIndex: number;
-  secularHumanismStrength: number;
-  ethicalFrameworkDevelopment: number;
-  contemplativePracticePopularity: number;
-  moralLeadershipQuality: number;
-}
-
-interface ScienceAndInnovation {
-  scientificLiteracyRate: number;
-  researchInstitutionQuality: number;
-  innovationCultureStrength: number;
-  technologyAdoptionRate: number;
-  scientificPublicationImpact: number;
-  stemEducationQuality: number;
-  entrepreneurialSpirit: number;
-  intellectualPropertyProtection: number;
-}
-
-interface CulinaryAndLifestyle {
-  culinaryDiversityIndex: number;
-  foodCultureRichness: number;
-  sustainableFoodPractices: number;
-  culinaryEducationLevel: number;
-  restaurantIndustryStrength: number;
-  traditionalCuisinePreservation: number;
-  foodFestivalPopularity: number;
-  culinaryInnovationIndex: number;
-}
-
-
-
-interface CulturalData {
-  culturalHeritage: CulturalHeritage;
-  entertainmentIndustry: EntertainmentIndustry;
-  tourismSector: TourismSector;
-  economicImpact: EconomicImpact;
-  socialMetrics: SocialMetrics;
-  languageAndLiterature: LanguageAndLiterature;
-  religionAndPhilosophy: ReligionAndPhilosophy;
-  scienceAndInnovation: ScienceAndInnovation;
-  culinaryAndLifestyle: CulinaryAndLifestyle;
-}
-
-interface Venue {
+interface EntertainmentVenue {
   id: string;
   name: string;
-  type: string;
+  type: 'theater' | 'museum' | 'park' | 'stadium' | 'casino' | 'cultural_center';
+  location: string;
   capacity: number;
-  utilizationRate: number;
-  annualEvents: number;
-  averageTicketPrice: number;
-  annualRevenue: number;
-  employeeCount: number;
-}
-
-interface Attraction {
-  id: string;
-  name: string;
-  category: string;
-  type: string;
-  popularityRating: number;
-  annualVisitors: number;
+  currentAttendance: number;
+  rating: number;
+  revenue: number;
+  status: 'open' | 'closed' | 'maintenance' | 'renovation';
+  featured: boolean;
+  specialEvents: string[];
+  operatingHours: string;
   ticketPrice: number;
-  operatingCosts: number;
-  profitMargin: number;
-  accessibilityRating: number;
 }
 
-interface CulturalSite {
+interface TourismDestination {
   id: string;
   name: string;
-  type: string;
-  significance: string;
-  condition: number;
+  type: 'natural_wonder' | 'historical_site' | 'space_station' | 'planet_colony' | 'cultural_district' | 'adventure_zone';
+  location: string;
   visitorCapacity: number;
-  annualVisitors: number;
-  maintenanceCost: number;
-  touristRating: number;
+  currentVisitors: number;
+  popularity: number;
+  revenue: number;
+  status: 'open' | 'restricted' | 'closed' | 'special_event';
+  attractions: string[];
+  accommodation: string[];
+  transportation: string[];
+  averageStay: number;
+  visitorRating: number;
 }
 
-const EntertainmentTourismScreen: React.FC<EntertainmentTourismScreenProps> = ({
-  gameContext,
-  onClose
+interface CulturalEvent {
+  id: string;
+  name: string;
+  type: 'performance' | 'exhibition' | 'festival' | 'workshop' | 'lecture' | 'celebration';
+  venue: string;
+  date: string;
+  duration: number;
+  expectedAttendance: number;
+  actualAttendance: number;
+  ticketSales: number;
+  status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+  performers: string[];
+  description: string;
+  category: 'arts' | 'music' | 'dance' | 'theater' | 'science' | 'culture';
+  targetAudience: string;
+}
+
+interface EntertainmentTourismAnalytics {
+  overview: {
+    totalVenues: number;
+    activeDestinations: number;
+    totalEvents: number;
+    totalVisitors: number;
+    totalRevenue: number;
+    averageRating: number;
+  };
+  visitorTrends: Array<{
+    date: string;
+    totalVisitors: number;
+    venueVisitors: number;
+    destinationVisitors: number;
+    eventAttendees: number;
+  }>;
+  revenueBreakdown: Array<{
+    category: string;
+    revenue: number;
+    growth: number;
+    marketShare: number;
+  }>;
+  popularityAnalysis: Array<{
+    name: string;
+    type: string;
+    visitors: number;
+    rating: number;
+    revenue: number;
+    growth: number;
+  }>;
+}
+
+interface EntertainmentTourismData {
+  venues: EntertainmentVenue[];
+  destinations: TourismDestination[];
+  events: CulturalEvent[];
+  analytics: EntertainmentTourismAnalytics;
+}
+
+const EntertainmentTourismScreen: React.FC<ScreenProps> = ({ 
+  screenId, 
+  title, 
+  icon, 
+  gameContext 
 }) => {
-  console.log('🎭 EntertainmentTourismScreen: Component rendering with gameContext:', gameContext);
-  const [activeTab, setActiveTab] = useState<string>('overview');
-  const [loading, setLoading] = useState<boolean>(true);
+  const [entertainmentData, setEntertainmentData] = useState<EntertainmentTourismData | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'venues' | 'destinations' | 'events' | 'analytics'>('overview');
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Data states
-  const [culturalData, setCulturalData] = useState<CulturalData | null>(null);
-  const [venues, setVenues] = useState<Venue[]>([]);
-  const [attractions, setAttractions] = useState<Attraction[]>([]);
-  const [culturalSites, setCulturalSites] = useState<CulturalSite[]>([]);
-  const [employmentData, setEmploymentData] = useState<any>(null);
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [filterType, setFilterType] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
 
-  const civilizationId = gameContext?.civilizationId || '1';
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'venues', label: 'Venues', icon: '🎭' },
+    { id: 'destinations', label: 'Destinations', icon: '🌍' },
+    { id: 'events', label: 'Events', icon: '🎪' },
+    { id: 'analytics', label: 'Analytics', icon: '📈' }
+  ];
 
-  useEffect(() => {
-    fetchCulturalData();
-  }, [civilizationId]);
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/entertainment/venues', description: 'Get entertainment venues' },
+    { method: 'GET', path: '/api/tourism/destinations', description: 'Get tourism destinations' },
+    { method: 'GET', path: '/api/entertainment/events', description: 'Get cultural events' }
+  ];
 
-  const fetchCulturalData = async () => {
-    setLoading(true);
-    setError(null);
+  const formatNumber = (num: number) => {
+    if (num >= 1e9) return `${(num / 1e9).toFixed(1)}B`;
+    if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
+    if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
+    return num.toString();
+  };
 
+  const formatCurrency = (num: number) => {
+    if (num >= 1e9) return `$${(num / 1e9).toFixed(1)}B`;
+    if (num >= 1e6) return `$${(num / 1e6).toFixed(1)}M`;
+    if (num >= 1e3) return `$${(num / 1e3).toFixed(1)}K`;
+    return `$${num}`;
+  };
+
+  const getVenueTypeColor = (type: string) => {
+    switch (type) {
+      case 'theater': return '#ef4444';
+      case 'museum': return '#3b82f6';
+      case 'park': return '#10b981';
+      case 'stadium': return '#f59e0b';
+      case 'casino': return '#8b5cf6';
+      case 'cultural_center': return '#ec4899';
+      default: return '#6b7280';
+    }
+  };
+
+  const getDestinationTypeColor = (type: string) => {
+    switch (type) {
+      case 'natural_wonder': return '#10b981';
+      case 'historical_site': return '#f59e0b';
+      case 'space_station': return '#3b82f6';
+      case 'planet_colony': return '#8b5cf6';
+      case 'cultural_district': return '#ec4899';
+      case 'adventure_zone': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getEventTypeColor = (type: string) => {
+    switch (type) {
+      case 'performance': return '#ef4444';
+      case 'exhibition': return '#3b82f6';
+      case 'festival': return '#10b981';
+      case 'workshop': return '#f59e0b';
+      case 'lecture': return '#8b5cf6';
+      case 'celebration': return '#ec4899';
+      default: return '#6b7280';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'open': return '#10b981';
+      case 'closed': return '#ef4444';
+      case 'maintenance': return '#f59e0b';
+      case 'renovation': return '#8b5cf6';
+      case 'restricted': return '#f97316';
+      case 'special_event': return '#ec4899';
+      case 'upcoming': return '#3b82f6';
+      case 'ongoing': return '#10b981';
+      case 'completed': return '#6b7280';
+      case 'cancelled': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const fetchEntertainmentData = useCallback(async () => {
     try {
-      // Fetch main entertainment/tourism data
-      const [
-        culturalResponse,
-        entertainmentResponse,
-        tourismResponse,
-        economicResponse,
-        venuesResponse,
-        attractionsResponse,
-        sitesResponse,
-        employmentResponse,
-        analyticsResponse
-      ] = await Promise.all([
-        fetch(`/api/entertainment-tourism/cultural/heritage/${civilizationId}`),
-        fetch(`/api/entertainment-tourism/entertainment/industry/${civilizationId}`),
-        fetch(`/api/entertainment-tourism/tourism/performance/${civilizationId}`),
-        fetch(`/api/entertainment-tourism/economic/impact/${civilizationId}`),
-        fetch(`/api/entertainment-tourism/entertainment/venues/${civilizationId}`),
-        fetch(`/api/entertainment-tourism/tourism/attractions/${civilizationId}`),
-        fetch(`/api/entertainment-tourism/cultural/sites/${civilizationId}`),
-        fetch(`/api/entertainment-tourism/economic/employment/${civilizationId}`),
-        fetch(`/api/entertainment-tourism/analytics/${civilizationId}`)
-      ]);
-
-      const [
-        culturalData,
-        entertainmentData,
-        tourismData,
-        economicData,
-        venuesData,
-        attractionsData,
-        sitesData,
-        employmentDataResponse,
-        analyticsData
-      ] = await Promise.all([
-        culturalResponse.json(),
-        entertainmentResponse.json(),
-        tourismResponse.json(),
-        economicResponse.json(),
-        venuesResponse.json(),
-        attractionsResponse.json(),
-        sitesResponse.json(),
-        employmentResponse.json(),
-        analyticsResponse.json()
-      ]);
-
-      // Combine data
-      const combinedData: CulturalData = {
-        culturalHeritage: culturalData.data?.culturalHeritage || {},
-        entertainmentIndustry: entertainmentData.data?.entertainmentIndustry || {},
-        tourismSector: {
-          ...tourismData.data?.tourismSector,
-          // Enhanced factors with defaults
-          distanceAccessibility: tourismData.data?.tourismSector?.distanceAccessibility || 72,
-          economicAffordability: tourismData.data?.tourismSector?.economicAffordability || 65,
-          securityLevel: tourismData.data?.tourismSector?.securityLevel || 88,
-          travelTimeIndex: tourismData.data?.tourismSector?.travelTimeIndex || 75,
-          costOfLivingImpact: tourismData.data?.tourismSector?.costOfLivingImpact || 60,
-          crimeSafetyRating: tourismData.data?.tourismSector?.crimeSafetyRating || 85,
-          politicalStabilityIndex: tourismData.data?.tourismSector?.politicalStabilityIndex || 90,
-          healthSafetyStandards: tourismData.data?.tourismSector?.healthSafetyStandards || 82
-        },
-        economicImpact: economicData.data?.economicImpact || {},
-        socialMetrics: {
-          culturalParticipationRate: 45,
-          culturalIdentityStrength: 60,
-          interculturalExchangeLevel: 40,
-          entertainmentAccessibility: 55,
-          communityEngagement: 50,
-          culturalAuthenticityIndex: 65,
-          socialCohesionImpact: 15,
-          qualityOfLifeContribution: 60
-        },
-        languageAndLiterature: {
-          languageDiversityIndex: 75,
-          literacyRate: 95,
-          publishingIndustryStrength: 60,
-          libraryAccessibility: 80,
-          literaryAwardsPrestige: 45,
-          translationActivity: 55,
-          oralTraditionVitality: 70,
-          poetryAndProsePopularity: 40
-        },
-        religionAndPhilosophy: {
-          religiousDiversityIndex: 65,
-          spiritualPracticeEngagement: 50,
-          philosophicalEducationLevel: 55,
-          interfaithHarmonyIndex: 70,
-          secularHumanismStrength: 60,
-          ethicalFrameworkDevelopment: 45,
-          contemplativePracticePopularity: 35,
-          moralLeadershipQuality: 50
-        },
-        scienceAndInnovation: {
-          scientificLiteracyRate: 85,
-          researchInstitutionQuality: 70,
-          innovationCultureStrength: 75,
-          technologyAdoptionRate: 80,
-          scientificPublicationImpact: 65,
-          stemEducationQuality: 75,
-          entrepreneurialSpirit: 70,
-          intellectualPropertyProtection: 60
-        },
-        culinaryAndLifestyle: {
-          culinaryDiversityIndex: 80,
-          foodCultureRichness: 85,
-          sustainableFoodPractices: 55,
-          culinaryEducationLevel: 60,
-          restaurantIndustryStrength: 70,
-          traditionalCuisinePreservation: 75,
-          foodFestivalPopularity: 65,
-          culinaryInnovationIndex: 50
+      setLoading(true);
+      
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/entertainment/venues');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setEntertainmentData(data.data);
+        } else {
+          throw new Error('API response error');
         }
-      };
-
-      setCulturalData(combinedData);
-      setVenues(venuesData.data?.venues || []);
-      setAttractions(attractionsData.data?.attractions || []);
-      setCulturalSites(sitesData.data?.sites || []);
-      setEmploymentData(employmentDataResponse.data?.employment || null);
-      setAnalytics(analyticsData.data?.analytics || null);
+      } else {
+        throw new Error('API not available');
+      }
 
     } catch (err) {
-      console.error('Error fetching entertainment/tourism data:', err);
-      // Use mock data as fallback with correct structure
-      const mockCulturalData = {
-        culturalHeritage: {
-          heritageScore: 78.5,
-          culturalSites: 125,
-          culturalEvents: 340,
-          artisticFreedomIndex: 85.2,
-          traditionalArtsVitality: 72.8,
-          modernArtsInnovation: 88.3,
-          culturalDiversityIndex: 91.7,
-          culturalEducationLevel: 82.4
-        },
-        entertainmentIndustry: {
-          industrySize: 125000000000,
-          employmentLevel: 850000,
-          venueCapacity: 2500000,
-          innovationIndex: 87.6,
-          contentDiversityScore: 79.3,
-          sportsIndustryStrength: 84.1,
-          gamingIndustrySize: 45000000000,
-          livePerformanceVitality: 76.9
-        },
-        tourismSector: {
-          touristArrivals: 125000000,
-          tourismRevenue: 245000000000,
-          touristSatisfactionIndex: 85.4,
-          safetyIndex: 92.1,
-          infrastructureQuality: 88.7,
-          naturalAttractionScore: 94.2,
-          historicalSiteScore: 89.5,
-          sustainabilityRating: 76.8
-        },
-        economicImpact: {
-          totalGdpContribution: 12.5,
-          employmentContribution: 7050000,
-          taxRevenue: 28500000000,
-          economicMultiplier: 2.8
-        }
-      };
-
-      // Set the main cultural data object
-      setCulturalData(mockCulturalData);
-      
-      // Set employment data
-      setEmploymentData({
-        entertainment: {
-          totalJobs: 850000,
-          averageSalary: 75000,
-          jobGrowthRate: 0.085,
-          sectors: {
-            'Holographic Entertainment': 320000,
-            'Virtual Reality': 280000,
-            'Gaming Industry': 150000,
-            'Live Performance': 100000
+      console.warn('Failed to fetch entertainment data:', err);
+      // Use comprehensive mock data
+      setEntertainmentData({
+        venues: [
+          {
+            id: 'venue_1',
+            name: 'Galactic Grand Theater',
+            type: 'theater',
+            location: 'Capital District, Terran Prime',
+            capacity: 5000,
+            currentAttendance: 3200,
+            rating: 4.8,
+            revenue: 1250000,
+            status: 'open',
+            featured: true,
+            specialEvents: ['Interstellar Opera Festival', 'Galactic Symphony'],
+            operatingHours: 'Daily 10:00-22:00',
+            ticketPrice: 150
+          },
+          {
+            id: 'venue_2',
+            name: 'Museum of Interstellar History',
+            type: 'museum',
+            location: 'Cultural Quarter, Terran Prime',
+            capacity: 8000,
+            currentAttendance: 5600,
+            rating: 4.6,
+            revenue: 890000,
+            status: 'open',
+            featured: true,
+            specialEvents: ['Ancient Artifacts Exhibition', 'Space Race Retrospective'],
+            operatingHours: 'Daily 09:00-18:00',
+            ticketPrice: 45
+          },
+          {
+            id: 'venue_3',
+            name: 'Stellar Sports Arena',
+            type: 'stadium',
+            location: 'Sports District, Terran Prime',
+            capacity: 25000,
+            currentAttendance: 18900,
+            rating: 4.4,
+            revenue: 2340000,
+            status: 'open',
+            featured: false,
+            specialEvents: ['Interstellar Championship', 'All-Star Games'],
+            operatingHours: 'Daily 06:00-24:00',
+            ticketPrice: 75
+          },
+          {
+            id: 'venue_4',
+            name: 'Quantum Casino & Resort',
+            type: 'casino',
+            location: 'Entertainment Zone, Terran Prime',
+            capacity: 12000,
+            currentAttendance: 8900,
+            rating: 4.2,
+            revenue: 5670000,
+            status: 'open',
+            featured: false,
+            specialEvents: ['High Stakes Tournament', 'Celebrity Night'],
+            operatingHours: '24/7',
+            ticketPrice: 0
+          },
+          {
+            id: 'venue_5',
+            name: 'Cosmic Cultural Center',
+            type: 'cultural_center',
+            location: 'Arts District, Terran Prime',
+            capacity: 3000,
+            currentAttendance: 2100,
+            rating: 4.7,
+            revenue: 456000,
+            status: 'open',
+            featured: true,
+            specialEvents: ['Multicultural Festival', 'Artist Residency Program'],
+            operatingHours: 'Daily 11:00-21:00',
+            ticketPrice: 25
           }
-        },
-        tourism: {
-          totalJobs: 620000,
-          averageSalary: 68000,
-          jobGrowthRate: 0.072,
-          sectors: {
-            'Hotels & Accommodation': 250000,
-            'Tour Operations': 180000,
-            'Transportation': 120000,
-            'Food & Beverage': 70000
+        ],
+        destinations: [
+          {
+            id: 'dest_1',
+            name: 'Crystal Caves of Vega Prime',
+            type: 'natural_wonder',
+            location: 'Vega System, Vega Prime',
+            visitorCapacity: 5000,
+            currentVisitors: 3200,
+            popularity: 9.2,
+            revenue: 2340000,
+            status: 'open',
+            attractions: ['Crystal Formations', 'Underground Lakes', 'Bioluminescent Life'],
+            accommodation: ['Cave Hotels', 'Mountain Lodges', 'Camping Sites'],
+            transportation: ['Shuttle Service', 'Hiking Trails', 'Cable Cars'],
+            averageStay: 3.5,
+            visitorRating: 4.9
+          },
+          {
+            id: 'dest_2',
+            name: 'Ancient Ruins of Centauri',
+            type: 'historical_site',
+            location: 'Centauri System, Centauri Prime',
+            visitorCapacity: 3000,
+            currentVisitors: 2100,
+            popularity: 8.8,
+            revenue: 1560000,
+            status: 'open',
+            attractions: ['Temple Complex', 'Archaeological Sites', 'Museum'],
+            accommodation: ['Heritage Hotels', 'Guest Houses', 'Research Stations'],
+            transportation: ['Guided Tours', 'Archaeological Expeditions', 'Museum Shuttles'],
+            averageStay: 2.8,
+            visitorRating: 4.7
+          },
+          {
+            id: 'dest_3',
+            name: 'Orbital Resort Station Alpha',
+            type: 'space_station',
+            location: 'Terran System, Low Orbit',
+            visitorCapacity: 2000,
+            currentVisitors: 1800,
+            popularity: 9.5,
+            revenue: 3450000,
+            status: 'open',
+            attractions: ['Zero-G Recreation', 'Space Walks', 'Orbital Views'],
+            accommodation: ['Luxury Suites', 'Standard Cabins', 'Observation Pods'],
+            transportation: ['Space Shuttles', 'Transfer Vehicles', 'Emergency Pods'],
+            averageStay: 4.2,
+            visitorRating: 4.8
+          },
+          {
+            id: 'dest_4',
+            name: 'Andromeda Colony Gardens',
+            type: 'planet_colony',
+            location: 'Andromeda System, Andromeda Prime',
+            visitorCapacity: 4000,
+            currentVisitors: 2800,
+            popularity: 7.9,
+            revenue: 890000,
+            status: 'open',
+            attractions: ['Terraformed Gardens', 'Colony Tours', 'Cultural Exchange'],
+            accommodation: ['Colony Guest Houses', 'Garden Retreats', 'Research Facilities'],
+            transportation: ['Surface Vehicles', 'Walking Tours', 'Aerial Tours'],
+            averageStay: 2.5,
+            visitorRating: 4.3
           }
-        },
-        combined: {
-          totalJobs: 1470000,
-          percentOfTotalEmployment: 8.5,
-          economicMultiplier: 2.8,
-          indirectJobsCreated: 2100000
+        ],
+        events: [
+          {
+            id: 'event_1',
+            name: 'Interstellar Opera Festival',
+            type: 'festival',
+            venue: 'Galactic Grand Theater',
+            date: '2393-07-15T19:00:00Z',
+            duration: 14,
+            expectedAttendance: 35000,
+            actualAttendance: 0,
+            ticketSales: 2800000,
+            status: 'upcoming',
+            performers: ['Galactic Opera Company', 'Vega Symphony', 'Centauri Choir'],
+            description: 'A two-week celebration of operatic arts from across the galaxy',
+            category: 'arts',
+            targetAudience: 'Culture Enthusiasts, Music Lovers'
+          },
+          {
+            id: 'event_2',
+            name: 'Ancient Artifacts Exhibition',
+            type: 'exhibition',
+            venue: 'Museum of Interstellar History',
+            date: '2393-06-20T10:00:00Z',
+            duration: 90,
+            expectedAttendance: 120000,
+            actualAttendance: 45000,
+            ticketSales: 540000,
+            status: 'ongoing',
+            performers: ['Archaeological Teams', 'Cultural Experts', 'Interactive Displays'],
+            description: 'Exhibition of newly discovered artifacts from pre-space civilizations',
+            category: 'culture',
+            targetAudience: 'History Buffs, Students, Researchers'
+          },
+          {
+            id: 'event_3',
+            name: 'Interstellar Championship Finals',
+            type: 'performance',
+            venue: 'Stellar Sports Arena',
+            date: '2393-06-25T20:00:00Z',
+            duration: 1,
+            expectedAttendance: 25000,
+            actualAttendance: 0,
+            ticketSales: 1875000,
+            status: 'upcoming',
+            performers: ['Terran Federation Team', 'Vega Alliance Team', 'Centauri Republic Team'],
+            description: 'Championship match between the top three galactic sports teams',
+            category: 'arts',
+            targetAudience: 'Sports Fans, General Public'
+          },
+          {
+            id: 'event_4',
+            name: 'High Stakes Tournament',
+            type: 'celebration',
+            venue: 'Quantum Casino & Resort',
+            date: '2393-06-18T18:00:00Z',
+            duration: 3,
+            expectedAttendance: 8000,
+            actualAttendance: 0,
+            ticketSales: 1200000,
+            status: 'upcoming',
+            performers: ['Professional Players', 'Celebrity Guests', 'Entertainment Acts'],
+            description: 'Three-day high-stakes gaming tournament with celebrity appearances',
+            category: 'culture',
+            targetAudience: 'Gaming Enthusiasts, High Rollers'
+          },
+          {
+            id: 'event_5',
+            name: 'Multicultural Festival',
+            type: 'festival',
+            venue: 'Cosmic Cultural Center',
+            date: '2393-06-30T12:00:00Z',
+            duration: 7,
+            expectedAttendance: 15000,
+            actualAttendance: 0,
+            ticketSales: 225000,
+            status: 'upcoming',
+            performers: ['Cultural Groups', 'Traditional Artists', 'Modern Performers'],
+            description: 'Week-long celebration of galactic cultural diversity',
+            category: 'culture',
+            targetAudience: 'Cultural Enthusiasts, Families, Tourists'
+          }
+        ],
+        analytics: {
+          overview: {
+            totalVenues: 45,
+            activeDestinations: 23,
+            totalEvents: 156,
+            totalVisitors: 890000,
+            totalRevenue: 45600000,
+            averageRating: 4.5
+          },
+          visitorTrends: [
+            { date: 'Jun 10', totalVisitors: 89000, venueVisitors: 45000, destinationVisitors: 32000, eventAttendees: 12000 },
+            { date: 'Jun 11', totalVisitors: 92000, venueVisitors: 47000, destinationVisitors: 33000, eventAttendees: 12000 },
+            { date: 'Jun 12', totalVisitors: 95000, venueVisitors: 48000, destinationVisitors: 34000, eventAttendees: 13000 },
+            { date: 'Jun 13', totalVisitors: 98000, venueVisitors: 50000, destinationVisitors: 35000, eventAttendees: 13000 },
+            { date: 'Jun 14', totalVisitors: 102000, venueVisitors: 52000, destinationVisitors: 37000, eventAttendees: 13000 },
+            { date: 'Jun 15', totalVisitors: 105000, venueVisitors: 54000, destinationVisitors: 38000, eventAttendees: 13000 }
+          ],
+          revenueBreakdown: [
+            { category: 'Venues', revenue: 18900000, growth: 12.5, marketShare: 41.4 },
+            { category: 'Destinations', revenue: 15600000, growth: 8.7, marketShare: 34.2 },
+            { category: 'Events', revenue: 8900000, growth: 15.3, marketShare: 19.5 },
+            { category: 'Services', revenue: 2200000, growth: 6.8, marketShare: 4.8 }
+          ],
+          popularityAnalysis: [
+            { name: 'Orbital Resort Station Alpha', type: 'Space Station', visitors: 1800, rating: 4.8, revenue: 3450000, growth: 15.2 },
+            { name: 'Crystal Caves of Vega Prime', type: 'Natural Wonder', visitors: 3200, rating: 4.9, revenue: 2340000, growth: 12.8 },
+            { name: 'Galactic Grand Theater', type: 'Theater', visitors: 3200, rating: 4.8, revenue: 1250000, growth: 8.9 },
+            { name: 'Ancient Ruins of Centauri', type: 'Historical Site', visitors: 2100, rating: 4.7, revenue: 1560000, growth: 7.4 }
+          ]
         }
       });
-      
-      // Set analytics data
-      setAnalytics({
-        trends: {
-          cultural_engagement: 78,
-          tourism_satisfaction: 85,
-          industry_growth: 8.7,
-          employment_stability: 92
-        },
-        forecasts: {
-          visitor_growth: 6.8,
-          revenue_growth: 8.2,
-          employment_growth: 4.5
-        }
-      });
-
-      setError(null); // Clear error since we have mock data
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const formatCurrency = (amount: number): string => {
-    if (amount >= 1000000000) {
-      return `$${(amount / 1000000000).toFixed(1)}B`;
-    } else if (amount >= 1000000) {
-      return `$${(amount / 1000000).toFixed(1)}M`;
-    } else if (amount >= 1000) {
-      return `$${(amount / 1000).toFixed(1)}K`;
-    }
-    return `$${amount.toFixed(0)}`;
-  };
+  useEffect(() => {
+    fetchEntertainmentData();
+  }, [fetchEntertainmentData]);
 
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(1)}M`;
-    } else if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}K`;
-    }
-    return num.toFixed(0);
-  };
-
-  const renderOverviewTab = () => {
-    if (!culturalData) return <div>No data available</div>;
-
-    const { culturalHeritage, entertainmentIndustry, tourismSector, economicImpact } = culturalData;
-
-    return (
-      <div className="overview-tab">
-        <div className="overview-grid">
-          {/* Cultural Heritage Overview */}
-          <div className="overview-card">
-            <h3>🏛️ Cultural Heritage</h3>
-            <div className="metric-row">
-              <span>Heritage Score:</span>
-              <span className="metric-value">{culturalHeritage.heritageScore?.toFixed(1) || '0.0'}/100</span>
-            </div>
-            <div className="metric-row">
-              <span>Cultural Sites:</span>
-              <span className="metric-value">{culturalHeritage.culturalSites || 0}</span>
-            </div>
-            <div className="metric-row">
-              <span>Annual Events:</span>
-              <span className="metric-value">{culturalHeritage.culturalEvents || 0}</span>
-            </div>
-            <div className="metric-row">
-              <span>Artistic Freedom:</span>
-              <span className="metric-value">{culturalHeritage.artisticFreedomIndex?.toFixed(1) || '0.0'}/100</span>
-            </div>
+  const renderOverview = () => (
+    <>
+      {/* Entertainment Overview - Full panel width */}
+      <div className="standard-panel social-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📊 Entertainment & Tourism Overview</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Total Venues</span>
+            <span className="standard-metric-value">{entertainmentData?.analytics.overview.totalVenues}</span>
           </div>
-
-          {/* Entertainment Industry Overview */}
-          <div className="overview-card">
-            <h3>🎭 Entertainment Industry</h3>
-            <div className="metric-row">
-              <span>Industry Size:</span>
-              <span className="metric-value">{formatCurrency(entertainmentIndustry.industrySize || 0)}</span>
-            </div>
-            <div className="metric-row">
-              <span>Employment:</span>
-              <span className="metric-value">{formatNumber(entertainmentIndustry.employmentLevel || 0)}</span>
-            </div>
-            <div className="metric-row">
-              <span>Venue Capacity:</span>
-              <span className="metric-value">{formatNumber(entertainmentIndustry.venueCapacity || 0)}</span>
-            </div>
-            <div className="metric-row">
-              <span>Innovation Index:</span>
-              <span className="metric-value">{entertainmentIndustry.innovationIndex?.toFixed(1) || '0.0'}/100</span>
-            </div>
+          <div className="standard-metric">
+            <span>Active Destinations</span>
+            <span className="standard-metric-value">{entertainmentData?.analytics.overview.activeDestinations}</span>
           </div>
-
-          {/* Tourism Sector Overview */}
-          <div className="overview-card">
-            <h3>✈️ Tourism Sector</h3>
-            <div className="metric-row">
-              <span>Tourist Arrivals:</span>
-              <span className="metric-value">{formatNumber(tourismSector.touristArrivals || 0)}</span>
-            </div>
-            <div className="metric-row">
-              <span>Tourism Revenue:</span>
-              <span className="metric-value">{formatCurrency(tourismSector.tourismRevenue || 0)}</span>
-            </div>
-            <div className="metric-row">
-              <span>Satisfaction Index:</span>
-              <span className="metric-value">{tourismSector.touristSatisfactionIndex?.toFixed(1) || '0.0'}/100</span>
-            </div>
-            <div className="metric-row">
-              <span>Safety Rating:</span>
-              <span className="metric-value">{tourismSector.safetyIndex?.toFixed(1) || '0.0'}/100</span>
-            </div>
+          <div className="standard-metric">
+            <span>Total Events</span>
+            <span className="standard-metric-value">{entertainmentData?.analytics.overview.totalEvents}</span>
           </div>
-
-          {/* Economic Impact Overview */}
-          <div className="overview-card">
-            <h3>💰 Economic Impact</h3>
-            <div className="metric-row">
-              <span>GDP Contribution:</span>
-              <span className="metric-value">{economicImpact.totalGdpContribution?.toFixed(1) || '0.0'}%</span>
-            </div>
-            <div className="metric-row">
-              <span>Total Employment:</span>
-              <span className="metric-value">{formatNumber(economicImpact.employmentContribution || 0)}</span>
-            </div>
-            <div className="metric-row">
-              <span>Tax Revenue:</span>
-              <span className="metric-value">{formatCurrency(economicImpact.taxRevenue || 0)}</span>
-            </div>
-            <div className="metric-row">
-              <span>Economic Multiplier:</span>
-              <span className="metric-value">{economicImpact.economicMultiplier?.toFixed(1) || '0.0'}x</span>
-            </div>
+          <div className="standard-metric">
+            <span>Total Visitors</span>
+            <span className="standard-metric-value">{formatNumber(entertainmentData?.analytics.overview.totalVisitors || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Total Revenue</span>
+            <span className="standard-metric-value">{formatCurrency(entertainmentData?.analytics.overview.totalRevenue || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Average Rating</span>
+            <span className="standard-metric-value">{entertainmentData?.analytics.overview.averageRating}/5.0</span>
           </div>
         </div>
-
-        {/* Key Performance Indicators */}
-        <div className="kpi-section">
-          <h3>📊 Key Performance Indicators</h3>
-          <div className="kpi-grid">
-            <div className="kpi-item">
-              <div className="kpi-label">Cultural Vitality</div>
-              <div className="kpi-value">{culturalHeritage.heritageScore?.toFixed(0) || '0'}/100</div>
-              <div className="kpi-bar">
-                <div 
-                  className="kpi-fill cultural" 
-                  style={{ width: `${culturalHeritage.heritageScore || 0}%` }}
-                ></div>
-              </div>
-            </div>
-            <div className="kpi-item">
-              <div className="kpi-label">Entertainment Growth</div>
-              <div className="kpi-value">{entertainmentIndustry.innovationIndex?.toFixed(0) || '0'}/100</div>
-              <div className="kpi-bar">
-                <div 
-                  className="kpi-fill entertainment" 
-                  style={{ width: `${entertainmentIndustry.innovationIndex || 0}%` }}
-                ></div>
-              </div>
-            </div>
-            <div className="kpi-item">
-              <div className="kpi-label">Tourism Appeal</div>
-              <div className="kpi-value">{tourismSector.touristSatisfactionIndex?.toFixed(0) || '0'}/100</div>
-              <div className="kpi-bar">
-                <div 
-                  className="kpi-fill tourism" 
-                  style={{ width: `${tourismSector.touristSatisfactionIndex || 0}%` }}
-                ></div>
-              </div>
-            </div>
-            <div className="kpi-item">
-              <div className="kpi-label">Economic Contribution</div>
-              <div className="kpi-value">{economicImpact.totalGdpContribution?.toFixed(1) || '0.0'}%</div>
-              <div className="kpi-bar">
-                <div 
-                  className="kpi-fill economic" 
-                  style={{ width: `${Math.min(100, (economicImpact.totalGdpContribution || 0) * 5)}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('New Venue')}>🎭 New Venue</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('New Destination')}>🌍 New Destination</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('New Event')}>🎪 New Event</button>
         </div>
       </div>
-    );
-  };
 
-  const renderCulturalTab = () => {
-    return (
-      <div className="cultural-tab">
-        <div className="tab-header">
-          <h3>🏛️ Cultural Heritage & Arts</h3>
-          <p>Manage cultural sites, events, and artistic development</p>
+      {/* Revenue Breakdown - Full panel width */}
+      <div className="standard-panel social-theme" style={{ gridColumn: '1 / -1' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>💰 Revenue Breakdown</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Revenue</th>
+                <th>Growth</th>
+                <th>Market Share</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entertainmentData?.analytics.revenueBreakdown.map(category => (
+                <tr key={category.category}>
+                  <td>{category.category}</td>
+                  <td>{formatCurrency(category.revenue)}</td>
+                  <td>
+                    <span style={{ color: category.growth >= 10 ? '#10b981' : category.growth >= 5 ? '#f59e0b' : '#ef4444' }}>
+                      +{category.growth}%
+                    </span>
+                  </td>
+                  <td>{category.marketShare}%</td>
+                  <td>
+                    <button className="standard-btn social-theme">Details</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
-        {/* Cultural Sites */}
-        <div className="section">
-          <h4>Cultural Heritage Sites</h4>
-          <div className="sites-grid">
-            {culturalSites.map(site => (
-              <div key={site.id} className="site-card">
-                <div className="site-header">
-                  <h5>{site.name}</h5>
-                  <span className={`significance-badge ${site.significance}`}>
-                    {site.significance}
-                  </span>
-                </div>
-                <div className="site-details">
-                  <div className="detail-row">
-                    <span>Type:</span>
-                    <span>{site.type}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Condition:</span>
-                    <span>{site.condition}/100</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Annual Visitors:</span>
-                    <span>{formatNumber(site.annualVisitors)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Tourist Rating:</span>
-                    <span>⭐ {site.touristRating.toFixed(1)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Maintenance Cost:</span>
-                    <span>{formatCurrency(site.maintenanceCost)}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Cultural Metrics */}
-        {culturalData && (
-          <div className="section">
-            <h4>Cultural Development Metrics</h4>
-            <div className="metrics-grid">
-              <div className="metric-card">
-                <div className="metric-title">Traditional Arts Vitality</div>
-                <div className="metric-value">{culturalData.culturalHeritage.traditionalArtsVitality?.toFixed(1) || '0.0'}/100</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-title">Modern Arts Innovation</div>
-                <div className="metric-value">{culturalData.culturalHeritage.modernArtsInnovation?.toFixed(1) || '0.0'}/100</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-title">Cultural Diversity Index</div>
-                <div className="metric-value">{culturalData.culturalHeritage.culturalDiversityIndex?.toFixed(1) || '0.0'}/100</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-title">Cultural Education Level</div>
-                <div className="metric-value">{culturalData.culturalHeritage.culturalEducationLevel?.toFixed(1) || '0.0'}/100</div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
-    );
-  };
+    </>
+  );
 
-  const renderEntertainmentTab = () => {
-    return (
-      <div className="entertainment-tab">
-        <div className="tab-header">
-          <h3>🎭 Entertainment Industry</h3>
-          <p>Manage venues, content production, and entertainment sectors</p>
+  const renderVenues = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🎭 Entertainment Venues</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('New Venue')}>🎭 New Venue</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Manage Venues')}>⚙️ Manage</button>
         </div>
-
-        {/* Entertainment Venues */}
-        <div className="section">
-          <h4>Entertainment Venues</h4>
-          <div className="venues-grid">
-            {venues.map(venue => (
-              <div key={venue.id} className="venue-card">
-                <div className="venue-header">
-                  <h5>{venue.name}</h5>
-                  <span className={`venue-type-badge ${venue.type}`}>
-                    {venue.type}
-                  </span>
-                </div>
-                <div className="venue-details">
-                  <div className="detail-row">
-                    <span>Capacity:</span>
-                    <span>{formatNumber(venue.capacity)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Utilization:</span>
-                    <span>{venue.utilizationRate.toFixed(1)}%</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Annual Events:</span>
-                    <span>{venue.annualEvents}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Avg Ticket Price:</span>
-                    <span>{formatCurrency(venue.averageTicketPrice)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Annual Revenue:</span>
-                    <span>{formatCurrency(venue.annualRevenue)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Employees:</span>
-                    <span>{venue.employeeCount}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Entertainment Industry Metrics */}
-        {culturalData && (
-          <div className="section">
-            <h4>Industry Performance</h4>
-            <div className="metrics-grid">
-              <div className="metric-card">
-                <div className="metric-title">Content Diversity Score</div>
-                <div className="metric-value">{culturalData.entertainmentIndustry.contentDiversityScore?.toFixed(1) || '0.0'}/100</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-title">Sports Industry Strength</div>
-                <div className="metric-value">{culturalData.entertainmentIndustry.sportsIndustryStrength?.toFixed(1) || '0.0'}/100</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-title">Gaming Industry Size</div>
-                <div className="metric-value">{formatCurrency(culturalData.entertainmentIndustry.gamingIndustrySize || 0)}</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-title">Live Performance Vitality</div>
-                <div className="metric-value">{culturalData.entertainmentIndustry.livePerformanceVitality?.toFixed(1) || '0.0'}/100</div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderTourismTab = () => {
-    return (
-      <div className="tourism-tab">
-        <div className="tab-header">
-          <h3>✈️ Tourism Sector</h3>
-          <p>Manage tourist attractions, infrastructure, and visitor experience</p>
-        </div>
-
-        {/* Tourist Attractions */}
-        <div className="section">
-          <h4>Tourist Attractions</h4>
-          <div className="attractions-grid">
-            {attractions.map(attraction => (
-              <div key={attraction.id} className="attraction-card">
-                <div className="attraction-header">
-                  <h5>{attraction.name}</h5>
-                  <span className={`category-badge ${attraction.category}`}>
-                    {attraction.category}
-                  </span>
-                </div>
-                <div className="attraction-details">
-                  <div className="detail-row">
-                    <span>Type:</span>
-                    <span>{attraction.type}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Rating:</span>
-                    <span>⭐ {attraction.popularityRating.toFixed(1)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Annual Visitors:</span>
-                    <span>{formatNumber(attraction.annualVisitors)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Ticket Price:</span>
-                    <span>{formatCurrency(attraction.ticketPrice)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Profit Margin:</span>
-                    <span>{(attraction.profitMargin * 100).toFixed(1)}%</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Accessibility:</span>
-                    <span>{attraction.accessibilityRating}/100</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Tourism Performance Metrics */}
-        {culturalData && (
-          <div className="section">
-            <h4>Tourism Performance</h4>
-            <div className="metrics-grid">
-              <div className="metric-card">
-                <div className="metric-title">Infrastructure Quality</div>
-                <div className="metric-value">{culturalData.tourismSector.infrastructureQuality?.toFixed(1) || '0.0'}/100</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-title">Natural Attractions</div>
-                <div className="metric-value">{culturalData.tourismSector.naturalAttractionScore?.toFixed(1) || '0.0'}/100</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-title">Historical Sites</div>
-                <div className="metric-value">{culturalData.tourismSector.historicalSiteScore?.toFixed(1) || '0.0'}/100</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-title">Sustainability Rating</div>
-                <div className="metric-value">{culturalData.tourismSector.sustainabilityRating?.toFixed(1) || '0.0'}/100</div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderEconomicTab = () => {
-    return (
-      <div className="economic-tab">
-        <div className="tab-header">
-          <h3>💰 Economic Impact</h3>
-          <p>Analyze economic contributions and employment data</p>
-        </div>
-
-        {/* Employment Data */}
-        {employmentData && (
-          <div className="section">
-            <h4>Employment Overview</h4>
-            <div className="employment-grid">
-              <div className="employment-card">
-                <h5>Entertainment Sector</h5>
-                <div className="employment-details">
-                  <div className="detail-row">
-                    <span>Total Jobs:</span>
-                    <span>{formatNumber(employmentData.entertainment.totalJobs)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Average Salary:</span>
-                    <span>{formatCurrency(employmentData.entertainment.averageSalary)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Job Growth Rate:</span>
-                    <span>{(employmentData.entertainment.jobGrowthRate * 100).toFixed(1)}%</span>
-                  </div>
-                </div>
-                <div className="sector-breakdown">
-                  <h6>Sector Breakdown:</h6>
-                  {Object.entries(employmentData.entertainment.sectors).map(([sector, jobs]) => (
-                    <div key={sector} className="sector-row">
-                      <span>{sector.replace('_', ' ')}:</span>
-                      <span>{formatNumber(jobs as number)}</span>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Attendance</th>
+                <th>Rating</th>
+                <th>Revenue</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entertainmentData?.venues.map(venue => (
+                <tr key={venue.id}>
+                  <td>
+                    <div style={{ maxWidth: '250px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{venue.name}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{venue.operatingHours}</div>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="employment-card">
-                <h5>Tourism Sector</h5>
-                <div className="employment-details">
-                  <div className="detail-row">
-                    <span>Total Jobs:</span>
-                    <span>{formatNumber(employmentData.tourism.totalJobs)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Average Salary:</span>
-                    <span>{formatCurrency(employmentData.tourism.averageSalary)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Job Growth Rate:</span>
-                    <span>{(employmentData.tourism.jobGrowthRate * 100).toFixed(1)}%</span>
-                  </div>
-                </div>
-                <div className="sector-breakdown">
-                  <h6>Sector Breakdown:</h6>
-                  {Object.entries(employmentData.tourism.sectors).map(([sector, jobs]) => (
-                    <div key={sector} className="sector-row">
-                      <span>{sector.replace('_', ' ')}:</span>
-                      <span>{formatNumber(jobs as number)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="combined-metrics">
-              <h5>Combined Impact</h5>
-              <div className="metrics-row">
-                <div className="metric-item">
-                  <span>Total Employment:</span>
-                  <span>{formatNumber(employmentData.combined.totalJobs)}</span>
-                </div>
-                <div className="metric-item">
-                  <span>% of Total Employment:</span>
-                  <span>{employmentData.combined.percentOfTotalEmployment.toFixed(1)}%</span>
-                </div>
-                <div className="metric-item">
-                  <span>Economic Multiplier:</span>
-                  <span>{employmentData.combined.economicMultiplier.toFixed(1)}x</span>
-                </div>
-                <div className="metric-item">
-                  <span>Indirect Jobs Created:</span>
-                  <span>{formatNumber(employmentData.combined.indirectJobsCreated)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Economic Impact Metrics */}
-        {culturalData && (
-          <div className="section">
-            <h4>Economic Contribution</h4>
-            <div className="metrics-grid">
-              <div className="metric-card large">
-                <div className="metric-title">Foreign Exchange Earnings</div>
-                <div className="metric-value">{formatCurrency(culturalData.economicImpact.foreignExchangeEarnings || 0)}</div>
-              </div>
-              <div className="metric-card large">
-                <div className="metric-title">Investment Attraction</div>
-                <div className="metric-value">{formatCurrency(culturalData.economicImpact.investmentAttraction || 0)}</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-title">Competitiveness Rating</div>
-                <div className="metric-value">{culturalData.economicImpact.competitivenessRating?.toFixed(1) || '0.0'}/100</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-title">Seasonality Index</div>
-                <div className="metric-value">{culturalData.economicImpact.seasonalityIndex?.toFixed(1) || '0.0'}/100</div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderSocialTab = () => {
-    if (!culturalData) return <div>No social data available</div>;
-
-    const { socialMetrics } = culturalData;
-
-    return (
-      <div className="social-tab">
-        <div className="tab-header">
-          <h3>👥 Social Impact</h3>
-          <p>Monitor cultural participation, community engagement, and social cohesion</p>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getVenueTypeColor(venue.type),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getVenueTypeColor(venue.type) + '20'
+                    }}>
+                      {venue.type.replace('_', ' ')}
+                    </span>
+                  </td>
+                  <td>{venue.location}</td>
+                  <td>
+                    <span style={{ color: venue.currentAttendance >= venue.capacity * 0.8 ? '#10b981' : venue.currentAttendance >= venue.capacity * 0.5 ? '#f59e0b' : '#ef4444' }}>
+                      {formatNumber(venue.currentAttendance)}/{formatNumber(venue.capacity)}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ color: venue.rating >= 4.5 ? '#10b981' : venue.rating >= 4.0 ? '#f59e0b' : '#ef4444' }}>
+                      {venue.rating}/5.0
+                    </span>
+                  </td>
+                  <td>{formatCurrency(venue.revenue)}</td>
+                  <td>
+                    <button className="standard-btn social-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
-        <div className="section">
-          <h4>Social Metrics</h4>
-          <div className="social-metrics-grid">
-            <div className="social-metric-card">
-              <div className="metric-icon">🎭</div>
-              <div className="metric-content">
-                <div className="metric-title">Cultural Participation Rate</div>
-                <div className="metric-value">{socialMetrics.culturalParticipationRate?.toFixed(1) || '0.0'}%</div>
-                <div className="metric-description">Citizens actively participating in cultural activities</div>
-              </div>
-            </div>
-
-            <div className="social-metric-card">
-              <div className="metric-icon">🏛️</div>
-              <div className="metric-content">
-                <div className="metric-title">Cultural Identity Strength</div>
-                <div className="metric-value">{socialMetrics.culturalIdentityStrength?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Strength of national and regional cultural identity</div>
-              </div>
-            </div>
-
-            <div className="social-metric-card">
-              <div className="metric-icon">🌍</div>
-              <div className="metric-content">
-                <div className="metric-title">Intercultural Exchange</div>
-                <div className="metric-value">{socialMetrics.interculturalExchangeLevel?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Level of cultural exchange with other civilizations</div>
-              </div>
-            </div>
-
-            <div className="social-metric-card">
-              <div className="metric-icon">🎪</div>
-              <div className="metric-content">
-                <div className="metric-title">Entertainment Accessibility</div>
-                <div className="metric-value">{socialMetrics.entertainmentAccessibility?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Access to entertainment for all social classes</div>
-              </div>
-            </div>
-
-            <div className="social-metric-card">
-              <div className="metric-icon">🤝</div>
-              <div className="metric-content">
-                <div className="metric-title">Community Engagement</div>
-                <div className="metric-value">{socialMetrics.communityEngagement?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Community involvement in cultural initiatives</div>
-              </div>
-            </div>
-
-            <div className="social-metric-card">
-              <div className="metric-icon">🎨</div>
-              <div className="metric-content">
-                <div className="metric-title">Cultural Authenticity</div>
-                <div className="metric-value">{socialMetrics.culturalAuthenticityIndex?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Preservation of authentic cultural experiences</div>
-              </div>
-            </div>
-
-            <div className="social-metric-card">
-              <div className="metric-icon">🔗</div>
-              <div className="metric-content">
-                <div className="metric-title">Social Cohesion Impact</div>
-                <div className="metric-value">{socialMetrics.socialCohesionImpact?.toFixed(1) || '0.0'}</div>
-                <div className="metric-description">Impact on overall social unity and cohesion</div>
-              </div>
-            </div>
-
-            <div className="social-metric-card">
-              <div className="metric-icon">🌟</div>
-              <div className="metric-content">
-                <div className="metric-title">Quality of Life Contribution</div>
-                <div className="metric-value">{socialMetrics.qualityOfLifeContribution?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Contribution to citizen quality of life</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderLanguageTab = () => {
-    if (!culturalData) return <div>No language data available</div>;
-
-    const { languageAndLiterature } = culturalData;
-
-    return (
-      <div className="language-tab">
-        <div className="tab-header">
-          <h3>📚 Language & Literature</h3>
-          <p>Monitor linguistic diversity, literacy, and literary culture</p>
-        </div>
-
-        <div className="section">
-          <h4>Language & Literary Metrics</h4>
-          <div className="metrics-grid">
-            <div className="metric-card">
-              <div className="metric-icon">🌍</div>
-              <div className="metric-content">
-                <div className="metric-title">Language Diversity Index</div>
-                <div className="metric-value">{languageAndLiterature.languageDiversityIndex?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Number and vitality of spoken languages</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">📖</div>
-              <div className="metric-content">
-                <div className="metric-title">Literacy Rate</div>
-                <div className="metric-value">{languageAndLiterature.literacyRate?.toFixed(1) || '0.0'}%</div>
-                <div className="metric-description">Population able to read and write</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">📚</div>
-              <div className="metric-content">
-                <div className="metric-title">Publishing Industry Strength</div>
-                <div className="metric-value">{languageAndLiterature.publishingIndustryStrength?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Strength of book and media publishing</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">🏛️</div>
-              <div className="metric-content">
-                <div className="metric-title">Library Accessibility</div>
-                <div className="metric-value">{languageAndLiterature.libraryAccessibility?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Public access to libraries and archives</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderPhilosophyTab = () => {
-    if (!culturalData) return <div>No philosophy data available</div>;
-
-    const { religionAndPhilosophy } = culturalData;
-
-    return (
-      <div className="philosophy-tab">
-        <div className="tab-header">
-          <h3>🧘 Philosophy & Religion</h3>
-          <p>Monitor spiritual practices, philosophical education, and interfaith harmony</p>
-        </div>
-
-        <div className="section">
-          <h4>Spiritual & Philosophical Metrics</h4>
-          <div className="metrics-grid">
-            <div className="metric-card">
-              <div className="metric-icon">🕊️</div>
-              <div className="metric-content">
-                <div className="metric-title">Religious Diversity Index</div>
-                <div className="metric-value">{religionAndPhilosophy.religiousDiversityIndex?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Variety of religious and spiritual practices</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">🤝</div>
-              <div className="metric-content">
-                <div className="metric-title">Interfaith Harmony Index</div>
-                <div className="metric-value">{religionAndPhilosophy.interfaithHarmonyIndex?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Peaceful coexistence between faiths</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">🎓</div>
-              <div className="metric-content">
-                <div className="metric-title">Philosophical Education Level</div>
-                <div className="metric-value">{religionAndPhilosophy.philosophicalEducationLevel?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Access to philosophical and ethical education</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">⚖️</div>
-              <div className="metric-content">
-                <div className="metric-title">Ethical Framework Development</div>
-                <div className="metric-value">{religionAndPhilosophy.ethicalFrameworkDevelopment?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Development of moral and ethical systems</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderScienceTab = () => {
-    if (!culturalData) return <div>No science data available</div>;
-
-    const { scienceAndInnovation } = culturalData;
-
-    return (
-      <div className="science-tab">
-        <div className="tab-header">
-          <h3>🔬 Science & Innovation</h3>
-          <p>Monitor scientific literacy, research quality, and innovation culture</p>
-        </div>
-
-        <div className="section">
-          <h4>Science & Innovation Metrics</h4>
-          <div className="metrics-grid">
-            <div className="metric-card">
-              <div className="metric-icon">🧪</div>
-              <div className="metric-content">
-                <div className="metric-title">Scientific Literacy Rate</div>
-                <div className="metric-value">{scienceAndInnovation.scientificLiteracyRate?.toFixed(1) || '0.0'}%</div>
-                <div className="metric-description">Population understanding of scientific concepts</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">🏫</div>
-              <div className="metric-content">
-                <div className="metric-title">Research Institution Quality</div>
-                <div className="metric-value">{scienceAndInnovation.researchInstitutionQuality?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Quality of universities and research centers</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">💡</div>
-              <div className="metric-content">
-                <div className="metric-title">Innovation Culture Strength</div>
-                <div className="metric-value">{scienceAndInnovation.innovationCultureStrength?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Cultural support for innovation and creativity</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">🚀</div>
-              <div className="metric-content">
-                <div className="metric-title">Technology Adoption Rate</div>
-                <div className="metric-value">{scienceAndInnovation.technologyAdoptionRate?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Speed of adopting new technologies</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderCulinaryTab = () => {
-    if (!culturalData) return <div>No culinary data available</div>;
-
-    const { culinaryAndLifestyle } = culturalData;
-
-    return (
-      <div className="culinary-tab">
-        <div className="tab-header">
-          <h3>🍽️ Culinary & Lifestyle</h3>
-          <p>Monitor food culture, culinary diversity, and lifestyle practices</p>
-        </div>
-
-        <div className="section">
-          <h4>Culinary & Lifestyle Metrics</h4>
-          <div className="metrics-grid">
-            <div className="metric-card">
-              <div className="metric-icon">🌮</div>
-              <div className="metric-content">
-                <div className="metric-title">Culinary Diversity Index</div>
-                <div className="metric-value">{culinaryAndLifestyle.culinaryDiversityIndex?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Variety of cuisines and food traditions</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">🍲</div>
-              <div className="metric-content">
-                <div className="metric-title">Food Culture Richness</div>
-                <div className="metric-value">{culinaryAndLifestyle.foodCultureRichness?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Depth and richness of food traditions</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">🌱</div>
-              <div className="metric-content">
-                <div className="metric-title">Sustainable Food Practices</div>
-                <div className="metric-value">{culinaryAndLifestyle.sustainableFoodPractices?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Adoption of sustainable food production</div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon">🍾</div>
-              <div className="metric-content">
-                <div className="metric-title">Culinary Innovation Index</div>
-                <div className="metric-value">{culinaryAndLifestyle.culinaryInnovationIndex?.toFixed(1) || '0.0'}/100</div>
-                <div className="metric-description">Innovation in culinary arts and techniques</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-
-
-  if (loading) {
-    return (
-      <div className="entertainment-tourism-screen loading">
-        <div className="loading-spinner"></div>
-        <p>Loading cultural data...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="entertainment-tourism-screen error">
-        <div className="error-message">
-          <h3>⚠️ Error</h3>
-          <p>{error}</p>
-          <button onClick={fetchCulturalData} className="retry-button">
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="entertainment-tourism-screen">
-      <div className="screen-header">
-        <h2>🎭 Entertainment, Culture & Tourism</h2>
-        <p>Comprehensive management of cultural development, entertainment industry, and tourism sector</p>
-        {onClose && (
-          <button className="close-button" onClick={onClose}>×</button>
-        )}
-      </div>
-
-      <div className="tab-navigation">
-        <button 
-          className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          📊 Overview
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'cultural' ? 'active' : ''}`}
-          onClick={() => setActiveTab('cultural')}
-        >
-          🏛️ Cultural
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'entertainment' ? 'active' : ''}`}
-          onClick={() => setActiveTab('entertainment')}
-        >
-          🎭 Entertainment
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'tourism' ? 'active' : ''}`}
-          onClick={() => setActiveTab('tourism')}
-        >
-          ✈️ Tourism
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'economic' ? 'active' : ''}`}
-          onClick={() => setActiveTab('economic')}
-        >
-          💰 Economic
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'social' ? 'active' : ''}`}
-          onClick={() => setActiveTab('social')}
-        >
-          👥 Social
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'language' ? 'active' : ''}`}
-          onClick={() => setActiveTab('language')}
-        >
-          📚 Language & Literature
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'philosophy' ? 'active' : ''}`}
-          onClick={() => setActiveTab('philosophy')}
-        >
-          🧘 Philosophy & Religion
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'science' ? 'active' : ''}`}
-          onClick={() => setActiveTab('science')}
-        >
-          🔬 Science & Innovation
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'culinary' ? 'active' : ''}`}
-          onClick={() => setActiveTab('culinary')}
-        >
-          🍽️ Culinary & Lifestyle
-        </button>
-      </div>
-
-      <div className="tab-content">
-        {activeTab === 'overview' && renderOverviewTab()}
-        {activeTab === 'cultural' && renderCulturalTab()}
-        {activeTab === 'entertainment' && renderEntertainmentTab()}
-        {activeTab === 'tourism' && renderTourismTab()}
-        {activeTab === 'economic' && renderEconomicTab()}
-        {activeTab === 'social' && renderSocialTab()}
-        {activeTab === 'language' && renderLanguageTab()}
-        {activeTab === 'philosophy' && renderPhilosophyTab()}
-        {activeTab === 'science' && renderScienceTab()}
-        {activeTab === 'culinary' && renderCulinaryTab()}
       </div>
     </div>
+  );
+
+  const renderDestinations = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🌍 Tourism Destinations</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('New Destination')}>🌍 New Destination</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Manage Destinations')}>⚙️ Manage</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Visitors</th>
+                <th>Popularity</th>
+                <th>Revenue</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entertainmentData?.destinations.map(destination => (
+                <tr key={destination.id}>
+                  <td>
+                    <div style={{ maxWidth: '250px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{destination.name}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Stay: {destination.averageStay} days</div>
+                    </div>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getDestinationTypeColor(destination.type),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getDestinationTypeColor(destination.type) + '20'
+                    }}>
+                      {destination.type.replace('_', ' ')}
+                    </span>
+                  </td>
+                  <td>{destination.location}</td>
+                  <td>
+                    <span style={{ color: destination.currentVisitors >= destination.visitorCapacity * 0.8 ? '#10b981' : destination.currentVisitors >= destination.visitorCapacity * 0.5 ? '#f59e0b' : '#ef4444' }}>
+                      {formatNumber(destination.currentVisitors)}/{formatNumber(destination.visitorCapacity)}
+                    </span>
+                  </td>
+                  <td>
+                    <span style={{ color: destination.popularity >= 9.0 ? '#10b981' : destination.popularity >= 8.0 ? '#f59e0b' : '#ef4444' }}>
+                      {destination.popularity}/10.0
+                    </span>
+                  </td>
+                  <td>{formatCurrency(destination.revenue)}</td>
+                  <td>
+                    <button className="standard-btn social-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderEvents = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>🎪 Cultural Events</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn social-theme" onClick={() => console.log('New Event')}>🎪 New Event</button>
+          <button className="standard-btn social-theme" onClick={() => console.log('Manage Events')}>⚙️ Manage</button>
+        </div>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Venue</th>
+                <th>Date</th>
+                <th>Expected</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entertainmentData?.events.map(event => (
+                <tr key={event.id}>
+                  <td>
+                    <div style={{ maxWidth: '300px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{event.name}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{event.description}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      color: getEventTypeColor(event.type),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getEventTypeColor(event.type) + '20'
+                    }}>
+                      {event.type}
+                    </span>
+                  </td>
+                  <td>{event.venue}</td>
+                  <td>{new Date(event.date).toLocaleDateString()}</td>
+                  <td>{formatNumber(event.expectedAttendance)}</td>
+                  <td>
+                    <span style={{ 
+                      color: getStatusColor(event.status),
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: getStatusColor(event.status) + '20'
+                    }}>
+                      {event.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn social-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAnalytics = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel social-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#10b981' }}>📈 Entertainment Analytics</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+          <div className="chart-container">
+            <LineChart
+              data={entertainmentData?.analytics.visitorTrends.map(trend => ({
+                name: trend.date,
+                'Total Visitors': trend.totalVisitors / 1000,
+                'Venue Visitors': trend.venueVisitors / 1000,
+                'Destination Visitors': trend.destinationVisitors / 1000,
+                'Event Attendees': trend.eventAttendees / 1000
+              })) || []}
+              title="Visitor Trends (Thousands)"
+              height={300}
+              width={500}
+              showTooltip={true}
+            />
+          </div>
+          <div className="chart-container">
+            <PieChart
+              data={entertainmentData?.analytics.revenueBreakdown.map(category => ({
+                name: category.category,
+                value: category.revenue
+              })) || []}
+              title="Revenue by Category"
+              size={250}
+              showLegend={true}
+            />
+          </div>
+        </div>
+        <div style={{ marginTop: '2rem' }}>
+          <h4 style={{ marginBottom: '1rem', color: '#10b981' }}>Top Performing Locations</h4>
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Visitors</th>
+                  <th>Rating</th>
+                  <th>Revenue</th>
+                  <th>Growth</th>
+                </tr>
+              </thead>
+              <tbody>
+                {entertainmentData?.analytics.popularityAnalysis.map(location => (
+                  <tr key={location.name}>
+                    <td>{location.name}</td>
+                    <td>{location.type}</td>
+                    <td>{formatNumber(location.visitors)}</td>
+                    <td>
+                      <span style={{ color: location.rating >= 4.5 ? '#10b981' : location.rating >= 4.0 ? '#f59e0b' : '#ef4444' }}>
+                        {location.rating}/5.0
+                      </span>
+                    </td>
+                    <td>{formatCurrency(location.revenue)}</td>
+                    <td>
+                      <span style={{ color: location.growth >= 10 ? '#10b981' : location.growth >= 5 ? '#f59e0b' : '#ef4444' }}>
+                        +{location.growth}%
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <BaseScreen
+      screenId={screenId}
+      title={title}
+      icon={icon}
+      gameContext={gameContext}
+      apiEndpoints={apiEndpoints}
+      onRefresh={fetchEntertainmentData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
+    >
+      <div className="standard-screen-container social-theme">
+        <div className="standard-dashboard">
+          {!loading && !error && entertainmentData ? (
+            <>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'venues' && renderVenues()}
+              {activeTab === 'destinations' && renderDestinations()}
+              {activeTab === 'events' && renderEvents()}
+              {activeTab === 'analytics' && renderAnalytics()}
+            </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading entertainment data...' : 'No entertainment data available'}
+            </div>
+          )}
+        </div>
+      </div>
+    </BaseScreen>
   );
 };
 

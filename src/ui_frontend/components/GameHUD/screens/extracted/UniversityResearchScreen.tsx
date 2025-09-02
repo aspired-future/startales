@@ -1,14 +1,24 @@
+/**
+ * University Research Screen - Academic Research & Development
+ * 
+ * This screen focuses on university research and academic development including:
+ * - Research projects and academic publications
+ * - University profiles and research ratings
+ * - Research collaborations and partnerships
+ * - Academic fields and specializations
+ * - Research funding and citations
+ * 
+ * Distinct from:
+ * - Government Research: Public sector research and development
+ * - Corporate Research: Private sector research and development
+ * - Classified Research: Secret government research projects
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './UniversityResearchScreen.css';
 import '../shared/StandardDesign.css';
-
-interface UniversityResearchScreenProps {
-  screenId: string;
-  title: string;
-  icon: string;
-  gameContext?: any;
-}
+import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface ResearchProject {
   id: string;
@@ -24,6 +34,8 @@ interface ResearchProject {
   publications: number;
   citations: number;
   collaborations: string[];
+  startDate: string;
+  expectedCompletion: string;
 }
 
 interface University {
@@ -36,6 +48,8 @@ interface University {
   faculty: number;
   graduateStudents: number;
   specializations: string[];
+  location: string;
+  established: string;
 }
 
 interface ResearchField {
@@ -44,39 +58,120 @@ interface ResearchField {
   funding: number;
   publications: number;
   breakthroughs: number;
+  researchers: number;
+  institutions: number;
 }
 
-// Define tabs for the header
-const tabs: TabConfig[] = [
-  { id: 'overview', label: 'Overview', icon: '📊' },
-  { id: 'projects', label: 'Research Projects', icon: '🔬' },
-  { id: 'universities', label: 'Universities', icon: '🏛️' },
-  { id: 'collaborations', label: 'Collaborations', icon: '🤝' }
-];
+interface Collaboration {
+  id: string;
+  name: string;
+  type: 'inter-university' | 'industry-partnership' | 'government-grant' | 'international';
+  participants: string[];
+  focus: string;
+  startDate: string;
+  duration: number;
+  totalFunding: number;
+  status: 'proposed' | 'active' | 'completed' | 'cancelled';
+  outcomes: string[];
+  publications: number;
+}
 
-const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({ 
+interface AcademicOverview {
+  totalFunding: number;
+  activeProjects: number;
+  completedProjects: number;
+  publications: number;
+  citations: number;
+  researchInstitutions: number;
+  facultyMembers: number;
+  graduateStudents: number;
+  averageResearchRating: number;
+}
+
+const UniversityResearchScreen: React.FC<ScreenProps> = ({ 
   screenId, 
   title, 
   icon, 
   gameContext 
 }) => {
+  const [researchData, setResearchData] = useState<{
+    overview: AcademicOverview;
+    projects: ResearchProject[];
+    universities: University[];
+    fields: ResearchField[];
+    collaborations: Collaboration[];
+  } | null>(null);
+
   const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'universities' | 'collaborations'>('overview');
-  const [researchData, setResearchData] = useState({
-    projects: [] as ResearchProject[],
-    universities: [] as University[],
-    fields: [] as ResearchField[],
-    totalFunding: 0,
-    activeProjects: 0,
-    completedProjects: 0,
-    publications: 0,
-    citations: 0
-  });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'projects', label: 'Projects', icon: '🔬' },
+    { id: 'universities', label: 'Universities', icon: '🏛️' },
+    { id: 'collaborations', label: 'Collaborations', icon: '🤝' }
+  ];
+
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/university-research', description: 'Get university research data' }
+  ];
+
+  // Utility functions
+  const formatCurrency = (value: number, currency: string = 'USD') => {
+    if (value >= 1e12) return `${currency} ${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `${currency} ${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${currency} ${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${currency} ${(value / 1e3).toFixed(0)}K`;
+    return `${currency} ${value}`;
+  };
+
+  const formatNumber = (value: number) => {
+    if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+    return value.toString();
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return '#10b981';
+      case 'completed': return '#6b7280';
+      case 'review': return '#fbbf24';
+      case 'planning': return '#f59e0b';
+      case 'suspended': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getUniversityTypeColor = (type: string) => {
+    switch (type) {
+      case 'research': return '#ef4444';
+      case 'comprehensive': return '#3b82f6';
+      case 'technical': return '#f59e0b';
+      case 'liberal-arts': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getCollaborationTypeColor = (type: string) => {
+    switch (type) {
+      case 'international': return '#ef4444';
+      case 'government-grant': return '#3b82f6';
+      case 'industry-partnership': return '#f59e0b';
+      case 'inter-university': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
 
   const fetchUniversityResearchData = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       // Try to fetch from API
       const response = await fetch('http://localhost:4000/api/university-research');
       if (response.ok) {
@@ -89,6 +184,17 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
       console.warn('Failed to fetch university research data:', err);
       // Use comprehensive mock data
       setResearchData({
+        overview: {
+          totalFunding: 62500000,
+          activeProjects: 87,
+          completedProjects: 234,
+          publications: 1189,
+          citations: 12456,
+          researchInstitutions: 15,
+          facultyMembers: 2340,
+          graduateStudents: 8900,
+          averageResearchRating: 8.9
+        },
         projects: [
           {
             id: 'proj-001',
@@ -103,7 +209,9 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
             description: 'Developing quantum-resistant encryption algorithms for interstellar communications',
             publications: 12,
             citations: 234,
-            collaborations: ['Imperial Defense Labs', 'Galactic Security Council']
+            collaborations: ['Imperial Defense Labs', 'Galactic Security Council'],
+            startDate: '2024-01-15',
+            expectedCompletion: '2027-01-15'
           },
           {
             id: 'proj-002',
@@ -118,7 +226,9 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
             description: 'Creating self-sustaining atmospheric systems for terraforming operations',
             publications: 8,
             citations: 156,
-            collaborations: ['Colonial Development Corp', 'Terraforming Initiative']
+            collaborations: ['Colonial Development Corp', 'Terraforming Initiative'],
+            startDate: '2024-02-01',
+            expectedCompletion: '2028-02-01'
           },
           {
             id: 'proj-003',
@@ -133,37 +243,9 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
             description: 'Direct brain-computer interfaces for enhanced human-AI collaboration',
             publications: 15,
             citations: 445,
-            collaborations: ['AI Research Consortium', 'Medical Ethics Board']
-          },
-          {
-            id: 'proj-004',
-            title: 'Sustainable Fusion Reactor Design',
-            field: 'Physics',
-            university: 'Imperial Energy Institute',
-            leadResearcher: 'Dr. Ahmed Hassan',
-            status: 'active',
-            progress: 34,
-            funding: 4500000,
-            duration: '6 years',
-            description: 'Next-generation fusion reactors for planetary and starship power systems',
-            publications: 6,
-            citations: 89,
-            collaborations: ['Energy Consortium', 'Starship Engineering Corps']
-          },
-          {
-            id: 'proj-005',
-            title: 'Xenobiology and Alien Ecosystem Studies',
-            field: 'Biology',
-            university: 'Frontier Research University',
-            leadResearcher: 'Prof. Lisa Rodriguez',
-            status: 'planning',
-            progress: 12,
-            funding: 2100000,
-            duration: '4 years',
-            description: 'Comprehensive study of alien life forms and ecosystem integration',
-            publications: 2,
-            citations: 23,
-            collaborations: ['Exploration Command', 'Xenobiology Institute']
+            collaborations: ['AI Research Consortium', 'Medical Ethics Board'],
+            startDate: '2023-09-01',
+            expectedCompletion: '2028-09-01'
           }
         ],
         universities: [
@@ -176,7 +258,9 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
             activeProjects: 23,
             faculty: 456,
             graduateStudents: 1234,
-            specializations: ['Computer Science', 'Engineering', 'Physics', 'Mathematics']
+            specializations: ['Computer Science', 'Engineering', 'Physics', 'Mathematics'],
+            location: 'Zephyr Prime',
+            established: '2156'
           },
           {
             id: 'ntu',
@@ -187,7 +271,9 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
             activeProjects: 18,
             faculty: 678,
             graduateStudents: 2100,
-            specializations: ['Environmental Science', 'Agriculture', 'Geology', 'Climate Studies']
+            specializations: ['Environmental Science', 'Agriculture', 'Geology', 'Climate Studies'],
+            location: 'New Terra',
+            established: '2189'
           },
           {
             id: 'cmc',
@@ -198,36 +284,48 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
             activeProjects: 31,
             faculty: 234,
             graduateStudents: 890,
-            specializations: ['Medicine', 'Neuroscience', 'Biotechnology', 'Genetics']
-          },
-          {
-            id: 'iei',
-            name: 'Imperial Energy Institute',
-            type: 'research',
-            researchRating: 9.0,
-            totalFunding: 18700000,
-            activeProjects: 15,
-            faculty: 189,
-            graduateStudents: 567,
-            specializations: ['Physics', 'Energy Systems', 'Nuclear Engineering', 'Materials Science']
+            specializations: ['Medicine', 'Neuroscience', 'Biotechnology', 'Genetics'],
+            location: 'Alpha Centauri',
+            established: '2178'
           }
         ],
         fields: [
-          { name: 'Computer Science', projects: 12, funding: 8900000, publications: 145, breakthroughs: 3 },
-          { name: 'Medicine', projects: 18, funding: 12300000, publications: 234, breakthroughs: 5 },
-          { name: 'Physics', projects: 9, funding: 15600000, publications: 89, breakthroughs: 2 },
-          { name: 'Environmental Science', projects: 14, funding: 6700000, publications: 167, breakthroughs: 4 },
-          { name: 'Engineering', projects: 21, funding: 11200000, publications: 198, breakthroughs: 6 },
-          { name: 'Biology', projects: 16, funding: 7800000, publications: 156, breakthroughs: 3 }
+          { name: 'Computer Science', projects: 12, funding: 8900000, publications: 145, breakthroughs: 3, researchers: 89, institutions: 8 },
+          { name: 'Medicine', projects: 18, funding: 12300000, publications: 234, breakthroughs: 5, researchers: 156, institutions: 12 },
+          { name: 'Physics', projects: 9, funding: 15600000, publications: 89, breakthroughs: 2, researchers: 67, institutions: 6 },
+          { name: 'Environmental Science', projects: 14, funding: 6700000, publications: 167, breakthroughs: 4, researchers: 98, institutions: 9 },
+          { name: 'Engineering', projects: 21, funding: 11200000, publications: 198, breakthroughs: 6, researchers: 134, institutions: 11 },
+          { name: 'Biology', projects: 16, funding: 7800000, publications: 156, breakthroughs: 3, researchers: 112, institutions: 10 }
         ],
-        totalFunding: 62500000,
-        activeProjects: 87,
-        completedProjects: 234,
-        publications: 1189,
-        citations: 12456
+        collaborations: [
+          {
+            id: 'collab_001',
+            name: 'Interstellar Research Consortium',
+            type: 'inter-university',
+            participants: ['Zephyrian Institute', 'New Terra University', 'Centauri Medical College'],
+            focus: 'Cross-disciplinary space research',
+            startDate: '2024-01-01',
+            duration: 36,
+            totalFunding: 15000000,
+            status: 'active',
+            outcomes: ['Improved research coordination', 'Shared resources', 'Joint publications'],
+            publications: 28
+          },
+          {
+            id: 'collab_002',
+            name: 'AI Ethics Research Partnership',
+            type: 'industry-partnership',
+            participants: ['Centauri Medical College', 'AI Research Consortium'],
+            focus: 'Ethical AI development and medical applications',
+            startDate: '2023-11-01',
+            duration: 24,
+            totalFunding: 8000000,
+            status: 'active',
+            outcomes: ['Ethical guidelines', 'Medical AI protocols', 'Safety standards'],
+            publications: 15
+          }
+        ]
       });
-      // Don't set error for mock data - it's expected behavior
-      console.log('Using mock data for University Research');
     } finally {
       setLoading(false);
     }
@@ -237,129 +335,149 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
     fetchUniversityResearchData();
   }, [fetchUniversityResearchData]);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('University Research Screen State:', {
-      loading,
-      error,
-      activeTab,
-      hasData: researchData && researchData.projects.length > 0,
-      projectsCount: researchData?.projects?.length || 0,
-      universitiesCount: researchData?.universities?.length || 0,
-      fieldsCount: researchData?.fields?.length || 0
-    });
-  }, [loading, error, activeTab, researchData]);
-
-  // Debug logging
-  useEffect(() => {
-    console.log('University Research Screen State:', {
-      loading,
-      error,
-      activeTab,
-      hasData: researchData && researchData.projects.length > 0,
-      projectsCount: researchData?.projects?.length || 0,
-      researchData: researchData
-    });
-  }, [loading, error, activeTab, researchData]);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return '#4CAF50';
-      case 'planning': return '#2196F3';
-      case 'review': return '#FF9800';
-      case 'completed': return '#9C27B0';
-      case 'suspended': return '#F44336';
-      default: return '#757575';
-    }
-  };
-
-  const getUniversityTypeIcon = (type: string) => {
-    switch (type) {
-      case 'research': return '🔬';
-      case 'comprehensive': return '🏛️';
-      case 'liberal-arts': return '🎨';
-      case 'technical': return '⚙️';
-      default: return '🎓';
-    }
-  };
-
-  // API endpoints for the screen
-  const apiEndpoints: APIEndpoint[] = [
-    { path: '/api/university-research', method: 'GET', description: 'University Research Data' },
-    { path: '/api/university-research/projects', method: 'GET', description: 'Research Projects' },
-    { path: '/api/university-research/universities', method: 'GET', description: 'Universities' },
-    { path: '/api/university-research/fields', method: 'GET', description: 'Research Fields' }
-  ];
-
-  if (loading) {
-    return (
-      <BaseScreen
-        screenId={screenId}
-        title={title}
-        icon={icon}
-        gameContext={gameContext}
-        apiEndpoints={apiEndpoints}
-        onRefresh={fetchUniversityResearchData}
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'projects' | 'universities' | 'collaborations')}
-      >
-        <div className="standard-screen-container academic-theme">
-          <div className="loading-overlay">Loading university research data...</div>
-        </div>
-      </BaseScreen>
-    );
-  }
-
-  const renderOverviewTab = () => (
+  // Render functions for each tab
+  const renderOverview = () => (
     <>
-      {/* Research Overview - First card in 2-column grid */}
-      <div className="standard-panel academic-theme">
-        <h3 style={{ marginBottom: '1rem', color: '#9c27b0' }}>📊 Research Overview</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
-          <div className="standard-metric">
-            <span>Active Projects</span>
-            <span className="standard-metric-value">{researchData.activeProjects}</span>
-          </div>
+      {/* Academic Research Overview - Full panel width */}
+      <div className="standard-panel technology-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>📊 Academic Research Overview</h3>
+        <div className="standard-metric-grid">
           <div className="standard-metric">
             <span>Total Funding</span>
-            <span className="standard-metric-value">${(researchData.totalFunding / 1000000).toFixed(1)}M</span>
+            <span className="standard-metric-value">{formatCurrency(researchData?.overview?.totalFunding || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Active Projects</span>
+            <span className="standard-metric-value">{researchData?.overview?.activeProjects || 0}</span>
           </div>
           <div className="standard-metric">
             <span>Publications</span>
-            <span className="standard-metric-value">{researchData.publications}</span>
+            <span className="standard-metric-value">{formatNumber(researchData?.overview?.publications || 0)}</span>
           </div>
           <div className="standard-metric">
             <span>Citations</span>
-            <span className="standard-metric-value">{researchData.citations.toLocaleString()}</span>
+            <span className="standard-metric-value">{formatNumber(researchData?.overview?.citations || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Research Institutions</span>
+            <span className="standard-metric-value">{researchData?.overview?.researchInstitutions || 0}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Faculty Members</span>
+            <span className="standard-metric-value">{formatNumber(researchData?.overview?.facultyMembers || 0)}</span>
           </div>
         </div>
         <div className="standard-action-buttons">
-          <button className="standard-btn academic-theme" onClick={() => console.log('Generate Research Report')}>Generate Report</button>
-          <button className="standard-btn academic-theme" onClick={() => console.log('View Analytics')}>View Analytics</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Academic Analysis')}>Academic Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Research Review')}>Research Review</button>
         </div>
       </div>
 
-      {/* Research Fields Overview - Second card in 2-column grid */}
-      <div className="standard-panel academic-theme">
-        <h3 style={{ marginBottom: '1rem', color: '#9c27b0' }}>🔬 Research Fields</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-          {researchData.fields.slice(0, 4).map((field, index) => (
-            <div key={index} className="standard-metric">
-              <span>{field.name}</span>
-              <span className="standard-metric-value">{field.projects} projects</span>
+      {/* Active Research Projects - Full panel width */}
+      <div className="standard-panel technology-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>🔬 Active Research Projects</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Field</th>
+                <th>University</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Funding</th>
+                <th>Publications</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {researchData?.projects?.slice(0, 5).map((project) => (
+                <tr key={project.id}>
+                  <td>
+                    <strong>{project.title}</strong><br />
+                    <small style={{ color: '#a0a9ba' }}>{project.leadResearcher}</small>
+                  </td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: '#8b5cf6', 
+                      color: 'white' 
+                    }}>
+                      {project.field}
+                    </span>
+                  </td>
+                  <td>{project.university}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(project.status), 
+                      color: 'white' 
+                    }}>
+                      {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>{project.progress}%</td>
+                  <td>{formatCurrency(project.funding)}</td>
+                  <td>{project.publications}</td>
+                  <td>
+                    <button className="standard-btn technology-theme">Details</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Research Analytics - Full panel width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div className="standard-panel technology-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>📈 Research Analytics</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+            <div className="chart-container">
+              <BarChart
+                data={researchData?.projects?.map(proj => ({
+                  label: proj.title.substring(0, 20) + '...',
+                  value: proj.progress,
+                  color: getStatusColor(proj.status)
+                })) || []}
+                title="🔬 Project Progress (%)"
+                height={250}
+                width={400}
+                showTooltip={true}
+              />
             </div>
-          ))}
+            <div className="chart-container">
+              <PieChart
+                data={researchData?.fields?.map((field, index) => ({
+                  label: field.name,
+                  value: field.projects,
+                  color: ['#8b5cf6', '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#fbbf24'][index % 6]
+                })) || []}
+                title="📚 Research Fields Distribution"
+                size={200}
+                showLegend={true}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </>
   );
 
-  const renderProjectsTab = () => (
-    <>
-      {/* Research Projects Overview */}
-      <div className="standard-panel academic-theme table-panel">
-        <h3 style={{ marginBottom: '1rem', color: '#9c27b0' }}>🔬 Research Projects</h3>
+  const renderProjects = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel technology-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>🔬 Research Projects</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('Project Analysis')}>Project Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Funding Review')}>Funding Review</button>
+        </div>
+        
         <div className="standard-table-container">
           <table className="standard-data-table">
             <thead>
@@ -371,24 +489,25 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
                 <th>Status</th>
                 <th>Progress</th>
                 <th>Funding</th>
+                <th>Duration</th>
                 <th>Publications</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {researchData.projects.map(project => (
+              {researchData?.projects?.map((project) => (
                 <tr key={project.id}>
                   <td>
                     <strong>{project.title}</strong><br />
-                    <small style={{ color: '#a0a9ba' }}>{project.duration}</small>
+                    <small style={{ color: '#a0a9ba' }}>{project.description}</small>
                   </td>
                   <td>
                     <span style={{ 
-                      padding: '0.3rem 0.6rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      backgroundColor: '#9c27b0',
-                      color: 'white'
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: '#8b5cf6', 
+                      color: 'white' 
                     }}>
                       {project.field}
                     </span>
@@ -397,37 +516,21 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
                   <td>{project.leadResearcher}</td>
                   <td>
                     <span style={{ 
-                      padding: '0.3rem 0.6rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      backgroundColor: getStatusColor(project.status),
-                      color: 'white'
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(project.status), 
+                      color: 'white' 
                     }}>
                       {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
                     </span>
                   </td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <div style={{ 
-                        width: '60px', 
-                        height: '8px', 
-                        backgroundColor: '#e0e0e0', 
-                        borderRadius: '4px',
-                        overflow: 'hidden'
-                      }}>
-                        <div style={{ 
-                          width: `${project.progress}%`, 
-                          height: '100%', 
-                          backgroundColor: getStatusColor(project.status)
-                        }}></div>
-                      </div>
-                      <span style={{ fontSize: '0.8rem' }}>{project.progress}%</span>
-                    </div>
-                  </td>
-                  <td>${(project.funding / 1000000).toFixed(1)}M</td>
+                  <td>{project.progress}%</td>
+                  <td>{formatCurrency(project.funding)}</td>
+                  <td>{project.duration}</td>
                   <td>{project.publications}</td>
                   <td>
-                    <button className="standard-btn academic-theme">Details</button>
+                    <button className="standard-btn technology-theme">Manage</button>
                   </td>
                 </tr>
               ))}
@@ -435,14 +538,18 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 
-  const renderUniversitiesTab = () => (
-    <>
-      {/* Universities Overview */}
-      <div className="standard-panel academic-theme table-panel">
-        <h3 style={{ marginBottom: '1rem', color: '#9c27b0' }}>🏛️ Research Universities</h3>
+  const renderUniversities = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel technology-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>🏛️ Research Universities</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('University Analysis')}>University Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Rating Review')}>Rating Review</button>
+        </div>
+        
         <div className="standard-table-container">
           <table className="standard-data-table">
             <thead>
@@ -454,71 +561,36 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
                 <th>Active Projects</th>
                 <th>Faculty</th>
                 <th>Graduate Students</th>
-                <th>Specializations</th>
+                <th>Location</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {researchData.universities.map(university => (
+              {researchData?.universities?.map((university) => (
                 <tr key={university.id}>
                   <td>
-                    <strong>{university.name}</strong>
+                    <strong>{university.name}</strong><br />
+                    <small style={{ color: '#a0a9ba' }}>Est. {university.established}</small>
                   </td>
                   <td>
                     <span style={{ 
-                      padding: '0.3rem 0.6rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      backgroundColor: '#9c27b0',
-                      color: 'white'
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getUniversityTypeColor(university.type), 
+                      color: 'white' 
                     }}>
                       {university.type.replace('-', ' ').toUpperCase()}
                     </span>
                   </td>
-                  <td>
-                    <span style={{ 
-                      padding: '0.3rem 0.6rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      backgroundColor: '#4caf50',
-                      color: 'white',
-                      fontWeight: 'bold'
-                    }}>
-                      {university.researchRating}
-                    </span>
-                  </td>
-                  <td>${(university.totalFunding / 1000000).toFixed(1)}M</td>
+                  <td>{university.researchRating}/10</td>
+                  <td>{formatCurrency(university.totalFunding)}</td>
                   <td>{university.activeProjects}</td>
-                  <td>{university.faculty}</td>
-                  <td>{university.graduateStudents}</td>
+                  <td>{formatNumber(university.faculty)}</td>
+                  <td>{formatNumber(university.graduateStudents)}</td>
+                  <td>{university.location}</td>
                   <td>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
-                      {university.specializations.slice(0, 3).map((spec, i) => (
-                        <span key={i} style={{ 
-                          padding: '0.2rem 0.4rem',
-                          borderRadius: '3px',
-                          fontSize: '0.7rem',
-                          backgroundColor: '#673ab7',
-                          color: 'white'
-                        }}>
-                          {spec}
-                        </span>
-                      ))}
-                      {university.specializations.length > 3 && (
-                        <span style={{ 
-                          padding: '0.2rem 0.4rem',
-                          borderRadius: '3px',
-                          fontSize: '0.7rem',
-                          backgroundColor: '#757575',
-                          color: 'white'
-                        }}>
-                          +{university.specializations.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td>
-                    <button className="standard-btn academic-theme">Manage</button>
+                    <button className="standard-btn technology-theme">View</button>
                   </td>
                 </tr>
               ))}
@@ -526,152 +598,74 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 
-  const renderCollaborationsTab = () => (
-    <>
-      {/* Research Collaborations Overview */}
-      <div className="standard-panel academic-theme table-panel">
-        <h3 style={{ marginBottom: '1rem', color: '#9c27b0' }}>🤝 Research Collaborations</h3>
+  const renderCollaborations = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel technology-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#8b5cf6' }}>🤝 Research Collaborations</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn technology-theme" onClick={() => console.log('Collaboration Analysis')}>Collaboration Analysis</button>
+          <button className="standard-btn technology-theme" onClick={() => console.log('Partnership Review')}>Partnership Review</button>
+        </div>
+        
         <div className="standard-table-container">
           <table className="standard-data-table">
             <thead>
               <tr>
-                <th>Partnership Type</th>
-                <th>Organization</th>
-                <th>Research Area</th>
-                <th>University Partner</th>
+                <th>Collaboration</th>
+                <th>Type</th>
+                <th>Participants</th>
+                <th>Focus</th>
                 <th>Status</th>
+                <th>Total Funding</th>
+                <th>Duration</th>
+                <th>Publications</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  <span style={{ 
-                    padding: '0.3rem 0.6rem',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    backgroundColor: '#2196f3',
-                    color: 'white'
-                  }}>
-                    Government
-                  </span>
-                </td>
-                <td>Imperial Defense Labs</td>
-                <td>Quantum Computing & Cryptography</td>
-                <td>Zephyrian Institute of Technology</td>
-                <td>
-                  <span style={{ 
-                    padding: '0.3rem 0.6rem',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    backgroundColor: '#4caf50',
-                    color: 'white'
-                  }}>
-                    Active
-                  </span>
-                </td>
-                <td>
-                  <button className="standard-btn academic-theme">Details</button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <span style={{ 
-                    padding: '0.3rem 0.6rem',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    backgroundColor: '#ff9800',
-                    color: 'white'
-                  }}>
-                    Corporate
-                  </span>
-                </td>
-                <td>Colonial Development Corp</td>
-                <td>Atmospheric Processing</td>
-                <td>New Terra University</td>
-                <td>
-                  <span style={{ 
-                    padding: '0.3rem 0.6rem',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    backgroundColor: '#4caf50',
-                    color: 'white'
-                  }}>
-                    Active
-                  </span>
-                </td>
-                <td>
-                  <button className="standard-btn academic-theme">Details</button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <span style={{ 
-                    padding: '0.3rem 0.6rem',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    backgroundColor: '#9c27b0',
-                    color: 'white'
-                  }}>
-                    Inter-Galactic
-                  </span>
-                </td>
-                <td>Centauri Research Exchange</td>
-                <td>Medical Technology</td>
-                <td>Centauri Medical College</td>
-                <td>
-                  <span style={{ 
-                    padding: '0.3rem 0.6rem',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    backgroundColor: '#4caf50',
-                    color: 'white'
-                  }}>
-                    Active
-                  </span>
-                </td>
-                <td>
-                  <button className="standard-btn academic-theme">Details</button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <span style={{ 
-                    padding: '0.3rem 0.6rem',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    backgroundColor: '#2196f3',
-                    color: 'white'
-                  }}>
-                    Government
-                  </span>
-                </td>
-                <td>Energy Consortium</td>
-                <td>Fusion Reactor Development</td>
-                <td>Imperial Energy Institute</td>
-                <td>
-                  <span style={{ 
-                    padding: '0.3rem 0.6rem',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    backgroundColor: '#4caf50',
-                    color: 'white'
-                  }}>
-                    Active
-                  </span>
-                </td>
-                <td>
-                  <button className="standard-btn academic-theme">Details</button>
-                </td>
-              </tr>
+              {researchData?.collaborations?.map((collab) => (
+                <tr key={collab.id}>
+                  <td><strong>{collab.name}</strong></td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getCollaborationTypeColor(collab.type), 
+                      color: 'white' 
+                    }}>
+                      {collab.type.replace('-', ' ').toUpperCase()}
+                    </span>
+                  </td>
+                  <td>{collab.participants.join(', ')}</td>
+                  <td>{collab.focus}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getStatusColor(collab.status), 
+                      color: 'white' 
+                    }}>
+                      {collab.status.charAt(0).toUpperCase() + collab.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>{formatCurrency(collab.totalFunding)}</td>
+                  <td>{collab.duration} months</td>
+                  <td>{collab.publications}</td>
+                  <td>
+                    <button className="standard-btn technology-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 
   return (
@@ -684,22 +678,18 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
       onRefresh={fetchUniversityResearchData}
       tabs={tabs}
       activeTab={activeTab}
-      onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'projects' | 'universities' | 'collaborations')}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
     >
-      <div className="standard-screen-container academic-theme">
+      <div className="standard-screen-container technology-theme">
         {error && <div className="error-message">Error: {error}</div>}
         
         <div className="standard-dashboard">
-          {!loading && researchData && researchData.projects.length > 0 ? (
+          {!loading && !error && researchData ? (
             <>
-              {activeTab === 'overview' && renderOverviewTab()}
-              
-              {/* Tab Content - Full width below cards */}
-              <div style={{ gridColumn: '1 / -1' }}>
-                {activeTab === 'projects' && renderProjectsTab()}
-                {activeTab === 'universities' && renderUniversitiesTab()}
-                {activeTab === 'collaborations' && renderCollaborationsTab()}
-              </div>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'projects' && renderProjects()}
+              {activeTab === 'universities' && renderUniversities()}
+              {activeTab === 'collaborations' && renderCollaborations()}
             </>
           ) : (
             <div style={{ 
@@ -709,9 +699,7 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
               color: '#a0a9ba',
               fontSize: '1.1rem'
             }}>
-              {loading ? 'Loading university research data...' : 
-               error ? `Error: ${error}` : 
-               'No research data available'}
+              {loading ? 'Loading university research data...' : 'No university research data available'}
             </div>
           )}
         </div>
@@ -721,3 +709,4 @@ const UniversityResearchScreen: React.FC<UniversityResearchScreenProps> = ({
 };
 
 export default UniversityResearchScreen;
+

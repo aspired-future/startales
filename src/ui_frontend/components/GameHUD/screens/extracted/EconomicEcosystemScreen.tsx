@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import BaseScreen, { ScreenProps, APIEndpoint } from '../BaseScreen';
+import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from '../BaseScreen';
 import './EconomicEcosystemScreen.css';
+import '../shared/StandardDesign.css';
 import { LineChart, PieChart, BarChart } from '../../../Charts';
 
 interface City {
@@ -98,21 +99,127 @@ interface EconomicEcosystemData {
 
 const EconomicEcosystemScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameContext }) => {
   const [ecosystemData, setEcosystemData] = useState<EconomicEcosystemData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'cities' | 'products' | 'corporations' | 'supply-chains' | 'trade' | 'talent'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'cities' | 'corporations' | 'supply-chains' | 'trade'>('overview');
 
-  const apiEndpoints: APIEndpoint[] = [
-    { path: '/api/economic-ecosystem/overview', method: 'GET', description: 'Economic ecosystem overview' },
-    { path: '/api/economic-ecosystem/cities', method: 'GET', description: 'Dynamic city markets' },
-    { path: '/api/economic-ecosystem/products', method: 'GET', description: 'Product categories' },
-    { path: '/api/economic-ecosystem/corporations', method: 'GET', description: 'Procedural corporations' },
-    { path: '/api/economic-ecosystem/supply-chains', method: 'GET', description: 'Supply chain data' },
-    { path: '/api/economic-ecosystem/trade-policies', method: 'GET', description: 'Trade policies' },
-    { path: '/api/economic-ecosystem/skills-talent', method: 'GET', description: 'Skills and talent data' }
+  // Define tabs for the header (max 5 tabs)
+  const tabs: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'cities', label: 'Cities', icon: '🏙️' },
+    { id: 'corporations', label: 'Corporations', icon: '🏢' },
+    { id: 'supply-chains', label: 'Supply Chains', icon: '🔗' },
+    { id: 'trade', label: 'Trade', icon: '🌐' }
   ];
 
-  // Mock data generators
+  // API endpoints
+  const apiEndpoints: APIEndpoint[] = [
+    { method: 'GET', path: '/api/economic-ecosystem', description: 'Get economic ecosystem data' }
+  ];
+
+  // Utility functions
+  const formatCurrency = (value: number) => {
+    if (value >= 1e12) return `$${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `$${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `$${(value / 1e3).toFixed(0)}K`;
+    return `$${value}`;
+  };
+
+  const formatNumber = (value: number) => {
+    if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
+    if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+    return value.toString();
+  };
+
+  const formatPopulation = (value: number) => {
+    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+    return value.toString();
+  };
+
+  const getTierColor = (tier: string) => {
+    switch (tier) {
+      case 'post-scarcity': return '#10b981';
+      case 'advanced': return '#fbbf24';
+      case 'industrial': return '#f59e0b';
+      case 'developing': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'critical': return '#ef4444';
+      case 'high': return '#f59e0b';
+      case 'medium': return '#fbbf24';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getEquilibriumColor = (equilibrium: string) => {
+    switch (equilibrium) {
+      case 'surplus': return '#10b981';
+      case 'balanced': return '#fbbf24';
+      case 'deficit': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const getRelationshipColor = (relationship: string) => {
+    switch (relationship) {
+      case 'ally': return '#10b981';
+      case 'neutral': return '#fbbf24';
+      case 'competitor': return '#f59e0b';
+      case 'hostile': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const fetchEcosystemData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Try to fetch from API
+      const response = await fetch('http://localhost:4000/api/economic-ecosystem');
+      if (response.ok) {
+        const data = await response.json();
+        setEcosystemData(data);
+      } else {
+        throw new Error('API not available');
+      }
+    } catch (err) {
+      console.warn('Failed to fetch economic ecosystem data:', err);
+      // Use comprehensive mock data
+      setEcosystemData({
+        overview: {
+          totalCities: 47,
+          totalCorporations: 1250,
+          totalProducts: 8500,
+          economicGrowth: 4.2,
+          tradeVolume: 2.8e12,
+          employmentRate: 94.5
+        },
+        cities: generateMockCities(),
+        products: generateMockProducts(),
+        corporations: generateMockCorporations(),
+        supplyChains: generateMockSupplyChains(),
+        tradePolicies: generateMockTradePolicies(),
+        skillsTalent: generateMockSkillsTalent()
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEcosystemData();
+  }, [fetchEcosystemData]);
+
   const generateMockCities = (): City[] => [
     {
       id: '1',
@@ -190,121 +297,75 @@ const EconomicEcosystemScreen: React.FC<ScreenProps> = ({ screenId, title, icon,
       currentProducts: 15,
       keyPlayers: ['Neural Software', 'Quantum Logic Systems'],
       status: 'medium'
-    },
-    {
-      id: '4',
-      name: 'Food Products',
-      technologyLevel: 3,
-      trackIndividually: false,
-      strategicImportance: 'medium',
-      currentProducts: 50,
-      keyPlayers: ['Galactic Agriculture', 'Synthetic Foods Corp'],
-      status: 'medium'
-    },
-    {
-      id: '5',
-      name: 'Energy Systems',
-      technologyLevel: 9,
-      trackIndividually: true,
-      strategicImportance: 'high',
-      currentProducts: 5,
-      keyPlayers: ['Fusion Dynamics', 'Solar Tech Industries'],
-      status: 'high'
     }
   ];
 
   const generateMockCorporations = (): Corporation[] => [
     {
       id: '1',
-      name: 'QuantumTech Solutions',
-      symbol: 'QUTS',
+      name: 'QuantumCore Technologies',
+      symbol: 'QCT',
       sector: 'Technology',
       size: 'large',
       marketCap: 850000000000,
       employees: 125000,
-      ceo: 'Dr. Elena Vasquez',
-      founded: 2387,
-      advantages: ['Quantum Error Correction', 'Neural Interface Patents', 'Military Contracts']
+      ceo: 'Dr. Elena Rodriguez',
+      founded: 2045,
+      advantages: ['Quantum Patents', 'Government Contracts', 'R&D Investment']
     },
     {
       id: '2',
-      name: 'BioLife Therapeutics',
-      symbol: 'BILT',
-      sector: 'Healthcare',
-      size: 'medium',
-      marketCap: 420000000000,
-      employees: 75000,
-      ceo: 'Dr. Sarah Kim-Nakamura',
-      founded: 2385,
-      advantages: ['Gene Editing Technology', 'Clinical Trial Expertise', 'Regulatory Approval']
+      name: 'NovaSpace Industries',
+      symbol: 'NSI',
+      sector: 'Aerospace',
+      size: 'large',
+      marketCap: 650000000000,
+      employees: 89000,
+      ceo: 'Marcus Chen',
+      founded: 2042,
+      advantages: ['Space Technology', 'Military Contracts', 'Innovation']
     },
     {
       id: '3',
-      name: 'WarpDrive Logistics',
-      symbol: 'WARP',
-      sector: 'Transportation',
-      size: 'large',
-      marketCap: 680000000000,
-      employees: 72000,
-      ceo: 'Captain Yuki Tanaka',
-      founded: 2390,
-      advantages: ['Fastest Warp Technology', 'Largest Fleet', 'Navigation Systems']
-    },
-    {
-      id: '4',
-      name: 'Defense Dynamics',
-      symbol: 'DEFD',
-      sector: 'Defense',
-      size: 'large',
-      marketCap: 920000000000,
-      employees: 95000,
-      ceo: 'General Marcus Steel',
-      founded: 2382,
-      advantages: ['Military Contracts', 'Advanced Weaponry', 'Security Clearance']
+      name: 'BioX Solutions',
+      symbol: 'BXS',
+      sector: 'Healthcare',
+      size: 'medium',
+      marketCap: 320000000000,
+      employees: 45000,
+      ceo: 'Dr. Sarah Kim',
+      founded: 2048,
+      advantages: ['Biotech Patents', 'Clinical Trials', 'Regulatory Expertise']
     }
   ];
 
   const generateMockSupplyChains = (): SupplyChain[] => [
     {
       id: '1',
-      productName: 'QuantumCore Q-1000',
-      corporation: 'QuantumTech Solutions',
-      location: 'Neo Silicon Valley',
-      output: '100 units/month',
+      productName: 'Quantum Processors',
+      corporation: 'QuantumCore Technologies',
+      location: 'Quantum Heights',
+      output: '500 units/month',
       materials: [
-        { name: 'Quantum Crystals', quantity: '5kg' },
-        { name: 'Rare Earth Elements', quantity: '50kg' },
-        { name: 'Quantum Processors', quantity: '10 units' }
+        { name: 'Quantum Crystals', quantity: '100kg' },
+        { name: 'Neural Interface Chips', quantity: '2000 units' },
+        { name: 'Cooling Systems', quantity: '500 units' }
       ],
-      efficiency: 95,
+      efficiency: 92,
       capacityUtilization: 85
     },
     {
       id: '2',
-      productName: 'Plasma Rifle MK-VII',
-      corporation: 'Defense Dynamics',
-      location: 'Industrial Complex Prime',
-      output: '1,000 units/month',
+      productName: 'Spacecraft Components',
+      corporation: 'NovaSpace Industries',
+      location: 'Industrial Mesa',
+      output: '25 units/month',
       materials: [
-        { name: 'Titanium Ore', quantity: '25kg' },
-        { name: 'Power Cells', quantity: '2 units' },
-        { name: 'Advanced Sensors', quantity: '5 units' }
+        { name: 'Titanium Alloys', quantity: '5000kg' },
+        { name: 'Advanced Composites', quantity: '2000kg' },
+        { name: 'Navigation Systems', quantity: '100 units' }
       ],
       efficiency: 88,
-      capacityUtilization: 92
-    },
-    {
-      id: '3',
-      productName: 'Compact Fusion Reactor',
-      corporation: 'Fusion Dynamics',
-      location: 'Energy Valley',
-      output: '10 units/month',
-      materials: [
-        { name: 'Helium-3', quantity: '100kg' },
-        { name: 'Fusion Containment Fields', quantity: '1 unit' },
-        { name: 'Advanced Sensors', quantity: '20 units' }
-      ],
-      efficiency: 92,
       capacityUtilization: 78
     }
   ];
@@ -312,38 +373,32 @@ const EconomicEcosystemScreen: React.FC<ScreenProps> = ({ screenId, title, icon,
   const generateMockTradePolicies = (): TradePolicy[] => [
     {
       id: '1',
-      partner: 'Alpha Centauri',
+      partner: 'Vega Federation',
       relationship: 'ally',
       generalTariff: 2.5,
-      diplomaticModifier: 0.8,
+      diplomaticModifier: 15,
       strategicProducts: [
-        { product: 'Weapons', exportPolicy: 'Banned', importPolicy: 'Restricted', tariff: 15 },
-        { product: 'Quantum Computers', exportPolicy: 'License Required', importPolicy: 'Allowed', tariff: 5 },
-        { product: 'Software', exportPolicy: 'Free Trade', importPolicy: 'Allowed', tariff: 0 }
+        {
+          product: 'Quantum Computers',
+          exportPolicy: 'Restricted',
+          importPolicy: 'Open',
+          tariff: 0
+        }
       ]
     },
     {
       id: '2',
-      partner: 'Vega Prime',
+      partner: 'Alpha Centauri Empire',
       relationship: 'competitor',
-      generalTariff: 8.5,
-      diplomaticModifier: 1.2,
+      generalTariff: 12.5,
+      diplomaticModifier: -5,
       strategicProducts: [
-        { product: 'Weapons', exportPolicy: 'Banned', importPolicy: 'Banned', tariff: 0 },
-        { product: 'AI Systems', exportPolicy: 'License Required', importPolicy: 'Restricted', tariff: 25 },
-        { product: 'Energy', exportPolicy: 'Restricted', importPolicy: 'Allowed', tariff: 12 }
-      ]
-    },
-    {
-      id: '3',
-      partner: 'Sirius Federation',
-      relationship: 'neutral',
-      generalTariff: 5.0,
-      diplomaticModifier: 1.0,
-      strategicProducts: [
-        { product: 'Financial Services', exportPolicy: 'Free Trade', importPolicy: 'Free Trade', tariff: 0 },
-        { product: 'Transportation', exportPolicy: 'Allowed', importPolicy: 'Allowed', tariff: 3 },
-        { product: 'Consumer Goods', exportPolicy: 'Allowed', importPolicy: 'Allowed', tariff: 5 }
+        {
+          product: 'Weapons Systems',
+          exportPolicy: 'Banned',
+          importPolicy: 'Restricted',
+          tariff: 25
+        }
       ]
     }
   ];
@@ -351,145 +406,384 @@ const EconomicEcosystemScreen: React.FC<ScreenProps> = ({ screenId, title, icon,
   const generateMockSkillsTalent = (): SkillTalent[] => [
     {
       id: '1',
-      location: 'Neo Silicon Valley',
-      skill: 'Quantum Computing',
+      location: 'Quantum Heights',
+      skill: 'Quantum Physics',
       availability: 'scarce',
-      qualityLevel: 9.5,
+      qualityLevel: 9,
       averageCost: 250000,
-      brainDrain: -2.5,
-      developmentRate: 5.2,
+      brainDrain: 15,
+      developmentRate: 8,
       demand: 'very high'
     },
     {
       id: '2',
-      location: 'Industrial Complex Prime',
-      skill: 'Manufacturing',
-      availability: 'abundant',
-      qualityLevel: 7.8,
-      averageCost: 85000,
-      brainDrain: 1.2,
-      developmentRate: 2.8,
+      location: 'Industrial Mesa',
+      skill: 'Robotics Engineering',
+      availability: 'moderate',
+      qualityLevel: 7,
+      averageCost: 120000,
+      brainDrain: 8,
+      developmentRate: 6,
       demand: 'high'
-    },
-    {
-      id: '3',
-      location: 'Energy Valley',
-      skill: 'Energy Engineering',
-      availability: 'moderate',
-      qualityLevel: 8.9,
-      averageCost: 180000,
-      brainDrain: -1.8,
-      developmentRate: 4.1,
-      demand: 'very high'
-    },
-    {
-      id: '4',
-      location: 'Financial District',
-      skill: 'Financial Analysis',
-      availability: 'moderate',
-      qualityLevel: 8.2,
-      averageCost: 145000,
-      brainDrain: 0.5,
-      developmentRate: 3.2,
-      demand: 'medium'
     }
   ];
 
-  const fetchEcosystemData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // In a real implementation, these would be actual API calls
-      const ecosystemData: EconomicEcosystemData = {
-        overview: {
-          totalCities: 47,
-          totalCorporations: 1250,
-          totalProducts: 8500,
-          economicGrowth: 4.2,
-          tradeVolume: 2.8e12,
-          employmentRate: 94.5
-        },
-        cities: generateMockCities(),
-        products: generateMockProducts(),
-        corporations: generateMockCorporations(),
-        supplyChains: generateMockSupplyChains(),
-        tradePolicies: generateMockTradePolicies(),
-        skillsTalent: generateMockSkillsTalent()
-      };
+  // Render functions for each tab
+  const renderOverview = () => (
+    <>
+      {/* Economic Overview - Full panel width */}
+      <div className="standard-panel economic-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>📊 Economic Ecosystem Overview</h3>
+        <div className="standard-metric-grid">
+          <div className="standard-metric">
+            <span>Total Cities</span>
+            <span className="standard-metric-value">{ecosystemData?.overview.totalCities}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Corporations</span>
+            <span className="standard-metric-value">{formatNumber(ecosystemData?.overview.totalCorporations || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Products</span>
+            <span className="standard-metric-value">{formatNumber(ecosystemData?.overview.totalProducts || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Economic Growth</span>
+            <span className="standard-metric-value">{ecosystemData?.overview.economicGrowth}%</span>
+          </div>
+          <div className="standard-metric">
+            <span>Trade Volume</span>
+            <span className="standard-metric-value">{formatCurrency(ecosystemData?.overview.tradeVolume || 0)}</span>
+          </div>
+          <div className="standard-metric">
+            <span>Employment Rate</span>
+            <span className="standard-metric-value">{ecosystemData?.overview.employmentRate}%</span>
+          </div>
+        </div>
+        <div className="standard-action-buttons">
+          <button className="standard-btn economic-theme" onClick={() => console.log('Economic Analysis')}>Economic Analysis</button>
+          <button className="standard-btn economic-theme" onClick={() => console.log('Market Report')}>Market Report</button>
+        </div>
+      </div>
 
-      setEcosystemData(ecosystemData);
-    } catch (err) {
-      console.error('Failed to fetch economic ecosystem data:', err);
-      // Use mock data as fallback
-      setEcosystemData({
-        overview: {
-          totalCities: 47,
-          totalCorporations: 1250,
-          totalProducts: 8500,
-          economicGrowth: 4.2,
-          tradeVolume: 2.8e12,
-          employmentRate: 94.5
-        },
-        cities: generateMockCities(),
-        products: generateMockProducts(),
-        corporations: generateMockCorporations(),
-        supplyChains: generateMockSupplyChains(),
-        tradePolicies: generateMockTradePolicies(),
-        skillsTalent: generateMockSkillsTalent()
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      {/* Top Cities - Full panel width */}
+      <div className="standard-panel economic-theme">
+        <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>🏙️ Top Cities</h3>
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>City</th>
+                <th>Tier</th>
+                <th>Specialization</th>
+                <th>Population</th>
+                <th>GDP/Capita</th>
+                <th>Infrastructure</th>
+                <th>Equilibrium</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ecosystemData?.cities?.slice(0, 5).map((city) => (
+                <tr key={city.id}>
+                  <td><strong>{city.name}</strong></td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getTierColor(city.tier), 
+                      color: 'white' 
+                    }}>
+                      {city.tier.charAt(0).toUpperCase() + city.tier.slice(1)}
+                    </span>
+                  </td>
+                  <td>{city.specialization}</td>
+                  <td>{formatPopulation(city.population)}</td>
+                  <td>{formatCurrency(city.gdpPerCapita)}</td>
+                  <td>{city.infrastructure}/10</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getEquilibriumColor(city.equilibrium), 
+                      color: 'white' 
+                    }}>
+                      {city.equilibrium.charAt(0).toUpperCase() + city.equilibrium.slice(1)}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-  useEffect(() => {
-    fetchEcosystemData();
-  }, [fetchEcosystemData]);
+      {/* Economic Analytics - Full panel width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div className="standard-panel economic-theme table-panel">
+          <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>📈 Economic Analytics</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+            <div className="chart-container">
+              <BarChart
+                data={ecosystemData?.cities?.map(city => ({
+                  label: city.name,
+                  value: city.gdpPerCapita / 1000, // Convert to thousands
+                  color: getTierColor(city.tier)
+                })) || []}
+                title="🏙️ GDP per Capita (Thousands)"
+                height={250}
+                width={400}
+                showTooltip={true}
+              />
+            </div>
+            <div className="chart-container">
+              <PieChart
+                data={ecosystemData?.cities?.map(city => ({
+                  label: city.name,
+                  value: city.population / 1000000, // Convert to millions
+                  color: getTierColor(city.tier)
+                })) || []}
+                title="👥 Population Distribution (Millions)"
+                size={200}
+                showLegend={true}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 
-  const formatNumber = (num: number): string => {
-    if (num >= 1e12) return `$${(num / 1e12).toFixed(1)}T`;
-    if (num >= 1e9) return `$${(num / 1e9).toFixed(1)}B`;
-    if (num >= 1e6) return `$${(num / 1e6).toFixed(1)}M`;
-    if (num >= 1e3) return `$${(num / 1e3).toFixed(1)}K`;
-    return new Intl.NumberFormat().format(num);
-  };
+  const renderCities = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel economic-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>🏙️ Dynamic City Markets</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn economic-theme" onClick={() => console.log('City Analysis')}>City Analysis</button>
+          <button className="standard-btn economic-theme" onClick={() => console.log('Infrastructure Report')}>Infrastructure Report</button>
+        </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>City</th>
+                <th>Tier</th>
+                <th>Specialization</th>
+                <th>Population</th>
+                <th>GDP/Capita</th>
+                <th>Infrastructure</th>
+                <th>Key Industries</th>
+                <th>Equilibrium</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ecosystemData?.cities?.map((city) => (
+                <tr key={city.id}>
+                  <td><strong>{city.name}</strong></td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getTierColor(city.tier), 
+                      color: 'white' 
+                    }}>
+                      {city.tier.charAt(0).toUpperCase() + city.tier.slice(1)}
+                    </span>
+                  </td>
+                  <td>{city.specialization}</td>
+                  <td>{formatPopulation(city.population)}</td>
+                  <td>{formatCurrency(city.gdpPerCapita)}</td>
+                  <td>{city.infrastructure}/10</td>
+                  <td>{city.keyIndustries.slice(0, 2).join(', ')}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getEquilibriumColor(city.equilibrium), 
+                      color: 'white' 
+                    }}>
+                      {city.equilibrium.charAt(0).toUpperCase() + city.equilibrium.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="standard-btn economic-theme">Manage</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 
-  const formatPopulation = (num: number): string => {
-    if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
-    if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
-    return num.toString();
-  };
+  const renderCorporations = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel economic-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>🏢 Procedural Corporations</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn economic-theme" onClick={() => console.log('Corporate Analysis')}>Corporate Analysis</button>
+          <button className="standard-btn economic-theme" onClick={() => console.log('Market Report')}>Market Report</button>
+        </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Corporation</th>
+                <th>Symbol</th>
+                <th>Sector</th>
+                <th>Size</th>
+                <th>Market Cap</th>
+                <th>Employees</th>
+                <th>CEO</th>
+                <th>Founded</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ecosystemData?.corporations?.map((corporation) => (
+                <tr key={corporation.id}>
+                  <td><strong>{corporation.name}</strong></td>
+                  <td>{corporation.symbol}</td>
+                  <td>{corporation.sector}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: corporation.size === 'large' ? '#fbbf24' : corporation.size === 'medium' ? '#f59e0b' : '#10b981', 
+                      color: 'white' 
+                    }}>
+                      {corporation.size.charAt(0).toUpperCase() + corporation.size.slice(1)}
+                    </span>
+                  </td>
+                  <td>{formatCurrency(corporation.marketCap)}</td>
+                  <td>{formatNumber(corporation.employees)}</td>
+                  <td>{corporation.ceo}</td>
+                  <td>{corporation.founded}</td>
+                  <td>
+                    <button className="standard-btn economic-theme">Invest</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 
-  const getTierColor = (tier: string): string => {
-    switch (tier) {
-      case 'post-scarcity': return '#4ecdc4';
-      case 'advanced': return '#45b7aa';
-      case 'industrial': return '#ffd93d';
-      case 'developing': return '#ff6b6b';
-      default: return '#b8bcc8';
-    }
-  };
+  const renderSupplyChains = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel economic-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>🔗 Supply Chain Data</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn economic-theme" onClick={() => console.log('Supply Analysis')}>Supply Analysis</button>
+          <button className="standard-btn economic-theme" onClick={() => console.log('Efficiency Report')}>Efficiency Report</button>
+        </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Corporation</th>
+                <th>Location</th>
+                <th>Output</th>
+                <th>Efficiency</th>
+                <th>Capacity</th>
+                <th>Materials</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ecosystemData?.supplyChains?.map((chain) => (
+                <tr key={chain.id}>
+                  <td><strong>{chain.productName}</strong></td>
+                  <td>{chain.corporation}</td>
+                  <td>{chain.location}</td>
+                  <td>{chain.output}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: chain.efficiency >= 90 ? '#10b981' : chain.efficiency >= 80 ? '#fbbf24' : '#ef4444', 
+                      color: 'white' 
+                    }}>
+                      {chain.efficiency}%
+                    </span>
+                  </td>
+                  <td>{chain.capacityUtilization}%</td>
+                  <td>{chain.materials.length} types</td>
+                  <td>
+                    <button className="standard-btn economic-theme">Optimize</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case 'critical': return '#ff6b6b';
-      case 'high': return '#ffd93d';
-      case 'medium': return '#4ecdc4';
-      case 'low': return '#b8bcc8';
-      default: return '#b8bcc8';
-    }
-  };
-
-  const getRelationshipColor = (relationship: string): string => {
-    switch (relationship) {
-      case 'ally': return '#4ecdc4';
-      case 'neutral': return '#ffd93d';
-      case 'competitor': return '#ff9f43';
-      case 'hostile': return '#ff6b6b';
-      default: return '#b8bcc8';
-    }
-  };
+  const renderTrade = () => (
+    <div style={{ gridColumn: '1 / -1' }}>
+      <div className="standard-panel economic-theme table-panel">
+        <h3 style={{ marginBottom: '1rem', color: '#fbbf24' }}>🌐 Trade Policies</h3>
+        <div className="standard-action-buttons">
+          <button className="standard-btn economic-theme" onClick={() => console.log('Trade Analysis')}>Trade Analysis</button>
+          <button className="standard-btn economic-theme" onClick={() => console.log('Policy Review')}>Policy Review</button>
+        </div>
+        
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Partner</th>
+                <th>Relationship</th>
+                <th>General Tariff</th>
+                <th>Diplomatic Modifier</th>
+                <th>Strategic Products</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ecosystemData?.tradePolicies?.map((policy) => (
+                <tr key={policy.id}>
+                  <td><strong>{policy.partner}</strong></td>
+                  <td>
+                    <span style={{ 
+                      padding: '0.3rem 0.6rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      backgroundColor: getRelationshipColor(policy.relationship), 
+                      color: 'white' 
+                    }}>
+                      {policy.relationship.charAt(0).toUpperCase() + policy.relationship.slice(1)}
+                    </span>
+                  </td>
+                  <td>{policy.generalTariff}%</td>
+                  <td>{policy.diplomaticModifier > 0 ? '+' : ''}{policy.diplomaticModifier}</td>
+                  <td>{policy.strategicProducts.length} products</td>
+                  <td>
+                    <button className="standard-btn economic-theme">Negotiate</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <BaseScreen
@@ -499,617 +793,32 @@ const EconomicEcosystemScreen: React.FC<ScreenProps> = ({ screenId, title, icon,
       gameContext={gameContext}
       apiEndpoints={apiEndpoints}
       onRefresh={fetchEcosystemData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
     >
-      <div className="economic-ecosystem-screen">
-        <div className="view-tabs">
-          <button
-            className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
-          >
-            📊 Overview
-          </button>
-          <button
-            className={`tab ${activeTab === 'cities' ? 'active' : ''}`}
-            onClick={() => setActiveTab('cities')}
-          >
-            🏙️ Cities
-          </button>
-          <button
-            className={`tab ${activeTab === 'products' ? 'active' : ''}`}
-            onClick={() => setActiveTab('products')}
-          >
-            📦 Products
-          </button>
-          <button
-            className={`tab ${activeTab === 'corporations' ? 'active' : ''}`}
-            onClick={() => setActiveTab('corporations')}
-          >
-            🏢 Corporations
-          </button>
-          <button
-            className={`tab ${activeTab === 'supply-chains' ? 'active' : ''}`}
-            onClick={() => setActiveTab('supply-chains')}
-          >
-            🔗 Supply Chains
-          </button>
-          <button
-            className={`tab ${activeTab === 'trade' ? 'active' : ''}`}
-            onClick={() => setActiveTab('trade')}
-          >
-            🛡️ Trade
-          </button>
-          <button
-            className={`tab ${activeTab === 'talent' ? 'active' : ''}`}
-            onClick={() => setActiveTab('talent')}
-          >
-            👥 Talent
-          </button>
-        </div>
-
-        <div className="tab-content">
-          {loading && <div className="loading">Loading economic ecosystem data...</div>}
-          {error && <div className="error">Error: {error}</div>}
-          {!loading && !error && ecosystemData && (
+      <div className="standard-screen-container economic-theme">
+        {error && <div className="error-message">Error: {error}</div>}
+        
+        <div className="standard-dashboard">
+          {!loading && !error && ecosystemData ? (
             <>
-              {activeTab === 'overview' && (
-                <div className="overview-tab">
-                  <div className="overview-metrics">
-                    <div className="metric-card">
-                      <div className="metric-icon">🏙️</div>
-                      <div className="metric-content">
-                        <div className="metric-value">{ecosystemData.overview.totalCities}</div>
-                        <div className="metric-label">Total Cities</div>
-                      </div>
-                    </div>
-                    <div className="metric-card">
-                      <div className="metric-icon">🏢</div>
-                      <div className="metric-content">
-                        <div className="metric-value">{ecosystemData.overview.totalCorporations.toLocaleString()}</div>
-                        <div className="metric-label">Corporations</div>
-                      </div>
-                    </div>
-                    <div className="metric-card">
-                      <div className="metric-icon">📦</div>
-                      <div className="metric-content">
-                        <div className="metric-value">{ecosystemData.overview.totalProducts.toLocaleString()}</div>
-                        <div className="metric-label">Products</div>
-                      </div>
-                    </div>
-                    <div className="metric-card">
-                      <div className="metric-icon">📈</div>
-                      <div className="metric-content">
-                        <div className="metric-value">{ecosystemData.overview.economicGrowth}%</div>
-                        <div className="metric-label">Economic Growth</div>
-                      </div>
-                    </div>
-                    <div className="metric-card">
-                      <div className="metric-icon">💰</div>
-                      <div className="metric-content">
-                        <div className="metric-value">{formatNumber(ecosystemData.overview.tradeVolume)}</div>
-                        <div className="metric-label">Trade Volume</div>
-                      </div>
-                    </div>
-                    <div className="metric-card">
-                      <div className="metric-icon">👷</div>
-                      <div className="metric-content">
-                        <div className="metric-value">{ecosystemData.overview.employmentRate}%</div>
-                        <div className="metric-label">Employment Rate</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="overview-summary">
-                    <div className="summary-panel">
-                      <h3>Economic Ecosystem Status</h3>
-                      <p>The dynamic economic ecosystem encompasses {ecosystemData.overview.totalCities} procedurally generated cities, {ecosystemData.overview.totalCorporations.toLocaleString()} corporations, and {ecosystemData.overview.totalProducts.toLocaleString()} products across multiple sectors and technology levels.</p>
-                      <div className="status-indicators">
-                        <div className="status-item">
-                          <span className="status-label">Growth Rate:</span>
-                          <span className="status-value positive">+{ecosystemData.overview.economicGrowth}%</span>
-                        </div>
-                        <div className="status-item">
-                          <span className="status-label">Trade Volume:</span>
-                          <span className="status-value positive">{formatNumber(ecosystemData.overview.tradeVolume)}</span>
-                        </div>
-                        <div className="status-item">
-                          <span className="status-label">Employment:</span>
-                          <span className="status-value positive">{ecosystemData.overview.employmentRate}%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Economic Charts Section */}
-                  <div className="economic-charts-section">
-                    <div className="charts-grid">
-                      <div className="chart-container">
-                        <BarChart
-                          data={ecosystemData.cities.map(city => ({
-                            label: city.name,
-                            value: city.gdpPerCapita,
-                            color: city.tier === 'post-scarcity' ? '#4ecdc4' : 
-                                   city.tier === 'advanced' ? '#45b7aa' :
-                                   city.tier === 'industrial' ? '#96ceb4' : '#feca57'
-                          }))}
-                          title="💰 GDP per Capita by City"
-                          height={250}
-                          width={400}
-                          showTooltip={true}
-                        />
-                      </div>
-
-                      <div className="chart-container">
-                        <PieChart
-                          data={[
-                            { label: 'Technology', value: 28, color: '#4ecdc4' },
-                            { label: 'Manufacturing', value: 24, color: '#45b7aa' },
-                            { label: 'Services', value: 22, color: '#96ceb4' },
-                            { label: 'Agriculture', value: 12, color: '#feca57' },
-                            { label: 'Mining', value: 8, color: '#ff9ff3' },
-                            { label: 'Energy', value: 6, color: '#54a0ff' }
-                          ]}
-                          title="🏭 Economic Sector Performance"
-                          size={200}
-                          showLegend={true}
-                        />
-                      </div>
-
-                      <div className="chart-container">
-                        <LineChart
-                          data={[
-                            { label: 'Q1', value: ecosystemData.overview.tradeVolume * 0.85 },
-                            { label: 'Q2', value: ecosystemData.overview.tradeVolume * 0.92 },
-                            { label: 'Q3', value: ecosystemData.overview.tradeVolume * 0.97 },
-                            { label: 'Q4', value: ecosystemData.overview.tradeVolume }
-                          ]}
-                          title="📈 Trade Volume Trends"
-                          color="#feca57"
-                          height={250}
-                          width={400}
-                        />
-                      </div>
-
-                      <div className="chart-container">
-                        <BarChart
-                          data={ecosystemData.corporations.slice(0, 6).map(corp => ({
-                            label: corp.name,
-                            value: corp.marketCap / 1000000, // Convert to millions
-                            color: corp.size === 'large' ? '#ff6b6b' : 
-                                   corp.size === 'medium' ? '#4ecdc4' : '#96ceb4'
-                          }))}
-                          title="🏢 Top Corporations by Market Cap (M)"
-                          height={250}
-                          width={400}
-                          showTooltip={true}
-                        />
-                      </div>
-
-                      <div className="chart-container">
-                        <PieChart
-                          data={ecosystemData.supplyChains.reduce((acc, chain) => {
-                            const existing = acc.find(item => item.label === chain.location);
-                            if (existing) {
-                              existing.value += chain.efficiency;
-                            } else {
-                              acc.push({
-                                label: chain.location,
-                                value: chain.efficiency,
-                                color: `hsl(${Math.random() * 360}, 70%, 60%)`
-                              });
-                            }
-                            return acc;
-                          }, [] as Array<{label: string, value: number, color: string}>)}
-                          title="🔗 Supply Chain Efficiency by Region"
-                          size={200}
-                          showLegend={true}
-                        />
-                      </div>
-
-                      <div className="chart-container">
-                        <LineChart
-                          data={[
-                            { label: 'Jan', value: ecosystemData.overview.employmentRate - 3 },
-                            { label: 'Feb', value: ecosystemData.overview.employmentRate - 2 },
-                            { label: 'Mar', value: ecosystemData.overview.employmentRate - 1 },
-                            { label: 'Apr', value: ecosystemData.overview.employmentRate },
-                            { label: 'May', value: ecosystemData.overview.employmentRate + 1 },
-                            { label: 'Jun', value: ecosystemData.overview.employmentRate + 2 }
-                          ]}
-                          title="👷 Employment Rate Trends (%)"
-                          color="#96ceb4"
-                          height={250}
-                          width={400}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'cities' && (
-                <div className="cities-tab">
-                  <div className="cities-header">
-                    <h3>Dynamic City Markets</h3>
-                    <div className="city-controls">
-                      <button className="action-btn">Generate All Cities</button>
-                      <button className="action-btn">Generate for Civilization</button>
-                      <button className="action-btn secondary">Preview Generation</button>
-                    </div>
-                  </div>
-
-                  <div className="cities-grid">
-                    {ecosystemData.cities.map(city => (
-                      <div key={city.id} className="city-card">
-                        <div className="city-header">
-                          <div className="city-name">
-                            <h4>{city.name}</h4>
-                            <span 
-                              className="city-tier"
-                              style={{ backgroundColor: getTierColor(city.tier) }}
-                            >
-                              {city.tier}
-                            </span>
-                          </div>
-                          <div 
-                            className={`equilibrium-indicator ${city.equilibrium}`}
-                            title={`Market equilibrium: ${city.equilibrium}`}
-                          ></div>
-                        </div>
-
-                        <div className="city-stats">
-                          <div className="stat-item">
-                            <span className="stat-label">Specialization:</span>
-                            <span className="stat-value">{city.specialization}</span>
-                          </div>
-                          <div className="stat-item">
-                            <span className="stat-label">Population:</span>
-                            <span className="stat-value">{formatPopulation(city.population)}</span>
-                          </div>
-                          <div className="stat-item">
-                            <span className="stat-label">GDP/Capita:</span>
-                            <span className="stat-value">{formatNumber(city.gdpPerCapita)}</span>
-                          </div>
-                          <div className="stat-item">
-                            <span className="stat-label">Infrastructure:</span>
-                            <span className="stat-value">Level {city.infrastructure}/10</span>
-                          </div>
-                        </div>
-
-                        <div className="city-industries">
-                          <h5>Key Industries:</h5>
-                          <div className="industry-tags">
-                            {city.keyIndustries.map((industry, index) => (
-                              <span key={index} className="industry-tag">{industry}</span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'products' && (
-                <div className="products-tab">
-                  <div className="products-header">
-                    <h3>Product Categories & Supply</h3>
-                    <div className="product-controls">
-                      <button className="action-btn">View All Categories</button>
-                      <button className="action-btn secondary">Analyze Supply & Demand</button>
-                    </div>
-                  </div>
-
-                  <div className="products-grid">
-                    {ecosystemData.products.map(product => (
-                      <div key={product.id} className="product-card">
-                        <div className="product-header">
-                          <div className="product-name">
-                            <h4>{product.name}</h4>
-                            <span 
-                              className="product-status"
-                              style={{ backgroundColor: getStatusColor(product.status) }}
-                            >
-                              {product.status}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="product-details">
-                          <div className="detail-item">
-                            <span className="detail-label">Technology Level:</span>
-                            <span className="detail-value">{product.technologyLevel}/10</span>
-                          </div>
-                          <div className="detail-item">
-                            <span className="detail-label">Track Individually:</span>
-                            <span className="detail-value">{product.trackIndividually ? 'Yes' : 'No'}</span>
-                          </div>
-                          <div className="detail-item">
-                            <span className="detail-label">Strategic Importance:</span>
-                            <span className="detail-value">{product.strategicImportance}</span>
-                          </div>
-                          <div className="detail-item">
-                            <span className="detail-label">Current Products:</span>
-                            <span className="detail-value">{product.currentProducts}{product.currentProducts >= 15 ? '+' : ''}</span>
-                          </div>
-                        </div>
-
-                        <div className="product-players">
-                          <h5>Key Players:</h5>
-                          <ul>
-                            {product.keyPlayers.map((player, index) => (
-                              <li key={index}>{player}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'corporations' && (
-                <div className="corporations-tab">
-                  <div className="corporations-header">
-                    <h3>Procedurally Generated Corporations</h3>
-                    <div className="corporation-controls">
-                      <button className="action-btn">Generate New Corporation</button>
-                      <button className="action-btn">Generate Full Ecosystem</button>
-                      <button className="action-btn secondary">Preview Generation</button>
-                    </div>
-                  </div>
-
-                  <div className="corporations-grid">
-                    {ecosystemData.corporations.map(corp => (
-                      <div key={corp.id} className="corporation-card">
-                        <div className="corporation-header">
-                          <div className="corporation-name">
-                            <h4>{corp.name}</h4>
-                            <span className="corporation-symbol">({corp.symbol})</span>
-                          </div>
-                          <span 
-                            className={`corporation-size ${corp.size}`}
-                          >
-                            {corp.size} corp
-                          </span>
-                        </div>
-
-                        <div className="corporation-details">
-                          <div className="detail-item">
-                            <span className="detail-label">Sector:</span>
-                            <span className="detail-value">{corp.sector}</span>
-                          </div>
-                          <div className="detail-item">
-                            <span className="detail-label">Market Cap:</span>
-                            <span className="detail-value">{formatNumber(corp.marketCap)}</span>
-                          </div>
-                          <div className="detail-item">
-                            <span className="detail-label">Employees:</span>
-                            <span className="detail-value">{corp.employees.toLocaleString()}</span>
-                          </div>
-                          <div className="detail-item">
-                            <span className="detail-label">CEO:</span>
-                            <span className="detail-value">{corp.ceo}</span>
-                          </div>
-                          <div className="detail-item">
-                            <span className="detail-label">Founded:</span>
-                            <span className="detail-value">{corp.founded}</span>
-                          </div>
-                        </div>
-
-                        <div className="corporation-advantages">
-                          <h5>Competitive Advantages:</h5>
-                          <div className="advantage-tags">
-                            {corp.advantages.map((advantage, index) => (
-                              <span key={index} className="advantage-tag">{advantage}</span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'supply-chains' && (
-                <div className="supply-chains-tab">
-                  <div className="supply-chains-header">
-                    <h3>Production & Supply Chains</h3>
-                    <div className="supply-chain-controls">
-                      <button className="action-btn">View All Chains</button>
-                      <button className="action-btn">Optimize Production</button>
-                    </div>
-                  </div>
-
-                  <div className="supply-chains-grid">
-                    {ecosystemData.supplyChains.map(chain => (
-                      <div key={chain.id} className="supply-chain-card">
-                        <div className="chain-header">
-                          <h4>{chain.productName}</h4>
-                          <div className="chain-location">{chain.location}</div>
-                        </div>
-
-                        <div className="chain-details">
-                          <div className="detail-item">
-                            <span className="detail-label">Corporation:</span>
-                            <span className="detail-value">{chain.corporation}</span>
-                          </div>
-                          <div className="detail-item">
-                            <span className="detail-label">Output:</span>
-                            <span className="detail-value">{chain.output}</span>
-                          </div>
-                          <div className="detail-item">
-                            <span className="detail-label">Efficiency:</span>
-                            <span className="detail-value">{chain.efficiency}%</span>
-                          </div>
-                          <div className="detail-item">
-                            <span className="detail-label">Capacity Utilization:</span>
-                            <span className="detail-value">{chain.capacityUtilization}%</span>
-                          </div>
-                        </div>
-
-                        <div className="chain-materials">
-                          <h5>Required Materials:</h5>
-                          <div className="material-tags">
-                            {chain.materials.map((material, index) => (
-                              <span key={index} className="material-tag">
-                                {material.name} ({material.quantity})
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="chain-progress">
-                          <div className="progress-item">
-                            <span className="progress-label">Efficiency:</span>
-                            <div className="progress-bar">
-                              <div 
-                                className="progress-fill"
-                                style={{ width: `${chain.efficiency}%` }}
-                              ></div>
-                            </div>
-                            <span className="progress-value">{chain.efficiency}%</span>
-                          </div>
-                          <div className="progress-item">
-                            <span className="progress-label">Capacity:</span>
-                            <div className="progress-bar">
-                              <div 
-                                className="progress-fill"
-                                style={{ width: `${chain.capacityUtilization}%` }}
-                              ></div>
-                            </div>
-                            <span className="progress-value">{chain.capacityUtilization}%</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'trade' && (
-                <div className="trade-tab">
-                  <div className="trade-header">
-                    <h3>Trade Policies & Tariffs</h3>
-                    <div className="trade-controls">
-                      <button className="action-btn">View All Policies</button>
-                      <button className="action-btn secondary">Calculate Tariff Impact</button>
-                    </div>
-                  </div>
-
-                  <div className="trade-policies-grid">
-                    {ecosystemData.tradePolicies.map(policy => (
-                      <div key={policy.id} className="trade-policy-card">
-                        <div className="policy-header">
-                          <h4>Terran Republic ↔ {policy.partner}</h4>
-                          <span 
-                            className="relationship-badge"
-                            style={{ backgroundColor: getRelationshipColor(policy.relationship) }}
-                          >
-                            {policy.relationship}
-                          </span>
-                        </div>
-
-                        <div className="policy-overview">
-                          <div className="overview-item">
-                            <span className="overview-label">General Tariff:</span>
-                            <span className="overview-value">{policy.generalTariff}%</span>
-                          </div>
-                          <div className="overview-item">
-                            <span className="overview-label">Diplomatic Modifier:</span>
-                            <span className="overview-value">{policy.diplomaticModifier}x</span>
-                          </div>
-                        </div>
-
-                        <div className="strategic-products">
-                          <h5>Strategic Products:</h5>
-                          {policy.strategicProducts.map((product, index) => (
-                            <div key={index} className="product-policy">
-                              <div className="product-name">{product.product}:</div>
-                              <div className="policy-details">
-                                <span className="policy-detail">Export: {product.exportPolicy}</span>
-                                <span className="policy-detail">Import: {product.importPolicy}</span>
-                                {product.tariff > 0 && (
-                                  <span className="policy-detail">Tariff: {product.tariff}%</span>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'talent' && (
-                <div className="talent-tab">
-                  <div className="talent-header">
-                    <h3>Skills & Talent Ecosystem</h3>
-                    <div className="talent-controls">
-                      <button className="action-btn">Analyze Skill Gaps</button>
-                      <button className="action-btn secondary">Talent Development</button>
-                    </div>
-                  </div>
-
-                  <div className="talent-grid">
-                    {ecosystemData.skillsTalent.map(skill => (
-                      <div key={skill.id} className="skill-card">
-                        <div className="skill-header">
-                          <h4>{skill.location}</h4>
-                          <div className="skill-name">{skill.skill}</div>
-                        </div>
-
-                        <div className="skill-metrics">
-                          <div className="metric-item">
-                            <span className="metric-label">Availability:</span>
-                            <span className={`metric-value availability-${skill.availability}`}>
-                              {skill.availability}
-                            </span>
-                          </div>
-                          <div className="metric-item">
-                            <span className="metric-label">Quality Level:</span>
-                            <span className="metric-value">{skill.qualityLevel}/10</span>
-                          </div>
-                          <div className="metric-item">
-                            <span className="metric-label">Average Cost:</span>
-                            <span className="metric-value">{formatNumber(skill.averageCost)}/year</span>
-                          </div>
-                          <div className="metric-item">
-                            <span className="metric-label">Brain Drain:</span>
-                            <span className={`metric-value ${skill.brainDrain >= 0 ? 'positive' : 'negative'}`}>
-                              {skill.brainDrain > 0 ? '+' : ''}{skill.brainDrain}%
-                            </span>
-                          </div>
-                          <div className="metric-item">
-                            <span className="metric-label">Development Rate:</span>
-                            <span className="metric-value positive">+{skill.developmentRate}%/year</span>
-                          </div>
-                          <div className="metric-item">
-                            <span className="metric-label">Demand:</span>
-                            <span className={`metric-value demand-${skill.demand.replace(' ', '-')}`}>
-                              {skill.demand}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="skill-progress">
-                          <div className="progress-item">
-                            <span className="progress-label">Quality:</span>
-                            <div className="progress-bar">
-                              <div 
-                                className="progress-fill"
-                                style={{ width: `${skill.qualityLevel * 10}%` }}
-                              ></div>
-                            </div>
-                            <span className="progress-value">{skill.qualityLevel}/10</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'cities' && renderCities()}
+              {activeTab === 'corporations' && renderCorporations()}
+              {activeTab === 'supply-chains' && renderSupplyChains()}
+              {activeTab === 'trade' && renderTrade()}
             </>
+          ) : (
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              padding: '2rem', 
+              textAlign: 'center', 
+              color: '#a0a9ba',
+              fontSize: '1.1rem'
+            }}>
+              {loading ? 'Loading economic ecosystem data...' : 'No economic ecosystem data available'}
+            </div>
           )}
         </div>
       </div>
@@ -1118,3 +827,4 @@ const EconomicEcosystemScreen: React.FC<ScreenProps> = ({ screenId, title, icon,
 };
 
 export default EconomicEcosystemScreen;
+

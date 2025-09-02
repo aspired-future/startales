@@ -345,6 +345,13 @@ export const LiveGameHUD: React.FC<LiveGameHUDProps> = ({
           <span className="system-icon">🏢</span>
           <span>Business</span>
         </div>
+        <div 
+          className={`system-item ${tabs.activeLeftTab === 'central-bank' ? 'active' : ''}`}
+          onClick={() => handleTabChange('activeLeftTab', 'central-bank')}
+        >
+          <span className="system-icon">🏦</span>
+          <span>Central Bank</span>
+        </div>
       </div>
 
       <div className="system-category">

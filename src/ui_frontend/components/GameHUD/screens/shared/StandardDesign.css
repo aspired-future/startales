@@ -52,7 +52,25 @@
   height: 100%;
   color: var(--text-primary);
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Social Theme Background for screens */
+.social-theme {
+  background: 
+    radial-gradient(ellipse at top, rgba(16, 185, 129, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(5, 150, 105, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #051a0f 0%, #1a1a2e 30%, #102c1c 70%, #143d2d 100%);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
 }
 
 /* Government Theme */
@@ -171,6 +189,7 @@
 .standard-panel {
   border-radius: 16px;
   padding: 2rem;
+  margin-bottom: 1.5rem;
   backdrop-filter: blur(25px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 
@@ -355,7 +374,7 @@
 /* Standard Data Tables */
 .standard-data-table {
   width: 100%;
-  min-width: 800px; /* Ensure minimum width for readability */
+  min-width: 600px; /* Reduced minimum width for better responsiveness */
   border-collapse: collapse;
   background: transparent;
   border-radius: 0;
@@ -370,6 +389,7 @@
   background: rgba(0, 0, 0, 0.2);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   margin-top: 1rem;
+  max-width: 100%;
 }
 
 .standard-table-container::-webkit-scrollbar {
@@ -470,4 +490,57 @@
     padding: 0.75rem 1rem;
     font-size: 0.85rem;
   }
+}
+
+/* Standard Metric Grid */
+.standard-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.standard-metric-grid .standard-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.standard-metric-grid .standard-metric:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.standard-metric-grid .standard-metric .metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.standard-metric-grid .standard-metric .metric-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.standard-metric-grid .standard-metric .metric-progress {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.standard-metric-grid .standard-metric .progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
 }
