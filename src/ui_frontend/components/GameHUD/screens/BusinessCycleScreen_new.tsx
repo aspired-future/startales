@@ -13,7 +13,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from './BaseScreen';
-import './shared/StandardDesign.css';
+import './BusinessCycleScreen.css';
+import '../shared/StandardDesign.css';
 import { LineChart, PieChart, BarChart } from '../../Charts';
 
 interface BusinessCycleData {

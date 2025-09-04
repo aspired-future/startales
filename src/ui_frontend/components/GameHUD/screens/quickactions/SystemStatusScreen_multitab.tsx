@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { QuickActionModal, QuickActionProps, TabConfig } from './QuickActionModal';
+import { QuickActionTabBase, QuickActionProps, TabConfig } from './QuickActionTabBase';
 import '../shared/StandardDesign.css';
 import { LineChart, PieChart, BarChart } from '../../../Charts';
 
@@ -60,7 +60,7 @@ export const SystemStatusScreen: React.FC<QuickActionProps> = ({ onClose, isVisi
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  // Tab configuration matching BaseScreen pattern
+  // Tab configuration
   const tabs: TabConfig[] = [
     { id: 'overview', label: 'Overview', icon: '📊' },
     { id: 'systems', label: 'Systems', icon: '🖥️' },
@@ -304,14 +304,13 @@ export const SystemStatusScreen: React.FC<QuickActionProps> = ({ onClose, isVisi
 
   if (loading) {
     return (
-      <QuickActionModal
+      <QuickActionTabBase
         onClose={onClose}
         isVisible={isVisible}
         title="System Status"
         icon="🖥️"
         theme="technology-theme"
         tabs={tabs}
-        onRefresh={fetchData}
       >
         <TabContent tabId="overview">
           <div style={{ 
@@ -324,19 +323,18 @@ export const SystemStatusScreen: React.FC<QuickActionProps> = ({ onClose, isVisi
             Loading system status data...
           </div>
         </TabContent>
-      </QuickActionModal>
+      </QuickActionTabBase>
     );
   }
 
   return (
-    <QuickActionModal
+    <QuickActionTabBase
       onClose={onClose}
       isVisible={isVisible}
       title="System Status"
       icon="🖥️"
       theme="technology-theme"
       tabs={tabs}
-      onRefresh={fetchData}
     >
       {/* Overview Tab */}
       <TabContent tabId="overview">
@@ -644,7 +642,7 @@ export const SystemStatusScreen: React.FC<QuickActionProps> = ({ onClose, isVisi
           </div>
         </div>
       </TabContent>
-    </QuickActionModal>
+    </QuickActionTabBase>
   );
 };
 

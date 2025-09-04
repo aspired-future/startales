@@ -13,7 +13,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseScreen, { ScreenProps, APIEndpoint, TabConfig } from './BaseScreen';
-import './shared/StandardDesign.css';
+import './GovernmentBondsScreen.css';
+import '../shared/StandardDesign.css';
 import { LineChart, PieChart, BarChart } from '../../Charts';
 
 interface GovernmentBond {
@@ -703,4 +704,4 @@ const GovernmentBondsScreen: React.FC<ScreenProps> = ({
   );
 };
 
-export { GovernmentBondsScreen };
+export default GovernmentBondsScreen;
