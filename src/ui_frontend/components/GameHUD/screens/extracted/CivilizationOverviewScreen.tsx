@@ -184,7 +184,6 @@ const CivilizationOverviewScreen: React.FC<ScreenProps> = ({
       case 'adequate': return '#f59e0b';
       case 'poor': return '#ef4444';
       case 'abundant': return '#10b981';
-      case 'adequate': return '#3b82f6';
       case 'scarce': return '#f59e0b';
       case 'critical': return '#ef4444';
       case 'positive': return '#10b981';

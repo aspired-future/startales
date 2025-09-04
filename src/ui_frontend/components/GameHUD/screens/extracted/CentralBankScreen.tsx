@@ -545,7 +545,10 @@ const CentralBankScreen: React.FC<ScreenProps> = ({ screenId, title, icon, gameC
               className="standard-metric-value"
               style={{ color: getPolicyStanceColor(bankData?.overview.policyStance || 'neutral') }}
             >
-              {bankData?.overview.policyStance?.charAt(0).toUpperCase() + bankData?.overview.policyStance?.slice(1)}
+              {bankData?.overview.policyStance ? 
+                bankData.overview.policyStance.charAt(0).toUpperCase() + bankData.overview.policyStance.slice(1) : 
+                'Neutral'
+              }
             </span>
           </div>
           <div className="standard-metric">
