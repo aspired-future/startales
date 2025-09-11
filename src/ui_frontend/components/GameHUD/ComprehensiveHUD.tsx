@@ -880,26 +880,11 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
     const handleWhoseAppEvent = (event: CustomEvent) => {
       const { targetOfficial, context, priority } = event.detail;
       
-      // Switch to WhoseApp tab
+      // Just switch to WhoseApp tab - let the component handle its own state
       setActiveTab('whoseapp');
-      setActiveWhoseAppTab('incoming');
       
-      // Create a new message from the target official
-      const newMessage: CommunicationMessage = {
-        id: `msg-${Date.now()}`,
-        conversationId: `direct-${targetOfficial.name.replace(/\s+/g, '-').toLowerCase()}`,
-        senderId: targetOfficial.name,
-        type: 'text',
-        content: `Hello! I received your direct communication from the ${context.replace('Direct line from ', '').replace(' screen', '')} system. How can I assist you today?`,
-        timestamp: new Date().toISOString(),
-        edited: false,
-        reactions: []
-      };
-      
-      // Add the message to the communication messages
-      setCommunicationMessages(prev => [newMessage, ...prev]);
-      
-      console.log(`📞 WhoseApp opened for ${targetOfficial.name} (${targetOfficial.title}) - ${context}`);
+      // Log the event but don't force any specific conversation
+      console.log(`📞 WhoseApp opened - ${context} (allowing normal character selection)`);
     };
 
     // Add event listener
@@ -1202,20 +1187,12 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
 
           {/* Render specific panels based on activePanel */}
           {activePanel === 'trade' && <TradeEconomics playerId={playerId} gameContext={gameContext} onClose={() => setActivePanel('story')} />}
-          {activePanel === 'whoseapp' && (
-            <div className="panel-screen">
-              <WhoseAppMain 
-                civilizationId="terran_federation"
-                currentUserId={playerId}
-                onOpenCharacterProfile={(characterId) => console.log('Character profile requested:', characterId)}
-                onCreateAction={(action) => console.log('Action created:', action)}
-              />
-            </div>
-          )}
+          {/* WhoseApp is now handled by the screen system below - removed duplicate rendering */}
           
           {/* Dynamic Screen Content */}
-          {activePanel !== 'command-center' && activePanel !== 'trade' && activePanel !== 'galaxy-map' && activePanel !== 'whoseapp' && (
+          {activePanel !== 'command-center' && activePanel !== 'trade' && activePanel !== 'galaxy-map' && (
             <div className="panel-screen">
+              {console.log(`🖥️ ComprehensiveHUD: Rendering screen for activePanel: ${activePanel}`)}
               {createScreen(activePanel, gameContext)}
             </div>
           )}
@@ -1242,7 +1219,10 @@ export const ComprehensiveHUD: React.FC<ComprehensiveHUDProps> = ({ playerId, ga
             </button>
             <button 
               className={`quick-access-btn ${activePanel === 'whoseapp' ? 'active' : ''}`}
-              onClick={() => setActivePanel('whoseapp')}
+              onClick={() => {
+                console.log('🔘 WhoseApp button clicked, setting activePanel to whoseapp');
+                setActivePanel('whoseapp');
+              }}
             >
               <div className="btn-icon">💬</div>
               <div className="btn-label">WhoseApp</div>

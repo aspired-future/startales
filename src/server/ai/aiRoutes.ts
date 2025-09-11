@@ -145,8 +145,11 @@ As ${characterName} from ${characterDepartment}, focus on your department's spec
         userId: character?.id || 'unknown'
       };
 
+      // Detect voice mode and optimize for speed
+      const isVoiceMode = prompt.includes('[VOICE MODE:');
+      
       const contextOptions: AIContextOptions = {
-        maxTokens: options.maxTokens || 4000,
+        maxTokens: isVoiceMode ? 100 : (options.maxTokens || 4000), // Moderate responses for voice - 100 tokens max
         temperature: options.temperature || 0.7,
         contextConfig: {
           maxContextMessages: 6,

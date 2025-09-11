@@ -388,34 +388,7 @@ export async function initDb() {
       created_at timestamp not null default now(),
       unique(post_id, character_id, interaction_type)
     );
-    -- Conversation Memory Tables
-    create table if not exists conversations (
-      id text primary key,
-      campaign_id int not null,
-      participant_ids text[] not null,
-      conversation_type text not null check (conversation_type in ('character-player', 'player-player', 'alliance', 'party', 'system')),
-      is_private boolean not null default true,
-      metadata jsonb,
-      created_at timestamp not null default now(),
-      updated_at timestamp not null default now()
-    );
-    create table if not exists conversation_messages (
-      id text primary key,
-      conversation_id text not null references conversations(id) on delete cascade,
-      sender_id text not null,
-      sender_type text not null check (sender_type in ('player', 'character', 'system')),
-      content text not null,
-      timestamp timestamp not null default now(),
-      message_index int not null,
-      entities text[],
-      action_type text,
-      game_state jsonb,
-      vector_id text,
-      is_stored_in_memory boolean not null default false,
-      campaign_id int,
-      created_at timestamp not null default now(),
-      unique(conversation_id, message_index)
-    );
+    -- Conversation Memory Tables are now handled by dedicated schema modules
     -- Character Memory Metadata
     create table if not exists character_memory_collections (
       id serial primary key,
@@ -1584,7 +1557,7 @@ export async function initDb() {
     // Initialize WhoseApp system
     try {
       console.log('💬 Initializing WhoseApp schema...');
-      const { initializeWhoseAppSchema } = await import('../whoseapp/whoseAppSchema.js');
+      const { initializeWhoseAppSchema } = await import('../whoseapp/whoseAppSchema');
       await initializeWhoseAppSchema(pgPool);
       console.log('✅ WhoseApp schema initialized successfully');
     } catch (error) {
@@ -1689,7 +1662,7 @@ export async function initDb() {
 
     // Initialize Sim Engine System schema
     try {
-      const { initializeSimEngineSchema } = await import('../sim-engine/simEngineSchema.js');
+      const { initializeSimEngineSchema } = await import('../../simulation/routes/simEngineSchema');
       await initializeSimEngineSchema(pgPool);
     } catch (error) {
       console.error('Sim Engine System schema initialization failed:', error);

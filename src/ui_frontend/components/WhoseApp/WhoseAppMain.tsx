@@ -1,6 +1,7 @@
 /**
  * WhoseApp Main Component
  * Primary interface for character communication, action tracking, and profile management
+ * Uses BaseScreen template for consistent design
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -9,8 +10,11 @@ import { ActionItemSystem } from './ActionItemSystem';
 import CharacterProfileModal from './CharacterProfileModal';
 import VoiceControls from './VoiceControls';
 import ChannelParticipants from './ChannelParticipants';
+import { UnifiedConversationInterface } from './UnifiedConversationInterface';
+import CallInterface from './CallInterface';
 import { voiceService } from '../../services/VoiceService';
-import './WhoseAppMain.css';
+import { BaseScreen, TabConfig } from '../GameHUD/screens/BaseScreen';
+import '../GameHUD/screens/shared/StandardDesign.css';
 
 // Interfaces
 export interface WhoseAppChannel {
@@ -50,903 +54,621 @@ export interface WhoseAppConversation {
   isPinned: boolean;
 }
 
-export interface WhoseAppMessage {
+export interface WhoseAppActionItem {
   id: string;
-  conversationId: string;
-  senderId: string;
-  senderName: string;
-  senderTitle: string;
-  senderAvatar: string;
-  content: string;
-  messageType: 'text' | 'action_update' | 'clarification_request' | 'report_back' | 'system' | 'file' | 'image' | 'voice';
-  timestamp: Date;
-  isRead: boolean;
-  replyTo?: string;
-  attachments?: any[];
-  reactions?: any[];
-  audioBlob?: Blob;
-  audioUrl?: string;
-  metadata?: {
-    actionId?: string;
-    cabinetDecisionId?: string;
-    urgency?: 'low' | 'medium' | 'high' | 'critical';
-  };
+  title: string;
+  description: string;
+  assignedTo: string;
+  status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  createdAt: Date;
+  updatedAt: Date;
+  dueDate?: Date;
+  updates: Array<{
+    id: string;
+    message: string;
+    timestamp: Date;
+    author: string;
+  }>;
 }
 
-export interface CharacterProfile {
+export interface Character {
   id: string;
   name: string;
   title: string;
   department: string;
-  role: string;
   avatar: string;
-  biography: string;
-  specialties: string[];
-  clearanceLevel: 'public' | 'restricted' | 'classified' | 'top_secret';
-  whoseAppProfile: {
+  whoseAppProfile?: {
     status: 'online' | 'away' | 'busy' | 'offline';
     statusMessage?: string;
-    lastSeen: Date;
-    activeConversations: string[];
+    lastSeen?: Date;
+    activeConversations?: string[];
   };
-  witterProfile: {
-    handle: string;
-    followerCount: number;
-    followingCount: number;
-    postCount: number;
-    verificationStatus: 'verified' | 'government' | 'department' | 'none';
-  };
-  actionStats: {
-    totalAssigned: number;
-    completed: number;
-    inProgress: number;
-    overdue: number;
+  actionStats?: {
     successRate: number;
     currentWorkload: number;
+    completedActions: number;
+    averageResponseTime: number;
   };
 }
 
-export interface WhoseAppMainProps {
-  civilizationId: string;
-  currentUserId: string;
-  onOpenCharacterProfile?: (characterId: string) => void;
+export interface QuickActionProps {
+  onClose: () => void;
+  isVisible: boolean;
+}
+
+export interface WhoseAppMainProps extends QuickActionProps {
+  gameContext?: any;
+  onConversationSelect?: (conversation: WhoseAppConversation) => void;
+  onChannelSelect?: (channel: WhoseAppChannel) => void;
+  onCharacterClick?: (character: Character) => void;
   onCreateAction?: (action: any) => void;
 }
 
 export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
-  civilizationId,
-  currentUserId,
-  onOpenCharacterProfile,
+  gameContext,
+  onConversationSelect,
+  onChannelSelect,
+  onCharacterClick,
   onCreateAction
 }) => {
+  console.log('🚀 WhoseAppMain: Component mounting/rendering');
+  
   // State Management
   const [activeTab, setActiveTab] = useState<'conversations' | 'channels' | 'actions' | 'characters'>('conversations');
   const [selectedConversation, setSelectedConversation] = useState<WhoseAppConversation | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<WhoseAppChannel | null>(null);
-  const [conversations, setConversations] = useState<WhoseAppConversation[]>([]);
-  const [channels, setChannels] = useState<WhoseAppChannel[]>([]);
-  const [messages, setMessages] = useState<WhoseAppMessage[]>([]);
-  const [characters, setCharacters] = useState<CharacterProfile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedCharacterForProfile, setSelectedCharacterForProfile] = useState<string | null>(null);
-  const [isProfileModalVisible, setIsProfileModalVisible] = useState(false);
-  const [messageInput, setMessageInput] = useState('');
-  const [isVoiceMode, setIsVoiceMode] = useState(false);
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+  const [showCharacterModal, setShowCharacterModal] = useState(false);
+  const [voiceModeEnabled, setVoiceModeEnabled] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [currentUserId] = useState('current-user-id');
   const [currentSpeakerId, setCurrentSpeakerId] = useState<string | null>(null);
-  const [voiceEnabledParticipants, setVoiceEnabledParticipants] = useState<Set<string>>(new Set());
+  const [activeCall, setActiveCall] = useState<Character | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'conversation' | 'channel' | 'call'>('list');
+  const [initialInputMode, setInitialInputMode] = useState<'text' | 'voice'>('text');
 
-  // Mock data for development
-  const actionItems = [
-    {
-      id: 'action_001',
-      title: 'Prepare Trade Agreement Draft',
-      description: 'Draft initial terms for the Zephyrian trade agreement',
-      assignedTo: 'Ambassador Elena Vasquez',
-      status: 'in-progress',
-      updates: [
-        {
-          message: 'Initial draft completed, reviewing terms with economic team',
-          timestamp: new Date(Date.now() - 3600000)
-        }
-      ]
-    },
-    {
-      id: 'action_002', 
-      title: 'Security Assessment Report',
-      description: 'Analyze potential security implications of new alliance',
-      assignedTo: 'Commander Alpha',
-      status: 'pending',
-      updates: []
-    }
-  ];
-
-  // WebSocket Integration
-  const {
-    activities,
-    conversations: wsConversations,
-    characterUpdates,
-    isConnected,
-    connectionStatus,
-    sendMessage,
-    addActivity,
-    markConversationRead
-  } = useWhoseAppWebSocket({
-    civilizationId,
-    autoConnect: true
-  });
-
-  // Load initial data
+  // Force WhoseApp to always start with character list view - aggressive override
   useEffect(() => {
-    loadConversations();
-    loadChannels();
-    loadCharacters();
-  }, [civilizationId]);
+    console.log('🔧 WhoseAppMain: Initial setup - forcing character list view');
+    // Override any external context that might force conversation mode
+    const forceCharacterListView = () => {
+      setViewMode('list');
+      setActiveTab('conversations');
+      setSelectedConversation(null);
+      setSelectedChannel(null);
+      setSelectedCharacter(null);
+      setShowCharacterModal(false);
+      setActiveCall(null);
+    };
+    
+    // Apply immediately
+    forceCharacterListView();
+    
+    // Also apply after a short delay to override any async context
+    const timer = setTimeout(forceCharacterListView, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
-  // Mock data generators
-  const generateMockConversations = (): WhoseAppConversation[] => [
+  // Only force character list view on initial mount, not during normal operation
+  // Remove this aggressive override that was interfering with conversation mode
+
+  // Mock Data
+  const [conversations, setConversations] = useState<WhoseAppConversation[]>([
     {
-      id: 'conv_001',
-      participants: [currentUserId, 'char_diplomat_001'],
-      participantNames: ['You', 'Ambassador Elena Vasquez'],
-      participantAvatars: ['/api/characters/avatars/default.jpg', '/api/characters/avatars/elena_vasquez.jpg'],
+      id: 'conv_1',
+      participants: ['user1', 'user2'],
+      participantNames: ['You', 'Prime Minister Elena Vasquez'],
+      participantAvatars: ['/api/avatars/default.jpg', '/api/avatars/pm.jpg'],
       conversationType: 'direct',
-      title: 'Trade Negotiations',
-      lastMessage: 'The Zephyrians are requesting additional security guarantees.',
+      title: 'Budget Discussion',
+      lastMessage: 'The budget proposal looks good. Let\'s schedule a meeting.',
       lastMessageTime: new Date(Date.now() - 300000),
       unreadCount: 2,
       isActive: true,
+      isPinned: true
+    },
+    {
+      id: 'conv_2',
+      participants: ['user1', 'user3'],
+      participantNames: ['You', 'Defense Secretary Sarah Kim'],
+      participantAvatars: ['/api/avatars/default.jpg', '/api/avatars/defense.jpg'],
+      conversationType: 'direct',
+      title: 'Security Briefing',
+      lastMessage: 'The situation is under control. Full report attached.',
+      lastMessageTime: new Date(Date.now() - 900000),
+      unreadCount: 0,
+      isActive: true,
       isPinned: false
     }
-  ];
+  ]);
 
-  const generateMockChannels = (): WhoseAppChannel[] => [
+  const [channels, setChannels] = useState<WhoseAppChannel[]>([
     {
-      id: 'channel_cabinet',
-      name: 'Cabinet',
-      description: 'High-level government discussions',
+      id: 'channel_1',
+      name: 'cabinet-general',
+      description: 'General cabinet discussions',
       type: 'cabinet',
-      participants: [currentUserId, 'char_diplomat_001', 'char_economist_001'],
-      participantCount: 5,
-      lastMessage: 'Meeting scheduled for tomorrow at 0900',
+      participants: ['user1', 'user2', 'user3', 'user4'],
+      participantCount: 12,
+      lastMessage: 'Meeting scheduled for tomorrow at 10 AM',
       lastMessageTime: new Date(Date.now() - 600000),
-      unreadCount: 0,
+      unreadCount: 5,
       isActive: true,
       isPinned: true,
       confidentialityLevel: 'classified',
       createdAt: new Date(Date.now() - 86400000),
-      createdBy: currentUserId,
-      metadata: {}
+      createdBy: 'user2',
+      metadata: { cabinetDecisionId: 'decision_001' }
     },
     {
-      id: 'channel_defense',
-      name: 'Defense',
-      description: 'Military and security coordination',
-      type: 'department',
-      participants: [currentUserId, 'char_commander_001'],
-      participantCount: 3,
-      lastMessage: 'Security briefing complete',
-      lastMessageTime: new Date(Date.now() - 1200000),
-      unreadCount: 1,
+      id: 'channel_2',
+      name: 'emergency-response',
+      description: 'Emergency response coordination',
+      type: 'emergency',
+      participants: ['user1', 'user5', 'user6'],
+      participantCount: 8,
+      lastMessage: 'All units report status green',
+      lastMessageTime: new Date(Date.now() - 1800000),
+      unreadCount: 0,
       isActive: true,
       isPinned: false,
       confidentialityLevel: 'top_secret',
       createdAt: new Date(Date.now() - 172800000),
-      createdBy: 'char_commander_001',
-      metadata: { departmentId: 'dept_defense' }
+      createdBy: 'user5',
+      metadata: { missionId: 'mission_alpha' }
     }
-  ];
+  ]);
 
-  const generateMockCharacters = (): CharacterProfile[] => [
+  const [characters, setCharacters] = useState<Character[]>([]);
+  const [isLoadingCharacters, setIsLoadingCharacters] = useState(true);
+
+  // Fetch characters from API
+  useEffect(() => {
+    const fetchCharacters = async () => {
+      try {
+        console.log('🔄 WhoseAppMain: Fetching characters from API...');
+        setIsLoadingCharacters(true);
+        const response = await fetch('http://localhost:4000/api/characters/profiles');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.characters) {
+            // Convert API character format to WhoseApp Character format
+            const convertedCharacters = data.characters.map((apiChar: any) => ({
+              id: apiChar.id,
+              name: apiChar.name,
+              title: apiChar.title,
+              department: apiChar.department,
+              avatar: apiChar.avatar,
+              whoseAppProfile: apiChar.whoseAppProfile || {
+                status: 'online',
+                statusMessage: 'Available',
+                lastSeen: new Date(),
+                activeConversations: []
+              },
+              actionStats: apiChar.actionStats || {
+                successRate: 85,
+                currentWorkload: 2,
+                completedActions: 50,
+                averageResponseTime: 3.0
+              }
+            }));
+            console.log(`✅ WhoseAppMain: Loaded ${convertedCharacters.length} characters`);
+            setCharacters(convertedCharacters);
+          }
+        } else {
+          console.error('❌ WhoseAppMain: Failed to fetch characters:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching characters:', error);
+      } finally {
+        setIsLoadingCharacters(false);
+      }
+    };
+
+    fetchCharacters();
+  }, []);
+
+  const [actionItems, setActionItems] = useState<WhoseAppActionItem[]>([
     {
-      id: 'char_diplomat_001',
-      name: 'Ambassador Elena Vasquez',
-      title: 'Chief Diplomatic Officer',
-      department: 'Foreign Affairs',
-      role: 'diplomat',
-      avatar: '/api/characters/avatars/elena_vasquez.jpg',
-      biography: 'Experienced diplomat with 20 years in international relations',
-      specialties: ['Trade Negotiations', 'Cultural Exchange', 'Conflict Resolution'],
-      clearanceLevel: 'top_secret',
-      whoseAppProfile: {
-        status: 'online',
-        statusMessage: 'Available for urgent matters',
-        lastSeen: new Date(),
-        activeConversations: ['conv_001', 'channel_cabinet']
-      },
-      witterProfile: {
-        handle: '@AmbassadorElena',
-        followerCount: 15420,
-        followingCount: 234,
-        postCount: 1205,
-        verificationStatus: 'government'
-      },
-      actionStats: {
-        totalAssigned: 45,
-        completed: 38,
-        inProgress: 5,
-        overdue: 2,
-        successRate: 84.4,
-        currentWorkload: 7
-      }
-    }
-  ];
-
-  const generateMockMessages = (conversationId: string): WhoseAppMessage[] => [
+      id: 'action_1',
+      title: 'Review Budget Proposal',
+      description: 'Comprehensive review of the 2024 budget proposal with focus on defense and infrastructure spending.',
+      assignedTo: 'Elena Vasquez',
+      status: 'in-progress',
+      priority: 'high',
+      createdAt: new Date(Date.now() - 86400000),
+      updatedAt: new Date(Date.now() - 3600000),
+      dueDate: new Date(Date.now() + 172800000),
+      updates: [
+        {
+          id: 'update_1',
+          message: 'Initial review completed. Requesting additional data from Treasury.',
+          timestamp: new Date(Date.now() - 3600000),
+          author: 'Elena Vasquez'
+        }
+      ]
+    },
     {
-      id: 'msg_001',
-      conversationId,
-      senderId: 'char_diplomat_001',
-      senderName: 'Ambassador Elena Vasquez',
-      senderTitle: 'Chief Diplomatic Officer',
-      senderAvatar: '/api/characters/avatars/elena_vasquez.jpg',
-      content: 'I have an update on the Zephyrian negotiations. They\'re requesting additional security guarantees.',
-      messageType: 'text',
-      timestamp: new Date(Date.now() - 300000),
-      isRead: false,
-      attachments: [],
-      reactions: []
+      id: 'action_2',
+      title: 'Security Assessment Report',
+      description: 'Quarterly security assessment for all government facilities.',
+      assignedTo: 'Sarah Kim',
+      status: 'completed',
+      priority: 'medium',
+      createdAt: new Date(Date.now() - 259200000),
+      updatedAt: new Date(Date.now() - 86400000),
+      updates: [
+        {
+          id: 'update_2',
+          message: 'Assessment completed. All facilities meet security standards.',
+          timestamp: new Date(Date.now() - 86400000),
+          author: 'Sarah Kim'
+        }
+      ]
     }
+  ]);
+
+  // WebSocket Hook
+  const {
+    isConnected,
+    sendMessage
+  } = useWhoseAppWebSocket({});
+
+  // Tab Configuration
+  const tabs: TabConfig[] = [
+    { id: 'conversations', label: 'Conversations', icon: '💬' },
+    { id: 'channels', label: 'Channels', icon: '📺' },
+    { id: 'characters', label: 'Characters', icon: '👥' },
+    { id: 'actions', label: 'Actions', icon: '📋' }
   ];
 
-  const loadConversations = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/whoseapp/conversations?civilizationId=${civilizationId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setConversations(data.conversations || []);
-      } else {
-        setConversations(generateMockConversations());
-      }
-    } catch (err) {
-      console.error('Failed to load conversations:', err);
-      setConversations(generateMockConversations());
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadChannels = async () => {
-    try {
-      const response = await fetch(`/api/whoseapp/channels?civilizationId=${civilizationId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setChannels(data.channels || []);
-      } else {
-        setChannels(generateMockChannels());
-      }
-    } catch (err) {
-      console.error('Failed to load channels:', err);
-      setChannels(generateMockChannels());
-    }
-  };
-
-  const loadCharacters = async () => {
-    try {
-      const response = await fetch(`/api/characters/profiles?civilizationId=${civilizationId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setCharacters(data.characters || []);
-      } else {
-        setCharacters(generateMockCharacters());
-      }
-    } catch (err) {
-      console.error('Failed to load characters:', err);
-      setCharacters(generateMockCharacters());
-    }
-  };
-
-  const loadMessages = async (conversationId: string) => {
-    try {
-      const response = await fetch(`/api/whoseapp/messages?conversationId=${conversationId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data.messages || []);
-      } else {
-        setMessages(generateMockMessages(conversationId));
-      }
-    } catch (err) {
-      console.error('Failed to load messages:', err);
-      setMessages(generateMockMessages(conversationId));
-    }
-  };
-
-  // Handle conversation selection
+  // Event Handlers
   const handleConversationSelect = useCallback((conversation: WhoseAppConversation) => {
     setSelectedConversation(conversation);
-    setSelectedChannel(null);
-    loadMessages(conversation.id);
-    markConversationRead(conversation.id);
-  }, [markConversationRead]);
+    setViewMode('conversation');
+    onConversationSelect?.(conversation);
+  }, [onConversationSelect]);
 
-  // Handle channel selection
   const handleChannelSelect = useCallback((channel: WhoseAppChannel) => {
     setSelectedChannel(channel);
-    setSelectedConversation(null);
-    loadMessages(channel.id);
-  }, []);
+    setViewMode('channel');
+    onChannelSelect?.(channel);
+  }, [onChannelSelect]);
 
-  // Handle character profile view
-  const handleCharacterProfileView = useCallback((characterId: string) => {
-    setSelectedCharacterForProfile(characterId);
-    setIsProfileModalVisible(true);
-    onOpenCharacterProfile?.(characterId);
-  }, [onOpenCharacterProfile]);
+  const handleCharacterClick = useCallback((character: Character) => {
+    setSelectedCharacter(character);
+    setShowCharacterModal(true);
+    onCharacterClick?.(character);
+  }, [onCharacterClick]);
 
-  // Handle character click
-  const handleCharacterClick = useCallback((character: CharacterProfile) => {
-    handleCharacterProfileView(character.id);
-  }, [handleCharacterProfileView]);
-
-  // Handle voice mode toggle
-  const handleVoiceModeToggle = useCallback(() => {
-    setIsVoiceMode(!isVoiceMode);
-  }, [isVoiceMode]);
-
-  // Handle voice message from voice controls
-  const handleVoiceMessage = useCallback(async (transcript: string, audioBlob?: Blob) => {
-    if (transcript.trim()) {
-      await handleSendMessage(transcript, 'text');
-    } else if (audioBlob) {
-      await handleSendMessage('🎤 Voice Message', 'voice', audioBlob);
-    }
-  }, []);
-
-  // Handle text-to-speech for messages
-  const handleTextToSpeech = useCallback(async (text: string, characterId?: string) => {
-    try {
-      if (characterId && (selectedChannel || selectedConversation)) {
-        await voiceService.speakInChannel(
-          text, 
-          characterId,
-          () => setCurrentSpeakerId(characterId),
-          () => setCurrentSpeakerId(null)
-        );
-          } else {
-        await voiceService.textToSpeech(text, {
-          characterId: characterId,
-          rate: 1.0,
-          pitch: 1.0,
-          volume: 0.8
-        });
-          }
-        } catch (error) {
-      console.error('TTS failed:', error);
-    }
-  }, [selectedChannel, selectedConversation]);
-
-  // Handle voice toggle for participants
-  const handleVoiceToggle = useCallback((participantId: string, enabled: boolean) => {
-    setVoiceEnabledParticipants(prev => {
-      const newSet = new Set(prev);
-      if (enabled) {
-        newSet.add(participantId);
-                 } else {
-        newSet.delete(participantId);
-      }
-      return newSet;
-    });
-  }, []);
-
-  // Handle participant click (show profile)
   const handleParticipantClick = useCallback((participantId: string) => {
-    handleCharacterProfileView(participantId);
-  }, [handleCharacterProfileView]);
-
-  // Handle recording
-  const [isRecording, setIsRecording] = useState(false);
-  const [voiceModeEnabled, setVoiceModeEnabled] = useState(false);
-
-  const handleStartRecording = useCallback(() => {
-    setIsRecording(true);
+    console.log('Participant clicked:', participantId);
   }, []);
 
-  const handleStopRecording = useCallback(() => {
-    setIsRecording(false);
+  const handleVoiceToggle = useCallback((participantId: string) => {
+    setCurrentSpeakerId(prev => prev === participantId ? null : participantId);
   }, []);
 
-  // Send message
-  const handleSendMessage = useCallback(async (content: string, messageType: string = 'text', audioBlob?: Blob) => {
-    if (!selectedConversation && !selectedChannel) return;
+  const handleVoiceModeToggle = useCallback(() => {
+    setVoiceModeEnabled(prev => !prev);
+  }, []);
 
-    const conversationId = selectedConversation?.id || selectedChannel?.id;
-    if (!conversationId) return;
-
+  const handleStartRecording = useCallback(async () => {
     try {
-      const response = await fetch('/api/whoseapp/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          conversationId,
-          senderId: currentUserId,
-          content,
-          messageType,
-          civilizationId
-        })
-      });
-
-      if (response.ok) {
-        const newMessage = await response.json();
-        setMessages(prev => [...prev, newMessage]);
-        
-        sendMessage({
-          type: 'new_message',
-          payload: {
-            conversationId,
-            content,
-            messageType,
-            senderId: currentUserId
-          }
-        });
-      }
-    } catch (err) {
-      console.error('Failed to send message:', err);
-      setError('Failed to send message');
+      setIsRecording(true);
+      await voiceService.startRecording();
+    } catch (error) {
+      console.error('Failed to start recording:', error);
+      setIsRecording(false);
     }
-  }, [selectedConversation, selectedChannel, currentUserId, civilizationId, sendMessage]);
+  }, []);
 
-  // Generate channel participants from channel data
-  const generateChannelParticipants = useCallback((channel: WhoseAppChannel) => {
-    const participants = [];
-    
-    participants.push({
-      id: currentUserId,
-      name: 'You',
-      avatar: '/api/characters/avatars/player_default.jpg',
-      title: 'Player',
-      status: 'online' as const,
-      isPlayer: true
-    });
+  const handleStopRecording = useCallback(async () => {
+    try {
+      const audioBlob = await voiceService.stopRecording();
+      setIsRecording(false);
+      // Process the audio blob here
+      console.log('Recording completed:', audioBlob);
+    } catch (error) {
+      console.error('Failed to stop recording:', error);
+      setIsRecording(false);
+    }
+  }, []);
 
-    const channelCharacters = characters.filter(char => {
-      switch (channel.type) {
-        case 'department':
-          return char.department?.toLowerCase().includes(channel.name.toLowerCase());
-        case 'cabinet':
-          return char.title?.toLowerCase().includes('minister') || 
-                 char.title?.toLowerCase().includes('secretary') ||
-                 char.title?.toLowerCase().includes('advisor');
-        case 'emergency':
-          return char.title?.toLowerCase().includes('commander') ||
-                 char.title?.toLowerCase().includes('chief') ||
-                 char.department?.toLowerCase().includes('security');
-        default:
-          return true;
-      }
-    });
-
-    channelCharacters.forEach(char => {
-      participants.push({
+  // Generate channel participants
+  const generateChannelParticipants = (channel: WhoseAppChannel) => {
+    return characters
+      .filter(char => channel.participants.includes(char.id))
+      .map(char => ({
         id: char.id,
         name: char.name,
         avatar: char.avatar,
         title: char.title,
-        status: char.whoseAppProfile?.status || 'online' as const,
+        status: 'online' as const,
+        isSpeaking: false,
         isPlayer: false
+      }));
+  };
+
+  // Refresh function
+  const handleRefresh = useCallback(async () => {
+    try {
+      // Refresh data - for now just log, can be implemented with API calls
+      console.log('Refreshing WhoseApp data...');
+    } catch (error) {
+      console.error('Failed to refresh WhoseApp data:', error);
+    }
+  }, []);
+
+  // Handle starting conversations and calls
+  const handleStartConversation = useCallback(async (characterId: string, mode: 'text' | 'voice' = 'text') => {
+    const character = characters.find(c => c.id === characterId);
+    if (character) {
+      const conversationId = `conv_${currentUserId}_${characterId}`;
+      const newConversation: WhoseAppConversation = {
+        id: conversationId,
+        participants: [currentUserId, characterId],
+        participantNames: ['You', character.name],
+        participantAvatars: ['/api/characters/avatars/default.jpg', character.avatar],
+        conversationType: 'direct',
+        title: `Conversation with ${character.name}`,
+        lastMessage: '',
+        lastMessageTime: new Date(),
+        unreadCount: 0,
+        isActive: true,
+        isPinned: false
+      };
+      
+      setSelectedConversation(newConversation);
+      setInitialInputMode(mode);
+      setViewMode('conversation');
+      setActiveTab('conversations');
+    }
+  }, [characters, currentUserId]);
+
+  const handleStartCall = useCallback(async (characterId: string) => {
+    const character = characters.find(c => c.id === characterId);
+    if (character) {
+      setActiveCall(character);
+      setViewMode('call');
+      console.log(`Starting call with ${character.name}`);
+    }
+  }, [characters]);
+
+  // Handle sending messages
+  const handleSendMessage = useCallback(async (content: string, type: 'text' | 'voice' = 'text') => {
+    if (!selectedConversation) return;
+
+    try {
+      const response = await fetch(`/api/whoseapp/conversations/${selectedConversation.id}/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          senderId: currentUserId,
+          content,
+          type
+        })
       });
-    });
 
-    return participants.slice(0, 12);
-  }, [currentUserId, characters]);
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
 
-  // Render conversation messages (reusable for both conversations and channels)
-  const renderConversationMessages = useCallback(() => {
-    const conversationId = selectedConversation?.id || selectedChannel?.id;
-    if (!conversationId) return null;
+      // Update conversation last message
+      setConversations(prev => prev.map(conv => 
+        conv.id === selectedConversation.id 
+          ? { ...conv, lastMessage: content, lastMessageTime: new Date() }
+          : conv
+      ));
 
-    return (
-      <div className="conversation-messages">
-        <div className="messages-area" style={{
-          flex: 1,
-          padding: '15px',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px',
-          background: 'rgba(15, 15, 35, 0.6)',
-          minHeight: '300px',
-          borderRadius: '8px',
-          border: '1px solid rgba(78, 205, 196, 0.2)',
-          marginBottom: '16px'
-        }}>
-          {messages.length === 0 ? (
-            <div style={{
-              textAlign: 'center',
-              color: '#888',
-              padding: '40px 20px',
-              fontStyle: 'italic'
-            }}>
-              {selectedChannel ? `No messages in #${selectedChannel.name} yet. Start the conversation!` : 'No messages yet. Start the conversation!'}
-            </div>
-          ) : (
-            messages.map((message, index) => (
-              <div
-                key={message.id || index}
-                className={`message ${message.senderId === currentUserId ? 'sent' : 'received'}`}
-                style={{
-                  display: 'flex',
-                  flexDirection: message.senderId === currentUserId ? 'row-reverse' : 'row',
-                  gap: '10px',
-                  alignItems: 'flex-start'
-                }}
-              >
-                <div 
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: message.senderId === currentUserId ? '#4ecdc4' : '#666',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '14px',
-                    color: 'white',
-                    flexShrink: 0,
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s ease',
-                    border: currentSpeakerId === message.senderId ? '3px solid #4CAF50' : '2px solid transparent'
-                  }}
-                  onClick={() => handleCharacterProfileView(message.senderId)}
-                  title={`View ${message.senderName}'s profile`}
-                >
-                  {message.senderName ? message.senderName.charAt(0).toUpperCase() : '?'}
-                </div>
+    } catch (error) {
+      console.error('Error sending message:', error);
+      throw error;
+    }
+  }, [selectedConversation, currentUserId]);
 
-                <div style={{
-                  maxWidth: '70%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '4px'
-                }}>
-                  <div style={{
-                    fontSize: '12px',
-                    color: '#888',
-                    textAlign: message.senderId === currentUserId ? 'right' : 'left'
-                  }}>
-                    <span 
-                      style={{
-                        cursor: 'pointer',
-                        color: currentSpeakerId === message.senderId ? '#4CAF50' : '#4ecdc4',
-                        textDecoration: 'underline',
-                        textDecorationColor: 'transparent',
-                        transition: 'text-decoration-color 0.2s ease',
-                        fontWeight: currentSpeakerId === message.senderId ? 'bold' : 'normal'
-                      }}
-                      onClick={() => handleCharacterProfileView(message.senderId)}
-                      title={`View ${message.senderName}'s profile`}
-                    >
-                      {message.senderName}
-                      {currentSpeakerId === message.senderId && ' 🗣️'}
-                    </span> • {new Date(message.timestamp).toLocaleTimeString()}
-                  </div>
-                  <div style={{
-                    background: message.senderId === currentUserId ? 
-                      'rgba(78, 205, 196, 0.2)' : 'rgba(26, 26, 46, 0.8)',
-                    border: `1px solid ${message.senderId === currentUserId ? '#4ecdc4' : 'rgba(78, 205, 196, 0.3)'}`,
-                    borderRadius: '12px',
-                    padding: '10px 15px',
-                    color: '#e8e8e8',
-                    fontSize: '14px',
-                    lineHeight: '1.4'
-                  }}>
-                        {message.content}
-                        {message.senderId !== currentUserId && voiceEnabledParticipants.has(message.senderId) && (
-                          <button
-                            onClick={() => handleTextToSpeech(message.content, message.senderId)}
-                            style={{
-                              background: 'rgba(255, 193, 7, 0.1)',
-                              border: '1px solid rgba(255, 193, 7, 0.3)',
-                              borderRadius: '4px',
-                              color: '#FFC107',
-                              padding: '2px 4px',
-                              fontSize: '10px',
-                              cursor: 'pointer',
-                              marginLeft: '8px',
-                          opacity: 0.7
-                            }}
-                            title="Read aloud with TTS"
-                          >
-                            🔊
-                          </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+  // Handle ending calls
+  const handleEndCall = useCallback(() => {
+    setActiveCall(null);
+    setViewMode('list');
+  }, []);
 
-        <div className="message-input" style={{
-          padding: '15px',
-          borderTop: '1px solid rgba(78, 205, 196, 0.2)',
-          background: 'rgba(26, 26, 46, 0.4)',
-          borderRadius: '8px'
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-              <textarea
-                value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
-                placeholder={selectedChannel ? `Message #${selectedChannel.name}...` : `Message ${selectedConversation?.participantNames.join(', ')}...`}
-                style={{
-                  flex: 1,
-                  background: 'rgba(15, 15, 35, 0.8)',
-                  border: '1px solid rgba(78, 205, 196, 0.3)',
-                  borderRadius: '8px',
-                  padding: '10px',
-                  color: '#e8e8e8',
-                  fontSize: '14px',
-                  resize: 'none',
-                  minHeight: '40px',
-                  maxHeight: '100px'
-                }}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    const content = messageInput.trim();
-                    if (content) {
-                      handleSendMessage(content);
-                      setMessageInput('');
-                    }
-                  }
-                }}
-              />
-              
-                <button
-                onClick={() => setIsVoiceMode(!isVoiceMode)}
-                style={{
-                  background: isVoiceMode ? 'rgba(76, 175, 80, 0.3)' : 'rgba(78, 205, 196, 0.1)',
-                  border: `1px solid ${isVoiceMode ? '#4CAF50' : 'rgba(78, 205, 196, 0.4)'}`,
-                  borderRadius: '8px',
-                  color: isVoiceMode ? '#4CAF50' : '#4ecdc4',
-                  padding: '10px',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  height: '40px',
-                  minWidth: '40px'
-                }}
-                title={isVoiceMode ? 'Switch to text mode' : 'Switch to voice mode'}
-              >
-                {isVoiceMode ? '🎤' : '⌨️'}
-              </button>
-              
-              <button
-                onClick={() => {
-                  const content = messageInput.trim();
-                  if (content) {
-                    handleSendMessage(content);
-                    setMessageInput('');
-                  }
-                }}
-                disabled={!messageInput.trim()}
-                style={{
-                  background: messageInput.trim() ? 'rgba(78, 205, 196, 0.2)' : 'rgba(78, 205, 196, 0.1)',
-                  border: '1px solid #4ecdc4',
-                  borderRadius: '8px',
-                  color: messageInput.trim() ? '#4ecdc4' : '#666',
-                  padding: '10px 15px',
-                  fontSize: '14px',
-                  cursor: messageInput.trim() ? 'pointer' : 'not-allowed',
-                  height: '40px'
-                }}
-              >
-                Send
-              </button>
-            </div>
-            
-            {isVoiceMode && (
-              <VoiceControls
-                onVoiceMessage={handleVoiceMessage}
-                onTextToSpeech={handleTextToSpeech}
-                characterId={selectedChannel ? 'channel_voice' : selectedConversation?.participants.find(p => p !== currentUserId)}
-                disabled={false}
-                showTTSControls={true}
-              />
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }, [selectedConversation, selectedChannel, messages, messageInput, isVoiceMode, currentUserId, currentSpeakerId, voiceEnabledParticipants, handleVoiceMessage, handleTextToSpeech, handleSendMessage, handleCharacterProfileView]);
+  // Handle back navigation
+  const handleBack = useCallback(() => {
+    setSelectedConversation(null);
+    setSelectedChannel(null);
+    setActiveCall(null);
+    setViewMode('list');
+  }, []);
+
 
   // Render conversations list
   const renderConversations = () => {
-    if (selectedConversation) {
-      return renderConversationMessages();
-    }
-
     return (
-      <div className="conversations-list">
-        <div className="list-header" style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          marginBottom: '15px' 
-        }}>
-          <h3 style={{ color: '#4ecdc4', margin: 0 }}>Conversations</h3>
-          <button 
-            className="new-conversation-btn"
-            style={{
-              background: 'rgba(78, 205, 196, 0.2)',
-              border: '1px solid #4ecdc4',
-              borderRadius: '6px',
-              color: '#4ecdc4',
-              padding: '6px 12px',
-              fontSize: '12px',
-              cursor: 'pointer'
-            }}
-          >
-            + New
-          </button>
-        </div>
-        
-        <div className="conversation-items">
-          {conversations.map(conversation => (
-            <div
-              key={conversation.id}
-              className={`conversation-item ${selectedConversation?.id === conversation.id ? 'selected' : ''}`}
-              style={{
-                padding: '12px',
-                borderRadius: '8px',
-                border: '1px solid rgba(78, 205, 196, 0.2)',
-                marginBottom: '8px',
-                cursor: 'pointer',
-                background: selectedConversation?.id === conversation.id ? 
-                  'rgba(78, 205, 196, 0.1)' : 'rgba(26, 26, 46, 0.4)',
-                transition: 'all 0.2s ease'
-              }}
-              onClick={() => handleConversationSelect(conversation)}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
-                <div style={{ fontWeight: 'bold', color: '#e8e8e8' }}>
-                  {conversation.title || `${conversation.participantNames.join(', ')}`}
-                </div>
-                {conversation.unreadCount > 0 && (
-                  <span style={{
-                    background: '#F44336',
-                    color: 'white',
-                    borderRadius: '10px',
-                    padding: '2px 6px',
-                    fontSize: '10px',
-                    fontWeight: 'bold'
-                  }}>
-                    {conversation.unreadCount}
-                  </span>
-                )}
-              </div>
-              <div style={{ fontSize: '12px', color: '#888', marginBottom: '5px' }}>
-                {conversation.lastMessage}
-              </div>
-              <div style={{ fontSize: '11px', color: '#666' }}>
-                {new Date(conversation.lastMessageTime).toLocaleTimeString()}
-              </div>
-            </div>
-          ))}
+      <div className="standard-dashboard">
+        <div className="standard-panel" style={{ gridColumn: '1 / -1' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h3 className="standard-card-title">💬 Conversations</h3>
+            <button className="standard-btn social-theme">
+              + New Conversation
+            </button>
+          </div>
+
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Conversation</th>
+                  <th>Type</th>
+                  <th>Last Message</th>
+                  <th>Status</th>
+                  <th>Unread</th>
+                </tr>
+              </thead>
+              <tbody>
+                {conversations.map(conversation => (
+                  <tr key={conversation.id} onClick={() => handleConversationSelect(conversation)} style={{ cursor: 'pointer' }}>
+                    <td>
+                      <div style={{ fontWeight: 'bold', color: '#e8e8e8' }}>
+                        {conversation.title || conversation.participantNames.join(', ')}
+                        {conversation.isPinned && ' 📌'}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#888' }}>
+                        {conversation.participantNames.join(', ')}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="standard-badge social-theme">
+                        {conversation.conversationType}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ fontSize: '14px', color: '#ccc', marginBottom: '2px' }}>
+                        {conversation.lastMessage}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#888' }}>
+                        {new Date(conversation.lastMessageTime).toLocaleTimeString()}
+                      </div>
+                    </td>
+                    <td>
+                      <span style={{
+                        color: conversation.isActive ? '#10b981' : '#6b7280',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        fontSize: '12px'
+                      }}>
+                        {conversation.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>
+                      {conversation.unreadCount > 0 && (
+                        <span className="standard-badge" style={{ background: '#F44336', color: 'white' }}>
+                          {conversation.unreadCount}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
   };
 
-  // Render channels list
+  // Render channels
   const renderChannels = () => {
     if (selectedChannel) {
       return (
-        <div className="channel-view">
-          <div className="channel-header" style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '20px',
-            padding: '16px',
-            background: 'rgba(26, 26, 46, 0.6)',
-            border: '1px solid rgba(78, 205, 196, 0.2)',
-            borderRadius: '12px'
-          }}>
-            <button
-              onClick={() => setSelectedChannel(null)}
-              style={{
-                background: 'rgba(78, 205, 196, 0.1)',
-                border: '1px solid rgba(78, 205, 196, 0.3)',
-                color: '#4ecdc4',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px'
-              }}
-            >
-              ← Back to Channels
-            </button>
-            <div>
-              <h3 style={{ color: '#4ecdc4', margin: '0 0 4px 0' }}>
-                # {selectedChannel.name}
-              </h3>
-              <p style={{ color: '#888', margin: 0, fontSize: '12px' }}>
-                {selectedChannel.description || `${selectedChannel.participantCount} members`}
-              </p>
+        <div className="standard-dashboard">
+          <div className="standard-panel" style={{ gridColumn: '1 / -1', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <button
+                className="standard-btn social-theme"
+                onClick={() => setSelectedChannel(null)}
+              >
+                ← Back to Channels
+              </button>
+              <div>
+                <h3 className="standard-card-title" style={{ margin: '0 0 8px 0' }}>
+                  #{selectedChannel.name}
+                </h3>
+                <div style={{ fontSize: '14px', color: '#ccc' }}>
+                  {selectedChannel.description || `${selectedChannel.participantCount} members`}
+                </div>
+              </div>
             </div>
           </div>
 
-          <ChannelParticipants
-            participants={generateChannelParticipants(selectedChannel)}
-            currentSpeakerId={currentSpeakerId}
-            onParticipantClick={handleParticipantClick}
-            onVoiceToggle={handleVoiceToggle}
-            showVoiceControls={true}
-          />
-
-          {renderConversationMessages()}
+          <div className="standard-panel" style={{ gridColumn: '1 / -1' }}>
+            <h3 className="standard-card-title">👥 Channel Participants</h3>
+            <ChannelParticipants
+              participants={generateChannelParticipants(selectedChannel)}
+              currentSpeakerId={currentSpeakerId}
+              onParticipantClick={handleParticipantClick}
+              onVoiceToggle={handleVoiceToggle}
+              showVoiceControls={true}
+            />
+          </div>
         </div>
       );
     }
 
     return (
-      <div className="channels-list">
-        <div className="list-header" style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          marginBottom: '15px' 
-        }}>
-          <h3 style={{ color: '#4ecdc4', margin: 0 }}>Channels</h3>
-          <button 
-            className="new-channel-btn"
-            style={{
-              background: 'rgba(78, 205, 196, 0.2)',
-              border: '1px solid #4ecdc4',
-              borderRadius: '6px',
-              color: '#4ecdc4',
-              padding: '6px 12px',
-              fontSize: '12px',
-              cursor: 'pointer'
-            }}
-          >
-            + Create
-          </button>
-        </div>
+      <div className="standard-dashboard">
+        <div className="standard-panel" style={{ gridColumn: '1 / -1' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h3 className="standard-card-title">📺 Channels</h3>
+            <button className="standard-btn social-theme">
+              + Create Channel
+            </button>
+          </div>
 
-        <div className="channel-categories">
-          {channels.map(channel => (
-              <div
-                key={channel.id}
-                className={`channel-item ${selectedChannel?.id === channel.id ? 'selected' : ''}`}
-                style={{
-                  padding: '10px',
-                  borderRadius: '6px',
-                  marginBottom: '5px',
-                  cursor: 'pointer',
-                  background: selectedChannel?.id === channel.id ? 
-                    'rgba(78, 205, 196, 0.1)' : 'transparent',
-                  border: selectedChannel?.id === channel.id ? 
-                    '1px solid rgba(78, 205, 196, 0.3)' : '1px solid transparent',
-                  transition: 'all 0.2s ease'
-                }}
-                onClick={() => handleChannelSelect(channel)}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontWeight: 'bold', color: '#e8e8e8', fontSize: '14px' }}>
-                      # {channel.name}
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#888' }}>
-                      {channel.participantCount} members
-                    </div>
-                  </div>
-                  {channel.unreadCount > 0 && (
-                    <span style={{
-                      background: '#F44336',
-                      color: 'white',
-                      borderRadius: '10px',
-                      padding: '2px 6px',
-                      fontSize: '10px',
-                      fontWeight: 'bold'
-                    }}>
-                      {channel.unreadCount}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Channel</th>
+                  <th>Type</th>
+                  <th>Members</th>
+                  <th>Last Message</th>
+                  <th>Status</th>
+                  <th>Unread</th>
+                </tr>
+              </thead>
+              <tbody>
+                {channels.map(channel => (
+                  <tr key={channel.id} onClick={() => handleChannelSelect(channel)} style={{ cursor: 'pointer' }}>
+                    <td>
+                      <div style={{ fontWeight: 'bold', color: '#e8e8e8' }}>
+                        #{channel.name}
+                        {channel.isPinned && ' 📌'}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#888' }}>
+                        {channel.description}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="standard-badge social-theme">
+                        {channel.type}
+                      </span>
+                    </td>
+                    <td>{channel.participantCount}</td>
+                    <td>
+                      <div style={{ fontSize: '14px', color: '#ccc', marginBottom: '2px' }}>
+                        {channel.lastMessage}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#888' }}>
+                        {new Date(channel.lastMessageTime).toLocaleTimeString()}
+                      </div>
+                    </td>
+                    <td>
+                      <span style={{
+                        color: channel.isActive ? '#10b981' : '#6b7280',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        fontSize: '12px'
+                      }}>
+                        {channel.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>
+                      {channel.unreadCount > 0 && (
+                        <span className="standard-badge" style={{ background: '#F44336', color: 'white' }}>
+                          {channel.unreadCount}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
@@ -954,191 +676,283 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
 
   // Render characters list
   const renderCharacters = () => (
-    <div className="characters-list">
-      <div className="list-header" style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '15px' 
-      }}>
-        <h3 style={{ color: '#4ecdc4', margin: 0 }}>Characters</h3>
-      </div>
-      
-      <div className="character-items">
-        {characters.map(character => (
-          <div
-            key={character.id}
-            className="character-item"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: '12px',
-              background: 'rgba(15, 15, 35, 0.6)',
-              border: '1px solid rgba(78, 205, 196, 0.2)',
-              borderRadius: '8px',
-              marginBottom: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onClick={() => handleCharacterClick(character)}
-              >
-                <img 
-                  src={character.avatar} 
-                  alt={character.name}
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                border: '2px solid rgba(78, 205, 196, 0.3)'
-                  }}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%234ecdc4"/><text x="20" y="25" text-anchor="middle" fill="white" font-size="14">${character.name.charAt(0)}</text></svg>`;
-                  }}
-                />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 'bold', color: '#e8e8e8', fontSize: '14px' }}>
-                  {character.name}
-                </div>
-                <div style={{ fontSize: '12px', color: '#888' }}>
-                  {character.title}
-                </div>
-                </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-                  <button
-                    style={{
-                      background: 'rgba(78, 205, 196, 0.2)',
-                  border: '1px solid #4ecdc4',
-                      borderRadius: '6px',
-                  color: '#4ecdc4',
-                      padding: '4px 8px',
-                      fontSize: '11px',
-                  cursor: 'pointer'
-                }}
-              >
-                💬 Message
-                  </button>
-                  <button
-                    style={{
-                  background: 'rgba(78, 205, 196, 0.2)',
-                  border: '1px solid #4ecdc4',
-                      borderRadius: '6px',
-                  color: '#4ecdc4',
-                      padding: '4px 8px',
-                      fontSize: '11px',
-                  cursor: 'pointer'
-                }}
-                  >
-                    📞 Call
-                  </button>
-            </div>
+    <div className="standard-dashboard">
+      <div className="standard-panel" style={{ gridColumn: '1 / -1' }}>
+        <h3 className="standard-card-title">👥 Character Directory</h3>
+        {isLoadingCharacters ? (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px', 
+            color: '#4ecdc4' 
+          }}>
+            <div style={{ fontSize: '24px', marginBottom: '10px' }}>🔄</div>
+            <div>Loading characters...</div>
           </div>
-        ))}
+        ) : characters.length === 0 ? (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px', 
+            color: '#888' 
+          }}>
+            <div style={{ fontSize: '24px', marginBottom: '10px' }}>👥</div>
+            <div>No characters available</div>
+          </div>
+        ) : (
+          <div className="standard-table-container">
+            <table className="standard-data-table">
+              <thead>
+                <tr>
+                  <th>Character</th>
+                  <th>Status</th>
+                  <th>Department</th>
+                  <th>Success Rate</th>
+                  <th>Workload</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {characters.map(character => (
+                <tr key={character.id} onClick={() => handleCharacterClick(character)} style={{ cursor: 'pointer' }}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <img
+                        src={character.avatar}
+                        alt={character.name}
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          objectFit: 'cover',
+                          border: '2px solid rgba(78, 205, 196, 0.3)'
+                        }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%2310b981"/><text x="20" y="25" text-anchor="middle" fill="white" font-size="14">${character.name.charAt(0)}</text></svg>`;
+                        }}
+                      />
+                      <div>
+                        <div style={{ fontWeight: 'bold', color: '#e8e8e8', fontSize: '14px' }}>
+                          {character.name}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#888' }}>
+                          {character.title}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="standard-badge social-theme">
+                      {character.whoseAppProfile?.status || 'offline'}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="standard-badge">
+                      {character.department}
+                    </span>
+                  </td>
+                  <td style={{ color: (character.actionStats?.successRate || 0) > 80 ? '#10b981' : (character.actionStats?.successRate || 0) > 60 ? '#f59e0b' : '#ef4444' }}>
+                    {character.actionStats?.successRate?.toFixed(1) || '0.0'}%
+                  </td>
+                  <td style={{ color: (character.actionStats?.currentWorkload || 0) > 5 ? '#ef4444' : '#10b981' }}>
+                    {character.actionStats?.currentWorkload || 0}
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button
+                        className="standard-btn social-theme"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStartConversation(character.id);
+                        }}
+                        style={{ fontSize: '12px', padding: '4px 8px' }}
+                      >
+                        💬 Message
+                      </button>
+                      <button
+                        className="standard-btn social-theme"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStartConversation(character.id, 'voice');
+                        }}
+                        style={{ fontSize: '12px', padding: '4px 8px' }}
+                      >
+                        📞 Call
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
 
   // Render action items
   const renderActionItems = () => (
-    <div className="action-items-list">
-      <div className="list-header" style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '15px' 
-      }}>
-        <h3 style={{ color: '#4ecdc4', margin: 0 }}>Action Items</h3>
-        <button 
-          className="new-action-btn"
-          style={{
-            background: 'rgba(78, 205, 196, 0.2)',
-            border: '1px solid #4ecdc4',
-            borderRadius: '6px',
-            color: '#4ecdc4',
-            padding: '6px 12px',
-            fontSize: '12px',
-            cursor: 'pointer'
-          }}
-        >
-          + New Action
-        </button>
-      </div>
-      
-      <div className="action-items">
-        {actionItems.map(item => (
-          <div
-            key={item.id}
-            className="action-item"
-            style={{
-              background: 'rgba(15, 15, 35, 0.6)',
-              border: '1px solid rgba(78, 205, 196, 0.2)',
-              borderRadius: '8px',
-              padding: '16px',
-              marginBottom: '12px'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-              <div>
-                <h4 style={{ color: '#e8e8e8', margin: '0 0 4px 0', fontSize: '14px' }}>
-                  {item.title}
-                </h4>
-                <p style={{ color: '#888', margin: '0 0 8px 0', fontSize: '12px' }}>
-                  Assigned to: {item.assignedTo}
-                </p>
-              </div>
-              <span style={{
-                background: item.status === 'completed' ? 'rgba(76, 175, 80, 0.2)' :
-                           item.status === 'in-progress' ? 'rgba(255, 193, 7, 0.2)' :
-                           'rgba(78, 205, 196, 0.2)',
-                color: item.status === 'completed' ? '#4CAF50' :
-                       item.status === 'in-progress' ? '#FFC107' :
-                       '#4ecdc4',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                fontSize: '10px',
-                fontWeight: 'bold',
-                textTransform: 'uppercase'
-              }}>
-                {item.status}
-              </span>
-            </div>
-            
-            <p style={{ color: '#ccc', fontSize: '13px', margin: '0 0 12px 0' }}>
-              {item.description}
-            </p>
-            
-            {item.updates && item.updates.length > 0 && (
-              <div style={{ marginTop: '12px' }}>
-                <div style={{ fontSize: '11px', color: '#888', marginBottom: '6px' }}>
-                  Latest Update:
-                </div>
-                <div style={{
-                  background: 'rgba(26, 26, 46, 0.6)',
-                  padding: '8px',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  color: '#ccc'
-                }}>
-                  {item.updates[item.updates.length - 1].message}
-                  <div style={{ fontSize: '10px', color: '#666', marginTop: '4px' }}>
-                    {new Date(item.updates[item.updates.length - 1].timestamp).toLocaleString()}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
+    <div className="standard-dashboard">
+      <div className="standard-panel" style={{ gridColumn: '1 / -1' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3 className="standard-card-title">📋 Action Items</h3>
+          <button className="standard-btn social-theme">
+            + New Action
+          </button>
+        </div>
+
+        <div className="standard-table-container">
+          <table className="standard-data-table">
+            <thead>
+              <tr>
+                <th>Action Title</th>
+                <th>Assigned To</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {actionItems.map(item => (
+                <tr key={item.id}>
+                  <td>
+                    <div style={{ fontWeight: 'bold', color: '#e8e8e8', marginBottom: '4px' }}>
+                      {item.title}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#ccc' }}>
+                      {item.description}
+                    </div>
+                  </td>
+                  <td>{item.assignedTo}</td>
+                  <td>
+                    <span className={`standard-badge ${
+                      item.status === 'completed' ? 'success' :
+                      item.status === 'in-progress' ? 'warning' :
+                      'social-theme'
+                    }`}>
+                      {item.status}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`standard-badge ${
+                      item.priority === 'urgent' || item.priority === 'high' ? 'danger' :
+                      item.priority === 'medium' ? 'warning' : ''
+                    }`}>
+                      {item.priority}
+                    </span>
+                  </td>
+                  <td>
+                    {item.dueDate ? (
+                      <div style={{ fontSize: '12px', color: '#ccc' }}>
+                        {new Date(item.dueDate).toLocaleDateString()}
+                      </div>
+                    ) : (
+                      <span style={{ fontSize: '12px', color: '#888' }}>No due date</span>
+                    )}
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button className="standard-btn social-theme" style={{ fontSize: '12px', padding: '4px 8px' }}>
+                        View
+                      </button>
+                      <button className="standard-btn social-theme" style={{ fontSize: '12px', padding: '4px 8px' }}>
+                        Update
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 
   // Main render function
   const renderContent = () => {
-    if (activeTab === 'conversations') {
-      if (selectedConversation) {
-        return renderConversationMessages();
+    // Handle special view modes
+    if (viewMode === 'conversation' && selectedConversation) {
+      // Find the character we're talking to (not the current user)
+      const otherParticipantId = selectedConversation.participants.find(p => p !== currentUserId);
+      const character = characters.find(c => c.id === otherParticipantId);
+      
+      if (character) {
+        // Convert Character to CharacterProfile format expected by UnifiedConversationInterface
+        const characterProfile = {
+          id: character.id,
+          name: character.name,
+          role: character.title,
+          department: character.department,
+          avatar: character.avatar,
+          personality: {
+            currentMood: 'professional',
+            traits: ['diplomatic', 'analytical']
+          }
+        };
+
+        return (
+          <UnifiedConversationInterface
+            character={characterProfile}
+            conversationId={selectedConversation.id}
+            currentUserId={currentUserId}
+            civilizationId={gameContext?.civilizationId || 'terran_federation'}
+            onBack={handleBack}
+            initialInputMode={initialInputMode}
+            gameContext={{
+              currentCampaign: gameContext?.currentCampaign,
+              playerResources: gameContext?.playerResources,
+              recentEvents: gameContext?.recentEvents || []
+            }}
+          />
+        );
       }
+    }
+
+    // Handle channel view mode
+    if (viewMode === 'channel' && selectedChannel) {
+      // For channels, create a virtual character representing the channel
+      const channelCharacter = {
+        id: selectedChannel.id,
+        name: selectedChannel.name,
+        role: `${selectedChannel.type} Channel`,
+        department: selectedChannel.metadata.departmentId || 'General',
+        avatar: '/api/avatars/channel.jpg',
+        personality: {
+          currentMood: 'collaborative',
+          traits: ['informative', 'organized']
+        }
+      };
+
+      return (
+        <UnifiedConversationInterface
+          character={channelCharacter}
+          conversationId={selectedChannel.id}
+          currentUserId={currentUserId}
+          civilizationId={gameContext?.civilizationId || 'terran_federation'}
+          onBack={handleBack}
+          gameContext={{
+            currentCampaign: gameContext?.currentCampaign,
+            playerResources: gameContext?.playerResources,
+            recentEvents: gameContext?.recentEvents || []
+          }}
+        />
+      );
+    }
+
+    if (viewMode === 'call' && activeCall) {
+      return (
+        <CallInterface
+          character={activeCall}
+          currentUserId={currentUserId}
+          onEndCall={handleEndCall}
+          onBack={handleBack}
+        />
+      );
+    }
+
+    // Default tab-based content
+    if (activeTab === 'conversations') {
       return renderConversations();
     } else if (activeTab === 'channels') {
       return renderChannels();
@@ -1151,142 +965,47 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
   };
 
   return (
-    <div className="whoseapp-main" style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      background: 'rgba(15, 15, 35, 0.9)',
-      color: '#e8e8e8'
-    }}>
-      {/* Header */}
-      <div className="whoseapp-header" style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '16px 20px',
-        borderBottom: '1px solid rgba(78, 205, 196, 0.2)',
-        background: 'rgba(26, 26, 46, 0.6)'
-      }}>
-        <h2 style={{ color: '#4ecdc4', margin: 0, fontSize: '20px' }}>
-          💬 WhoseApp
-        </h2>
-        
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={handleVoiceModeToggle}
-            style={{
-              background: voiceModeEnabled ? 'rgba(76, 175, 80, 0.3)' : 'rgba(78, 205, 196, 0.2)',
-              border: `1px solid ${voiceModeEnabled ? '#4CAF50' : '#4ecdc4'}`,
-              borderRadius: '6px',
-              color: voiceModeEnabled ? '#4CAF50' : '#4ecdc4',
-              padding: '6px 12px',
-              fontSize: '12px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            title="Toggle voice mode"
-          >
-            {voiceModeEnabled ? '🔊 Voice On' : '🔇 Voice Off'}
-          </button>
-          
-          <button
-            style={{
-              background: 'rgba(78, 205, 196, 0.2)',
-              border: '1px solid #4ecdc4',
-              borderRadius: '6px',
-              color: '#4ecdc4',
-              padding: '6px 12px',
-              fontSize: '12px',
-              cursor: 'pointer'
-            }}
-          >
-            ⚙️ Settings
-          </button>
-        </div>
-      </div>
+    <BaseScreen
+      screenId="whoseapp"
+      title="WhoseApp"
+      icon="💬"
+      gameContext={gameContext}
+      onRefresh={handleRefresh}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(tabId) => setActiveTab(tabId as any)}
+    >
+      {renderContent()}
 
-      {/* Tab Navigation */}
-      <div className="tab-navigation" style={{
-        display: 'flex',
-        borderBottom: '1px solid rgba(78, 205, 196, 0.2)',
-        background: 'rgba(26, 26, 46, 0.4)'
-      }}>
-        {[
-          { id: 'conversations', label: '💬 Conversations', count: conversations.length },
-          { id: 'channels', label: '📺 Channels', count: channels.length },
-          { id: 'characters', label: '👥 Characters', count: characters.length },
-          { id: 'actions', label: '📋 Actions', count: actionItems.filter(a => a.status !== 'completed').length }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            style={{
-              flex: 1,
-              padding: '12px 16px',
-              background: activeTab === tab.id ? 'rgba(78, 205, 196, 0.2)' : 'transparent',
-              border: 'none',
-              borderBottom: activeTab === tab.id ? '2px solid #4ecdc4' : '2px solid transparent',
-              color: activeTab === tab.id ? '#4ecdc4' : '#888',
-              fontSize: '14px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px'
-            }}
-          >
-            {tab.label}
-            {tab.count > 0 && (
-              <span style={{
-                background: activeTab === tab.id ? '#4ecdc4' : 'rgba(78, 205, 196, 0.3)',
-                color: activeTab === tab.id ? '#0f0f23' : '#4ecdc4',
-                borderRadius: '10px',
-                padding: '2px 6px',
-                fontSize: '10px',
-                fontWeight: 'bold',
-                minWidth: '16px',
-                textAlign: 'center'
-              }}>
-                {tab.count}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* Content Area */}
-      <div className="content-area" style={{
-        flex: 1,
-        padding: '20px',
-        overflowY: 'auto'
-      }}>
-        {renderContent()}
-      </div>
+      {/* Character Profile Modal */}
+      {showCharacterModal && selectedCharacter && (
+        <CharacterProfileModal
+          characterId={selectedCharacter.id}
+          isVisible={showCharacterModal}
+          onClose={() => setShowCharacterModal(false)}
+        />
+      )}
 
       {/* Voice Controls (when enabled) */}
       {voiceModeEnabled && (
-        <div className="voice-controls-container" style={{
-          padding: '16px 20px',
-          borderTop: '1px solid rgba(78, 205, 196, 0.2)',
-          background: 'rgba(26, 26, 46, 0.6)',
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          background: 'rgba(26, 26, 46, 0.9)',
+          border: '1px solid rgba(78, 205, 196, 0.3)',
+          borderRadius: '8px',
+          padding: '16px',
           display: 'flex',
           gap: '12px',
-          alignItems: 'center'
+          alignItems: 'center',
+          zIndex: 1000
         }}>
           <button
             onClick={handleStartRecording}
             disabled={isRecording}
-            style={{
-              background: isRecording ? 'rgba(244, 67, 54, 0.3)' : 'rgba(76, 175, 80, 0.2)',
-              border: `1px solid ${isRecording ? '#F44336' : '#4CAF50'}`,
-              borderRadius: '8px',
-              color: isRecording ? '#F44336' : '#4CAF50',
-              padding: '8px 16px',
-              fontSize: '14px',
-              cursor: isRecording ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease'
-            }}
+            className="standard-btn social-theme"
+            style={{ fontSize: '14px' }}
           >
             {isRecording ? '🔴 Recording...' : '🎙️ Record'}
           </button>
@@ -1294,28 +1013,19 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
           <button
             onClick={handleStopRecording}
             disabled={!isRecording}
-            style={{
-              background: !isRecording ? 'rgba(78, 205, 196, 0.1)' : 'rgba(78, 205, 196, 0.2)',
-              border: '1px solid rgba(78, 205, 196, 0.3)',
-              borderRadius: '8px',
-              color: !isRecording ? '#666' : '#4ecdc4',
-              padding: '8px 16px',
-              fontSize: '14px',
-              cursor: !isRecording ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease'
-            }}
+            className="standard-btn"
+            style={{ fontSize: '14px' }}
           >
             ⏹️ Stop
           </button>
           
-          <div style={{ flex: 1, fontSize: '12px', color: '#888' }}>
+          <div style={{ fontSize: '12px', color: '#888' }}>
             {isRecording ? 'Recording voice message...' : 'Voice controls ready'}
           </div>
         </div>
       )}
-    </div>
+    </BaseScreen>
   );
 };
 
 export default WhoseAppMain;
-

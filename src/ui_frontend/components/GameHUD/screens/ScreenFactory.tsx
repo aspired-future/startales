@@ -458,13 +458,15 @@ const screenRegistry: Record<string, ScreenConfig> = {
 };
 
 export const createScreen = (screenId: string, gameContext: any): React.ReactElement | null => {
+  console.log(`🏭 ScreenFactory: createScreen called with screenId: ${screenId}`);
   const config = screenRegistry[screenId];
   
   if (!config) {
-    console.warn(`Screen not found: ${screenId}`);
+    console.warn(`❌ Screen not found: ${screenId}`);
     return null;
   }
 
+  console.log(`✅ ScreenFactory: Found config for ${screenId}, creating component`);
   const ScreenComponent = config.component;
   
   return (

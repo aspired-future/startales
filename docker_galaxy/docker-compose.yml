@@ -52,15 +52,15 @@ services:
       - ../package.json:/app/package.json:ro
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       redis:
-        condition: service_healthy
+        condition: service_started
       qdrant:
         condition: service_started
       nats:
         condition: service_started
       ollama:
-        condition: service_healthy
+        condition: service_started
     restart: unless-stopped
     networks:
       - startales-network
