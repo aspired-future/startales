@@ -44,7 +44,7 @@ export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
         </div>
       </div>
       
-      <style jsx>{`
+      <style jsx="true">{`
         .score-display {
           display: flex;
           flex-direction: column;

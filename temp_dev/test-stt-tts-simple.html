@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>STT/TTS Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        .status { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+    </style>
+</head>
+<body>
+    <h1>STT/TTS Debug Test</h1>
+    
+    <div class="status" id="status">Ready to test...</div>
+    
+    <button onclick="testTTS()">Test TTS (Text-to-Speech)</button>
+    <button onclick="testSTT()">Test STT (Speech-to-Text)</button>
+    <button onclick="testMicrophone()">Test Microphone Access</button>
+    <button onclick="testAPIServices()">Test API Services</button>
+    
+    <div id="results"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()}: ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        function testTTS() {
+            log('Testing Text-to-Speech...');
+            
+            if ('speechSynthesis' in window) {
+                log('✅ SpeechSynthesis API available', 'success');
+                
+                const utterance = new SpeechSynthesisUtterance('Hello, this is a test of text to speech functionality.');
+                utterance.rate = 0.9;
+                utterance.pitch = 1.0;
+                utterance.volume = 0.8;
+                
+                utterance.onstart = () => log('✅ TTS started speaking', 'success');
+                utterance.onend = () => log('✅ TTS finished speaking', 'success');
+                utterance.onerror = (e) => log(`❌ TTS error: ${e.error}`, 'error');
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                log('❌ SpeechSynthesis API not available', 'error');
+            }
+        }
+
+        function testSTT() {
+            log('Testing Speech-to-Text...');
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (SpeechRecognition) {
+                log('✅ SpeechRecognition API available', 'success');
+                
+                const recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = () => log('✅ STT started listening', 'success');
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    log(`✅ STT result: "${transcript}"`, 'success');
+                };
+                recognition.onerror = (event) => log(`❌ STT error: ${event.error}`, 'error');
+                recognition.onend = () => log('✅ STT stopped listening', 'success');
+                
+                recognition.start();
+                log('🎤 Speak now for 5 seconds...');
+            } else {
+                log('❌ SpeechRecognition API not available', 'error');
+            }
+        }
+
+        async function testMicrophone() {
+            log('Testing Microphone Access...');
+            
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                log('✅ getUserMedia API available', 'success');
+                
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    log('✅ Microphone access granted', 'success');
+                    
+                    // Test MediaRecorder
+                    if (MediaRecorder.isTypeSupported('audio/webm')) {
+                        log('✅ MediaRecorder supports audio/webm', 'success');
+                        
+                        const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                        const chunks = [];
+                        
+                        recorder.ondataavailable = (event) => {
+                            chunks.push(event.data);
+                            log(`📊 Audio chunk received: ${event.data.size} bytes`, 'success');
+                        };
+                        
+                        recorder.onstop = () => {
+                            const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+                            log(`✅ Recording complete: ${audioBlob.size} bytes`, 'success');
+                        };
+                        
+                        recorder.start();
+                        log('🔴 Recording for 3 seconds...');
+                        
+                        setTimeout(() => {
+                            recorder.stop();
+                            stream.getTracks().forEach(track => track.stop());
+                        }, 3000);
+                        
+                    } else {
+                        log('❌ MediaRecorder does not support audio/webm', 'error');
+                    }
+                    
+                } catch (error) {
+                    log(`❌ Microphone access denied: ${error.message}`, 'error');
+                }
+            } else {
+                log('❌ getUserMedia API not available', 'error');
+            }
+        }
+
+        async function testAPIServices() {
+            log('Testing API Services...');
+            
+            // Test STT service
+            try {
+                const sttResponse = await fetch('http://localhost:4000/api/stt/health');
+                const sttData = await sttResponse.json();
+                log(`✅ STT Service: ${JSON.stringify(sttData)}`, 'success');
+            } catch (error) {
+                log(`❌ STT Service error: ${error.message}`, 'error');
+            }
+            
+            // Test AI service
+            try {
+                const aiResponse = await fetch('http://localhost:4000/api/ai/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: 'Hello test' })
+                });
+                const aiData = await aiResponse.json();
+                log(`✅ AI Service: Response length ${aiData.content?.length || 0} chars`, 'success');
+            } catch (error) {
+                log(`❌ AI Service error: ${error.message}`, 'error');
+            }
+            
+            // Test STT transcription with dummy data
+            try {
+                const formData = new FormData();
+                const dummyBlob = new Blob(['dummy audio data'], { type: 'audio/wav' });
+                formData.append('audio', dummyBlob, 'test.wav');
+                
+                const transcribeResponse = await fetch('http://localhost:4000/api/stt/transcribe', {
+                    method: 'POST',
+                    body: formData
+                });
+                const transcribeData = await transcribeResponse.json();
+                log(`STT Transcribe: ${JSON.stringify(transcribeData)}`, transcribeResponse.ok ? 'success' : 'error');
+            } catch (error) {
+                log(`❌ STT Transcribe error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-test on load
+        window.onload = () => {
+            log('Page loaded, ready for testing');
+            testAPIServices();
+        };
+    </script>
+</body>
+</html>

@@ -1557,7 +1557,7 @@ export async function initDb() {
     // Initialize WhoseApp system
     try {
       console.log('💬 Initializing WhoseApp schema...');
-      const { initializeWhoseAppSchema } = await import('../whoseapp/whoseAppSchema');
+      const { initializeWhoseAppSchema } = await import('./whoseAppSchema');
       await initializeWhoseAppSchema(pgPool);
       console.log('✅ WhoseApp schema initialized successfully');
     } catch (error) {

@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startales - Command the Galaxy with Your Voice | AI-Powered Strategy Game</title>
+    <meta name="description" content="The world's first voice-driven galactic strategy game. Command one of eight unique alien civilizations, face sophisticated AI empires, and conquer the galaxy in real-time.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #ffffff;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #16213e 100%);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #64ffda 0%, #7c4dff 50%, #ff4081 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero-text .subtitle {
+            font-size: 1.4rem;
+            color: #b0bec5;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .hero-text .description {
+            font-size: 1.1rem;
+            color: #90a4ae;
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c4dff 0%, #3f51b5 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(124, 77, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(124, 77, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #64ffda;
+            border: 2px solid #64ffda;
+        }
+
+        .btn-secondary:hover {
+            background: #64ffda;
+            color: #0a0a1a;
+            transform: translateY(-3px);
+        }
+
+        .hero-visual {
+            position: relative;
+            text-align: center;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-video {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .video-container:hover .video-overlay {
+            opacity: 0;
+        }
+
+        .play-button {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #7c4dff 0%, #64ffda 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 30px rgba(124, 77, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(124, 77, 255, 0.6);
+        }
+
+        .video-overlay p {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #64ffda 0%, #7c4dff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #90a4ae;
+            margin-bottom: 60px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(124, 77, 255, 0.3);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #7c4dff 0%, #64ffda 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .feature-card p {
+            color: #b0bec5;
+            line-height: 1.7;
+        }
+
+        /* Screenshots Section */
+        .screenshots {
+            padding: 100px 0;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        @media (max-width: 1200px) {
+            .screenshots-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .screenshots-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .screenshot-card {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .screenshot-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .screenshot-img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .screenshot-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 40px 20px 20px;
+            color: white;
+        }
+
+        .screenshot-overlay h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .screenshot-overlay p {
+            color: #b0bec5;
+            font-size: 0.9rem;
+        }
+
+        /* Command Panels Section */
+        .command-panels {
+            padding: 100px 0;
+        }
+
+        .panels-categories {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        @media (max-width: 1200px) {
+            .panels-categories {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panels-categories {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-category {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .panel-category:hover {
+            transform: translateY(-5px);
+            border-color: rgba(124, 77, 255, 0.3);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #7c4dff 0%, #64ffda 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-right: 15px;
+        }
+
+        .category-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .panel-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .panel-item {
+            background: rgba(124, 77, 255, 0.2);
+            color: #b0bec5;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(124, 77, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .panel-item:hover {
+            background: rgba(124, 77, 255, 0.4);
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+
+        .panels-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(124, 77, 255, 0.3);
+        }
+
+        .summary-card h4 {
+            font-size: 1.1rem;
+            color: #b0bec5;
+            margin-bottom: 15px;
+        }
+
+        .big-number {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #64ffda 0%, #7c4dff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .summary-card p {
+            color: #90a4ae;
+            font-size: 0.9rem;
+        }
+
+        /* Species Section */
+        .species {
+            padding: 100px 0;
+        }
+
+        .species-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .species-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .species-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(124, 77, 255, 0.3);
+        }
+
+        .species-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #7c4dff 0%, #ff4081 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(124, 77, 255, 0.1) 0%, rgba(100, 255, 218, 0.1) 100%);
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #64ffda 0%, #7c4dff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            color: #90a4ae;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 40px 0;
+            background: rgba(0, 0, 0, 0.5);
+            text-align: center;
+            color: #90a4ae;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .features-grid,
+            .species-grid,
+            .screenshots-grid,
+            .panels-categories,
+            .panels-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .screenshots-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .screenshot-card {
+                margin: 0 auto;
+                max-width: 400px;
+            }
+
+            .panels-categories {
+                gap: 20px;
+            }
+
+            .panel-category {
+                padding: 20px;
+            }
+
+            .category-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .category-icon {
+                margin-right: 0;
+            }
+
+            .cta-buttons {
+                justify-content: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .floating {
+            animation: floating 6s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text fade-in">
+                    <h1>Command the Galaxy with Your Voice</h1>
+                    <p class="subtitle">The World's First Voice-Driven Galactic Strategy Game</p>
+                    <p class="description">
+                        Lead one of nine unique alien civilizations in an ever-evolving universe. 
+                        Face sophisticated AI empires that think, learn, and adapt. Experience strategy 
+                        gaming evolved for the AI age.
+                    </p>
+                    <div class="cta-buttons">
+                        <a href="#cta-section" class="btn btn-primary">Start Your 7-Day Free Trial</a>
+                        <a href="#screenshots" class="btn btn-secondary">See Screenshots</a>
+                    </div>
+                </div>
+                <div class="hero-visual fade-in floating">
+                    <div class="video-container">
+                        <video class="hero-video" controls poster="debug-science-tech-screen.png">
+                            <source src="startales-demo-video.mp4" type="video/mp4">
+                            <source src="startales-demo-video.webm" type="video/webm">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-overlay">
+                            <div class="play-button">▶</div>
+                            <p>Watch Startales in Action</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Revolutionary Gaming Experience</h2>
+            <p class="section-subtitle">
+                Discover what makes Startales the next evolution in strategy gaming
+            </p>
+            
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🎤</div>
+                    <h3>Voice-First Strategy</h3>
+                    <p>Command armies, negotiate treaties, and manage empires through natural speech. Experience <800ms response times for truly immersive gameplay.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🤖</div>
+                    <h3>Sophisticated AI Empires</h3>
+                    <p>Face AI opponents that actually think, learn, and adapt. Three-tier AI hierarchy creates unpredictable challenges and emergent storylines.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Living Universe</h3>
+                    <p>24/7 continuous simulation where the galaxy evolves even when you're offline. Your empire grows while you sleep.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">👽</div>
+                    <h3>Nine Unique Species</h3>
+                    <p>Choose from diverse alien civilizations, each with distinct technologies, cultures, and gameplay mechanics for infinite replayability.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">⚔️</div>
+                    <h3>Advanced Warfare</h3>
+                    <p>Engage in land/sea/air/space/cyber combat with psychic powers, AI consciousness, and complex supply chains.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📱</div>
+                    <h3>Cross-Platform</h3>
+                    <p>PC power with mobile convenience. Manage your empire anywhere with seamless cross-platform progression.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots Section -->
+    <section class="screenshots" id="screenshots">
+        <div class="container">
+            <h2 class="section-title">Experience the Universe</h2>
+            <p class="section-subtitle">
+                Immerse yourself in stunning 3D galactic environments and intuitive command interfaces
+            </p>
+            
+            <div class="screenshots-grid">
+                <div class="screenshot-card fade-in">
+                    <img src="debug-science-tech-screen.png" alt="Science & Technology Management Interface" class="screenshot-img">
+                    <div class="screenshot-overlay">
+                        <h3>Science & Technology</h3>
+                        <p>Advanced research management with real-time progress tracking</p>
+                    </div>
+                </div>
+                
+                <div class="screenshot-card fade-in">
+                    <img src="debug-treasury-civilization.png" alt="Treasury & Economic Management" class="screenshot-img">
+                    <div class="screenshot-overlay">
+                        <h3>Economic Command Center</h3>
+                        <p>Comprehensive financial oversight and resource management</p>
+                    </div>
+                </div>
+                
+                <div class="screenshot-card fade-in">
+                    <img src="debug-joint-chiefs-1.png" alt="Military Command Interface" class="screenshot-img">
+                    <div class="screenshot-overlay">
+                        <h3>Military Command</h3>
+                        <p>Strategic military planning and fleet coordination</p>
+                    </div>
+                </div>
+                
+                <div class="screenshot-card fade-in">
+                    <img src="demographics-debug.png" alt="Population Demographics Dashboard" class="screenshot-img">
+                    <div class="screenshot-overlay">
+                        <h3>Population Analytics</h3>
+                        <p>Deep demographic insights and citizen management</p>
+                    </div>
+                </div>
+                
+                <div class="screenshot-card fade-in">
+                    <img src="visual-systems-debug.png" alt="Visual Systems Interface" class="screenshot-img">
+                    <div class="screenshot-overlay">
+                        <h3>Visual Systems</h3>
+                        <p>AI-powered graphics generation and visual management</p>
+                    </div>
+                </div>
+                
+                <div class="screenshot-card fade-in">
+                    <img src="exploration-quick-test.png" alt="Galaxy Exploration Interface" class="screenshot-img">
+                    <div class="screenshot-overlay">
+                        <h3>Galaxy Exploration</h3>
+                        <p>Discover new worlds and expand your empire</p>
+                    </div>
+                </div>
+                
+                <div class="screenshot-card fade-in">
+                    <img src="cities-simple-debug.png" alt="Cities Management Interface" class="screenshot-img">
+                    <div class="screenshot-overlay">
+                        <h3>Cities Management</h3>
+                        <p>Urban planning and infrastructure development</p>
+                    </div>
+                </div>
+                
+                <div class="screenshot-card fade-in">
+                    <img src="debug-nav-1.png" alt="Navigation & Command Interface" class="screenshot-img">
+                    <div class="screenshot-overlay">
+                        <h3>Command Navigation</h3>
+                        <p>Intuitive interface for all empire management systems</p>
+                    </div>
+                </div>
+                
+                <div class="screenshot-card fade-in">
+                    <img src="debug-comprehensive-1.png" alt="Comprehensive Empire Overview" class="screenshot-img">
+                    <div class="screenshot-overlay">
+                        <h3>Empire Overview</h3>
+                        <p>Complete civilization status and strategic overview</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Command Panels Section -->
+    <section class="command-panels" id="panels">
+        <div class="container">
+            <h2 class="section-title">50+ Command Interfaces</h2>
+            <p class="section-subtitle">
+                Access every aspect of your galactic empire through specialized command panels
+            </p>
+            
+            <div class="panels-categories">
+                <div class="panel-category fade-in">
+                    <div class="category-header">
+                        <div class="category-icon">🏛️</div>
+                        <h3>Government Core (6 Panels)</h3>
+                    </div>
+                    <div class="panel-list">
+                        <span class="panel-item">Legislative Assembly</span>
+                        <span class="panel-item">Supreme Court</span>
+                        <span class="panel-item">Cabinet Management</span>
+                        <span class="panel-item">Constitution</span>
+                        <span class="panel-item">Political Parties</span>
+                        <span class="panel-item">Government Types</span>
+                    </div>
+                </div>
+                
+                <div class="panel-category fade-in">
+                    <div class="category-header">
+                        <div class="category-icon">🚨</div>
+                        <h3>Crisis Management (6 Panels)</h3>
+                    </div>
+                    <div class="panel-list">
+                        <span class="panel-item">Crisis Response</span>
+                        <span class="panel-item">Emergency Powers</span>
+                        <span class="panel-item">Daily Briefing</span>
+                        <span class="panel-item">Address Nation</span>
+                        <span class="panel-item">Institutional Override</span>
+                        <span class="panel-item">System Status</span>
+                    </div>
+                </div>
+                
+                <div class="panel-category fade-in">
+                    <div class="category-header">
+                        <div class="category-icon">💰</div>
+                        <h3>Treasury & Banking (6 Panels)</h3>
+                    </div>
+                    <div class="panel-list">
+                        <span class="panel-item">Treasury Management</span>
+                        <span class="panel-item">Central Bank</span>
+                        <span class="panel-item">Financial Markets</span>
+                        <span class="panel-item">Government Bonds</span>
+                        <span class="panel-item">Sovereign Wealth Fund</span>
+                        <span class="panel-item">Business Cycle</span>
+                    </div>
+                </div>
+                
+                <div class="panel-category fade-in">
+                    <div class="category-header">
+                        <div class="category-icon">🏢</div>
+                        <h3>Commerce & Trade (6 Panels)</h3>
+                    </div>
+                    <div class="panel-list">
+                        <span class="panel-item">Economic Ecosystem</span>
+                        <span class="panel-item">Household Economics</span>
+                        <span class="panel-item">Trade Networks</span>
+                        <span class="panel-item">Export Controls</span>
+                        <span class="panel-item">Government Contracts</span>
+                        <span class="panel-item">Business Management</span>
+                    </div>
+                </div>
+                
+                <div class="panel-category fade-in">
+                    <div class="category-header">
+                        <div class="category-icon">⚔️</div>
+                        <h3>Military & Defense (5 Panels)</h3>
+                    </div>
+                    <div class="panel-list">
+                        <span class="panel-item">Military Command</span>
+                        <span class="panel-item">Defense Systems</span>
+                        <span class="panel-item">Joint Chiefs of Staff</span>
+                        <span class="panel-item">Intelligence Operations</span>
+                        <span class="panel-item">Security Protocols</span>
+                    </div>
+                </div>
+                
+                <div class="panel-category fade-in">
+                    <div class="category-header">
+                        <div class="category-icon">👥</div>
+                        <h3>Population & Society (6 Panels)</h3>
+                    </div>
+                    <div class="panel-list">
+                        <span class="panel-item">Education Systems</span>
+                        <span class="panel-item">Health Management</span>
+                        <span class="panel-item">Demographics Analytics</span>
+                        <span class="panel-item">Migration Control</span>
+                        <span class="panel-item">Professional Development</span>
+                        <span class="panel-item">Character Awareness</span>
+                    </div>
+                </div>
+                
+                <div class="panel-category fade-in">
+                    <div class="category-header">
+                        <div class="category-icon">🔬</div>
+                        <h3>Science & Research (6 Panels)</h3>
+                    </div>
+                    <div class="panel-list">
+                        <span class="panel-item">Technology Development</span>
+                        <span class="panel-item">Government Research</span>
+                        <span class="panel-item">Corporate Research</span>
+                        <span class="panel-item">University Research</span>
+                        <span class="panel-item">Classified Projects</span>
+                        <span class="panel-item">Visual Systems</span>
+                    </div>
+                </div>
+                
+                <div class="panel-category fade-in">
+                    <div class="category-header">
+                        <div class="category-icon">🌌</div>
+                        <h3>Galaxy & Exploration (6 Panels)</h3>
+                    </div>
+                    <div class="panel-list">
+                        <span class="panel-item">3D Galaxy Map</span>
+                        <span class="panel-item">Galaxy Data Analysis</span>
+                        <span class="panel-item">Exploration Missions</span>
+                        <span class="panel-item">Cities Management</span>
+                        <span class="panel-item">World Wonders</span>
+                        <span class="panel-item">Galaxy Wonders</span>
+                    </div>
+                </div>
+                
+                <div class="panel-category fade-in">
+                    <div class="category-header">
+                        <div class="category-icon">📡</div>
+                        <h3>Communications & Culture (8 Panels)</h3>
+                    </div>
+                    <div class="panel-list">
+                        <span class="panel-item">Communications Hub</span>
+                        <span class="panel-item">Witter Social Network</span>
+                        <span class="panel-item">WhoseApp Messaging</span>
+                        <span class="panel-item">News & Media</span>
+                        <span class="panel-item">Entertainment Tourism</span>
+                        <span class="panel-item">Public Speeches</span>
+                        <span class="panel-item">Planetary Conquest</span>
+                        <span class="panel-item">Mission Control</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panels-summary fade-in">
+                <div class="summary-card">
+                    <h4>🎮 Total Command Interfaces</h4>
+                    <div class="big-number">50+</div>
+                    <p>Specialized panels for every aspect of galactic governance</p>
+                </div>
+                
+                <div class="summary-card">
+                    <h4>🎤 Voice Commands</h4>
+                    <div class="big-number">∞</div>
+                    <p>Natural language control for all systems and interfaces</p>
+                </div>
+                
+                <div class="summary-card">
+                    <h4>⚡ Response Time</h4>
+                    <div class="big-number">&lt;800ms</div>
+                    <p>Lightning-fast AI processing for real-time strategy</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Species Section -->
+    <section class="species" id="species">
+        <div class="container">
+            <h2 class="section-title">Choose Your Civilization</h2>
+            <p class="section-subtitle">
+                Nine unique alien species, each with their own path to galactic dominance
+            </p>
+            
+            <div class="species-grid">
+                <div class="species-card fade-in">
+                    <div class="species-icon">🔬</div>
+                    <h3>The Synthesists</h3>
+                    <p>Masters of technology and artificial intelligence</p>
+                </div>
+                
+                <div class="species-card fade-in">
+                    <div class="species-icon">🧠</div>
+                    <h3>The Psionics</h3>
+                    <p>Wielders of psychic powers and mental warfare</p>
+                </div>
+                
+                <div class="species-card fade-in">
+                    <div class="species-icon">🌱</div>
+                    <h3>The Cultivators</h3>
+                    <p>Bio-engineers who shape life itself</p>
+                </div>
+                
+                <div class="species-card fade-in">
+                    <div class="species-icon">⚡</div>
+                    <h3>The Energists</h3>
+                    <p>Harness pure energy for devastating effects</p>
+                </div>
+                
+                <div class="species-card fade-in">
+                    <div class="species-icon">🏛️</div>
+                    <h3>The Architects</h3>
+                    <p>Builders of megastructures and vast empires</p>
+                </div>
+                
+                <div class="species-card fade-in">
+                    <div class="species-icon">🌊</div>
+                    <h3>The Adapters</h3>
+                    <p>Masters of evolution and environmental control</p>
+                </div>
+                
+                <div class="species-card fade-in">
+                    <div class="species-icon">🔥</div>
+                    <h3>The Forgers</h3>
+                    <p>Industrial powerhouses with unmatched production</p>
+                </div>
+                
+                <div class="species-card fade-in">
+                    <div class="species-icon">🌌</div>
+                    <h3>The Wanderers</h3>
+                    <p>Nomadic explorers with superior mobility</p>
+                </div>
+                
+                <div class="species-card fade-in">
+                    <div class="species-icon">🌀</div>
+                    <h3>The Voidborn</h3>
+                    <p>Mysterious entities that manipulate space-time and dark matter</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to Command the Galaxy?</h2>
+            <p>
+                Join thousands of players already exploring the universe. Start your journey 
+                with a free 7-day trial and discover the future of strategy gaming.
+            </p>
+            <div class="cta-buttons">
+                <a href="#" class="btn btn-primary">Start Your Free Trial</a>
+                <a href="#" class="btn btn-secondary">Join Our Discord</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Startales. All rights reserved. | The future of strategy gaming is here.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Simple scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = '0.2s';
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all fade-in elements
+        document.addEventListener('DOMContentLoaded', () => {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(el => observer.observe(el));
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Video overlay interaction
+        document.addEventListener('DOMContentLoaded', () => {
+            const videoContainer = document.querySelector('.video-container');
+            const video = document.querySelector('.hero-video');
+            const overlay = document.querySelector('.video-overlay');
+
+            if (videoContainer && video && overlay) {
+                overlay.addEventListener('click', () => {
+                    video.play();
+                    overlay.style.opacity = '0';
+                });
+
+                video.addEventListener('pause', () => {
+                    overlay.style.opacity = '1';
+                });
+
+                video.addEventListener('ended', () => {
+                    overlay.style.opacity = '1';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

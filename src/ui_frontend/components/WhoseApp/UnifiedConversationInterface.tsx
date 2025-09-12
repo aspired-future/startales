@@ -8,6 +8,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { conversationalCallService, ConversationState } from '../../services/ConversationalCallService';
 import { CharacterProfile, WhoseAppMessage } from '../../types/WhoseAppTypes';
+import { ConversationContextService } from '../../services/ConversationContextService';
+import { CharacterResearchService } from '../../services/CharacterResearchService';
+// import { messageStorageService, StoredMessage } from '../../services/MessageStorageService';
 import '../GameHUD/screens/shared/StandardDesign.css';
 
 interface UnifiedConversationInterfaceProps {
@@ -26,18 +29,17 @@ interface UnifiedConversationInterfaceProps {
 
 interface ConversationMessage {
   id: string;
-  conversationId: string;
-  senderId: string;
-  senderName: string;
-  senderType: 'player' | 'character' | 'system';
+  conversation_id: string;
+  sender_id: string;
+  sender_name?: string;
+  sender_title?: string;
+  sender_type: 'user' | 'character' | 'system';
   content: string;
-  messageType: 'text' | 'voice' | 'system';
-  timestamp: Date;
-  metadata?: {
-    characterMood?: string;
-    confidentialityLevel?: string;
-    urgency?: string;
-  };
+  message_type: 'text' | 'voice' | 'system' | 'action';
+  timestamp: string;
+  is_read: boolean;
+  reply_to?: string;
+  metadata: any;
 }
 
 export const UnifiedConversationInterface: React.FC<UnifiedConversationInterfaceProps> = ({
@@ -82,6 +84,63 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
   const [isRecording, setIsRecording] = useState(false); // Push-to-talk state
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const contextService = useRef(ConversationContextService.getInstance());
+  const researchService = useRef(CharacterResearchService.getInstance());
+
+  // Intelligent character selection based on message content
+  const selectAppropriateCharacter = useCallback((message: string, availableCharacters: any[]) => {
+    const messageLower = message.toLowerCase();
+    
+    // Define topic keywords for each department
+    const topicMappings = {
+      defense: ['defense', 'military', 'security', 'threat', 'attack', 'war', 'romulan', 'enemy', 'weapons', 'fleet', 'combat', 'strategy', 'tactical', 'invasion', 'patrol', 'shield', 'armor', 'wormhole'],
+      economic: ['economic', 'economy', 'trade', 'budget', 'cost', 'money', 'revenue', 'profit', 'financial', 'commerce', 'market', 'business', 'investment', 'funding', 'resources', 'allocation', 'agreement'],
+      foreign: ['diplomatic', 'diplomacy', 'foreign', 'ambassador', 'treaty', 'negotiation', 'alliance', 'andorian', 'federation', 'relations', 'agreement', 'embassy', 'delegation', 'peace', 'cooperation', 'meeting']
+    };
+    
+    // Score each character based on topic relevance
+    const characterScores = availableCharacters.map(char => {
+      const department = char.department?.toLowerCase() || '';
+      let score = 0;
+      
+      // Get relevant keywords for this character's department
+      let relevantKeywords: string[] = [];
+      if (department.includes('defense')) relevantKeywords = topicMappings.defense;
+      else if (department.includes('economic')) relevantKeywords = topicMappings.economic;
+      else if (department.includes('foreign')) relevantKeywords = topicMappings.foreign;
+      
+      // Count keyword matches
+      relevantKeywords.forEach(keyword => {
+        if (messageLower.includes(keyword)) {
+          score += 1;
+        }
+      });
+      
+      // Bonus for exact department mention
+      if (messageLower.includes(department)) {
+        score += 2;
+      }
+      
+      // Bonus for character name mention
+      if (messageLower.includes(char.name?.toLowerCase() || '')) {
+        score += 3;
+      }
+      
+      return { character: char, score };
+    });
+    
+    // Sort by score and return the highest scoring character
+    characterScores.sort((a, b) => b.score - a.score);
+    
+    // If no clear winner (all scores are 0), rotate based on message length to add variety
+    if (characterScores[0].score === 0) {
+      const index = message.length % availableCharacters.length;
+      return availableCharacters[index];
+    }
+    
+    console.log('🎯 Selected character:', characterScores[0].character.name, 'with score:', characterScores[0].score);
+    return characterScores[0].character;
+  }, []);
 
   // Spacebar controls will be added after function definitions
 
@@ -94,12 +153,53 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
     scrollToBottom();
   }, [messages]);
 
+  // Function to get character info for display
+  const getCharacterInfo = useCallback(async (senderId: string) => {
+    console.log('🔍 Getting character info for:', senderId, 'civilizationId:', civilizationId);
+    
+    try {
+      // First try the profiles endpoint which has the character data
+      const response = await fetch(`http://localhost:4000/api/characters/profiles?civilizationId=${civilizationId}`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📋 Character profiles response:', data);
+        
+        if (data.success && data.characters) {
+          const character = data.characters.find((char: any) => char.id === senderId);
+          console.log('👤 Found character:', character);
+          
+          if (character) {
+            const result = {
+              name: character.name || senderId,
+              title: character.title || character.department || 'Character',
+              type: 'character'
+            };
+            console.log('✅ Returning character info:', result);
+            return result;
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load character info for', senderId, error);
+    }
+    
+    // Fallback for unknown characters
+    const fallback = {
+      name: senderId === currentUserId ? 'You' : senderId,
+      title: senderId === currentUserId ? 'Player' : 'Character',
+      type: senderId === currentUserId ? 'user' : 'character'
+    };
+    console.log('⚠️ Using fallback for', senderId, ':', fallback);
+    return fallback;
+  }, [currentUserId, civilizationId]);
+
   // Load messages on mount
   const loadMessages = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-
+      
+      // Load messages from API
       const response = await fetch(`http://localhost:4000/api/whoseapp/conversations/${conversationId}/messages?limit=50`);
       
       if (!response.ok) {
@@ -109,31 +209,63 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
       const data = await response.json();
       
       if (data.success && data.data) {
-        const formattedMessages: ConversationMessage[] = data.data.map((msg: any) => ({
-          id: msg.id,
-          conversationId: msg.conversationId,
-          senderId: msg.senderId,
-          senderName: msg.senderName || (msg.senderId === currentUserId ? 'You' : character.name),
-          senderType: msg.senderId === currentUserId ? 'player' : 'character',
-          content: msg.content,
-          messageType: msg.type || 'text',
-          timestamp: new Date(msg.timestamp),
-          metadata: msg.metadata || {}
-        }));
+        // Enrich messages with character information
+        const enrichedMessages = await Promise.all(
+          data.data.map(async (message: any) => {
+            const characterInfo = await getCharacterInfo(message.sender_id);
+            return {
+              ...message,
+              sender_name: characterInfo.name,
+              sender_title: characterInfo.title,
+              sender_type: characterInfo.type
+            };
+          })
+        );
+        setMessages(enrichedMessages);
         
-        setMessages(formattedMessages);
+        // Mark conversation as read
+        await fetch(`http://localhost:4000/api/whoseapp/conversations/${conversationId}/mark-read`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: currentUserId })
+        });
+      } else {
+        // If no messages exist, create welcome message
+        const welcomeResponse = await fetch('http://localhost:4000/api/whoseapp/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            conversationId,
+            senderId: character?.id || 'system',
+            senderName: character?.name || 'System',
+            senderType: 'character',
+            content: `Hello! I'm ${character?.name || 'your assistant'}. How can I help you today?`,
+            messageType: 'text',
+            metadata: {
+              characterMood: 'friendly',
+              confidentialityLevel: 'public'
+            }
+          })
+        });
+        
+        if (welcomeResponse.ok) {
+          const welcomeData = await welcomeResponse.json();
+          if (welcomeData.success) {
+            setMessages([welcomeData.data]);
+          }
+        }
       }
-    } catch (err) {
-      console.error('Error loading messages:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load messages');
+    } catch (error) {
+      console.error('Failed to load messages:', error);
+      setError('Failed to load conversation history');
     } finally {
       setIsLoading(false);
     }
-  }, [conversationId, currentUserId, character.name]);
+  }, [conversationId, character, currentUserId]);
 
   useEffect(() => {
     loadMessages();
-  }, [loadMessages]);
+  }, [conversationId]); // Only reload when conversation changes
 
   // Auto-start voice mode if requested
   // Voice call auto-start will be added after function definitions
@@ -218,27 +350,15 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
     try {
       setIsLoading(true);
       
-      // Add user message to local state immediately
-      const userMessage: ConversationMessage = {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        conversationId,
-        senderId: currentUserId,
-        senderName: 'You',
-        senderType: 'player',
-        content: newMessage,
-        messageType: 'text',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, userMessage]);
-      
-      // Send to backend
+      // Send message to API
       const response = await fetch('http://localhost:4000/api/whoseapp/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           conversationId,
           senderId: currentUserId,
+          senderName: 'You',
+          senderType: 'user',
           content: newMessage,
           messageType: 'text',
           civilizationId
@@ -246,8 +366,34 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
       });
 
       if (response.ok) {
-        // Generate AI response with full game context
-        await generateContextualResponse(newMessage);
+        const data = await response.json();
+        if (data.success) {
+          // Enrich new messages with character information
+          const enrichMessage = async (message: any) => {
+            const characterInfo = await getCharacterInfo(message.sender_id);
+            return {
+              ...message,
+              sender_name: characterInfo.name,
+              sender_title: characterInfo.title,
+              sender_type: characterInfo.type
+            };
+          };
+
+          // Add messages to local state
+          if (data.data.userMessage) {
+            const enrichedMessage = await enrichMessage(data.data.userMessage);
+            setMessages(prev => [...prev, enrichedMessage]);
+          }
+          if (data.data.aiResponse) {
+            const enrichedMessage = await enrichMessage(data.data.aiResponse);
+            setMessages(prev => [...prev, enrichedMessage]);
+          }
+          // If only one message returned (no AI response)
+          if (data.data && !data.data.userMessage && !data.data.aiResponse) {
+            const enrichedMessage = await enrichMessage(data.data);
+            setMessages(prev => [...prev, enrichedMessage]);
+          }
+        }
       }
       
       setNewMessage('');
@@ -263,20 +409,57 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
   // Generate contextual AI response
   const generateContextualResponse = useCallback(async (userMessage: string) => {
     try {
+      // For channels, intelligently select the most appropriate cabinet member to respond
+      let responseCharacter = character;
+      if (character.isChannel && character.channelMembers) {
+        responseCharacter = selectAppropriateCharacter(userMessage, character.channelMembers) || character;
+      }
+
+      // Conduct character research using game APIs
+      console.log('🔍 Character conducting research using game APIs for text response...');
+      const researchResults = await researchService.current.conductResearch(
+        responseCharacter.id,
+        responseCharacter.department || 'general',
+        userMessage,
+        civilizationId
+      );
+
+      // Gather comprehensive context for AI response
+      console.log('🔍 Gathering comprehensive context for text AI response...');
+      const comprehensiveContext = await contextService.current.gatherComprehensiveContext(
+        civilizationId,
+        conversationId,
+        responseCharacter.id
+      );
+
+      // Generate contextual prompt with full game state
+      const contextualPrompt = await contextService.current.generateContextualPrompt(
+        userMessage,
+        responseCharacter,
+        comprehensiveContext,
+        messages.slice(-20) // Even more history for text mode
+      );
+
+      // Add research results to prompt
+      const researchPrompt = researchService.current.formatForAIPrompt(researchResults);
+      const fullPrompt = `${contextualPrompt}\n\n${researchPrompt}`;
+
+      console.log('📝 Generated text contextual prompt length:', fullPrompt.length);
+
       const response = await fetch('http://localhost:4000/api/ai/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: userMessage,
+          prompt: fullPrompt,
           character: {
-            id: character.id,
-            name: character.name,
-            role: character.role,
-            department: character.department,
-            personality: character.personality
+            id: responseCharacter.id,
+            name: responseCharacter.name,
+            role: responseCharacter.role || responseCharacter.title,
+            department: responseCharacter.department,
+            personality: responseCharacter.personality
           },
-          conversationHistory: messages.slice(-5).map(msg => ({
-            speaker: msg.senderType === 'player' ? 'user' : 'character',
+          conversationHistory: messages.slice(-20).map(msg => ({
+            speaker: msg.sender_type === 'user' ? 'user' : 'character',
             message: msg.content,
             timestamp: msg.timestamp
           })),
@@ -284,12 +467,13 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
             civilizationId,
             conversationId,
             gameContext,
+            comprehensiveContext,
             currentTime: new Date().toISOString()
           },
           options: {
-            maxTokens: 4000,
-            temperature: 0.7,
-            model: 'llama3.2:1b'
+            maxTokens: 12000, // Much higher for detailed text responses
+            temperature: 0.8,
+            model: 'llama3.2:1b' // Use the available model
           }
         })
       });
@@ -301,15 +485,18 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
         // Add AI response to messages
         const characterMessage: ConversationMessage = {
           id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          conversationId,
-          senderId: character.id,
-          senderName: character.name,
-          senderType: 'character',
+          conversation_id: conversationId,
+          sender_id: responseCharacter.id,
+          sender_name: responseCharacter.name,
+          sender_title: responseCharacter.title || responseCharacter.role,
+          sender_type: 'character',
           content: aiResponse,
-          messageType: 'text',
-          timestamp: new Date(),
+          message_type: 'text',
+          timestamp: new Date().toISOString(),
+          is_read: false,
           metadata: {
-            characterMood: character.personality?.currentMood || 'neutral'
+            characterMood: responseCharacter.personality?.currentMood || 'neutral',
+            isChannelResponse: character.isChannel || false
           }
         };
         
@@ -438,13 +625,14 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
         // Add voice message with transcript to chat (audio is discarded)
         const voiceMessage: ConversationMessage = {
           id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          conversationId,
-          senderId: currentUserId,
-          senderName: 'You',
-          senderType: 'player',
+          conversation_id: conversationId,
+          sender_id: currentUserId,
+          sender_name: 'You',
+          sender_type: 'user',
           content: transcript, // Only save the transcript
-          messageType: 'voice',
-          timestamp: new Date()
+          message_type: 'voice',
+          timestamp: new Date().toISOString(),
+          is_read: false
         };
         
         console.log('💬 processVoiceToTranscript: Adding message to chat');
@@ -538,35 +726,73 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
       
       console.log('🎮 generateContextualResponseWithTTS: Enhanced game context:', enhancedGameContext);
       
+      // For channels, intelligently select the most appropriate cabinet member to respond
+      let responseCharacter = character;
+      if (character.isChannel && character.channelMembers) {
+        responseCharacter = selectAppropriateCharacter(userMessage, character.channelMembers) || character;
+      }
+
+      // Conduct character research using game APIs
+      console.log('🔍 Character conducting research using game APIs...');
+      const researchResults = await researchService.current.conductResearch(
+        responseCharacter.id,
+        responseCharacter.department || 'general',
+        userMessage,
+        civilizationId
+      );
+
+      // Gather comprehensive context for AI response
+      console.log('🔍 Gathering comprehensive context for AI response...');
+      const comprehensiveContext = await contextService.current.gatherComprehensiveContext(
+        civilizationId,
+        conversationId,
+        responseCharacter.id
+      );
+
+      // Generate contextual prompt with full game state and research
+      const contextualPrompt = await contextService.current.generateContextualPrompt(
+        userMessage,
+        responseCharacter,
+        comprehensiveContext,
+        filteredMessages.slice(-15) // Increased history for better continuity
+      );
+
+      // Add research results to prompt
+      const researchPrompt = researchService.current.formatForAIPrompt(researchResults);
+      const fullPrompt = `${contextualPrompt}\n\n${researchPrompt}`;
+
+      console.log('📝 Generated contextual prompt length:', fullPrompt.length);
+
       const response = await fetch('http://localhost:4000/api/ai/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: `${userMessage}\n\n[VOICE MODE: Provide a concise, informative response. Use 1-2 sentences to give key information. Be conversational and direct while remaining clear and engaging.]`,
+          prompt: fullPrompt,
           character: {
-            id: character.id,
-            name: character.name,
-            role: character.role,
-            department: character.department,
-            personality: character.personality
+            id: responseCharacter.id,
+            name: responseCharacter.name,
+            role: responseCharacter.role || responseCharacter.title,
+            department: responseCharacter.department,
+            personality: responseCharacter.personality
           },
-          conversationHistory: filteredMessages.slice(-5).map(msg => ({
-            role: msg.senderType === 'player' ? 'user' : 'assistant',
+          conversationHistory: filteredMessages.slice(-15).map(msg => ({
+            role: msg.sender_type === 'user' ? 'user' : 'assistant',
             content: msg.content,
             timestamp: msg.timestamp,
-            senderId: msg.senderId,
-            senderName: msg.senderName
+            senderId: msg.sender_id,
+            senderName: msg.sender_name
           })),
           context: {
             civilizationId,
             conversationId,
             gameContext: enhancedGameContext,
+            comprehensiveContext,
             currentTime: new Date().toISOString()
           },
           options: {
-            maxTokens: 4000,
-            temperature: 0.7,
-            model: 'llama3.2:1b'
+            maxTokens: 8000, // Increased for more detailed responses
+            temperature: 0.8, // Slightly higher for more dynamic responses
+            model: 'llama3.2:1b' // Use the available model
           }
         })
       });
@@ -587,19 +813,22 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
       }
       
       // Add AI response to messages
-      const characterMessage: ConversationMessage = {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        conversationId,
-        senderId: character.id,
-        senderName: character.name,
-        senderType: 'character',
-        content: aiResponse,
-        messageType: 'voice',
-        timestamp: new Date(),
-        metadata: {
-          characterMood: character.personality?.currentMood || 'neutral'
-        }
-      };
+        const characterMessage: ConversationMessage = {
+          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          conversation_id: conversationId,
+          sender_id: responseCharacter.id,
+          sender_name: responseCharacter.name,
+          sender_title: responseCharacter.title || responseCharacter.role,
+          sender_type: 'character',
+          content: aiResponse,
+          message_type: 'voice',
+          timestamp: new Date().toISOString(),
+          is_read: false,
+          metadata: {
+            characterMood: responseCharacter.personality?.currentMood || 'neutral',
+            isChannelResponse: character.isChannel || false
+          }
+        };
       
       setMessages(prev => [...prev, characterMessage]);
       
@@ -610,8 +839,8 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             conversationId,
-            senderId: character.id,
-            senderName: character.name,
+            senderId: responseCharacter.id,
+            senderName: responseCharacter.name,
             senderType: 'character',
             content: aiResponse,
             messageType: 'voice',
@@ -974,31 +1203,40 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
               style={{
                 marginBottom: '12px',
                 display: 'flex',
-                justifyContent: message.senderType === 'player' ? 'flex-end' : 
-                                message.senderType === 'system' ? 'center' : 'flex-start'
+                justifyContent: message.sender_type === 'user' ? 'flex-end' : 
+                                message.sender_type === 'system' ? 'center' : 'flex-start'
               }}
             >
               <div style={{
                 maxWidth: '70%',
                 padding: '12px 16px',
                 borderRadius: '12px',
-                background: message.messageType === 'system' 
+                background: message.message_type === 'system' 
                   ? 'rgba(136, 136, 136, 0.2)'
-                  : message.senderType === 'player' 
+                  : message.sender_type === 'user' 
                     ? 'linear-gradient(135deg, #4ecdc4, #44a08d)'
                     : 'rgba(255, 255, 255, 0.1)',
-                color: message.senderType === 'player' ? '#000' : 
-                       message.senderType === 'system' ? '#4ecdc4' : '#fff',
-                textAlign: message.messageType === 'system' ? 'center' : 'left'
+                color: message.sender_type === 'user' ? '#000' : 
+                       message.sender_type === 'system' ? '#4ecdc4' : '#fff',
+                textAlign: message.message_type === 'system' ? 'center' : 'left'
               }}>
-                {message.messageType !== 'system' && (
+                {message.message_type !== 'system' && (
                   <div style={{ 
                     fontSize: '11px', 
-                    opacity: 0.7, 
-                    marginBottom: '4px',
-                    fontWeight: 'bold'
+                    opacity: 0.8, 
+                    marginBottom: '6px',
+                    fontWeight: 'bold',
+                    borderBottom: '1px solid rgba(255,255,255,0.2)',
+                    paddingBottom: '4px'
                   }}>
-                    {message.senderName}
+                    <div style={{ fontSize: '12px', fontWeight: 'bold' }}>
+                      {message.sender_name || message.sender_id}
+                    </div>
+                    {message.sender_title && (
+                      <div style={{ fontSize: '10px', opacity: 0.7, fontStyle: 'italic' }}>
+                        {message.sender_title}
+                      </div>
+                    )}
                   </div>
                 )}
                 <div style={{ fontSize: '14px' }}>
@@ -1010,8 +1248,8 @@ export const UnifiedConversationInterface: React.FC<UnifiedConversationInterface
                   marginTop: '4px',
                   textAlign: 'right'
                 }}>
-                  {message.timestamp.toLocaleTimeString()}
-                  {message.messageType === 'voice' && ' 🎤'}
+                  {new Date(message.timestamp).toLocaleTimeString()}
+                  {message.message_type === 'voice' && ' 🎤'}
                 </div>
               </div>
             </div>

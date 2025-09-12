@@ -104,14 +104,19 @@ class OllamaService implements AIService {
     const baseUrl = mergedConfig.baseUrl || 'http://localhost:11434';
     
     try {
-      const response = await fetch(`${baseUrl}/api/generate`, {
+      const response = await fetch(`${baseUrl}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: mergedConfig.model || 'llama3.2',
-          prompt: prompt,
+          model: mergedConfig.model || 'llama3.2:1b',
+          messages: [
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
           stream: false,
           options: {
             temperature: mergedConfig.temperature || 0.7,
@@ -127,7 +132,7 @@ class OllamaService implements AIService {
       const data = await response.json();
       
       return {
-        content: data.response,
+        content: data.message?.content || '',
         usage: {
           promptTokens: data.prompt_eval_count || 0,
           completionTokens: data.eval_count || 0,

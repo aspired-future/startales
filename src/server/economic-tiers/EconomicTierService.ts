@@ -25,6 +25,21 @@ export class EconomicTierService {
     this.pool = pool;
   }
 
+  private safeJsonParse(value: any, defaultValue: any = {}): any {
+    if (typeof value === 'object' && value !== null) {
+      return value; // Already an object
+    }
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (error) {
+        console.warn('Failed to parse JSON:', value, error);
+        return defaultValue;
+      }
+    }
+    return defaultValue;
+  }
+
   // City Economic Profile CRUD operations
   async createCityProfile(profile: CityEconomicProfile): Promise<number> {
     const client = await this.pool.connect();
@@ -371,12 +386,12 @@ export class EconomicTierService {
         tier: row.tier,
         name: row.name,
         description: row.description,
-        typical_characteristics: JSON.parse(row.typical_characteristics),
-        advancement_criteria: JSON.parse(row.advancement_criteria),
-        common_challenges: JSON.parse(row.common_challenges || '[]'),
-        development_strategies: JSON.parse(row.development_strategies || '[]'),
-        benchmark_cities: JSON.parse(row.benchmark_cities || '[]'),
-        transition_pathways: JSON.parse(row.transition_pathways || '[]')
+        typical_characteristics: this.safeJsonParse(row.typical_characteristics),
+        advancement_criteria: this.safeJsonParse(row.advancement_criteria),
+        common_challenges: this.safeJsonParse(row.common_challenges, []),
+        development_strategies: this.safeJsonParse(row.development_strategies, []),
+        benchmark_cities: this.safeJsonParse(row.benchmark_cities, []),
+        transition_pathways: this.safeJsonParse(row.transition_pathways, [])
       }));
 
     } catch (error) {

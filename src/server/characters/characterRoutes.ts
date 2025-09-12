@@ -9,6 +9,7 @@ import { Pool } from 'pg';
 import { DynamicCharacterEngine } from './DynamicCharacterEngine';
 import { CharacterService } from './CharacterService';
 import { ProceduralCharacterGenerator } from './ProceduralCharacterGenerator';
+import { GameCharacterService, getGameCharacterService } from './GameCharacterService';
 import { initializeCharacterSchema } from './characterSchema';
 import { EnhancedKnobSystem, createEnhancedKnobEndpoints } from '../shared/enhanced-knob-system';
 
@@ -464,112 +465,31 @@ router.get('/profiles', async (req, res) => {
     const { civilizationId } = req.query;
     console.log('📋 Getting character profiles for civilization:', civilizationId);
 
-    // Mock character profiles for WhoseApp
-    const mockCharacters = [
-      {
-        id: 'char_diplomat_001',
-        name: 'Ambassador Elena Vasquez',
-        title: 'Chief Diplomatic Officer',
-        department: 'Foreign Affairs',
-        role: 'diplomat',
-        avatar: '/api/characters/avatars/elena_vasquez.jpg',
-        biography: 'A seasoned diplomat with over 20 years of experience in interstellar relations.',
-        specialties: ['Interstellar Diplomacy', 'Trade Negotiations', 'Cultural Relations'],
-        clearanceLevel: 'top_secret',
-        whoseAppProfile: {
-          status: 'online',
-          statusMessage: 'In negotiations with Zephyrian delegation',
-          lastSeen: new Date(),
-          activeConversations: ['conv_001', 'channel_dept_foreign']
-        },
-        witterProfile: {
-          handle: '@AmbassadorElena',
-          followerCount: 125000,
-          followingCount: 450,
-          postCount: 2340,
-          verificationStatus: 'government'
-        },
-        actionStats: {
-          totalAssigned: 47,
-          completed: 42,
-          inProgress: 3,
-          overdue: 0,
-          successRate: 89,
-          currentWorkload: 3
-        }
-      },
-      {
-        id: 'char_economist_001',
-        name: 'Dr. Marcus Chen',
-        title: 'Economic Policy Director',
-        department: 'Treasury & Economic Affairs',
-        role: 'economist',
-        avatar: '/api/characters/avatars/marcus_chen.jpg',
-        biography: 'Brilliant economist and policy strategist with a PhD in Galactic Economics.',
-        specialties: ['Macroeconomic Policy', 'Market Analysis', 'Fiscal Strategy'],
-        clearanceLevel: 'classified',
-        whoseAppProfile: {
-          status: 'busy',
-          statusMessage: 'Analyzing stimulus package models',
-          lastSeen: new Date(Date.now() - 1800000),
-          activeConversations: ['conv_002', 'channel_dept_treasury']
-        },
-        witterProfile: {
-          handle: '@DrMarcusChen',
-          followerCount: 89000,
-          followingCount: 230,
-          postCount: 1876,
-          verificationStatus: 'government'
-        },
-        actionStats: {
-          totalAssigned: 34,
-          completed: 29,
-          inProgress: 4,
-          overdue: 1,
-          successRate: 85,
-          currentWorkload: 4
-        }
-      },
-      {
-        id: 'char_commander_001',
-        name: 'General Sarah Mitchell',
-        title: 'Defense Secretary',
-        department: 'Military & Defense',
-        role: 'military',
-        avatar: '/api/characters/avatars/sarah_mitchell.jpg',
-        biography: 'Decorated military leader with extensive experience in strategic operations.',
-        specialties: ['Military Strategy', 'Defense Planning', 'Crisis Management'],
-        clearanceLevel: 'top_secret',
-        whoseAppProfile: {
-          status: 'online',
-          statusMessage: 'Reviewing defense protocols',
-          lastSeen: new Date(),
-          activeConversations: ['channel_defense', 'channel_cabinet']
-        },
-        witterProfile: {
-          handle: '@GeneralMitchell',
-          followerCount: 203000,
-          followingCount: 156,
-          postCount: 1456,
-          verificationStatus: 'government'
-        },
-        actionStats: {
-          totalAssigned: 52,
-          completed: 48,
-          inProgress: 2,
-          overdue: 0,
-          successRate: 92,
-          currentWorkload: 2
-        }
-      }
-    ];
+    let characters = [];
 
-    console.log('✅ Returning mock character profiles:', mockCharacters.length);
+    try {
+      // Try to get characters from the dynamic generation system
+      const gameCharacterService = getGameCharacterService();
+      const civId = civilizationId ? parseInt(civilizationId as string) : 1;
+      characters = await gameCharacterService.getCharactersForWhoseApp(civId);
+    } catch (serviceError) {
+      console.warn('Game Character Service not available, generating default characters:', serviceError.message);
+      
+      // Fallback: generate some default characters if service is not available
+      characters = generateDefaultCharacters(civilizationId as string || '1');
+    }
+
+    if (characters.length === 0) {
+      console.log('No characters found, generating default set');
+      characters = generateDefaultCharacters(civilizationId as string || '1');
+    }
+
+    console.log('✅ Returning character profiles:', characters.length);
 
     res.json({
       success: true,
-      characters: mockCharacters,
-      count: mockCharacters.length
+      characters: characters,
+      count: characters.length
     });
   } catch (error) {
     console.error('❌ Error getting character profiles:', error);
@@ -579,6 +499,109 @@ router.get('/profiles', async (req, res) => {
     });
   }
 });
+
+// Generate default characters when dynamic system is not available
+function generateDefaultCharacters(civilizationId: string) {
+  console.log('🎭 Generating default characters for civilization:', civilizationId);
+  
+  return [
+    {
+      id: 'char_president_001',
+      name: 'President Elena Vasquez',
+      title: 'Galactic President',
+      department: 'Executive Office',
+      category: 'cabinet',
+      avatar: '/api/characters/avatar/char_president_001',
+      description: 'Charismatic leader focused on unity and diplomatic solutions to galactic challenges.',
+      personality: ['charismatic', 'diplomatic', 'visionary'],
+      voiceProfile: {
+        pitch: 'medium',
+        rate: 0.95,
+        voice: 'female',
+        accent: 'diplomatic',
+        tone: 'authoritative'
+      },
+      status: 'available',
+      lastActive: new Date().toISOString()
+    },
+    {
+      id: 'char_defense_001',
+      name: 'Sarah Mitchell',
+      title: 'Secretary of Defense',
+      department: 'Defense',
+      category: 'cabinet',
+      avatar: '/api/characters/avatar/char_defense_001',
+      description: 'Former military commander now serving as the chief defense strategist.',
+      personality: ['decisive', 'strategic', 'protective'],
+      voiceProfile: {
+        pitch: 'medium',
+        rate: 1.0,
+        voice: 'female',
+        accent: 'authoritative',
+        tone: 'serious'
+      },
+      status: 'available',
+      lastActive: new Date().toISOString()
+    },
+    {
+      id: 'char_economic_001',
+      name: 'Dr. Marcus Chen',
+      title: 'Chief Economic Advisor',
+      department: 'Economic Policy',
+      category: 'cabinet',
+      avatar: '/api/characters/avatar/char_economic_001',
+      description: 'Senior economic advisor with expertise in galactic trade policy and fiscal management.',
+      personality: ['analytical', 'diplomatic', 'strategic'],
+      voiceProfile: {
+        pitch: 'medium',
+        rate: 0.9,
+        voice: 'male',
+        accent: 'neutral',
+        tone: 'authoritative'
+      },
+      status: 'available',
+      lastActive: new Date().toISOString()
+    },
+    {
+      id: 'char_foreign_001',
+      name: 'Ambassador Liu Wei',
+      title: 'Secretary of State',
+      department: 'Foreign Affairs',
+      category: 'cabinet',
+      avatar: '/api/characters/avatar/char_foreign_001',
+      description: 'Experienced diplomat specializing in inter-civilization relations and treaty negotiations.',
+      personality: ['diplomatic', 'cultured', 'patient'],
+      voiceProfile: {
+        pitch: 'low',
+        rate: 0.85,
+        voice: 'male',
+        accent: 'diplomatic',
+        tone: 'formal'
+      },
+      status: 'available',
+      lastActive: new Date().toISOString()
+    },
+    {
+      id: 'char_business_001',
+      name: 'Victoria Chang',
+      title: 'CEO of Stellar Industries',
+      department: 'Business',
+      category: 'business',
+      avatar: '/api/characters/avatar/char_business_001',
+      description: 'Innovative business leader driving technological advancement and economic growth.',
+      personality: ['ambitious', 'innovative', 'results-oriented'],
+      voiceProfile: {
+        pitch: 'high',
+        rate: 1.1,
+        voice: 'female',
+        accent: 'neutral',
+        tone: 'confident'
+      },
+      status: 'available',
+      lastActive: new Date().toISOString()
+    }
+  ];
+}
 
 // Get character by ID
 router.get('/:characterId', async (req, res) => {

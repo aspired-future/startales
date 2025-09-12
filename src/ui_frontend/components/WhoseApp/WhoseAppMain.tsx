@@ -7,11 +7,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useWhoseAppWebSocket } from '../../hooks/useWhoseAppWebSocket';
 import { ActionItemSystem } from './ActionItemSystem';
+import { ActionsView } from './ActionsView';
 import CharacterProfileModal from './CharacterProfileModal';
 import VoiceControls from './VoiceControls';
 import ChannelParticipants from './ChannelParticipants';
 import { UnifiedConversationInterface } from './UnifiedConversationInterface';
 import CallInterface from './CallInterface';
+import { ConversationsView } from './ConversationsView';
+import { NewConversationModal } from './NewConversationModal';
 import { voiceService } from '../../services/VoiceService';
 import { BaseScreen, TabConfig } from '../GameHUD/screens/BaseScreen';
 import '../GameHUD/screens/shared/StandardDesign.css';
@@ -127,6 +130,7 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
   const [activeCall, setActiveCall] = useState<Character | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'conversation' | 'channel' | 'call'>('list');
   const [initialInputMode, setInitialInputMode] = useState<'text' | 'voice'>('text');
+  const [showNewConversationModal, setShowNewConversationModal] = useState(false);
 
   // Force WhoseApp to always start with character list view - aggressive override
   useEffect(() => {
@@ -154,35 +158,42 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
   // Only force character list view on initial mount, not during normal operation
   // Remove this aggressive override that was interfering with conversation mode
 
-  // Mock Data
-  const [conversations, setConversations] = useState<WhoseAppConversation[]>([
-    {
-      id: 'conv_1',
-      participants: ['user1', 'user2'],
-      participantNames: ['You', 'Prime Minister Elena Vasquez'],
-      participantAvatars: ['/api/avatars/default.jpg', '/api/avatars/pm.jpg'],
-      conversationType: 'direct',
-      title: 'Budget Discussion',
-      lastMessage: 'The budget proposal looks good. Let\'s schedule a meeting.',
-      lastMessageTime: new Date(Date.now() - 300000),
-      unreadCount: 2,
-      isActive: true,
-      isPinned: true
-    },
-    {
-      id: 'conv_2',
-      participants: ['user1', 'user3'],
-      participantNames: ['You', 'Defense Secretary Sarah Kim'],
-      participantAvatars: ['/api/avatars/default.jpg', '/api/avatars/defense.jpg'],
-      conversationType: 'direct',
-      title: 'Security Briefing',
-      lastMessage: 'The situation is under control. Full report attached.',
-      lastMessageTime: new Date(Date.now() - 900000),
-      unreadCount: 0,
-      isActive: true,
-      isPinned: false
+  // Conversations state
+  const [conversations, setConversations] = useState<WhoseAppConversation[]>([]);
+
+  // Load conversations from API
+  const loadConversations = useCallback(async () => {
+    try {
+      const response = await fetch(`http://localhost:4000/api/whoseapp/conversations?userId=${currentUserId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          // Convert API format to WhoseAppConversation format
+          const apiConversations = data.data.map((conv: any) => ({
+            id: conv.id,
+            participants: conv.participants?.map((p: any) => p.participantId) || [],
+            participantNames: conv.participants?.map((p: any) => p.participantName) || [],
+            participantAvatars: conv.participants?.map((p: any) => '/api/characters/avatar/default') || [],
+            conversationType: conv.conversationType,
+            title: conv.title,
+            lastMessage: conv.lastMessage || '',
+            lastMessageTime: new Date(conv.updatedAt),
+            unreadCount: conv.unreadCount || 0,
+            isActive: conv.isActive,
+            isPinned: conv.isPinned
+          }));
+          setConversations(apiConversations);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load conversations:', error);
     }
-  ]);
+  }, [currentUserId]);
+
+  // Load conversations on mount
+  useEffect(() => {
+    loadConversations();
+  }, [loadConversations]);
 
   const [channels, setChannels] = useState<WhoseAppChannel[]>([
     {
@@ -437,6 +448,74 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
     }
   }, [characters]);
 
+  // Handle starting new conversations from modal
+  const handleStartNewConversation = useCallback(async (characterIds: string[], type: 'direct' | 'group', mode: 'text' | 'voice') => {
+    console.log('🚀 Starting new conversation:', { characterIds, type, mode });
+    
+    if (characterIds.length === 0) return;
+
+    try {
+      // Get participant characters
+      const participantCharacters = characterIds.map(id => characters.find(c => c.id === id)).filter(Boolean) as Character[];
+      
+      // Create conversation via API
+      const response = await fetch('http://localhost:4000/api/whoseapp/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: type === 'group' 
+            ? `Group: ${participantCharacters.map(c => c.name).join(', ')}`
+            : `Conversation with ${participantCharacters[0]?.name}`,
+          conversationType: type,
+          participants: [
+            { id: currentUserId, type: 'user', name: 'You', role: 'admin' },
+            ...participantCharacters.map(char => ({
+              id: char.id,
+              type: 'character',
+              name: char.name,
+              role: 'member'
+            }))
+          ],
+          createdBy: currentUserId,
+          metadata: { initialMode: mode }
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          // Convert to WhoseAppConversation format
+          const newConversation: WhoseAppConversation = {
+            id: data.data.id,
+            participants: [currentUserId, ...characterIds],
+            participantNames: ['You', ...participantCharacters.map(c => c.name)],
+            participantAvatars: ['/api/characters/avatars/default.jpg', ...participantCharacters.map(c => c.avatar)],
+            conversationType: type,
+            title: data.data.title,
+            lastMessage: '',
+            lastMessageTime: new Date(data.data.created_at),
+            unreadCount: 0,
+            isActive: true,
+            isPinned: false
+          };
+
+          // Add to conversations list
+          setConversations(prev => [newConversation, ...prev]);
+          
+          // Select the new conversation
+          setSelectedConversation(newConversation);
+          setInitialInputMode(mode);
+          setViewMode('conversation');
+          setActiveTab('conversations');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to create conversation:', error);
+    }
+    
+    setShowNewConversationModal(false);
+  }, [characters, currentUserId]);
+
   // Handle sending messages
   const handleSendMessage = useCallback(async (content: string, type: 'text' | 'voice' = 'text') => {
     if (!selectedConversation) return;
@@ -489,75 +568,13 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
   // Render conversations list
   const renderConversations = () => {
     return (
-      <div className="standard-dashboard">
-        <div className="standard-panel" style={{ gridColumn: '1 / -1' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <h3 className="standard-card-title">💬 Conversations</h3>
-            <button className="standard-btn social-theme">
-              + New Conversation
-            </button>
-          </div>
-
-          <div className="standard-table-container">
-            <table className="standard-data-table">
-              <thead>
-                <tr>
-                  <th>Conversation</th>
-                  <th>Type</th>
-                  <th>Last Message</th>
-                  <th>Status</th>
-                  <th>Unread</th>
-                </tr>
-              </thead>
-              <tbody>
-                {conversations.map(conversation => (
-                  <tr key={conversation.id} onClick={() => handleConversationSelect(conversation)} style={{ cursor: 'pointer' }}>
-                    <td>
-                      <div style={{ fontWeight: 'bold', color: '#e8e8e8' }}>
-                        {conversation.title || conversation.participantNames.join(', ')}
-                        {conversation.isPinned && ' 📌'}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#888' }}>
-                        {conversation.participantNames.join(', ')}
-                      </div>
-                    </td>
-                    <td>
-                      <span className="standard-badge social-theme">
-                        {conversation.conversationType}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ fontSize: '14px', color: '#ccc', marginBottom: '2px' }}>
-                        {conversation.lastMessage}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#888' }}>
-                        {new Date(conversation.lastMessageTime).toLocaleTimeString()}
-                      </div>
-                    </td>
-                    <td>
-                      <span style={{
-                        color: conversation.isActive ? '#10b981' : '#6b7280',
-                        fontWeight: 'bold',
-                        textTransform: 'uppercase',
-                        fontSize: '12px'
-                      }}>
-                        {conversation.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td>
-                      {conversation.unreadCount > 0 && (
-                        <span className="standard-badge" style={{ background: '#F44336', color: 'white' }}>
-                          {conversation.unreadCount}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+      <ConversationsView
+        conversations={conversations}
+        characters={characters}
+        onConversationSelect={handleConversationSelect}
+        onStartNewConversation={() => setShowNewConversationModal(true)}
+        currentUserId={currentUserId}
+      />
     );
   };
 
@@ -791,82 +808,7 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
 
   // Render action items
   const renderActionItems = () => (
-    <div className="standard-dashboard">
-      <div className="standard-panel" style={{ gridColumn: '1 / -1' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 className="standard-card-title">📋 Action Items</h3>
-          <button className="standard-btn social-theme">
-            + New Action
-          </button>
-        </div>
-
-        <div className="standard-table-container">
-          <table className="standard-data-table">
-            <thead>
-              <tr>
-                <th>Action Title</th>
-                <th>Assigned To</th>
-                <th>Status</th>
-                <th>Priority</th>
-                <th>Due Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {actionItems.map(item => (
-                <tr key={item.id}>
-                  <td>
-                    <div style={{ fontWeight: 'bold', color: '#e8e8e8', marginBottom: '4px' }}>
-                      {item.title}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#ccc' }}>
-                      {item.description}
-                    </div>
-                  </td>
-                  <td>{item.assignedTo}</td>
-                  <td>
-                    <span className={`standard-badge ${
-                      item.status === 'completed' ? 'success' :
-                      item.status === 'in-progress' ? 'warning' :
-                      'social-theme'
-                    }`}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`standard-badge ${
-                      item.priority === 'urgent' || item.priority === 'high' ? 'danger' :
-                      item.priority === 'medium' ? 'warning' : ''
-                    }`}>
-                      {item.priority}
-                    </span>
-                  </td>
-                  <td>
-                    {item.dueDate ? (
-                      <div style={{ fontSize: '12px', color: '#ccc' }}>
-                        {new Date(item.dueDate).toLocaleDateString()}
-                      </div>
-                    ) : (
-                      <span style={{ fontSize: '12px', color: '#888' }}>No due date</span>
-                    )}
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <button className="standard-btn social-theme" style={{ fontSize: '12px', padding: '4px 8px' }}>
-                        View
-                      </button>
-                      <button className="standard-btn social-theme" style={{ fontSize: '12px', padding: '4px 8px' }}>
-                        Update
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <ActionsView showAllActions={true} />
   );
 
   // Main render function
@@ -911,17 +853,21 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
 
     // Handle channel view mode
     if (viewMode === 'channel' && selectedChannel) {
-      // For channels, create a virtual character representing the channel
+      // For channels, create a virtual character representing the entire cabinet
       const channelCharacter = {
-        id: selectedChannel.id,
-        name: selectedChannel.name,
-        role: `${selectedChannel.type} Channel`,
-        department: selectedChannel.metadata.departmentId || 'General',
+        id: selectedChannel.id, // Use channel ID
+        name: selectedChannel.name, // "cabinet-general"
+        title: `${selectedChannel.type} Channel`, // "cabinet Channel"
+        role: 'Cabinet Channel',
+        department: selectedChannel.metadata?.departmentId || 'General',
         avatar: '/api/avatars/channel.jpg',
         personality: {
           currentMood: 'collaborative',
-          traits: ['informative', 'organized']
-        }
+          traits: ['informative', 'organized', 'multi-perspective']
+        },
+        // Add channel-specific properties
+        isChannel: true,
+        channelMembers: characters.filter(c => c.category === 'cabinet')
       };
 
       return (
@@ -985,6 +931,15 @@ export const WhoseAppMain: React.FC<WhoseAppMainProps> = ({
           onClose={() => setShowCharacterModal(false)}
         />
       )}
+
+      {/* New Conversation Modal */}
+      <NewConversationModal
+        isOpen={showNewConversationModal}
+        onClose={() => setShowNewConversationModal(false)}
+        characters={characters}
+        onStartConversation={handleStartNewConversation}
+        currentUserId={currentUserId}
+      />
 
       {/* Voice Controls (when enabled) */}
       {voiceModeEnabled && (

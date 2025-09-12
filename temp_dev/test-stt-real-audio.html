@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real Audio STT Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        .status { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+    </style>
+</head>
+<body>
+    <h1>Real Audio STT Test</h1>
+    
+    <div class="status" id="status">Ready to test real audio transcription...</div>
+    
+    <button onclick="testRealAudioSTT()">Record & Transcribe Real Audio</button>
+    <button onclick="testAudioFormats()">Test Audio Format Support</button>
+    
+    <div id="results"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()}: ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        function testAudioFormats() {
+            log('Testing MediaRecorder audio format support...');
+            
+            const formats = [
+                'audio/wav',
+                'audio/webm',
+                'audio/webm;codecs=opus',
+                'audio/ogg;codecs=opus',
+                'audio/mp4',
+                'audio/mpeg'
+            ];
+            
+            formats.forEach(format => {
+                const supported = MediaRecorder.isTypeSupported(format);
+                log(`${format}: ${supported ? '✅ Supported' : '❌ Not supported'}`, supported ? 'success' : 'error');
+            });
+        }
+
+        async function testRealAudioSTT() {
+            log('Starting real audio STT test...');
+            
+            try {
+                // Get microphone access
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                log('✅ Microphone access granted', 'success');
+                
+                // Determine best audio format
+                let mimeType = 'audio/webm';
+                if (MediaRecorder.isTypeSupported('audio/wav')) {
+                    mimeType = 'audio/wav';
+                    log('🎵 Using audio/wav format', 'success');
+                } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+                    mimeType = 'audio/webm;codecs=opus';
+                    log('🎵 Using audio/webm;codecs=opus format', 'success');
+                } else {
+                    log('🎵 Using default audio/webm format', 'success');
+                }
+                
+                // Create MediaRecorder
+                const recorder = new MediaRecorder(stream, { mimeType });
+                const audioChunks = [];
+                
+                recorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                        log(`📊 Audio chunk: ${event.data.size} bytes`);
+                    }
+                };
+                
+                recorder.onstop = async () => {
+                    log('🔴 Recording stopped, processing audio...');
+                    
+                    // Create audio blob
+                    const audioBlob = new Blob(audioChunks, { type: mimeType });
+                    log(`📦 Created audio blob: ${audioBlob.size} bytes, type: ${audioBlob.type}`, 'success');
+                    
+                    // Send to STT service
+                    try {
+                        const formData = new FormData();
+                        formData.append('audio', audioBlob, 'recording.webm');
+                        
+                        log('🚀 Sending to STT service...');
+                        const response = await fetch('http://localhost:4000/api/stt/transcribe', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (response.ok) {
+                            log(`✅ STT SUCCESS: "${result.text || result.transcript || 'No text returned'}"`, 'success');
+                        } else {
+                            log(`❌ STT FAILED: ${result.error || result.message || 'Unknown error'}`, 'error');
+                            log(`Response status: ${response.status}`, 'error');
+                        }
+                    } catch (error) {
+                        log(`❌ STT Request failed: ${error.message}`, 'error');
+                    }
+                    
+                    // Clean up
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                
+                recorder.onerror = (event) => {
+                    log(`❌ Recording error: ${event.error}`, 'error');
+                };
+                
+                // Start recording
+                recorder.start();
+                log('🔴 Recording started - speak for 5 seconds...', 'success');
+                
+                // Stop after 5 seconds
+                setTimeout(() => {
+                    recorder.stop();
+                }, 5000);
+                
+            } catch (error) {
+                log(`❌ Test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-test formats on load
+        window.onload = () => {
+            log('Page loaded, testing audio formats...');
+            testAudioFormats();
+        };
+    </script>
+</body>
+</html>
